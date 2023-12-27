@@ -1,0 +1,77 @@
+import { GbxClient } from "@evotm/gbxclient";
+import EventEmitter from "events";
+
+export default class Server extends EventEmitter {
+    gbx: GbxClient
+
+    constructor(gbx: GbxClient) {
+        super();
+        this.gbx = gbx;
+        const that = this;
+        gbx.on("callback", (method, data) => {
+            method = method.replace(/(ManiaPlanet\.)|(TrackMania\.)/i, "Trackmania.").replace("Challenge", "Map");
+            // convert script events to legacy
+            if (method == "Trackmania.ModeScriptCallbackArray") {
+                let params = data[1];
+                try {
+                    params = JSON.parse(params);
+                } catch (err) {
+                    console.log(err);
+                }
+                const outmethod = data[0].replace(/(ManiaPlanet\.)|(TrackMania\.)/i, "Trackmania.")
+             
+                // convert waypoints to checkpoints
+                if (outmethod == "Trackmania.Event.WayPoint") {
+                    if (params.isendrace) {
+                        that.emit("TMC.PlayerFinish", [params.login, params.racetime]);
+                        return;
+                    } else {
+                        that.emit("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace]);
+                        return;
+                    }
+                } 
+                if (outmethod == "Trackmania.Event.GiveUp") {
+                    that.emit("TMC.PlayerGiveup");
+                    return;
+                }
+                console.log(outmethod, params);
+                that.emit(outmethod, params);
+                return;
+            }
+            
+            switch (method) {
+                case "Trackmania.PlayerCheckpoint": {
+                    that.emit("TMC.PlayerCheckpoint", [data[1], data[2], data[4]]);
+                    return;
+                }
+                case "Trackmania.PlayerFinish": {
+                    if (data[2] < 1) {
+                        that.emit("TMC.PlayerGiveup");
+                        return;
+                    }
+                    that.emit("TMC.PlayerFinish", [data[1], data[2]]);
+                    return;
+                }
+            }
+
+            console.log(method, data);
+            that.emit(method, data);
+        })
+    }
+
+    async call(method: string, ...args: any) {
+        if (tmc.game.Name == "TmForever") {
+            method = method.replace("Map", "Challenge");
+        }
+        return await this.gbx.call(method, ...args);
+    }
+
+    async callScript(method: string, ...args: any) {
+        return await this.gbx.callScript(method, ...args);
+    }
+
+    async connect(host: string, port: number) {
+        return await this.gbx.connect(host, port);
+    }
+    
+}
