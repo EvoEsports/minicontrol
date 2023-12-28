@@ -13,15 +13,40 @@ class TmxPlugin {
             return;
         }
         if (tmc.game.Name == "TmForever") {
-            await this.addTmnPack(login, params[0]);
+            return await this.addTmnPack(login, params[0]);
+        }
+        if (tmc.game.Name == "Trackmania") {
+            return await this.addTmxPack(login, params[0]);
+        }
+        return await tmc.chat("Not implemented yet.", login);
+    }
+
+    async addTmxPack(login: string, packid: string) {
+        const res = await fetch(`https://trackmania.exchange//api/mappack/get_mappack_tracks/${packid}`);
+        const json: any = await res.json();
+        await tmc.chat("Processing Pack " + packid);
+        if (!json) {
+            await tmc.chat("Error while adding tmx pack.", login);
+        }
+        if (json.Message) {
+            await tmc.chat(json.Message, login);
+            return;
+        }
+        for (let data of json) {
+            try {
+                await tmc.chat(`Downloading: ${data.GbxMapName}`);
+                await this.download(data.TrackID, login, false);
+            } catch (err: any) {
+                await tmc.chat(`$f00Error: ${err.message}`);
+            }
         }
     }
 
     async addTmnPack(login: string, packid: string) {
         const res = await fetch(`https://tmnf.exchange/api/tracks?packid=${packid}&fields=TrackId,TrackName`);
         const json: any = await res.json();
-        await tmc.chat("Processing Track Pack " + packid);        
-        if (!json.Results) {
+        await tmc.chat("Processing Track Pack " + packid);
+        if (!json) {
             await tmc.chat("Error while adding tmx pack.", login);
         }
         for (let data of json.Results) {
@@ -65,16 +90,33 @@ class TmxPlugin {
             return;
         }
         if (!fs.existsSync(`${tmc.mapsPath}`)) {
-            await tmc.chat("Map path is unreachable.", login);
+            try {
+                const abuffer = await (await res.blob()).arrayBuffer();
+                const status = await tmc.server.call("WriteFile", `tmx/${id}${ext}`, Buffer.from(abuffer));
+                if (!status) {
+                    await tmc.chat(`Map path "${tmc.mapsPath}" is unreachable.`, login);
+                    return;
+                }
+                await tmc.server.call("InsertMap", `tmx/${id}${ext}`);
+                if (announce) {
+                    await tmc.chat(`Added MapId: ${id} from tmx!`);
+                    return;
+                }
+            } catch (err: any) {
+                await tmc.chat(err, login);
+                return;
+            }
+
+            await tmc.chat(`Map path "${tmc.mapsPath}" is unreachable.`, login);
             return;
         }
         if (!fs.existsSync(`${tmc.mapsPath}tmx/`)) fs.mkdirSync(`${tmc.mapsPath}tmx/`);
         const abuffer = await (await res.blob()).arrayBuffer();
         fs.writeFileSync(`${tmc.mapsPath}tmx/${id}${ext}`, Buffer.from(abuffer));
 
-        await tmc.server.call("AddMap", `tmx/${id}${ext}`);
+        await tmc.server.call("InsertMap", `tmx/${id}${ext}`);
         if (announce) {
-            await tmc.chat(`>>Added ${id} from tmx!`);
+            await tmc.chat(`Added MapId: ${id} from tmx!`);
         }
     }
 }

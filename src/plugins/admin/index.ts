@@ -69,7 +69,7 @@ class AdminPlugin {
         });
 
         tmc.addCommand("//warmup", async (login: string, params: string[]) => {
-            if (!params[0] || isNaN(Number.parseInt(params[0]))) {
+            if (!params[0] && isNaN(Number.parseInt(params[0]))) {
                 return await tmc.chat("//warmup needs numeric value");
             }
             await tmc.chat(`Warmup set to ${params[0]}`, login);
@@ -102,6 +102,17 @@ class AdminPlugin {
                 return;
             }
         });
+        tmc.addCommand("//jump", async (login: string, params: string[]) => {
+            if (!params[0] && isNaN(Number.parseInt(params[0]))) {
+                return await tmc.chat("//jump needs numeric value");
+            }
+            try {
+                tmc.server.call("JumpToMapIndex", Number.parseInt(params[0]));
+            } catch (err: any) {
+                await tmc.chat(err.message, login);
+            }
+        });
+
         tmc.addCommand("//wml", async (login: string, params: string[]) => {
             let file = "tracklist.txt";
             if (params[0]) file = params[0];

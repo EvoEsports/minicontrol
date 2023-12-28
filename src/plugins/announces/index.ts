@@ -7,7 +7,8 @@ export class AnnouncesPlugin {
 
     async onBeginMap(data: any) {
         const info = data[0];
-        const msg = `$fffCurrently Playing: $z$s$fff${info.Name}$z$s$fff by $z$s$fff${info.AuthorLogin?info.AuthorLogin:info.Author}$z$s$fff!`;
+        console.log(info);
+        const msg = `$fffCurrently Playing: $z$s$fff${info.Name}$z$s$fff by $z$s$fff${info.AuthorNickname?info.AuthorNickname:info.Author}$z$s$fff!`;
         await tmc.chat(msg);
         tmc.cli(msg);
     }
