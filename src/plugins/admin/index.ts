@@ -145,7 +145,7 @@ class AdminPlugin {
             const info: any = await tmc.server.call("GetCurrentMapInfo");
             try {
                 await tmc.server.call("RemoveMap", info.FileName);
-                await tmc.chat(`Removed map ${info.Name} from playlist`, login);
+                await tmc.chat(`Removed map ${info.Name}$z$s from the playlist.`, login);
             } catch (err: any) {
                 await tmc.chat(err.message, login);
             }
