@@ -41,9 +41,9 @@ class AdminPlugin {
             }
         });
         tmc.addCommand("//remove", async (login: string, params: string[]) => {
-            const info:any = await tmc.server.call("GetCurrentChallengeInfo");
+            const info:any = await tmc.server.call("GetCurrentMapInfo");
             try {
-                await tmc.server.call("RemoveChallenge", info.FileName);
+                await tmc.server.call("RemoveMap", info.FileName);
                 await tmc.chat(`Removed map ${info.Name} from playlist`, login);
             }catch(err:any) {
                 await tmc.chat(err.message, login);

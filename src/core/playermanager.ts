@@ -5,7 +5,7 @@ export class Player {
     nick: string = "";
     isSpectator: boolean = false;
         
-    syncFromPlayerInfo(data: any) {
+    syncFromPlayerInfo(data: any) {  
         this.login = data.Login;
         this.nick = data.NickName;
         this.isSpectator = data.SpectatorStatus !== 0;
@@ -25,13 +25,14 @@ export default class PlayerManager {
     async init() {
         const players = await this.gbx.call('GetPlayerList', -1, 0);
         for (const data of players) {
+            if (data.PlayerId === 0) continue;
             const player = new Player();
             player.syncFromPlayerInfo(data);
             this.players.push(player);
         }
     }
 
-    async onPlayerDisconnect(login: any) {
+    private async onPlayerDisconnect(login: any) {
         let index = 0;
         for (const player of this.players) {
             if (player.login == login) break;
@@ -60,7 +61,7 @@ export default class PlayerManager {
         return player;
     }
     
-    async onPlayerInfoChanged(data: any) {
+    private async onPlayerInfoChanged(data: any) {
         if (data.PlayerId === 0) return;
         const player = await this.getPlayer(data.Login);
         const orig_login = player.login;

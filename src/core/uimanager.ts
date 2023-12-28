@@ -1,4 +1,3 @@
-import { GbxClient } from "@evotm/gbxclient";
 import Twig from 'twig';
 import fs from 'fs';
 import Server from "./server";
@@ -33,7 +32,7 @@ export default class UiManager {
         const uuid = [], rnd = Math.random;
         let r;
         for (let i = 0; i < nb; i++) {
-            uuid[i] = 0 | Math.floor(Math.random() * 10);
+            uuid[i] = 0 | Math.floor(Math.random() * 9);
         }
         return uuid.join('');
     }
@@ -56,7 +55,7 @@ export default class UiManager {
         }
     }
 
-    async onManialinkAnswer(data: any) {
+    private async onManialinkAnswer(data: any) {
         const login = data[1];
         const answer = data[2].toString();
         console.log(answer);
@@ -65,7 +64,7 @@ export default class UiManager {
         }
     }
 
-    async onPlayerConnect(data: any) {
+    private async onPlayerConnect(data: any) {
         const login = data[0];
 
         let multi = [];

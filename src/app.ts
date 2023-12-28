@@ -2,7 +2,7 @@ import { GbxClient } from '@evotm/gbxclient';
 import PlayerManager, { Player } from './core/playermanager';
 import TmServer from './core/server';
 import UiManager from './core/uimanager';
-import { ChatCommand, GameStruct } from './core/interfaces';
+import { ChatCommand, GameStruct } from './core/types';
 import 'dotenv/config'
 
 class MiniControl {
