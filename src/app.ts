@@ -20,7 +20,7 @@ class MiniControl {
         const gbx = new GbxClient();
         this.server = new TmServer(gbx);
         this.players = new PlayerManager(gbx);
-        this.ui = new UiManager(gbx);
+        this.ui = new UiManager(this.server);
 
         this.port = Number.parseInt(process.env.PORT || "5000");
         this.admins = (process.env.ADMINS || "").split(",");

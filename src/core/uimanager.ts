@@ -1,18 +1,19 @@
 import { GbxClient } from "@evotm/gbxclient";
 import Twig from 'twig';
 import fs from 'fs';
+import Server from "./server";
 
 export default class UiManager {
-    gbx: GbxClient;
+    server: Server;
     counter = 0;
     private actions: any = {};
     transform: any;
     publicManialinks: any = {};
 
-    constructor(gbx: GbxClient) {
-        this.gbx = gbx;
-        gbx.on("TrackMania.PlayerManialinkPageAnswer", (data) => this.onManialinkAnswer(data));
-        gbx.on("TrackMania.PlayerConnect", (data) => this.onPlayerConnect(data));
+    constructor(server: Server) {
+        this.server = server;
+        server.on("Trackmania.PlayerManialinkPageAnswer", (data) => this.onManialinkAnswer(data));
+        server.on("Trackmania.PlayerConnect", (data) => this.onPlayerConnect(data));
     }
 
     convert(text: string): string {
@@ -39,25 +40,26 @@ export default class UiManager {
 
     addAction(callback: CallableFunction, data: any): number {
         this.counter += 1;
-        this.actions[this.counter] = { callback: callback, data: data };
+        this.actions[this.counter.toString()] = { callback: callback, data: data };
         return this.counter;
     }
 
     removeAction(actionId: number) {
-        if (this.actions[actionId]) {
-            delete this.actions[actionId];
+        if (this.actions[actionId.toString()]) {
+            delete this.actions[actionId.toString()];
         }
     }
     async init() {
-        await this.gbx.call("SendHideManialinkPage");
+        await this.server.call("SendHideManialinkPage");
         if (tmc.game.Name == "TmForever") {
-            await this.gbx.call('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
+            await this.server.call('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
         }
     }
 
     async onManialinkAnswer(data: any) {
         const login = data[1];
-        const answer = data[2];
+        const answer = data[2].toString();
+        console.log(answer);
         if (this.actions[answer]) {
             await this.actions[answer].callback(login, this.actions[answer].data);
         }
@@ -70,10 +72,10 @@ export default class UiManager {
         for (let id in this.publicManialinks) {
             multi.push(['SendDisplayManialinkPageToLogin', login, this.publicManialinks[id], 0, false]);
         }
-        await this.gbx.multicall(multi);
+        await this.server.gbx.multicall(multi);
 
         if (tmc.game.Name == "TmForever") {
-            await this.gbx.call('SendDisplayManialinkPageToLogin', login, this.getTmufCustomUi(), 0, false);
+            await this.server.call('SendDisplayManialinkPageToLogin', login, this.getTmufCustomUi(), 0, false);
         }
     }
 
@@ -91,25 +93,25 @@ export default class UiManager {
     async display(manialink: string, login: string | string[] | undefined = undefined) {
         const xml = `<manialinks>${this.convert(manialink)}</manialinks>`;
         if (login !== undefined) {
-            await this.gbx.call('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
+            await this.server.call('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
             return;
         }
         const id = xml.match(/manialink id="(\d+)"/);
         if (id) {
             this.publicManialinks[id[1].toString()] = xml;
         }
-        await this.gbx.call("SendDisplayManialinkPage", xml, 0, false);
+        await this.server.call("SendDisplayManialinkPage", xml, 0, false);
     }
 
     async hide(id: string, login: string | string[] | undefined = undefined) {
         const manialink = `<manialinks><manialink id="${id}"></manialink></manialinks>`;
 
         if (login !== undefined) {
-            await this.gbx.call('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), manialink, 0, false)
+            await this.server.call('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), manialink, 0, false)
             return;
         }
         delete this.publicManialinks[id.toString()];
-        await this.gbx.call("DisplayManialinkPage", manialink, 0, false);
+        await this.server.call("DisplayManialinkPage", manialink, 0, false);
 
     }
 
