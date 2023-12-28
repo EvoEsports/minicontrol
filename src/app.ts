@@ -6,26 +6,26 @@ import { ChatCommand, GameStruct } from './core/types';
 import 'dotenv/config'
 import log from './core/log';
 
+const controllerStr = "$80fMini$fffControl";
+
 class MiniControl {
     server: TmServer;
     players: PlayerManager;
     ui: UiManager;
     plugins: any = {};
-    port: number;
     game: GameStruct;
     mapsPath: string = "";
     admins: string[];
     chatCommands: ChatCommand[] = [];
 
     constructor() {
-        
+
         const gbx = new GbxClient();
         this.server = new TmServer(gbx);
         this.players = new PlayerManager(gbx);
         this.ui = new UiManager(this.server);
-        this.cli("$80fMini$fffControl $fffv0.0.1");
-        this.port = Number.parseInt(process.env.PORT || "5000");
-        this.admins = (process.env.ADMINS || "").split(",");        
+        this.cli(controllerStr);
+        this.admins = (process.env.ADMINS || "").split(",");
         this.game = { Name: "" };
     }
 
@@ -52,18 +52,19 @@ class MiniControl {
         if (login !== undefined) {
             await this.server.call("ChatSendServerMessageToLogin", "$5f0» $fff" + text, (typeof login == "string") ? login : login.join(","));
         } else {
-            await this.server.call("ChatSendServerMessage", text);
+            await this.server.call("ChatSendServerMessage", controllerStr + "$fff  " + text);
         }
     }
 
     async run() {
-        const status = await this.server.connect("127.0.0.1", this.port);
+        const port = Number.parseInt(process.env.PORT || "5000");
+        const status = await this.server.connect(process.env.HOST ?? "127.0.0.1", port);
         if (!status) {
             console.log("Couldn't connect to server.");
             process.exit();
         }
         try {
-            await this.server.call("Authenticate", "SuperAdmin", "SuperAdmin");
+            await this.server.call("Authenticate", process.env.USER ?? "SuperAdmin", process.env.PASS ?? "SuperAdmin");
         } catch (e: any) {
             console.log("Authenticate to server failed.");
             console.log(e.message);
@@ -76,8 +77,6 @@ class MiniControl {
             await this.server.call("SetApiVersion", "2023-04-16");
             this.mapsPath = await this.server.call("GetMapsDirectory");
             await this.server.callScript("XmlRpc.EnableCallbacks", "true");
-
-
         } else {
             this.mapsPath = await this.server.call("GetTracksDirectory");
         }
@@ -91,7 +90,7 @@ class MiniControl {
 
     }
 
-    async beforeInit() {        
+    async beforeInit() {
         this.addCommand("/help", async (login: string) => {
             let out = "Available: ";
             for (let command of tmc.chatCommands) {
@@ -136,6 +135,7 @@ class MiniControl {
             }
         });
         this.cli("Controller $0f0ready.");
+        this.chat("ready");
     }
 }
 

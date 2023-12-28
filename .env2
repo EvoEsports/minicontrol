@@ -1,4 +1,7 @@
+HOST="127.0.0.1"
 PORT=5101
+USER="SuperAdmin"
+PASSWORD="SuperAdmin"
 ANSI256=1
 DEBUG=false
 ADMINS="EdbzfLXMS_aI_PjZCVaygQ"
