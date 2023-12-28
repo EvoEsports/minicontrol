@@ -94,6 +94,7 @@ export default class UiManager {
             await this.server.call('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
             return;
         }
+        
         const id = xml.match(/manialink id="(\d+)"/);
         if (id) {
             this.publicManialinks[id[1].toString()] = xml;

@@ -1,0 +1,23 @@
+<manialink id="{{id}}" version="3">
+	<frame pos="-110 50">
+        <label pos="3 -3.5" z-index="1" size="220 6" text="$fffPLAYERS" halign="left" textfont="GameFontSemiBold" textsize="2" valign="center2"/>
+        <label pos="216 -3" size="6 6" halign="center" valign="center" action="{{close}}" text="X" focusareacolor1="80b" focusareacolor2="d00" />
+        <quad pos="0 -3" size="220 6" valign="center" z-index="-1" bgcolor="80b" opacity="1"/>       
+	<frame pos="4 -6">
+		<frame pos="0 0" z-index="1">
+            <label pos="0 -2.5" z-index="1" size="4 5" text="#" halign="left" textsize="2" valign="center2"/>
+            <label pos="4.5 -2.5" z-index="1" size="50 5" text="Nickname" halign="left" textsize="2" valign="center2"/>
+            <label pos="55 -2.5" z-index="1" size="50 5" text="Login" halign="left" textsize="2" valign="center2"/>		
+        </frame>
+    {% for data in players %}
+		<frame pos="0 -{{ loop.index * 5 }}" z-index="1">
+		<label pos="0 -2.5" z-index="1" size="4 5" text="{{ loop.index }}" halign="left" textsize="2" valign="center2"/>
+		<label pos="4.5 -2.5" z-index="1" size="50 5" text="{{ data.nick }}" halign="left" textsize="2" valign="center2"/>
+        <entry pos="55 -2.5" z-index="1" size="50 5" default="{{ data.login }}" halign="left" textsize="2" valign="center2"/>		       
+	</frame>
+    {% endfor %}   
+    </frame>
+    <quad pos="0 -6" z-index="-1" size="220 {{ players.length * 6 + 12 }}" bgcolor="206" />
+    
+</frame>
+</manialink>
