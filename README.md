@@ -59,7 +59,8 @@ async buttonClick(login:string, data:any) {
 }
 ```
 
-for more examples check the bestcps and mapwidget plugins.
+for more examples check the bestcps and map widget plugins...
+
 
 
 
