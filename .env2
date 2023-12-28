@@ -1,2 +1,4 @@
 PORT=5101
+ANSI256=1
+DEBUG=false
 ADMINS="EdbzfLXMS_aI_PjZCVaygQ"

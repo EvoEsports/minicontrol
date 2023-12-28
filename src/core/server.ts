@@ -1,5 +1,6 @@
 import { GbxClient } from "@evotm/gbxclient";
 import EventEmitter from "events";
+import 'dotenv/config'
 
 export default class Server extends EventEmitter {
     gbx: GbxClient
@@ -19,7 +20,7 @@ export default class Server extends EventEmitter {
                     console.log(err);
                 }
                 const outmethod = data[0].replace(/(ManiaPlanet\.)|(TrackMania\.)/i, "Trackmania.")
-             
+
                 // convert waypoints to checkpoints
                 if (outmethod == "Trackmania.Event.WayPoint") {
                     if (params.isendrace) {
@@ -29,16 +30,19 @@ export default class Server extends EventEmitter {
                         that.emit("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace]);
                         return;
                     }
-                } 
+                }
                 if (outmethod == "Trackmania.Event.GiveUp") {
                     that.emit("TMC.PlayerGiveup");
                     return;
                 }
-                console.log(outmethod, params);
+                if (process.env.DEBUG == "true") {
+                    console.log(outmethod, params);
+                }
+
                 that.emit(outmethod, params);
                 return;
             }
-            
+
             switch (method) {
                 case "Trackmania.PlayerCheckpoint": {
                     that.emit("TMC.PlayerCheckpoint", [data[1], data[2], data[4]]);
@@ -53,8 +57,9 @@ export default class Server extends EventEmitter {
                     return;
                 }
             }
-
-            console.log(method, data);
+            if (process.env.DEBUG == "true") {
+                console.log(method, data);
+            }
             that.emit(method, data);
         })
     }
@@ -73,5 +78,5 @@ export default class Server extends EventEmitter {
     async connect(host: string, port: number) {
         return await this.gbx.connect(host, port);
     }
-    
+
 }

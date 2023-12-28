@@ -20,8 +20,7 @@ class TmxPlugin {
     async addTmnPack(login: string, packid: string) {
         const res = await fetch(`https://tmnf.exchange/api/tracks?packid=${packid}&fields=TrackId,TrackName`);
         const json: any = await res.json();
-        await tmc.chat("Processing Track Pack " + packid);
-        console.log(json);
+        await tmc.chat("Processing Track Pack " + packid);        
         if (!json.Results) {
             await tmc.chat("Error while adding tmx pack.", login);
         }
