@@ -6,7 +6,7 @@ import { ChatCommand, GameStruct } from './core/types';
 import 'dotenv/config'
 import log from './core/log';
 
-const controllerStr = "$80fMini$fffControl";
+const controllerStr = "$z$n$b4e$oMINI$ocontrol $z";
 
 class MiniControl {
     server: TmServer;
@@ -50,9 +50,9 @@ class MiniControl {
 
     async chat(text: string, login: undefined | string | string[] = undefined) {
         if (login !== undefined) {
-            await this.server.call("ChatSendServerMessageToLogin", "$5f0» $fff" + text, (typeof login == "string") ? login : login.join(","));
+            await this.server.call("ChatSendServerMessageToLogin", "$z$5f0» $fff" + text.replaceAll("$s", ""), (typeof login == "string") ? login : login.join(","));
         } else {
-            await this.server.call("ChatSendServerMessage", controllerStr + "$fff  " + text);
+            await this.server.call("ChatSendServerMessage", controllerStr + " $fff» " + text.replaceAll("$s", ""));
         }
     }
 
@@ -71,6 +71,7 @@ class MiniControl {
             process.exit();
         }
         await this.server.call("EnableCallbacks", true);
+        await this.server.call("SendHideManialinkPage");
         this.game = await this.server.call("GetVersion");
 
         if (this.game.Name == "Trackmania") {
@@ -111,6 +112,8 @@ class MiniControl {
             out = out.substring(0, out.length - 2);
             await tmc.chat(out, login);
         });
+        this.addCommand("/serverlogin", async () => {});
+        this.addCommand("/version", async () => {});
     }
 
     async afterInit() {

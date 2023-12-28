@@ -10,15 +10,16 @@ function Tm2Console(input: string, ansi256: boolean = false) {
         return [60 * (h < 0 ? h + 6 : h), f ? c / f : 0, (v + v - c) / 2];
     };
 
-    const chunks = input.split(/([$][0-9A-F]{3}|[$][zsowi])/gi);
+    const chunks = input.split(/([$][0-9A-F]{3}|[$][zsowin])/gi);
     const ansi_esc = String.fromCharCode(0x1b);
     //const ansi_esc = ``;
     const colorize = (str: string) => {
         const c = (str: string) => (parseInt(str, 16) * 17) / 255;
         if (!str.startsWith("$")) return str;
+        if (str == "$n") return "";
         if (str == "$z") return ansi_esc + "[0m";
         if (str == "$s") return ansi_esc + "[0m";
-        if (str == "$i") return ansi_esc + "[3m";
+        if (str == "$i") return ansi_esc + "[3m";        
         if (str.match(/[$][obw]/gi)) return ansi_esc + "[1m";
         
 

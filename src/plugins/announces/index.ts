@@ -7,8 +7,7 @@ export class AnnouncesPlugin {
 
     async onBeginMap(data: any) {
         const info = data[0];
-        console.log(info);
-        const msg = `$fffCurrently Playing: $z$s$fff${info.Name}$z$s$fff by $z$s$fff${info.AuthorNickname?info.AuthorNickname:info.Author}$z$s$fff!`;
+        const msg = `$fffNow Playing: $z$s$fff${info.Name}$z$s$fff by $z$s$fff${info.AuthorNickname?info.AuthorNickname:info.Author}$z$s$fff!`;
         await tmc.chat(msg);
         tmc.cli(msg);
     }
@@ -16,7 +15,7 @@ export class AnnouncesPlugin {
     async onPlayerConnect(data: any) {
         const login = data[0];
         const player = await tmc.getPlayer(login);
-        const msg = `$z$s$fff${player.nick}$z$s$fff has joined the game!`;
+        const msg = `$z$s$fff${player.nick}$z$s$fff joins!`;
         await tmc.chat(msg);
         tmc.cli(msg);
     }
@@ -24,7 +23,7 @@ export class AnnouncesPlugin {
     async onPlayerDisconnect(data: any) {
         const login = data[0];
         const player = await tmc.getPlayer(login);
-        const msg = `$z$s$fff${player.nick}$z$s$fff has left the game!`;
+        const msg = `$z$s$fff${player.nick}$z$s$fff has left!`;
         await tmc.chat(msg);
         tmc.cli(msg);
     }

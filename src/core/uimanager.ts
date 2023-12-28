@@ -49,9 +49,10 @@ export default class UiManager {
         }
     }
     async init() {
-        await this.server.call("SendHideManialinkPage");
         if (tmc.game.Name == "TmForever") {
-            await this.server.call('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
+            for (let player of tmc.players.players) {
+                await this.server.call('SendDisplayManialinkPageToLogin', player.login, this.getTmufCustomUi(), 0, false);
+            }            
         }
     }
 
@@ -115,18 +116,20 @@ export default class UiManager {
     }
 
     private getTmufCustomUi() {
-        return `<manialinks>
+        return `
         <custom_ui>
-            <notice visible="false"/>
+            <notice visible="false"/>            
             <challenge_info visible="false"/>
-            <net_infos visible="false"/>
+            <net_infos visible="true"/>
             <chat visible="true"/>
-            <checkpoint_list visible="false"/>
-            <round_scores visible="true"/>
+            <checkpoint_list visible="false"/>            
+            <round_scores visible="true"/>                
             <scoretable visible="true"/>
+            <multilap_infos visible="true"/>
+            <speed_and_distance visible="false"/>
+            <player_ranking visible="false"/>
             <global visible="true"/>
-        </custom_ui>
-        </manialinks>`;
+        </custom_ui>`;
     }
 
 }
