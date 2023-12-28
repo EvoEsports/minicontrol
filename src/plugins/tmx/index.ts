@@ -80,4 +80,4 @@ class TmxPlugin {
     }
 }
 
-tmc.plugins.push(new TmxPlugin);
+tmc.addPlugin("tmx", new TmxPlugin);

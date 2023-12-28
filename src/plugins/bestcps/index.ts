@@ -68,4 +68,4 @@ class BesCpPlugin {
     }
 }
 
-tmc.plugins.push(new BesCpPlugin);
+tmc.addPlugin("bestCps", new BesCpPlugin);

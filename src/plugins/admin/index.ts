@@ -53,4 +53,4 @@ class AdminPlugin {
 
 }
 
-tmc.plugins.push(new AdminPlugin);
+tmc.addPlugin("admin", new AdminPlugin);

@@ -14,7 +14,8 @@ class ChatPlugin {
         const player = await tmc.getPlayer(data[1]);
         const text = data[2];
         await tmc.chat(`${player.nick}$z$s$fff: ${text}`);
+        tmc.cli(`${player.nick}: ${text}`);
     }
 }
 
-tmc.plugins.push(new ChatPlugin);
+tmc.addPlugin("chat", new ChatPlugin);

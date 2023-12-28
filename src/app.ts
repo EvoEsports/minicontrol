@@ -4,12 +4,13 @@ import TmServer from './core/server';
 import UiManager from './core/uimanager';
 import { ChatCommand, GameStruct } from './core/types';
 import 'dotenv/config'
+import log from './core/log';
 
 class MiniControl {
     server: TmServer;
     players: PlayerManager;
     ui: UiManager;
-    plugins: any = [];
+    plugins: any = {};
     port: number;
     game: GameStruct;
     mapsPath: string = "";
@@ -17,23 +18,34 @@ class MiniControl {
     chatCommands: ChatCommand[] = [];
 
     constructor() {
+        
         const gbx = new GbxClient();
         this.server = new TmServer(gbx);
         this.players = new PlayerManager(gbx);
         this.ui = new UiManager(this.server);
-
+        this.cli("$80fMini$fffControl $fffv0.0.1");
         this.port = Number.parseInt(process.env.PORT || "5000");
-        this.admins = (process.env.ADMINS || "").split(",");
-        console.log(this.admins);
+        this.admins = (process.env.ADMINS || "").split(",");        
         this.game = { Name: "" };
     }
 
-    getPlayer(login: string): Promise<Player> {
-        return this.players.getPlayer(login);
+    async getPlayer(login: string): Promise<Player> {
+        return await this.players.getPlayer(login);
     }
 
     addCommand(command: string, callback: CallableFunction) {
         this.chatCommands.push({ trigger: command, callback: callback });
+    }
+
+    addPlugin(name: string, object: any) {
+        if (!this.plugins[name]) {
+            this.plugins[name] = object;
+            this.cli(`Plugin $fd0${name}$fff loaded.`);
+        }
+    }
+
+    cli(object: any) {
+        log.info(object.toString());
     }
 
     async chat(text: string, login: undefined | string | string[] = undefined) {
@@ -79,7 +91,7 @@ class MiniControl {
 
     }
 
-    async beforeInit() {
+    async beforeInit() {        
         this.addCommand("/help", async (login: string) => {
             let out = "Available: ";
             for (let command of tmc.chatCommands) {
@@ -106,7 +118,7 @@ class MiniControl {
         this.server.on("Trackmania.PlayerChat", async (data: any) => {
             if (data[0] == 0) return;
             const login: string = data[1];
-            let text: string = data[2];            
+            let text: string = data[2];
             if (text.startsWith("/")) {
                 for (let command of this.chatCommands) {
                     if (text.startsWith("//") && !this.admins.includes(login)) {
@@ -115,14 +127,15 @@ class MiniControl {
                     }
                     if (text.startsWith(command.trigger)) {
                         const words = text.replace(command.trigger, "").trim();
-                        let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s\"]+/gi) || []).map((word) => word.replace(/^"(.+(?="$))"$/, '$1').replaceAll("\\", ""));                    
+                        let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s\"]+/gi) || []).map((word) => word.replace(/^"(.+(?="$))"$/, '$1').replaceAll("\\", ""));
                         command.callback(login, params);
                         return;
                     }
                 }
-                this.chat(`Command "$fd0${text}$fff" not found.` , login);
+                this.chat(`Command "$fd0${text}$fff" not found.`, login);
             }
         });
+        this.cli("Controller $0f0ready.");
     }
 }
 

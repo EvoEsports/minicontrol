@@ -45,4 +45,4 @@ class MapWidget {
     }
 }
 
-tmc.plugins.push(new MapWidget);
+tmc.addPlugin("mapWidget", new MapWidget);
