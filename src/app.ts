@@ -4,10 +4,11 @@ import TmServer from './core/server';
 import UiManager from './core/uimanager';
 import MapManager from './core/mapmanager';
 import { ChatCommand, GameStruct } from './core/types';
+import { processColorString } from './core/utils';
 import 'dotenv/config'
 import log from './core/log';
 
-const controllerStr = "$z$n$b4e$oMINI$ocontrol $z";
+const controllerStr = "$z$n¤brand¤$oMINI$o$fffcontrol$z$fff ";
 
 class MiniControl {
     server: TmServer;
@@ -21,7 +22,6 @@ class MiniControl {
     maps: MapManager;
 
     constructor() {
-        console.time("Startup");        
         this.server = new TmServer(new GbxClient());
         this.maps = new MapManager(this.server);
         this.players = new PlayerManager(this.server);
@@ -47,18 +47,20 @@ class MiniControl {
     }
 
     cli(object: any) {
-        log.info(object.toString());
+        log.info(processColorString(object.toString()));
     }
 
     debug(object: any) {
-        if (process.env.DEBUG == "true") log.info(object.toString());
+        if (process.env.DEBUG == "true") log.info(processColorString(object.toString()));
     }
 
     async chat(text: string, login: undefined | string | string[] = undefined) {
         if (login !== undefined) {
-            this.server.send("ChatSendServerMessageToLogin", "$z$5f0» $fff" + text.toString().replaceAll("$s", ""), (typeof login == "string") ? login : login.join(","));
+            const msg = "$z$5f0» ¤white¤" + text.toString().replaceAll("$s", "");
+            this.server.send("ChatSendServerMessageToLogin", processColorString(msg), (typeof login == "string") ? login : login.join(","));
         } else {
-            this.server.send("ChatSendServerMessage", controllerStr + " $fff» " + text.replaceAll("$s", ""));
+            const msg = controllerStr + " »¤brand¤ " + text.replaceAll("$s", "")
+            this.server.send("ChatSendServerMessage", processColorString(msg, "$z$"));
         }
     }
 
@@ -101,7 +103,7 @@ class MiniControl {
             let out = "Available: ";
             for (let command of tmc.chatCommands) {
                 if (command.trigger.startsWith("/") && !command.trigger.startsWith("//")) {
-                    out += `$fd0${command.trigger}$999, `;
+                    out += `¤cmd¤${command.trigger}¤white¤, `;
                 }
             }
             out = out.substring(0, out.length - 2);
@@ -111,7 +113,7 @@ class MiniControl {
             let out = "Available: ";
             for (let command of tmc.chatCommands) {
                 if (command.trigger.startsWith("//")) {
-                    out += `$fd0${command.trigger}$fff, `;
+                    out += `¤cmd¤${command.trigger}¤white¤, `;
                 }
             }
             out = out.substring(0, out.length - 2);
@@ -130,7 +132,7 @@ class MiniControl {
             if (text.startsWith("/")) {
                 for (let command of this.chatCommands) {
                     if (text.startsWith("//") && !this.admins.includes(login)) {
-                        this.chat("Not allowed.", login);
+                        this.chat("¤error¤Not allowed.", login);
                         return;
                     }
                     if (text.startsWith(command.trigger)) {
@@ -140,12 +142,11 @@ class MiniControl {
                         return;
                     }
                 }
-                this.chat(`Command "$fd0${text}$fff" not found.`, login);
+                this.chat(`Command $<¤cmd¤${text}$> not found.`, login);
             }
         });
-        this.cli("Controller $0f0ready.");
+        this.cli("ready");
         this.chat("ready");
-        console.timeEnd("Startup");
     }
 }
 
@@ -159,3 +160,4 @@ declare global {
 (global as any).tmc = TMC
 
 import './plugins/plugins';
+
