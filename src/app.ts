@@ -2,6 +2,7 @@ import { GbxClient } from '@evotm/gbxclient';
 import PlayerManager, { Player } from './core/playermanager';
 import TmServer from './core/server';
 import UiManager from './core/uimanager';
+import MapManager from './core/mapmanager';
 import { ChatCommand, GameStruct } from './core/types';
 import 'dotenv/config'
 import log from './core/log';
@@ -17,11 +18,11 @@ class MiniControl {
     mapsPath: string = "";
     admins: string[];
     chatCommands: ChatCommand[] = [];
+    maps: MapManager;
 
-    constructor() {
-
-        const gbx = new GbxClient();
-        this.server = new TmServer(gbx);
+    constructor() {        
+        this.server = new TmServer(new GbxClient());
+        this.maps = new MapManager(this.server);
         this.players = new PlayerManager(this.server);
         this.ui = new UiManager(this.server);
         this.cli(controllerStr);
@@ -46,6 +47,10 @@ class MiniControl {
 
     cli(object: any) {
         log.info(object.toString());
+    }
+
+    debug(object: any) {
+        if (process.env.DEBUG == "true") log.info(object.toString());
     }
 
     async chat(text: string, login: undefined | string | string[] = undefined) {
@@ -81,7 +86,8 @@ class MiniControl {
         } else {
             this.mapsPath = await this.server.call("GetTracksDirectory");
         }
-
+        
+        await this.maps.init();
         await this.players.init();
         await this.ui.init();
         await this.beforeInit();

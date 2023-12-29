@@ -6,7 +6,7 @@ export default class Server extends EventEmitter {
     gbx: GbxClient
 
     constructor(gbx: GbxClient) {
-        super();
+        super();        
         this.gbx = gbx;
         const that = this;
         gbx.on("callback", (method, data) => {

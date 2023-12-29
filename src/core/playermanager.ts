@@ -6,10 +6,12 @@ export class Player {
     login: string = "";
     nick: string = "";
     isSpectator: boolean = false;
+    teamId: number = -1;
 
     syncFromPlayerInfo(data: any) {
         this.login = data.Login;
         this.nick = data.NickName;
+        this.teamId = Number.parseInt(data.TeamId);
         this.isSpectator = data.SpectatorStatus !== 0;
     }
 }
@@ -68,7 +70,7 @@ export default class PlayerManager {
 
     async getPlayer(login: string): Promise<Player> {
         if (this.players[login]) return this.players[login];
-        tmc.cli(`Player ${login} not found, fetching from server.`);
+        tmc.debug(`Player ${login} not found, fetching from server.`);
 
         const data = await this.server.call("GetPlayerInfo", login);
         const player = new Player();
@@ -80,7 +82,7 @@ export default class PlayerManager {
     private async onPlayerInfoChanged(data: any) {
         data = data[0];
         if (data.PlayerId === 0) return;
-        const player = await this.getPlayer(data.Login);
+        const player = new Player();
         player.syncFromPlayerInfo(data);
         this.players[data.Login] = player;
     }

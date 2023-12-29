@@ -144,15 +144,17 @@ class AdminPlugin {
                 await tmc.chat(err.message, login);
             }
         });
+
         tmc.addCommand("//remove", async (login: string, params: string[]) => {
-            const info: any = await tmc.server.call("GetCurrentMapInfo");
+            const map: any = tmc.maps.currentMap;
             try {
-                await tmc.server.call("RemoveMap", info.FileName);
-                await tmc.chat(`Removed map ${info.Name}$z$s from the playlist.`, login);
+                await tmc.server.call("RemoveMap", map.FileName);
+                await tmc.chat(`Removed map ${map.Name}$z$s from the playlist.`, login);
             } catch (err: any) {
                 await tmc.chat(err.message, login);
             }
         });
+
         tmc.addCommand("//call", async (login: string, params: string[]) => {
             const method = params.shift();
             if (method === undefined) {

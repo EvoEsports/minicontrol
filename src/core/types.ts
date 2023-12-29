@@ -3,6 +3,20 @@ export interface ChatCommand {
     callback: CallableFunction;
 }
 
+export interface Map {
+    UId: string;    
+    Author: string;
+    AuthorNickName?: string;     
+    AuthorTime: number;
+    GoldTime: number;
+    FileName: string;
+    Environnement: string;
+    Mood: string;
+    LapRace: boolean;
+    NbLaps: number;
+    NbCheckpoints: number;    
+}
+
 export interface GameStruct {
     Name: string;
     Version?: string;

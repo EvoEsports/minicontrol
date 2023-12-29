@@ -5,7 +5,7 @@ class ChatPlugin {
     }
 
     async onInit() {
-        tmc.server.call("ChatEnableManualRouting", true, false);
+        await tmc.server.call("ChatEnableManualRouting", true, false);
     }
 
     async onPlayerChat(data: any) {

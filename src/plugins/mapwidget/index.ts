@@ -21,8 +21,8 @@ class MapWidget {
     }
 
     async onInit() {
-        const info = await tmc.server.call("GetCurrentMapInfo");
-        this.nbCheckpoints = info.NbCheckpoints;
+        const info = tmc.maps.currentMap;        
+        this.nbCheckpoints = info?.NbCheckpoints||-1;
         await this.display([info]);
     }
 

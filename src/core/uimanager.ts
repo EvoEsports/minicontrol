@@ -61,11 +61,8 @@ export default class UiManager {
         }
     }
     async init() {
-        if (tmc.game.Name == "TmForever") {
-            for (let player of tmc.players.get()) {                
-                if (player.login.startsWith("*")) continue; // ignore bots and fake users
-                await this.server.call('SendDisplayManialinkPageToLogin', player.login, this.getTmufCustomUi(), 0, false);
-            }
+        if (tmc.game.Name == "TmForever") {            
+            await this.server.call('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);            
         }
     }
 
@@ -108,8 +105,7 @@ export default class UiManager {
             await this.server.call('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
             return;
         }
-
-        const id = xml.match(/manialink id="(\d+)"/);
+        const id = xml.match(/<manialink id="(\d+)"/);
         if (id) {
             this.publicManialinks[id[1].toString()] = xml;
         }
@@ -142,7 +138,7 @@ export default class UiManager {
             <speed_and_distance visible="false"/>
             <player_ranking visible="false"/>
             <global visible="true"/>
-        </custom_ui>`;
+        </custom_ui>`.replaceAll("\n", "");
     }
 
 }
