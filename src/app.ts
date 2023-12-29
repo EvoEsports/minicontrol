@@ -22,7 +22,7 @@ class MiniControl {
 
         const gbx = new GbxClient();
         this.server = new TmServer(gbx);
-        this.players = new PlayerManager(gbx);
+        this.players = new PlayerManager(this.server);
         this.ui = new UiManager(this.server);
         this.cli(controllerStr);
         this.admins = (process.env.ADMINS || "").split(",");
@@ -87,8 +87,6 @@ class MiniControl {
         await this.beforeInit();
         this.server.emit("TMC.Init");
         await this.afterInit();
-
-
     }
 
     async beforeInit() {
@@ -112,11 +110,12 @@ class MiniControl {
             out = out.substring(0, out.length - 2);
             await tmc.chat(out, login);
         });
-        this.addCommand("/serverlogin", async () => {});
-        this.addCommand("/version", async () => {});
+        this.addCommand("/serverlogin", async () => { });
+        this.addCommand("/version", async () => { });
     }
 
     async afterInit() {
+        this.players.afterInit();
         this.server.on("Trackmania.PlayerChat", async (data: any) => {
             if (data[0] == 0) return;
             const login: string = data[1];

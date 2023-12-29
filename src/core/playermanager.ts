@@ -1,12 +1,13 @@
 import { GbxClient } from "@evotm/gbxclient";
+import Server from "./server";
 // import casual from 'casual';
 
 export class Player {
     login: string = "";
     nick: string = "";
     isSpectator: boolean = false;
-        
-    syncFromPlayerInfo(data: any) {  
+
+    syncFromPlayerInfo(data: any) {
         this.login = data.Login;
         this.nick = data.NickName;
         this.isSpectator = data.SpectatorStatus !== 0;
@@ -14,70 +15,73 @@ export class Player {
 }
 
 export default class PlayerManager {
-    players: Player[] = [];
-    gbx: GbxClient;
-    
-    constructor(gbx: GbxClient) {
-        this.gbx = gbx;
-        this.gbx.on("TrackMania.PlayerInfoChanged", () => this.onPlayerInfoChanged)
-        this.gbx.on("TrackMania.PlayerDisconnect", () => this.onPlayerDisconnect)
+    players: any = {};
+    server: Server;
+
+    constructor(server: Server) {
+        this.server = server;        
+        this.server.on("Trackmania.PlayerInfoChanged", this.onPlayerInfoChanged.bind(this));
     }
-    
+
+
     async init() {
-        const players = await this.gbx.call('GetPlayerList', -1, 0);
+        const players = await this.server.call('GetPlayerList', -1, 0);
         for (const data of players) {
             if (data.PlayerId === 0) continue;
             const player = new Player();
             player.syncFromPlayerInfo(data);
-            this.players.push(player);
+            this.players[data.Login] = player;
         }
 
         // Generate mock players
-       /* for (let x = 0; x < 100; x++) {
-            const player = new Player();
-            player.login = "*Bot_"+casual.username;
-            player.nick = casual.full_name;
-            player.isSpectator = casual.coin_flip? true : false;
-            this.players.push(player);
-        } */
+        /* for (let x = 0; x < 100; x++) {
+             const player = new Player();
+             player.login = "*Bot_"+casual.username;
+             player.nick = casual.full_name;
+             player.isSpectator = casual.coin_flip? true : false;
+             this.players.push(player);
+         } */
     }
 
-    private async onPlayerDisconnect(login: any) {
-        let index = 0;
-        for (const player of this.players) {
-            if (player.login == login) break;
-            index += 1;
-        }
-        this.players.splice(index, 1);
+    afterInit() {
+        this.server.on("Trackmania.PlayerDisconnect", this.onPlayerDisconnect.bind(this));
     }
-    
-    
+
+    private async onPlayerDisconnect(data: any) {
+        const login = data[0];
+        let index = 0;
+        if (this.players[login]) {
+            delete this.players[login];
+        }
+    }
+
+    get(): Player[] {
+        return Object.values(this.players);
+    }
+
     async getPlayerbyNick(nickname: string): Promise<Player | null> {
-        for (const player of this.players) {
-            if (player.nick == nickname) return player;
+        for (let player in this.players) {
+            if (this.players[player].nick == nickname) return this.players[player];
         }
         return null;
     }
-    
+
     async getPlayer(login: string): Promise<Player> {
-        for (const player of this.players) {
-            if (player.login == login) return player;
-        }
-        
+        if (this.players[login]) return this.players[login];
+        tmc.cli(`Player ${login} not found, fetching from server.`);
+
+        const data = await this.server.call("GetPlayerInfo", login);
         const player = new Player();
-        const data = await this.gbx.call("GetPlayerInfo", login);
         player.syncFromPlayerInfo(data);
-        this.players.push(player);
+        this.players[login] = player;
         return player;
     }
-    
+
     private async onPlayerInfoChanged(data: any) {
+        data = data[0];
         if (data.PlayerId === 0) return;
         const player = await this.getPlayer(data.Login);
-        const orig_login = player.login;
         player.syncFromPlayerInfo(data);
-        if (orig_login == "") {
-            this.players.push(player);
-        }
+        this.players[data.Login] = player;
     }
 }

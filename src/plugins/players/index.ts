@@ -39,13 +39,13 @@ export class PlayersPlugin {
         } else if (action == "next") {
             this.page[login] += 1;
         } else if (action == "end") {
-            this.page[login] = Math.floor(tmc.players.players.length / pageLength);
+            this.page[login] = Math.floor(tmc.players.get().length / pageLength);
         }
         if (this.page[login] < 0) this.page[login] = 0;
-        if (this.page[login] > Math.floor(tmc.players.players.length / pageLength)) this.page[login] = Math.floor(tmc.players.players.length / pageLength);
+        if (this.page[login] > Math.floor(tmc.players.get().length / pageLength)) this.page[login] = Math.floor(tmc.players.get().length / pageLength);
         let playersArray = [];
         let x = 1;
-        for (let player of tmc.players.players) {
+        for (let player of tmc.players.get()) {
             playersArray.push({ index: x, login: player.login, nick: player.nick, isSpectator: player.isSpectator });
             x++;
         }

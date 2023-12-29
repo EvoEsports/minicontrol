@@ -57,7 +57,7 @@ export default class Server extends EventEmitter {
                     return;
                 }
             }
-            if (process.env.DEBUG == "true") {
+            if (process.env.DEBUG == "true") {       
                 console.log(method, data);
             }
             that.emit(method, data);

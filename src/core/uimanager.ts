@@ -11,10 +11,9 @@ export default class UiManager {
 
     constructor(server: Server) {
         this.server = server;
-        server.on("Trackmania.PlayerManialinkPageAnswer", (data) => this.onManialinkAnswer(data));
+        server.on("Trackmania.PlayerManialinkPageAnswer", (data) => this.onManialinkAnswer(data));       
         server.on("Trackmania.PlayerConnect", (data) => this.onPlayerConnect(data));
     }
-
 
     convertLine(line: string): string {
         const matches = line.matchAll(/(pos|size)="([-.\d]+)\s+([-.\d]+)"/g);
@@ -63,7 +62,7 @@ export default class UiManager {
     }
     async init() {
         if (tmc.game.Name == "TmForever") {
-            for (let player of tmc.players.players) {                
+            for (let player of tmc.players.get()) {                
                 if (player.login.startsWith("*")) continue; // ignore bots and fake users
                 await this.server.call('SendDisplayManialinkPageToLogin', player.login, this.getTmufCustomUi(), 0, false);
             }
