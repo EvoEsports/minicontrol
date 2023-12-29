@@ -13,7 +13,7 @@ class MapWidget {
 
     constructor() {
         this.id = tmc.ui.uuid();
-        this.action = tmc.ui.addAction(this.test_buttonClick.bind(this), "test");
+        this.action = tmc.ui.addAction(this.buttonClick.bind(this), "test");
         tmc.server.on("TMC.Init", this.onInit.bind(this));
         tmc.server.on("Trackmania.BeginMap", this.beginMap.bind(this));
     }
@@ -40,8 +40,8 @@ class MapWidget {
         tmc.ui.display(file);
     }
 
-    async test_buttonClick(login: string, data: any) {
-        await tmc.chat(`${login} pressed a button. data: ${data}`);
+    async buttonClick(login: string, data: any) {
+        tmc.server.emit("Trackmania.PlayerChat", [1, login, "/maps"]);
     }
 }
 

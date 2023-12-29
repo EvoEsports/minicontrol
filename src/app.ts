@@ -150,4 +150,5 @@ declare global {
 }
 
 (global as any).tmc = TMC
+
 import './plugins/plugins';
