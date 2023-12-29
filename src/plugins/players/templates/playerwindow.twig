@@ -3,21 +3,29 @@
         <label pos="3 -3.5" z-index="1" size="220 6" text="$fffPLAYERS" halign="left" textfont="GameFontSemiBold" textsize="2" valign="center2"/>
         <label pos="216 -3" size="6 6" halign="center" valign="center" action="{{close}}" text="X" focusareacolor1="80b" focusareacolor2="d00" />
         <quad pos="0 -3" size="220 6" valign="center" z-index="-1" bgcolor="80b" opacity="1"/>       
-	<frame pos="4 -6">
+	<frame pos="4 -8">
 		<frame pos="0 0" z-index="1">
             <label pos="0 -2.5" z-index="1" size="4 5" text="#" halign="left" textsize="2" valign="center2"/>
             <label pos="4.5 -2.5" z-index="1" size="50 5" text="Nickname" halign="left" textsize="2" valign="center2"/>
             <label pos="55 -2.5" z-index="1" size="50 5" text="Login" halign="left" textsize="2" valign="center2"/>		
         </frame>
-    {% for data in players %}
+    {% for item in data.items %}
 		<frame pos="0 -{{ loop.index * 5 }}" z-index="1">
-		<label pos="0 -2.5" z-index="1" size="4 5" text="{{ loop.index }}" halign="left" textsize="2" valign="center2"/>
-		<label pos="4.5 -2.5" z-index="1" size="50 5" text="{{ data.nick }}" halign="left" textsize="2" valign="center2"/>
-        <entry pos="55 -2.5" z-index="1" size="50 5" default="{{ data.login }}" halign="left" textsize="2" valign="center2"/>		       
+		<label pos="3 -2.5" z-index="1" size="6 5" text="{{ item.index }}" halign="right" textsize="2" valign="center2"/>
+		<label pos="4.5 -2.5" z-index="1" size="50 5" text="{{ item.nick }}" halign="left" textsize="2" valign="center2"/>
+        <entry pos="55 -2.5" z-index="1" size="50 5" default="{{ item.login }}" halign="left" textsize="2" valign="center2"/>		       
 	</frame>
-    {% endfor %}   
+    {% endfor %}
     </frame>
-    <quad pos="0 -6" z-index="-1" size="220 {{ players.length * 6 + 12 }}" bgcolor="206" />
-    
+
+    <frame pos="100 -90">
+        <quad pos="0 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowFirst" valign="center2" action="{{start}}" />
+        <quad pos="6 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowPrev" valign="center2" action="{{prev}}" />
+        <label pos="17 -2.5" z-index="1" size="12 6" text="$fff$o{{ data.currentPage + 1 }}/{{ data.totalPages }}" halign="center" textsize="1" valign="center2"/>
+        <quad pos="22 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowNext" valign="center2" action="{{next}}" />
+        <quad pos="28 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowLast" valign="center2" action="{{end}}"/>        
+    </frame>
+    <quad pos="0 -6" z-index="-1" size="220 90" bgcolor="206" />
+
 </frame>
 </manialink>

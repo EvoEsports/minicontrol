@@ -5,19 +5,19 @@ Minicontrol for trackmania united forever and trackmania 2020
 
 1. npm i
 2. copy .env.example to .env and configure
-3. install typescript and ts-node as global npm packages
-4. npm run dev
+3. npm i typescript ts-node nodemon -g
+4. npm start
 
 
 The controller is still in its very early stages.
 Idea is to use same codebase as much as possible to both games, tmuf and tm2020.
 
-Controller will use the default user and password: SuperAdmin, SuperAdmin for the dedicated server,
-change port to match your install.
-
 # Development
 
-The core is set as simple as possible, so you should be able to just do plugins very easily:
+The core is set as simple as possible, so you should be able to just do plugins very easily.
+
+to start instance 1 (tmnf): npm run dev
+to start instance 2 (tm2020): npm run dev2
 
 ## TMC
 

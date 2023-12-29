@@ -15,15 +15,28 @@ export default class UiManager {
         server.on("Trackmania.PlayerConnect", (data) => this.onPlayerConnect(data));
     }
 
-    convert(text: string): string {
-        if (tmc.game.Name !== "TmForever") return text;
 
-        let out = text;
-        const matches = text.matchAll(/(pos|size)="([-.\d]+)\s+([-.\d]+)"/g);
+    convertLine(line: string): string {
+        const matches = line.matchAll(/(pos|size)="([-.\d]+)\s+([-.\d]+)"/g);
+        let out = line;
         for (let match of matches) {
             const x = (Number.parseFloat(match[2]) / 160) * 64;
             const y = (Number.parseFloat(match[3]) / 90) * 48;
-            out = out.replaceAll(match[0], `${match[1]}n="${x} ${y}"`);
+            let z = 0;
+            const zindex = line.match(/z-index="(\d+)"/) || ["0", "0"];
+            z = Number.parseInt(zindex[1]) ?? 0;
+            out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="\d+"/, "");
+        }
+        return out;
+    }
+
+    convert(text: string): string {
+        if (tmc.game.Name !== "TmForever") return text;
+
+        let lines = text.split('\n');
+        let out = '';
+        for (let i = 0; i < lines.length; i++) {
+            out += this.convertLine(lines[i]);
         }
         return out;
     }
@@ -50,15 +63,16 @@ export default class UiManager {
     }
     async init() {
         if (tmc.game.Name == "TmForever") {
-            for (let player of tmc.players.players) {
+            for (let player of tmc.players.players) {                
+                if (player.login.startsWith("*")) continue; // ignore bots and fake users
                 await this.server.call('SendDisplayManialinkPageToLogin', player.login, this.getTmufCustomUi(), 0, false);
-            }            
+            }
         }
     }
 
     private async onManialinkAnswer(data: any) {
         const login = data[1];
-        const answer = data[2].toString();        
+        const answer = data[2].toString();
         if (this.actions[answer]) {
             await this.actions[answer].callback(login, this.actions[answer].data);
         }
@@ -84,7 +98,7 @@ export default class UiManager {
     }
 
     render(xml: string, options: object): string {
-        const template = Twig.twig({ data: xml });
+        const template = Twig.twig({ data: xml });        
         return template.render(options);
     }
 
@@ -95,7 +109,7 @@ export default class UiManager {
             await this.server.call('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
             return;
         }
-        
+
         const id = xml.match(/manialink id="(\d+)"/);
         if (id) {
             this.publicManialinks[id[1].toString()] = xml;

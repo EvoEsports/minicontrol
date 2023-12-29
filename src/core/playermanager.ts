@@ -1,4 +1,5 @@
 import { GbxClient } from "@evotm/gbxclient";
+// import casual from 'casual';
 
 export class Player {
     login: string = "";
@@ -30,6 +31,15 @@ export default class PlayerManager {
             player.syncFromPlayerInfo(data);
             this.players.push(player);
         }
+
+        // Generate mock players
+       /* for (let x = 0; x < 100; x++) {
+            const player = new Player();
+            player.login = "*Bot_"+casual.username;
+            player.nick = casual.full_name;
+            player.isSpectator = casual.coin_flip? true : false;
+            this.players.push(player);
+        } */
     }
 
     private async onPlayerDisconnect(login: any) {

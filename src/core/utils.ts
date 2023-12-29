@@ -15,7 +15,7 @@ import { PaginationResult } from "./types";
  * console.log(result);
  */
 export function paginate<T>(items: T[], pageNb: number, pageSize: number): PaginationResult<T> {
-    const startIndex = (pageNb - 1) * pageSize;
+    const startIndex = pageNb * pageSize;
     const endIndex = startIndex + pageSize;
     const slicedItems = items.slice(startIndex, endIndex);
 
