@@ -50,7 +50,7 @@ class MiniControl {
 
     async chat(text: string, login: undefined | string | string[] = undefined) {
         if (login !== undefined) {
-            await this.server.call("ChatSendServerMessageToLogin", "$z$5f0» $fff" + text.replaceAll("$s", ""), (typeof login == "string") ? login : login.join(","));
+            await this.server.call("ChatSendServerMessageToLogin", "$z$5f0» $fff" + text.toString().replaceAll("$s", ""), (typeof login == "string") ? login : login.join(","));
         } else {
             await this.server.call("ChatSendServerMessage", controllerStr + " $fff» " + text.replaceAll("$s", ""));
         }

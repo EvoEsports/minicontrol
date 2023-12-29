@@ -8,8 +8,8 @@ import { PaginationResult } from "./types";
  * 
  * @example
  * const myObjectList = ["1","2","3"]
- * const currentPage = 2;
- * const itemsPerPage = 10;
+ * const currentPage = 0;
+ * const itemsPerPage = 15;
  *
  * const result = paginate(myObjectList, currentPage, itemsPerPage);
  * console.log(result);

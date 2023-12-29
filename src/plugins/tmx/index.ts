@@ -99,16 +99,13 @@ class TmxPlugin {
                 }
                 await tmc.server.call("InsertMap", `tmx/${id}${ext}`);
                 if (announce) {
-                    await tmc.chat(`Added MapId: ${id} from tmx!`);
-                    return;
-                }
+                    await tmc.chat(`Added MapId: ${id} from tmx!`);                  
+                } 
+                return;
             } catch (err: any) {
                 await tmc.chat(err, login);
                 return;
-            }
-
-            await tmc.chat(`Map path "${tmc.mapsPath}" is unreachable.`, login);
-            return;
+            }            
         }
         if (!fs.existsSync(`${tmc.mapsPath}tmx/`)) fs.mkdirSync(`${tmc.mapsPath}tmx/`);
         const abuffer = await (await res.blob()).arrayBuffer();

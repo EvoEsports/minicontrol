@@ -1,0 +1,42 @@
+<manialink id="{{id}}" version="3">
+	<frame pos="-110 55">
+        <label pos="3 -3.5" z-index="1" size="220 6" text="$fffMAPS" halign="left" textfont="GameFontSemiBold" textsize="2" valign="center2"/>
+        <label pos="216 -3" size="6 6" halign="center" valign="center" action="{{close}}" text="X" focusareacolor1="80b" focusareacolor2="d00" />
+        <quad pos="0 -3" size="220 6" valign="center" z-index="-1" bgcolor="80b" opacity="1"/>       
+	<frame pos="4 -8">
+		<frame pos="0 0" z-index="1">
+            <label pos="0 -2" z-index="1" size="4 4" text="#" halign="left" textsize="1.5" valign="center2"/>
+            <label pos="4.5 -2" z-index="1" size="50 4" text="Name" halign="left" textsize="1.5" valign="center2"/>
+            <label pos="55 -2" z-index="1" size="50 4" text="Author" halign="left" textsize="1.5" valign="center2"/>		
+            <label pos="105 -2" z-index="1" size="20 4" text="Time" halign="left" textsize="1.5" valign="center2"/>		            
+            <label pos="125 -2" z-index="1" size="25 4" text="Environment" halign="left" textsize="1.5" valign="center2"/>
+            <label pos="150 -2" z-index="1" size="50 4" text="MapUid" halign="left" textsize="1.5" valign="center2"/>
+        </frame>
+    {% for item in data.items %}
+		<frame pos="0 -{{ loop.index * 4}}" z-index="1">
+		<label pos="3 -2" z-index="1" size="6 4" text="{{ item.index }}" halign="right" textsize="1.5" valign="center2"/>
+		<label pos="4.5 -2" z-index="1" size="50 4" text="{{ item.name }}" halign="left" textsize="1.5" valign="center2"/>
+        <label pos="55 -2" z-index="1" size="50 4" text="{{ item.authorName }}" halign="left" textsize="1.5" valign="center2"/>		       
+        <label pos="105 -2" z-index="1" size="20 4" text="{{ item.goldTime }}" halign="left" textsize="1.5" valign="center2"/>	
+        <label pos="125 -2" z-index="1" size="25 4" text="{{ item.environment }}" halign="left" textsize="1.5" valign="center2"/>		       
+        <entry pos="150 -2" z-index="1" size="50 4" default="{{ item.mapUid }}" halign="left" textsize="1.5" valign="center2"/>
+        {% if (loop.index0 % 2) == 0 %}
+        <quad pos="-2 -2" z-index="0" size="216 4" bgcolor="306" valign="center2"/>
+        {% else %}
+        <quad pos="-2 -2" z-index="0" size="216 4" bgcolor="104" valign="center2"/>
+        {% endif %}
+	    </frame>
+    {% endfor %}
+    </frame>
+
+    <frame pos="100 -93">
+        <quad pos="0 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowFirst" valign="center2" action="{{start}}" />
+        <quad pos="6 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowPrev" valign="center2" action="{{prev}}" />
+        <label pos="17 -2.5" z-index="1" size="12 6" text="$fff$o{{ data.currentPage + 1 }}/{{ data.totalPages }}" halign="center" textsize="1" valign="center2"/>
+        <quad pos="22 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowNext" valign="center2" action="{{next}}" />
+        <quad pos="28 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowLast" valign="center2" action="{{end}}"/>        
+    </frame>
+    <quad pos="0 -6" z-index="-1" size="220 95" bgcolor="206" />
+
+</frame>
+</manialink>
