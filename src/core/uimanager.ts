@@ -62,7 +62,7 @@ export default class UiManager {
     }
     async init() {
         if (tmc.game.Name == "TmForever") {            
-            await this.server.call('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);            
+            this.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);            
         }
     }
 
@@ -81,10 +81,10 @@ export default class UiManager {
         for (let id in this.publicManialinks) {
             multi.push(['SendDisplayManialinkPageToLogin', login, this.publicManialinks[id], 0, false]);
         }
-        await this.server.gbx.multicall(multi);
+        this.server.gbx.multicall(multi);
 
         if (tmc.game.Name == "TmForever") {
-            await this.server.call('SendDisplayManialinkPageToLogin', login, this.getTmufCustomUi(), 0, false);
+            this.server.send('SendDisplayManialinkPageToLogin', login, this.getTmufCustomUi(), 0, false);
         }
     }
 
@@ -102,26 +102,24 @@ export default class UiManager {
     async display(manialink: string, login: string | string[] | undefined = undefined) {
         const xml = `<manialinks>${this.convert(manialink)}</manialinks>`;
         if (login !== undefined) {
-            await this.server.call('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
+            this.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
             return;
         }
         const id = xml.match(/<manialink id="(\d+)"/);
         if (id) {
             this.publicManialinks[id[1].toString()] = xml;
         }
-        await this.server.call("SendDisplayManialinkPage", xml, 0, false);
+        this.server.send("SendDisplayManialinkPage", xml, 0, false);
     }
 
     async hide(id: string, login: string | string[] | undefined = undefined) {
         const manialink = `<manialinks><manialink id="${id}"></manialink></manialinks>`;
-
         if (login !== undefined) {
-            await this.server.call('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), manialink, 0, false)
+            this.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), manialink, 0, false)
             return;
         }
         delete this.publicManialinks[id.toString()];
-        await this.server.call("DisplayManialinkPage", manialink, 0, false);
-
+        this.server.send("DisplayManialinkPage", manialink, 0, false);
     }
 
     private getTmufCustomUi() {

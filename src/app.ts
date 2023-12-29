@@ -20,7 +20,8 @@ class MiniControl {
     chatCommands: ChatCommand[] = [];
     maps: MapManager;
 
-    constructor() {        
+    constructor() {
+        console.time("Startup");        
         this.server = new TmServer(new GbxClient());
         this.maps = new MapManager(this.server);
         this.players = new PlayerManager(this.server);
@@ -41,7 +42,7 @@ class MiniControl {
     addPlugin(name: string, object: any) {
         if (!this.plugins[name]) {
             this.plugins[name] = object;
-            this.cli(`Plugin $fd0${name}$fff loaded.`);
+            this.cli(`$aaaPlugin $fd0${name}$fff loaded.`);
         }
     }
 
@@ -55,9 +56,9 @@ class MiniControl {
 
     async chat(text: string, login: undefined | string | string[] = undefined) {
         if (login !== undefined) {
-            await this.server.call("ChatSendServerMessageToLogin", "$z$5f0» $fff" + text.toString().replaceAll("$s", ""), (typeof login == "string") ? login : login.join(","));
+            this.server.send("ChatSendServerMessageToLogin", "$z$5f0» $fff" + text.toString().replaceAll("$s", ""), (typeof login == "string") ? login : login.join(","));
         } else {
-            await this.server.call("ChatSendServerMessage", controllerStr + " $fff» " + text.replaceAll("$s", ""));
+            this.server.send("ChatSendServerMessage", controllerStr + " $fff» " + text.replaceAll("$s", ""));
         }
     }
 
@@ -75,8 +76,8 @@ class MiniControl {
             console.log(e.message);
             process.exit();
         }
-        await this.server.call("EnableCallbacks", true);
-        await this.server.call("SendHideManialinkPage");
+        this.server.send("EnableCallbacks", true);
+        this.server.send("SendHideManialinkPage");
         this.game = await this.server.call("GetVersion");
 
         if (this.game.Name == "Trackmania") {
@@ -86,7 +87,7 @@ class MiniControl {
         } else {
             this.mapsPath = await this.server.call("GetTracksDirectory");
         }
-        
+
         await this.maps.init();
         await this.players.init();
         await this.ui.init();
@@ -144,6 +145,7 @@ class MiniControl {
         });
         this.cli("Controller $0f0ready.");
         this.chat("ready");
+        console.timeEnd("Startup");
     }
 }
 

@@ -70,7 +70,7 @@ export default class PlayerManager {
 
     async getPlayer(login: string): Promise<Player> {
         if (this.players[login]) return this.players[login];
-        tmc.debug(`Player ${login} not found, fetching from server.`);
+        tmc.debug(`$888 Player ${login} not found, fetching from server.`);
 
         const data = await this.server.call("GetPlayerInfo", login);
         const player = new Player();

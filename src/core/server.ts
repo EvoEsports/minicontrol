@@ -64,11 +64,32 @@ export default class Server extends EventEmitter {
         })
     }
 
+    /**
+     * send request and wait for response
+     * @param method
+     * @param args 
+     * @returns 
+     */
     async call(method: string, ...args: any) {
         if (tmc.game.Name == "TmForever") {
             method = method.replace("Map", "Challenge");
         }
+        tmc.debug("call >$888 " + method);
         return await this.gbx.call(method, ...args);
+    }
+
+    /**
+     * send request and forget request
+     * @param method 
+     * @param args 
+     * @returns 
+     */
+    send(method: string, ...args: any) {
+        if (tmc.game.Name == "TmForever") {
+            method = method.replace("Map", "Challenge");
+        }
+        tmc.debug("$090send >$686 " + method);
+        return this.gbx.call(method, ...args);
     }
 
     async callScript(method: string, ...args: any) {
