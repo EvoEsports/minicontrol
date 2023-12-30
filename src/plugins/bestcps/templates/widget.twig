@@ -2,7 +2,7 @@
 	<frame pos="-140 90">
 	{% for data in checkpoints %}
         {% if data.prettyTime != "" %}
-            <frame pos="{{ 31 * (loop.index0 % 8) }} -{{ (loop.index0 // 8 ) * 4 }}">            
+            <frame pos="{{ 31 * (loop.index0 % 8) }} -{{ (loop.index0 // 8 ) * 4.5 }}">            
             <label pos="2 -2" z-index="1" size="3 4" text="$n$o{{ loop.index }}" halign="center" textsize="0.9" valign="center2"/>
             <quad pos="2 -2" z-index="0" size="3 4" bgcolor="{{colors.brand}}e" valign="center" halign="center" />
 
