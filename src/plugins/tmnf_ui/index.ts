@@ -1,5 +1,5 @@
 
-let environments = ['Stadium', 'Desert', 'Snow', 'Bay', 'Coast', 'Island', 'Rally'];
+let environments = ['Stadium', 'Speed', 'Alpine', 'Bay', 'Coast', 'Island', 'Rally'];
 
 export class TmnfUiPlugin {
     constructor() {
