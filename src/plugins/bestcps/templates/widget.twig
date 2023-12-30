@@ -1,16 +1,16 @@
 <manialink id="{{id}}" version="3">
-	<frame pos="-135 90">
+	<frame pos="-140 90">
 	{% for data in checkpoints %}
         {% if data.prettyTime != "" %}
-            <frame pos="{{ 31 * (loop.index0 % 8) }} -{{ (loop.index0 // 8 ) * 4 }}">
-            <quad pos="2 -1.5" z-index="0" size="3 3" bgcolor="0269" valign="center" halign="center" />
+            <frame pos="{{ 31 * (loop.index0 % 8) }} -{{ (loop.index0 // 8 ) * 4 }}">            
             <label pos="2 -1.5" z-index="1" size="3 3" text="{{ loop.index }}" halign="center" textsize="0.8" valign="center2"/>
+            <quad pos="2 -1.5" z-index="0" size="3 3" bgcolor="{{colors.brand}}a" valign="center" halign="center" />
 
             <label pos="4.5 -1.5" z-index="1" size="15 3" text="{{ data.nick }}" halign="left" textsize="0.8" valign="center2"/>
-            <quad pos="3.75 -1.5" z-index="0" size="16 3" bgcolor="0269" valign="center" halign="left"/>
+            <quad pos="3.75 -1.5" z-index="0" size="16 3" bgcolor="{{colors.bg}}a" valign="center" halign="left"/>
 
             <label pos="25 -1.5" z-index="1" size="10 3" text="{{ data.prettyTime }}" halign="center" textsize="0.8" valign="center2"/>
-            <quad pos="25 -1.5" z-index="0" size="10 3" bgcolor="0269" valign="center" halign="center"/>
+            <quad pos="25 -1.5" z-index="0" size="10 3" bgcolor="{{colors.bg}}a" valign="center" halign="center"/>
             </frame>
         {% endif %}
 {% endfor %}</frame>
