@@ -35,7 +35,6 @@ class MapManager {
     }
 
     private async onMapListModified(data: any) {
-        data = data[0];
         if (data[2]) {
             this.init();
         }
