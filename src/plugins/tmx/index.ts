@@ -4,6 +4,23 @@ class TmxPlugin {
     constructor() {
         tmc.addCommand("//tmx add", this.addMap.bind(this));
         tmc.addCommand("//tmxpack add", this.addMapPack.bind(this));
+        tmc.server.on("TMC.Init", this.onInit.bind(this));
+    }
+
+    async onInit() {
+        if (tmc.game.Name == "TmForever") {
+            tmc.addCommand("//tmux add", this.addTmuMap.bind(this));
+            tmc.addCommand("//tmuxpack add", this.addMapPackTmu.bind(this));
+        }
+    }
+
+    async addMapPackTmu(login: string, params: string[]) {
+        const player = await tmc.getPlayer(login);
+        if (!params[0]) {
+            await tmc.chat("No maps to fetch", login);
+            return;
+        }
+        return await this.addTmnPack(login, params[0], "tmuf");
     }
 
     async addMapPack(login: string, params: string[]) {
@@ -22,7 +39,7 @@ class TmxPlugin {
     }
 
     async addTmxPack(login: string, packid: string) {
-        const res = await fetch(`https://trackmania.exchange//api/mappack/get_mappack_tracks/${packid}`);
+        const res = await fetch(`https://trackmania.exchange/api/mappack/get_mappack_tracks/${packid}`);
         const json: any = await res.json();
         await tmc.chat("Processing Pack " + packid);
         if (!json) {
@@ -42,8 +59,8 @@ class TmxPlugin {
         }
     }
 
-    async addTmnPack(login: string, packid: string) {
-        const res = await fetch(`https://tmnf.exchange/api/tracks?packid=${packid}&fields=TrackId,TrackName`);
+    async addTmnPack(login: string, packid: string, site = "tmnf") {
+        const res = await fetch(`https://${site}.exchange/api/tracks?packid=${packid}&fields=TrackId,TrackName`);
         const json: any = await res.json();
         await tmc.chat("Processing Track Pack " + packid);
         if (!json) {
@@ -52,18 +69,29 @@ class TmxPlugin {
         for (let data of json.Results) {
             try {
                 await tmc.chat(`Downloading: ${data.TrackName}`);
-                await this.download(data.TrackId, login, false);
+                await this.download(data.TrackId, login, false, site);
             } catch (err: any) {
                 await tmc.chat(`$f00Error: ${err.message}`);
             }
         }
     }
 
+    async addTmuMap(login: string, params: string[]) {
+        const player = await tmc.getPlayer(login);
+        if (!params[0]) {
+            await tmc.chat("¤error¤No maps to fetch", login);
+            return;
+        }
+
+        for (let id of params[0].split(",")) {
+            await this.download(id, login, true, "tmuf");
+        }
+    }
 
     async addMap(login: string, params: string[]) {
         const player = await tmc.getPlayer(login);
         if (!params[0]) {
-            await tmc.chat("No maps to fetch", login);
+            await tmc.chat("¤error¤No maps to fetch", login);
             return;
         }
 
@@ -72,11 +100,11 @@ class TmxPlugin {
         }
     }
 
-    async download(id: string, login: string, announce: boolean = true) {
+    async download(id: string, login: string, announce: boolean = true, site: string = "tmnf") {
         let res = undefined;
         let ext = ".Map.Gbx";
         if (tmc.game.Name == "TmForever") {
-            res = await fetch(`https://tmnf.exchange/trackgbx/${id}`);
+            res = await fetch(`https://${site}.exchange/trackgbx/${id}`);
             ext = ".Challenge.Gbx";
         } else {
             res = await fetch(`https://trackmania.exchange/maps/download/${id}`);
@@ -99,13 +127,13 @@ class TmxPlugin {
                 }
                 await tmc.server.call("InsertMap", `tmx/${id}${ext}`);
                 if (announce) {
-                    await tmc.chat(`Added MapId: ${id} from tmx!`);                  
-                } 
+                    await tmc.chat(`Added MapId: ${id} from tmx!`);
+                }
                 return;
             } catch (err: any) {
                 await tmc.chat(err, login);
                 return;
-            }            
+            }
         }
         if (!fs.existsSync(`${tmc.mapsPath}tmx/`)) fs.mkdirSync(`${tmc.mapsPath}tmx/`);
         const abuffer = await (await res.blob()).arrayBuffer();
