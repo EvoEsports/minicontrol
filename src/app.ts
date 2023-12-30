@@ -8,8 +8,8 @@ import { processColorString } from './core/utils';
 import 'dotenv/config'
 import log from './core/log';
 
-const controllerStr = "$z$n¤brand¤$oMINI$o$fffcontrol$z$fff ";
-
+const controllerStr = "$z$n¤brand¤$oMINI$o$fffcontrol$z$fff";
+const version = "1.0";
 class MiniControl {
     server: TmServer;
     players: PlayerManager;
@@ -145,13 +145,13 @@ class MiniControl {
                 this.chat(`Command $<¤cmd¤${text}$> not found.`, login);
             }
         });
-        this.cli("ready");
-        this.chat("ready");
+        this.cli(`¤white¤ready`);
+        await this.chat(``);
     }
 }
 
 const TMC = new MiniControl();
-TMC.run();
+(async () => await TMC.run())();
 
 declare global {
     const tmc: MiniControl

@@ -11,7 +11,7 @@ export default class UiManager {
 
     constructor(server: Server) {
         this.server = server;
-        server.on("Trackmania.PlayerManialinkPageAnswer", (data) => this.onManialinkAnswer(data));       
+        server.on("Trackmania.PlayerManialinkPageAnswer", (data) => this.onManialinkAnswer(data));
         server.on("Trackmania.PlayerConnect", (data) => this.onPlayerConnect(data));
     }
 
@@ -61,8 +61,8 @@ export default class UiManager {
         }
     }
     async init() {
-        if (tmc.game.Name == "TmForever") {            
-            this.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);            
+        if (tmc.game.Name == "TmForever") {
+            this.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
         }
     }
 
@@ -94,32 +94,40 @@ export default class UiManager {
     }
 
     render(xml: string, options: object): string {
-        const template = Twig.twig({ data: xml });        
+        const template = Twig.twig({ data: xml });
         return template.render(options);
     }
 
 
     async display(manialink: string, login: string | string[] | undefined = undefined) {
         const xml = `<manialinks>${this.convert(manialink)}</manialinks>`;
-        if (login !== undefined) {
-            this.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
-            return;
+        try {
+            if (login !== undefined) {
+                this.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
+                return;
+            }
+            const id = xml.match(/<manialink id="(\d+)"/);
+            if (id) {
+                this.publicManialinks[id[1].toString()] = xml;
+            }
+            this.server.send("SendDisplayManialinkPage", xml, 0, false);
+        } catch (e) {
+            tmc.debug(e);
         }
-        const id = xml.match(/<manialink id="(\d+)"/);
-        if (id) {
-            this.publicManialinks[id[1].toString()] = xml;
-        }
-        this.server.send("SendDisplayManialinkPage", xml, 0, false);
     }
 
     async hide(id: string, login: string | string[] | undefined = undefined) {
+        try {
         const manialink = `<manialinks><manialink id="${id}"></manialink></manialinks>`;
         if (login !== undefined) {
             this.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), manialink, 0, false)
             return;
         }
         delete this.publicManialinks[id.toString()];
-        this.server.send("DisplayManialinkPage", manialink, 0, false);
+        this.server.send("SendDisplayManialinkPage", manialink, 0, false);
+        } catch(e){
+            tmc.debug(e);
+        }
     }
 
     private getTmufCustomUi() {

@@ -4,7 +4,8 @@ export interface ChatCommand {
 }
 
 export interface Map {
-    UId: string;    
+    UId: string;  
+    Name: string;  
     Author: string;
     AuthorNickName?: string;     
     AuthorTime: number;

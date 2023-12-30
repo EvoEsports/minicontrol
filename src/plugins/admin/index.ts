@@ -106,11 +106,15 @@ class AdminPlugin {
             if (!params[0] && isNaN(Number.parseInt(params[0]))) {
                 return await tmc.chat("//jump needs numeric value");
             }
-            try {                                
-                const index = Number.parseInt(params[0])-1;            
-                await tmc.server.call("SetNextMapIndex", index);
-                await tmc.chat(`Jumped to ${params[0]}`);
-                await tmc.server.call("NextMap");
+            try {
+                const index = Number.parseInt(params[0]) - 1;
+                const maps = tmc.maps.get();
+                if (maps[index]) {
+                    const map = maps[index];
+                    await tmc.chat(`¤info¤Jumped to ¤white¤${map.Name}¤info¤ by ¤white¤${map.AuthorNickName ? map.AuthorNickName : map.Author}`);
+                    await tmc.server.call("SetNextMapIndex", index);
+                    tmc.server.send("NextMap");
+                }
             } catch (err: any) {
                 await tmc.chat(err.message, login);
             }

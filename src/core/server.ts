@@ -4,9 +4,10 @@ import 'dotenv/config'
 
 export default class Server extends EventEmitter {
     gbx: GbxClient
+    methodOverrides: { [key: string]: CallableFunction } = {};
 
     constructor(gbx: GbxClient) {
-        super();        
+        super();
         this.gbx = gbx;
         const that = this;
         gbx.on("callback", (method, data) => {
@@ -57,7 +58,7 @@ export default class Server extends EventEmitter {
                     return;
                 }
             }
-            if (process.env.DEBUG == "true") {       
+            if (process.env.DEBUG == "true") {
                 console.log(method, data);
             }
             that.emit(method, data);
@@ -75,7 +76,19 @@ export default class Server extends EventEmitter {
             method = method.replace("Map", "Challenge");
         }
         tmc.debug("call >$888 " + method);
+
+        if (this.methodOverrides[method]) {
+            return await this.methodOverrides[method](...args);
+        }
         return await this.gbx.call(method, ...args);
+    }
+
+    async addOverride(method: string, callback: Function) {
+        this.methodOverrides[method] = callback;
+    }
+
+    async removeOverride(method: string) {
+        delete this.methodOverrides[method];
     }
 
     /**
