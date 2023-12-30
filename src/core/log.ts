@@ -1,15 +1,7 @@
 import chalk from "chalk";
+import { rgb2hsl } from "./utils";
 
 function Tm2Console(input: string, ansi256: boolean = false) {
-    const rgb2hsl = (r: number, g: number, b: number) => {
-        let v = Math.max(r, g, b),
-            c = v - Math.min(r, g, b),
-            f = 1 - Math.abs(v + v - c - 1);
-        let h =
-            c && (v == r ? (g - b) / c : v == g ? 2 + (b - r) / c : 4 + (r - g) / c);
-        return [60 * (h < 0 ? h + 6 : h), f ? c / f : 0, (v + v - c) / 2];
-    };
-
     const chunks = input.split(/([$][0-9A-F]{3}|[$][zsowin])/gi);
     const ansi_esc = String.fromCharCode(0x1b);
     //const ansi_esc = ``;
@@ -19,9 +11,9 @@ function Tm2Console(input: string, ansi256: boolean = false) {
         if (str == "$n") return "";
         if (str == "$z") return ansi_esc + "[0m";
         if (str == "$s") return ansi_esc + "[0m";
-        if (str == "$i") return ansi_esc + "[3m";        
+        if (str == "$i") return ansi_esc + "[3m";
         if (str.match(/[$][obw]/gi)) return ansi_esc + "[1m";
-        
+
 
         const [r, g, b] = str.replace("$", "").split("");
         const [h, s, l] = rgb2hsl(c(r), c(g), c(b));
@@ -56,7 +48,7 @@ function Tm2Console(input: string, ansi256: boolean = false) {
             prefix = 9;
             ansi = 7;
         }
-        const cc = (str: string) => parseInt(str, 16) * 17;      
+        const cc = (str: string) => parseInt(str, 16) * 17;
         return ansi256
             ? ansi_esc + `[38;2;${cc(r)};${cc(g)};${cc(b)}m`
             : ansi_esc + `[${prefix}${ansi}m`;

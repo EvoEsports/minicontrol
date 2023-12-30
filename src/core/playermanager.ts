@@ -18,10 +18,10 @@ export class Player {
 
 export default class PlayerManager {
     players: any = {};
-    server: Server;
+    private server: Server;
 
     constructor(server: Server) {
-        this.server = server;        
+        this.server = server;
         this.server.on("Trackmania.PlayerInfoChanged", this.onPlayerInfoChanged.bind(this));
     }
 
@@ -57,10 +57,17 @@ export default class PlayerManager {
         }
     }
 
+    /**    
+     * @returns {Player[]} Returns the current playerlist
+     */
     get(): Player[] {
         return Object.values(this.players);
     }
 
+    /**
+     * @param nickname 
+     * @returns {Player | null} Returns the player object or null if not found
+     */
     async getPlayerbyNick(nickname: string): Promise<Player | null> {
         for (let player in this.players) {
             if (this.players[player].nick == nickname) return this.players[player];
@@ -68,6 +75,11 @@ export default class PlayerManager {
         return null;
     }
 
+    /**
+     * 
+     * @param login 
+     * @returns {Player} Returns the player object
+     */
     async getPlayer(login: string): Promise<Player> {
         if (this.players[login]) return this.players[login];
         tmc.debug(`$888 Player ${login} not found, fetching from server.`);

@@ -6,18 +6,18 @@ class MapManager {
     private maps: { [key: string]: Map; };
     currentMap?: Map;
     currentmapIndex: number = 0;
-    server: Server;
+    private server: Server;
 
     constructor(server: Server) {
         this.server = server;
         this.maps = {};
         server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
-        server.on("Trackmania.MapListModified", this.onMapListModified.bind(this));      
+        server.on("Trackmania.MapListModified", this.onMapListModified.bind(this));
     }
 
     async init() {
         this.maps = {};
-        this.currentMap = await this.server.call("GetCurrentMapInfo");        
+        this.currentMap = await this.server.call("GetCurrentMapInfo");
         const serverMaps = await this.server.call("GetMapList", -1, 0);
         let i = 0;
 
@@ -30,11 +30,11 @@ class MapManager {
         }
     }
 
-    async onBeginMap(data: any) {
+    private async onBeginMap(data: any) {
         this.currentMap = data[0];
     }
 
-    async onMapListModified(data: any) {
+    private async onMapListModified(data: any) {
         data = data[0];
         if (data[2]) {
             this.init();
@@ -51,14 +51,33 @@ class MapManager {
         }
     }
 
+    /**
+     * get maps
+     * @returns {Map[]} Returns the current maplist
+     */
     get() {
         return Object.values(this.maps);
     }
 
+    /**
+     * get mapslist
+     * @returns {Map[]} Returns the current maplist
+     */
+    getMaplist() {
+        return Object.values(this.maps);
+    }
+
+    /**
+     * get map uids
+     * @returns {string[]} Returns the current map uids
+     */
     getUids() {
         return Object.keys(this.maps);
     }
 
+    /**
+     * @returns {number} Returns the total number of maps present at server
+     */
     getMapCount() {
         return Object.values(this.maps).length;
     }

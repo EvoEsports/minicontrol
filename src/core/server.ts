@@ -105,10 +105,22 @@ export default class Server extends EventEmitter {
         return this.gbx.call(method, ...args);
     }
 
+    /**
+     *  call script method
+     * @param method 
+     * @param args 
+     * @returns 
+     */
     async callScript(method: string, ...args: any) {
         return await this.gbx.callScript(method, ...args);
     }
 
+    /**
+     * connect to server
+     * @param host 
+     * @param port 
+     * @returns {boolean} Returns true if connection was successful
+     */
     async connect(host: string, port: number) {
         return await this.gbx.connect(host, port);
     }

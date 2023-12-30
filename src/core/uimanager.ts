@@ -1,13 +1,13 @@
 import Twig from 'twig';
 import fs from 'fs';
 import Server from "./server";
+import { colors } from './utils';
 
 export default class UiManager {
-    server: Server;
-    counter = 0;
+    private server: Server;
+    private counter = 0;
     private actions: any = {};
-    transform: any;
-    publicManialinks: any = {};
+    private publicManialinks: any = {};
 
     constructor(server: Server) {
         this.server = server;
@@ -15,7 +15,7 @@ export default class UiManager {
         server.on("Trackmania.PlayerConnect", (data) => this.onPlayerConnect(data));
     }
 
-    convertLine(line: string): string {
+    private convertLine(line: string): string {
         const matches = line.matchAll(/(pos|size)="([-.\d]+)\s+([-.\d]+)"/g);
         let out = line;
         for (let match of matches) {
@@ -29,7 +29,7 @@ export default class UiManager {
         return out;
     }
 
-    convert(text: string): string {
+    private convert(text: string): string {
         if (tmc.game.Name !== "TmForever") return text;
 
         let lines = text.split('\n');
@@ -40,6 +40,11 @@ export default class UiManager {
         return out;
     }
 
+    /**
+     * generate new uuid for manialink
+     * @param nb 
+     * @returns 
+     */
     uuid(nb = 36) {
         const uuid = [], rnd = Math.random;
         let r;
@@ -49,17 +54,28 @@ export default class UiManager {
         return uuid.join('');
     }
 
+    /**
+     * Add manialink action, increase manialink counter by one
+     * @param callback 
+     * @param data
+     * @returns {Number}
+     */
     addAction(callback: CallableFunction, data: any): number {
         this.counter += 1;
         this.actions[this.counter.toString()] = { callback: callback, data: data };
         return this.counter;
     }
 
+    /**
+     * remove manialink action
+     * @param actionId 
+     */
     removeAction(actionId: number) {
         if (this.actions[actionId.toString()]) {
             delete this.actions[actionId.toString()];
         }
     }
+
     async init() {
         if (tmc.game.Name == "TmForever") {
             this.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
@@ -88,17 +104,36 @@ export default class UiManager {
         }
     }
 
+    /**
+     * Get manialink template from file and render it
+     * @param file 
+     * @param options 
+     * @returns 
+     */
     renderFile(file: string, options: object): string {
         const template = Twig.twig({ data: fs.readFileSync(file).toString('utf-8') });
-        return template.render(options);
+
+        return template.render(Object.assign(options, { colors: colors }));
     }
 
+    /**
+     * render manialink template
+     * @param xml 
+     * @param options 
+     * @returns 
+     */
     render(xml: string, options: object): string {
         const template = Twig.twig({ data: xml });
-        return template.render(options);
+        return template.render(Object.assign(options, { colors: colors }));
     }
 
 
+    /**
+     * show manialink
+     * @param manialink 
+     * @param login 
+     * @returns 
+     */
     async display(manialink: string, login: string | string[] | undefined = undefined) {
         const xml = `<manialinks>${this.convert(manialink)}</manialinks>`;
         try {
@@ -116,20 +151,29 @@ export default class UiManager {
         }
     }
 
+    /**
+     * hide manialink
+     * @param id 
+     * @param login 
+     * @returns 
+     */
     async hide(id: string, login: string | string[] | undefined = undefined) {
         try {
-        const manialink = `<manialinks><manialink id="${id}"></manialink></manialinks>`;
-        if (login !== undefined) {
-            this.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), manialink, 0, false)
-            return;
-        }
-        delete this.publicManialinks[id.toString()];
-        this.server.send("SendDisplayManialinkPage", manialink, 0, false);
-        } catch(e){
+            const manialink = `<manialinks><manialink id="${id}"></manialink></manialinks>`;
+            if (login !== undefined) {
+                this.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), manialink, 0, false)
+                return;
+            }
+            delete this.publicManialinks[id.toString()];
+            this.server.send("SendDisplayManialinkPage", manialink, 0, false);
+        } catch (e) {
             tmc.debug(e);
         }
     }
 
+    /**      
+     * @returns {string} Returns the default ui for tmuf
+     */
     private getTmufCustomUi() {
         return `
         <custom_ui>

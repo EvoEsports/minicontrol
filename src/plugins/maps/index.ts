@@ -68,7 +68,7 @@ export class MapsPlugin {
 
     async cmdMaps(login: any, args: string[]) {
         this.page[login] = 0;
-        this.mapsList = await tmc.server.call("GetMapList", -1, 0);        
+        this.mapsList = tmc.maps.get();
         await this.uiPaginate(login, "start");
     }
 
