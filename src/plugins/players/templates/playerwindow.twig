@@ -8,6 +8,7 @@
             <label pos="0 -2" z-index="1" size="4 5" text="#" halign="left" textsize="2" valign="center2"/>
             <label pos="4.5 -2" z-index="1" size="50 5" text="Nickname" halign="left" textsize="2" valign="center2"/>
             <label pos="55 -2" z-index="1" size="50 5" text="Login" halign="left" textsize="2" valign="center2"/>		
+            <quad pos="-2 -4" z-index="0" size="216 0.2" bgcolor="eee" valign="center2"/>
         </frame>
         {% for item in data.items %}
             <frame pos="0 -{{ loop.index * 5 }}" z-index="1">
@@ -16,6 +17,9 @@
                 <entry pos="55 -2" z-index="1" size="50 4" default="{{ item.login }}" halign="left" textsize="2" focusareacolor1="0000" focusareacolor2="{{color.bg_dark}}" valign="center2"/>		       
                 {% if (loop.index0 % 2) == 0 %}
                     <quad pos="-2 -2" z-index="0" size="216 4" bgcolor="fff1" valign="center2"/>       
+                {% endif %}
+                {% if loop.last %}
+                    <quad pos="-2 -4" z-index="0" size="216 0.2" bgcolor="eee" valign="center2"/>
                 {% endif %}
             </frame>
         {% endfor %}
