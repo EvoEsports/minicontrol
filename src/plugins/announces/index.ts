@@ -7,7 +7,7 @@ export class AnnouncesPlugin {
 
     async onBeginMap(data: any) {
         const info = data[0];
-        const msg = `Now Playing: ¤white¤${info.Name}¤brand¤ by ¤white¤${info.AuthorNickname?info.AuthorNickname:info.Author}`;
+        const msg = `¤info¤Now Playing: ¤white¤${info.Name}¤info¤ by ¤white¤${info.AuthorNickname?info.AuthorNickname:info.Author}`;
         await tmc.chat(msg);
         tmc.cli(msg);
     }
@@ -15,7 +15,7 @@ export class AnnouncesPlugin {
     async onPlayerConnect(data: any) {
         const login = data[0];
         const player = await tmc.getPlayer(login);
-        const msg = `¤white¤${player.nick}¤brand¤ has joined!`;
+        const msg = `¤white¤${player.nick}¤info¤ has joined!`;
         await tmc.chat(msg);
         tmc.cli(msg);
     }
@@ -23,7 +23,7 @@ export class AnnouncesPlugin {
     async onPlayerDisconnect(data: any) {
         const login = data[0];
         const player = await tmc.getPlayer(login);
-        const msg = `¤white¤${player.nick}¤brand¤ has left!`;
+        const msg = `¤white¤${player.nick}¤info¤ has left!`;
         await tmc.chat(msg);
         tmc.cli(msg);
     }

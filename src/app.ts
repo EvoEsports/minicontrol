@@ -59,7 +59,7 @@ class MiniControl {
             const msg = "$z$s$5f0» ¤white¤" + text.toString().replaceAll("", "");
             this.server.send("ChatSendServerMessageToLogin", processColorString(msg, "$z$s"), (typeof login == "string") ? login : login.join(","));
         } else {
-            const msg = controllerStr + " »¤brand¤ " + text.replaceAll("", "")
+            const msg = controllerStr + " »¤info¤ " + text.replaceAll("", "")
             this.server.send("ChatSendServerMessage", processColorString(msg, "$z$s"));
         }
     }
@@ -68,14 +68,14 @@ class MiniControl {
         const port = Number.parseInt(process.env.PORT || "5000");
         const status = await this.server.connect(process.env.HOST ?? "127.0.0.1", port);
         if (!status) {
-            this.cli("Couldn't connect to server.");
+            this.cli("¤error¤Couldn't connect to server.");
             process.exit();
         }
-        this.cli("$0afConnected to Trackmania Dedicated server.");
+        this.cli("¤info¤Connected to Trackmania Dedicated server.");
         try {
             await this.server.call("Authenticate", process.env.USER ?? "SuperAdmin", process.env.PASS ?? "SuperAdmin");
         } catch (e: any) {
-            this.cli("Authenticate to server failed.");
+            this.cli("¤error¤Authenticate to server failed.");
             this.cli(e.message);
             process.exit();
         }
