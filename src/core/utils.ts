@@ -57,12 +57,12 @@ export function randomInt(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export function processColorString(str: string, prefix: string = "$"): string {
+export function processColorString(str: string, prefix: string = ""): string {
     const matches = str.matchAll(/¤(\w+)¤/g);
     for (let match of matches) {
         const code = match[1].toString().toLowerCase();
         if (colors[code]) {
-            str = str.replaceAll(match[0], `${prefix}${colors[code]}`);
+            str = str.replaceAll(match[0], `${prefix}$${colors[code]}`);
         }
     }
     return str;

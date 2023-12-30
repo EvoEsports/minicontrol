@@ -8,7 +8,7 @@ import { processColorString } from './core/utils';
 import 'dotenv/config'
 import log from './core/log';
 
-const controllerStr = "$z$n¤brand¤$oMINI$o$fffcontrol$z$fff";
+const controllerStr = "$z$s$n$fff$oMINI$ocontrol$z$s$fff";
 const version = "1.0";
 class MiniControl {
     server: TmServer;
@@ -26,7 +26,6 @@ class MiniControl {
         this.maps = new MapManager(this.server);
         this.players = new PlayerManager(this.server);
         this.ui = new UiManager(this.server);
-        this.cli(controllerStr);
         this.admins = (process.env.ADMINS || "").split(",");
         this.game = { Name: "" };
     }
@@ -56,11 +55,11 @@ class MiniControl {
 
     async chat(text: string, login: undefined | string | string[] = undefined) {
         if (login !== undefined) {
-            const msg = "$z$5f0» ¤white¤" + text.toString().replaceAll("$s", "");
-            this.server.send("ChatSendServerMessageToLogin", processColorString(msg), (typeof login == "string") ? login : login.join(","));
+            const msg = "$z$s$5f0» ¤white¤" + text.toString().replaceAll("", "");
+            this.server.send("ChatSendServerMessageToLogin", processColorString(msg, "$z$s"), (typeof login == "string") ? login : login.join(","));
         } else {
-            const msg = controllerStr + " »¤brand¤ " + text.replaceAll("$s", "")
-            this.server.send("ChatSendServerMessage", processColorString(msg, "$z$"));
+            const msg = controllerStr + " »¤brand¤ " + text.replaceAll("", "")
+            this.server.send("ChatSendServerMessage", processColorString(msg, "$z$s"));
         }
     }
 
@@ -68,14 +67,15 @@ class MiniControl {
         const port = Number.parseInt(process.env.PORT || "5000");
         const status = await this.server.connect(process.env.HOST ?? "127.0.0.1", port);
         if (!status) {
-            console.log("Couldn't connect to server.");
+            this.cli("Couldn't connect to server.");
             process.exit();
         }
+        this.cli("$0afConnected to Trackmania Dedicated server.");
         try {
             await this.server.call("Authenticate", process.env.USER ?? "SuperAdmin", process.env.PASS ?? "SuperAdmin");
         } catch (e: any) {
-            console.log("Authenticate to server failed.");
-            console.log(e.message);
+            this.cli("Authenticate to server failed.");
+            this.cli(e.message);
             process.exit();
         }
         this.server.send("EnableCallbacks", true);
@@ -145,8 +145,8 @@ class MiniControl {
                 this.chat(`Command $<¤cmd¤${text}$> not found.`, login);
             }
         });
-        this.cli(`¤white¤ready`);
-        await this.chat(``);
+        this.cli(`¤white¤Welcome to ${controllerStr} v${version}!`);
+        await this.server.send("ChatSendServerMessage", `Welcome to ${controllerStr} v${version}!`);
     }
 }
 
