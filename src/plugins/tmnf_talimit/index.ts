@@ -33,10 +33,15 @@ export default class TAlimitPlugin {
         this.startTime = Date.now();
         if (tmc.game.Name == "TmForever") {
             tmc.debug("TALimit: TmForever detected, enabling plugin.");
-            tmc.server.send("SetTimeAttackLimit", 0);
-            
+                    
             tmc.server.on("Trackmania.BeginRound", this.onBeginRound.bind(this));
             tmc.server.on("Trackmania.EndRound", this.onEndRound.bind(this));
+
+            if (await tmc.server.call("GetTimeAttackLimit") > 0) {
+                tmc.server.send("SetTimeAttackLimit", 0);
+                await tmc.chat("TALimit: TimeAttackLimit was set, disabling it.");
+                tmc.server.send("NextMap");
+            }
 
             tmc.addCommand("//extend", this.cmdExtendAdm.bind(this));
             tmc.addCommand("/extend", this.cmdExtend.bind(this));
