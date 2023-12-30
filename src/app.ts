@@ -9,7 +9,7 @@ import 'dotenv/config'
 import log from './core/log';
 
 const controllerStr = "$z$s$n$fff$oMINI$ocontrol$z$s$fff";
-const version = "1.0";
+
 class MiniControl {
     server: TmServer;
     players: PlayerManager;
@@ -20,6 +20,7 @@ class MiniControl {
     admins: string[];
     chatCommands: ChatCommand[] = [];
     maps: MapManager;
+    version: string = "1.0.0";
 
     constructor() {
         this.server = new TmServer(new GbxClient());
@@ -145,8 +146,8 @@ class MiniControl {
                 this.chat(`Command $<¤cmd¤${text}$> not found.`, login);
             }
         });
-        this.cli(`¤white¤Welcome to ${controllerStr} v${version}!`);
-        await this.server.send("ChatSendServerMessage", `Welcome to ${controllerStr} v${version}!`);
+        this.cli(`¤white¤Welcome to ${controllerStr} v${this.version}!`);
+        await this.server.send("ChatSendServerMessage", `Welcome to ${controllerStr} v${this.version}!`);
     }
 }
 
