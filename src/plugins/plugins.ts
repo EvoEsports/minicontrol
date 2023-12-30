@@ -7,3 +7,4 @@ import './mapwidget';
 import './tmx';
 import './announces';
 import './tmnf_talimit';
+import './tmnf_ui';
