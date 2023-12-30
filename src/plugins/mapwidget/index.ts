@@ -17,16 +17,16 @@ class MapWidget {
         this.action = tmc.ui.addAction(this.buttonClick.bind(this), null);
         this.template = fs.readFileSync(__dirname + "/templates/info.twig", "utf8").toString();
         tmc.server.on("TMC.Init", this.onInit.bind(this));
-        tmc.server.on("Trackmania.BeginMap", this.beginMap.bind(this));
     }
 
     async onInit() {
-        const info = tmc.maps.currentMap;        
-        this.nbCheckpoints = info?.NbCheckpoints||-1;
+        tmc.server.on("Trackmania.BeginMap", this.beginMap.bind(this));
+        const info = tmc.maps.currentMap;
+        this.nbCheckpoints = info?.NbCheckpoints || -1;
         await this.display([info]);
     }
 
-    async beginMap(data: any) {        
+    async beginMap(data: any) {
         this.display(data);
     }
 

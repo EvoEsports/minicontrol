@@ -1,10 +1,14 @@
 export class AnnouncesPlugin {
     constructor() {
+       tmc.server.on("TMC.Init", this.onInit.bind(this));
+    }
+
+    async onInit() {
         tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
         tmc.server.on("Trackmania.PlayerConnect", this.onPlayerConnect.bind(this));
         tmc.server.on("Trackmania.PlayerDisconnect", this.onPlayerDisconnect.bind(this));
     }
-
+    
     async onBeginMap(data: any) {
         const info = data[0];
         const msg = `¤info¤Now Playing: ¤white¤${info.Name}¤info¤ by ¤white¤${info.AuthorNickname?info.AuthorNickname:info.Author}`;

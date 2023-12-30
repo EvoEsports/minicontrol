@@ -3,12 +3,12 @@ class ChatPlugin {
 
     constructor() {
         tmc.server.on("TMC.Init", this.onInit.bind(this));
-        tmc.server.on("Trackmania.PlayerChat", this.onPlayerChat.bind(this));
     }
 
     async onInit() {
         try {
         tmc.server.send("ChatEnableManualRouting", true, false);
+        tmc.server.on("Trackmania.PlayerChat", this.onPlayerChat.bind(this));
         this.enabled = true;
         } catch (e) {
             this.enabled = false;
