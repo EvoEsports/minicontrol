@@ -2,7 +2,7 @@ import fs from 'fs';
 import tm from 'tm-essentials';
 
 interface Time {
-    nick: string;
+    nickname: string;
     time: number;
     prettyTime: string;
 }
@@ -35,7 +35,7 @@ class BesCpPlugin {
         this.bestTimes = [];
         for (let i = 0; i < this.nbCheckpoints; i++) {
             if (i >= this.maxCp) break;
-            this.bestTimes[i] = { time: 999999999, nick: "", prettyTime: "" };
+            this.bestTimes[i] = { time: 999999999, nickname: "", prettyTime: "" };
         }
     }
 
@@ -45,7 +45,7 @@ class BesCpPlugin {
         const nb = data[2];
         if (nb >= this.maxCp) return;
         if (this.bestTimes[nb] && time < this.bestTimes[nb].time) {
-            this.bestTimes[nb] = { nick: (await tmc.getPlayer(login)).nickname, time: time, prettyTime: tm.Time.fromMilliseconds(time).toTmString() };
+            this.bestTimes[nb] = { nickname: (await tmc.getPlayer(login)).nickname, time: time, prettyTime: tm.Time.fromMilliseconds(time).toTmString() };
         }
         await this.display();
     }
