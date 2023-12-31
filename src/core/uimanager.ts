@@ -27,7 +27,7 @@ export default class UiManager {
             const zindex = line.match(/z-index="(\d+)"/) || ["0", "0"];
             z = Number.parseInt(zindex[1]) ?? 0;
             out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="\d+"/, "");
-        }
+        }        
         return out;
     }
 

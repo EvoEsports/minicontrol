@@ -50,11 +50,11 @@ export default class ListWindow extends Window {
         } else if (answer == "next") {
             this.currentPage += 1;
         } else if (answer == "end") {
-            this.currentPage = Math.floor(this.items.length / this.pageSize);
+            this.currentPage = Math.floor((this.items.length - 1) / this.pageSize);
         }
 
         if (this.currentPage < 0) this.currentPage = 0;
-        if (this.currentPage > Math.floor(this.items.length / this.pageSize)) this.currentPage = Math.floor(this.items.length / this.pageSize);
+        if (this.currentPage > Math.floor((this.items.length - 1) / this.pageSize)) this.currentPage = Math.floor((this.items.length - 1) / this.pageSize);
         this.display();
     }
 

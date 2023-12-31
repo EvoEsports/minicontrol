@@ -1,5 +1,7 @@
 import tm from 'tm-essentials';
 import fs from 'fs';
+import { escape } from '../../core/utils';
+
 interface Time {
     login: string;
     time: number;
@@ -36,7 +38,7 @@ class MapWidget {
             id: this.id,
             action: this.action,
             author: data.AuthorNickname ? data.AuthorNickname : data.Author,
-            mapname: data.Name,
+            mapname: escape(data.Name),
             authortime: tm.Time.fromMilliseconds(data.AuthorTime).toTmString()
         });
         tmc.ui.display(file);

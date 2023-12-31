@@ -70,18 +70,18 @@ export function processColorString(str: string, prefix: string = ""): string {
 
 export function modLightness(color: string, percent: number) {
     const c = (str: string) => (parseInt(str, 16) * 17) / 255;
-    const [r, g, b] = color.split("");    
+    const [r, g, b] = color.split("");
     const [h, s, l] = rgb2hsl(c(r), c(g), c(b));
     let newL = l + (percent / 100);
     if (newL > 1) newL = 1.;
-    if (newL < 0) newL = 0.;   
+    if (newL < 0) newL = 0.;
     return hsl2rgb(h, s, newL).join("");
 }
 
 export function hsl2rgb(h: number, s: number, l: number) {
     let a = s * Math.min(l, 1 - l);
-    let f = (n: number, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);    
-    const cc = (nb: number) => Math.round(nb*16).toString(16);
+    let f = (n: number, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    const cc = (nb: number) => Math.round(nb * 16).toString(16);
     return [cc(f(0)), cc(f(8)), cc(f(4))];
 }
 
@@ -92,4 +92,7 @@ export function rgb2hsl(r: number, g: number, b: number) {
     let h =
         c && (v == r ? (g - b) / c : v == g ? 2 + (b - r) / c : 4 + (r - g) / c);
     return [60 * (h < 0 ? h + 6 : h), f ? c / f : 0, (v + v - c) / 2];
+}
+export function escape(str: string): string {
+    return str.replaceAll(/&/g, "&amp;").replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;").replaceAll(/"/g, "&quot;").replaceAll(/'/g, "&apos;");
 }
