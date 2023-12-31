@@ -4,13 +4,13 @@ import Server from "./server";
 
 export class Player {
     login: string = "";
-    nick: string = "";
+    nickname: string = "";
     isSpectator: boolean = false;
     teamId: number = -1;
 
     syncFromPlayerInfo(data: any) {
         this.login = data.Login;
-        this.nick = data.NickName;
+        this.nickname = data.NickName;
         this.teamId = Number.parseInt(data.TeamId);
         this.isSpectator = data.SpectatorStatus !== 0;
     }

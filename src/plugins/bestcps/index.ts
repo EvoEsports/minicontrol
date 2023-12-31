@@ -45,7 +45,7 @@ class BesCpPlugin {
         const nb = data[2];
         if (nb >= this.maxCp) return;
         if (this.bestTimes[nb] && time < this.bestTimes[nb].time) {
-            this.bestTimes[nb] = { nick: (await tmc.getPlayer(login)).nick, time: time, prettyTime: tm.Time.fromMilliseconds(time).toTmString() };
+            this.bestTimes[nb] = { nick: (await tmc.getPlayer(login)).nickname, time: time, prettyTime: tm.Time.fromMilliseconds(time).toTmString() };
         }
         await this.display();
     }

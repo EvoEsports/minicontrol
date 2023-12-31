@@ -23,7 +23,7 @@ class ChatPlugin {
         if (data[2].startsWith("/")) return;
         const player = await tmc.getPlayer(data[1]);
         const text = data[2];
-        const msg = `$fff${player.nick}$ff0 ${text}`;
+        const msg = `$fff${player.nickname}$ff0 ${text}`;
         tmc.server.send("ChatSendServerMessage", msg);
         tmc.cli(msg);
     }

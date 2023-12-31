@@ -2,12 +2,14 @@ import Twig from 'twig';
 import fs from 'fs';
 import Server from "./server";
 import { colors } from './utils';
+import { EventEmitter } from 'stream';
 
 export default class UiManager {
     private server: Server;
     private counter = 0;
     private actions: any = {};
     private publicManialinks: any = {};
+    events: EventEmitter = new EventEmitter();
 
     constructor(server: Server) {
         this.server = server;
@@ -63,6 +65,7 @@ export default class UiManager {
     addAction(callback: CallableFunction, data: any): number {
         this.counter += 1;
         this.actions[this.counter.toString()] = { callback: callback, data: data };
+        tmc.debug("Added action: " + this.counter.toString() + " total actions: " + Object.keys(this.actions).length.toString());
         return this.counter;
     }
 
@@ -73,6 +76,7 @@ export default class UiManager {
     removeAction(actionId: number) {
         if (this.actions[actionId.toString()]) {
             delete this.actions[actionId.toString()];
+            tmc.debug("deleted action: " + actionId.toString() + " total actions: " + Object.keys(this.actions).length.toString());
         }
     }
 

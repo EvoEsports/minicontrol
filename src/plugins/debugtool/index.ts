@@ -10,7 +10,7 @@ function tickHeapDump() {
             if (memMB < prevValue) {
                 prefix = "$0d0▼ -";
             }
-            tmc.cli("$3afCurrent Mem: $fff" + memMB.toFixed(1) + "Mb " + prefix +  Math.abs(memMB - prevValue).toFixed(1) + 'Mb $aaa(' + (memMB - startValue).toFixed(1) + "Mb)");
+            tmc.cli("¤info¤Current Mem: $fff" + memMB.toFixed(1) + "Mb " + prefix +  Math.abs(memMB - prevValue).toFixed(1) + 'Mb $aaa(' + (memMB - startValue).toFixed(1) + "Mb)");
             prevValue = memMB;
         }
     });

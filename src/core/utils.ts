@@ -2,10 +2,10 @@ import { PaginationResult } from "./types";
 export let colors: { [key: string]: string } = {
     white: "fff",
     black: "000",
-    brand: "112",
+    title: "112",
     bg: "334",
     cmd: "fd0",
-    info: "0af",
+    info: "0cf",
     success: "0f0",
     warning: "fa0",
     error: "f00",

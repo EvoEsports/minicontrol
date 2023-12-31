@@ -55,7 +55,7 @@ class MapManager {
      * @returns {Map[]} Returns the current maplist
      */
     get() {
-        return Object.values(this.maps);
+        return JSON.parse(JSON.stringify(Object.values(this.maps)));
     }
 
     /**
