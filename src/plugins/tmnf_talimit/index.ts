@@ -42,9 +42,7 @@ export default class TAlimitPlugin {
                 await tmc.chat("TALimit: TimeAttackLimit was set, disabling it.");
                 tmc.server.send("NextMap");
             }
-
-            tmc.addCommand("//extend", this.cmdExtendAdm.bind(this));
-            tmc.addCommand("/extend", this.cmdExtend.bind(this));
+               
             tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
             setInterval(this.tick.bind(this), 1000);
             this.active = true;

@@ -4,13 +4,14 @@ import ModeSettingsWindow from "./ModeSettingsWindow";
 class AdminPlugin {
 
     constructor() {
-        tmc.server.on("TMC.Init", this.onInit.bind(this));     
+        tmc.server.on("TMC.Init", this.onInit.bind(this));
     }
 
     async onInit() {
-        if (tmc.game.Name == "TmForever") return;
-        tmc.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");
-        tmc.addCommand("//set", this.cmdSetSetting.bind(this), "Set mode setting");       
+        if (tmc.game.Name != "TmForever") {
+            tmc.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");
+            tmc.addCommand("//set", this.cmdSetSetting.bind(this), "Set mode setting");                 
+        }
         tmc.addCommand("//skip", async () => await tmc.server.call("NextMap"), "Skips Map");
         tmc.addCommand("//res", async () => await tmc.server.call("RestartMap"), "Restarts Map");
         tmc.addCommand("//kick", async (login: string, params: string[]) => {
@@ -109,7 +110,7 @@ class AdminPlugin {
                     return await tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
                 }
                 await tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`, login);
-                await tmc.server.call("SetTimeAttackLimit", Number.parseInt(params[0]) * 1000);
+                tmc.server.send("SetTimeAttackLimit", Number.parseInt(params[0]) * 1000);
                 return;
             }
 
@@ -118,7 +119,7 @@ class AdminPlugin {
                     return await tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
                 }
                 const settings = { "S_TimeLimit": Number.parseInt(params[0]) };
-                await tmc.server.call("SetModeScriptSettings", settings);
+                tmc.server.send("SetModeScriptSettings", settings);
                 return;
             }
         }, "Sets timelimit");

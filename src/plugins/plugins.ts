@@ -9,3 +9,4 @@ import './announces';
 import './tmnf_talimit';
 import './tmnf_ui';
 import './debugtool';
+import './votes';

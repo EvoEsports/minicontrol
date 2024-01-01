@@ -1,0 +1,37 @@
+<manialink id="{{id}}" version="3">
+    <frame pos="0 60" z-index="10" scale="0.8">
+        <frame pos="-35 0" z-index="5">
+            <label pos="{{ vote['vote_ratio'] * 70 }} 2"  z-index="5" size="25 5" text="{{ vote.vote_ratio }}"
+                textfont="GameFontRegular" textsize="1"
+                halign="center" valign="center2" />
+            <quad pos="{{ vote['vote_ratio'] * 70 }} -2" size="0.3 6" z-index="5" bgcolor="fff"
+                opacity="1" valign="center" halign="center" />
+            <quad pos="0 -2" z-index="2" size="{{ (yes_ratio * 70) }} 4" bgcolor="090"
+                opacity="1" valign="center" halign="left" />
+            <quad pos="0 -2" z-index="1" size="70 4" bgcolor="900" opacity="1" valign="center"
+                halign="left" />
+            <quad pos="35 -5.5" z-index="2" size="{{(time_percent * 70)}} 0.5" bgcolor="0af"
+                opacity="0.7" halign="center" valign="top" />
+            <label pos="35 -7" z-index="3" size="20 5" text="{{ timer }}" valign="center"
+                textsize="1" textfont="GameFontSemiBold" halign="center" />
+        </frame>
+
+        <frame pos="0 -2" z-index="6">
+            <label pos="-45 -7" z-index="3" size="12 4" text="{{ yes }}" halign="center"
+                valign="center2" textfont="GameFontSemiBold" textsize="3" textemboss="1" />
+            <label pos="45 -7" z-index="3" size="12 4" text="{{ no }}" valign="center2"
+                textfont="GameFontSemiBold" textsize="3" halign="center" />
+            <label pos="45 0" z-index="3" size="16 8" text="No [F6]" halign="center"
+                valign="center2" textfont="GameFontSemiBold"
+                textsize="2" action="{{ actions['no'] }}" actionkey="2" focusareacolor1="500"
+                focusareacolor2="a00" />
+            <label pos="-45 0" z-index="3" size="16 8" text="Yes [F5]" valign="center2"
+                textfont="GameFontSemiBold" halign="center"
+                textsize="2" action="{{ actions['yes'] }}" actionkey="1" focusareacolor1="050"
+                focusareacolor2="0a0" />
+        </frame>
+        <label pos="0 9" z-index="5" size="100 6" text="$t{{ vote['question'] }}" halign="center"
+            valign="center" textfont="GameFontExtraBold" textemboss="1" />
+        <quad z-index="0" pos="0 -0.322" size="128 28.5" bgcolor="{{ colors.bg }}d" halign="center" valign="center" />
+    </frame>
+</manialink>

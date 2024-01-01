@@ -9,8 +9,8 @@ class TmxPlugin {
         tmc.addCommand("//tmx add", this.addMap.bind(this), "Add map from tmx");
         tmc.addCommand("//tmxpack add", this.addMapPack.bind(this), "Add map pack from tmx");
         if (tmc.game.Name == "TmForever") {
-            tmc.addCommand("//tmux add", this.addTmuMap.bind(this), "Add map from tmuf");
-            tmc.addCommand("//tmuxpack add", this.addMapPackTmu.bind(this), "Add map pack from tmuf");
+            tmc.addCommand("//tmux add", this.addTmuMap.bind(this), "Add map for tmuf");
+            tmc.addCommand("//tmuxpack add", this.addMapPackTmu.bind(this), "Add map pack for tmuf");
         }
     }
 

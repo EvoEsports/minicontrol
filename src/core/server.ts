@@ -8,6 +8,7 @@ export default class Server extends EventEmitter {
 
     constructor(gbx: GbxClient) {
         super();
+        this.setMaxListeners(100);
         this.gbx = gbx;
         const that = this;
         gbx.on("callback", (method, data) => {
@@ -76,7 +77,13 @@ export default class Server extends EventEmitter {
             method = method.replace("Map", "Challenge");
         }
         tmc.debug("call >$888 " + method);
-
+        if (tmc.game.Name == "Trackmania") {
+            if (method == "SetTimeAttackLimit") {
+                const settings = { "S_TimeLimit": Number.parseInt(args[0])/1000 };
+                await tmc.server.call("SetModeScriptSettings", settings);
+                return
+            }
+        }
         if (this.methodOverrides[method]) {
             return await this.methodOverrides[method](...args);
         }
@@ -102,6 +109,16 @@ export default class Server extends EventEmitter {
             method = method.replace("Map", "Challenge");
         }
         tmc.debug("$090send >$686 " + method);
+        if (tmc.game.Name == "Trackmania") {
+            if (method == "SetTimeAttackLimit") {
+                const settings = { "S_TimeLimit": Number.parseInt(args[0])/1000 };
+                tmc.server.send("SetModeScriptSettings", settings);
+                return
+            }
+        }
+        if (this.methodOverrides[method]) {
+            return this.methodOverrides[method](...args);
+        }
         return this.gbx.call(method, ...args);
     }
 

@@ -50,7 +50,7 @@ class MapManager {
             delete this.maps[mapUId];
         }
     }
-
+    
     /**
      * get maps
      * @returns {Map[]} Returns the current maplist
