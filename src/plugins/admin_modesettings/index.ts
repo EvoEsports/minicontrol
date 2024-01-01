@@ -2,9 +2,16 @@ import ListWindow from "../../core/ui/listwindow";
 
 export default class Admin_ModeSettings {
     constructor() {
+        tmc.server.on("TMC.Init", this.onInit.bind(this));
+    }
+
+
+    async onInit() {
+        if (tmc.game.Name == "TmForever") return;
         tmc.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");
         tmc.addCommand("//set", this.cmdSetSetting.bind(this), "Set mode setting");
     }
+
 
     async cmdModeSettings(login: any, args: string[]) {
         const window = new ListWindow(login);
@@ -31,12 +38,12 @@ export default class Admin_ModeSettings {
 
     async cmdSetSetting(login: any, args: string[]) {
         if (args.length < 2) {
-            tmc.chat("Usage: //set <setting> <value>", login);
+            tmc.chat("Usage: ¤cmd¤//set ¤white¤<setting> <value>", login);
             return;
         }
         const setting = args[0];
-        const value:string = args[1];
-        let outValue:any = null;
+        const value: string = args[1];
+        let outValue: any = null;
         if (value == "true") outValue = true;
         else if (value == "false") outValue = false;
         else if (value == "null") outValue = null;

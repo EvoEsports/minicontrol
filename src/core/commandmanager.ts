@@ -28,8 +28,8 @@ export default class CommandManager {
             tmc.chat(help, login);
         }, "Display help for command");
 
-        this.addCommand("/serverlogin", async() => {}, "Display server login");
-        this.addCommand("/version", async(login: string) => {
+        this.addCommand("/serverlogin", async () => { }, "Display server login");
+        this.addCommand("/version", async (login: string) => {
             tmc.chat(`MiniController version: ${tmc.version}`, login);
         }, "Display server versions");
     }
@@ -54,12 +54,6 @@ export default class CommandManager {
 
     removeCommand(command: string) {
         delete this.commands[command];
-    }
-
-    private async executeCommand(login: string, command: string, args: string[]) {
-        if (this.commands[command]) {
-            await this.commands[command].callback(login, args);
-        }
     }
 
     async execute(login: string, text: string) {
