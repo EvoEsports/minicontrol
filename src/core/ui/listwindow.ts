@@ -9,10 +9,11 @@ interface Column {
     title: string;
     key: string;
     width: number;
+    type?: string;
 };
 
 export default class ListWindow extends Window {
-    private items: any = [];
+    items: any = [];
     private pageSize: number = 20;
     private currentPage: number;
     private template: string = fs.readFileSync(__dirname + "/templates/list.twig", 'utf-8');
@@ -53,7 +54,7 @@ export default class ListWindow extends Window {
         super.close(login, data);
     }
 
-    uiPaginate(login: string, answer: any): void {
+    uiPaginate(login: string, answer: any, entries: any): void {
         if (answer == "start") {
             this.currentPage = 0;
         } else if (answer == 'prev') {
@@ -82,7 +83,7 @@ export default class ListWindow extends Window {
                 }
             }
         }
-        this.content = tmc.ui.render(this.template, { data: items, columns: this.columns, currentPage: this.currentPage, paginate: this.paginate, size: this.size, listActions: this.listActions, tempActions: this.tempActions, colors: colors });
+        this.content = tmc.ui.render(this.template, { data: items, columns: this.columns, currentPage: this.currentPage, paginate: this.paginate, size: this.size, listActions: this.listActions, tempActions: this.tempActions, actions: this.actions, colors: colors });
         /*let debug = this.content.split("\r\n");
         let i = 1;
         let out = "";
@@ -95,7 +96,7 @@ export default class ListWindow extends Window {
     }
 
     async display() {
-        this.uiPaginate(this.login, "start");
+        this.uiPaginate(this.login, "start", []);
         super.display();
     }
 

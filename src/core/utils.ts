@@ -1,3 +1,4 @@
+import { isNumberObject } from "util/types";
 import { PaginationResult } from "./types";
 export let colors: { [key: string]: string } = {
     white: "fff",
@@ -103,4 +104,36 @@ export function escape(str: string): string {
 
 export function clone(obj: any): any {
     return JSON.parse(JSON.stringify(obj));
+}
+
+export function castType(value: string, type: string | undefined = undefined): any {
+    let outValue: any = null;
+    if (type !== undefined) {
+        if (type == "string") return value;
+        else if (type == "int") return Number.parseInt(value);
+        else if (type == "float") return Number.parseFloat(value);
+        else if (type == "number") {
+            if (value.indexOf(".") !== undefined) return Number.parseFloat(value);
+            else return Number.parseInt(value);
+        }
+        else if (type == "bool" || type == "boolean") return (value == "true");
+        else if (type == "array") return value.split(",");
+        else {
+            console.log("Unknown type: " + type);
+            return null;
+        }
+    }
+
+    if (value == "true") return true;
+    else if (value == "false") return false;
+    else if (value == "null") return null;
+    else if (isNumberObject(value)) {
+        if (value.indexOf(".") !== undefined) return Number.parseFloat(value);
+        else outValue = Number.parseInt(value);
+    }
+    else if (typeof value == "string") return value;
+    else {
+        console.log("Unknown type: " + value);
+        return;
+    }
 }
