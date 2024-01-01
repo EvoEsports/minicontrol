@@ -3,7 +3,8 @@ import PlayerManager, { Player } from './core/playermanager';
 import TmServer from './core/server';
 import UiManager from './core/uimanager';
 import MapManager from './core/mapmanager';
-import { ChatCommand, GameStruct } from './core/types';
+import CommandManager from './core/commandmanager';
+import { GameStruct } from './core/types';
 import { processColorString } from './core/utils';
 import 'dotenv/config'
 import log from './core/log';
@@ -18,15 +19,17 @@ class MiniControl {
     game: GameStruct;
     mapsPath: string = "";
     admins: string[];
-    chatCommands: ChatCommand[] = [];
+    chatCmd: CommandManager;
     maps: MapManager;
     version: string = "1.0.0";
 
     constructor() {
+        console.time("Startup");
         this.server = new TmServer(new GbxClient());
         this.maps = new MapManager(this.server);
         this.players = new PlayerManager(this.server);
         this.ui = new UiManager(this.server);
+        this.chatCmd = new CommandManager(this.server);
         this.admins = (process.env.ADMINS || "").split(",");
         this.game = { Name: "" };
     }
@@ -35,8 +38,8 @@ class MiniControl {
         return await this.players.getPlayer(login);
     }
 
-    addCommand(command: string, callback: CallableFunction) {
-        this.chatCommands.push({ trigger: command, callback: callback });
+    addCommand(command: string, callback: CallableFunction, help: string = "") {
+        this.chatCmd.addCommand(command, callback, help);
     }
 
     addPlugin(name: string, object: any) {
@@ -97,55 +100,16 @@ class MiniControl {
         await this.beforeInit();
         this.server.emit("TMC.Init");
         await this.afterInit();
+        console.timeEnd("Startup");
     }
-
+    
     async beforeInit() {
-        this.addCommand("/help", async (login: string) => {
-            let out = "Available: ";
-            for (let command of tmc.chatCommands) {
-                if (command.trigger.startsWith("/") && !command.trigger.startsWith("//")) {
-                    out += `¤cmd¤${command.trigger}¤white¤, `;
-                }
-            }
-            out = out.substring(0, out.length - 2);
-            await tmc.chat(out, login);
-        });
-        this.addCommand("//help", async (login: string) => {
-            let out = "Available: ";
-            for (let command of tmc.chatCommands) {
-                if (command.trigger.startsWith("//")) {
-                    out += `¤cmd¤${command.trigger}¤white¤, `;
-                }
-            }
-            out = out.substring(0, out.length - 2);
-            await tmc.chat(out, login);
-        });
-        this.addCommand("/serverlogin", async () => { });
-        this.addCommand("/version", async () => { });
+        this.chatCmd.beforeInit();
     }
-
+    
     async afterInit() {
         this.players.afterInit();
-        this.server.on("Trackmania.PlayerChat", async (data: any) => {
-            if (data[0] == 0) return;
-            const login: string = data[1];
-            let text: string = data[2];
-            if (text.startsWith("/")) {
-                for (let command of this.chatCommands) {
-                    if (text.startsWith("//") && !this.admins.includes(login)) {
-                        this.chat("¤error¤Not allowed.", login);
-                        return;
-                    }
-                    if (text.startsWith(command.trigger)) {
-                        const words = text.replace(command.trigger, "").trim();
-                        let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s\"]+/gi) || []).map((word) => word.replace(/^"(.+(?="$))"$/, '$1').replaceAll("\\", ""));
-                        command.callback(login, params);
-                        return;
-                    }
-                }
-                this.chat(`Command $<¤cmd¤${text}$> not found.`, login);
-            }
-        });
+        this.chatCmd.afterInit();
         this.cli(`¤white¤Welcome to ${controllerStr} v${this.version}!`);
         await this.server.send("ChatSendServerMessage", `Welcome to ${controllerStr} v${this.version}!`);
     }

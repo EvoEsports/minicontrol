@@ -1,5 +1,5 @@
 import tm from 'tm-essentials';
-import ListWindow from '../../core/ui/listwindow';
+import MapsWindow from './mapsWindow';
 import { escape } from '../../core/utils';
 
 const pageLength = 20;
@@ -18,8 +18,7 @@ export class MapsPlugin {
     }
 
     async cmdMaps(login: any, args: string[]) {
-        const window = new ListWindow(login, 20);
-        window.size = { width: 140, height: 100 };
+        const window = new MapsWindow(login);
 
         const maps = [];
         let i = 1;
@@ -34,13 +33,20 @@ export class MapsPlugin {
             );
         }
         window.title = "Maps (" + maps.length + ")";
-        window.setItemsAndColumns(maps, [
+        window.size = { width: 180, height: 95 };
+        window.setItems(maps);
+        window.setColumns([
             { key: "Index", title: "#", width: 4 },
             { key: "Name", title: "Name", width: 50 },
             { key: "Author", title: "Author", width: 30 },
             { key: "Environnement", title: "Environment", width: 25 },
             { key: "GoldTime", title: "Gold Time", width: 25 }
         ]);
+
+        if (tmc.admins.includes(login)) {
+            window.setActions(["Jump", "Remove"]);
+        }
+
         await window.display()
     }
 }

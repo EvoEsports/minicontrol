@@ -1,6 +1,7 @@
 import { Interface } from "readline";
 import Server from "./server";
 import { Map } from "./types";
+import { clone } from "./utils";
 
 class MapManager {
     private maps: { [key: string]: Map; };
@@ -55,7 +56,7 @@ class MapManager {
      * @returns {Map[]} Returns the current maplist
      */
     get() {
-        return JSON.parse(JSON.stringify(Object.values(this.maps)));
+        return clone(Object.values(this.maps));
     }
 
     /**
@@ -63,7 +64,7 @@ class MapManager {
      * @returns {Map[]} Returns the current maplist
      */
     getMaplist() {
-        return Object.values(this.maps);
+        return this.get();
     }
 
     /**

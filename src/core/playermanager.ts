@@ -1,5 +1,6 @@
 import { GbxClient } from "@evotm/gbxclient";
 import Server from "./server";
+import { clone } from "./utils";
 // import casual from 'casual';
 
 export class Player {
@@ -7,12 +8,14 @@ export class Player {
     nickname: string = "";
     isSpectator: boolean = false;
     teamId: number = -1;
+    isAdmin: boolean = false;
 
     syncFromPlayerInfo(data: any) {
         this.login = data.Login;
         this.nickname = data.NickName;
         this.teamId = Number.parseInt(data.TeamId);
         this.isSpectator = data.SpectatorStatus !== 0;
+        this.isAdmin = tmc.admins.includes(data.Login);
     }
 }
 
@@ -61,7 +64,7 @@ export default class PlayerManager {
      * @returns {Player[]} Returns the current playerlist
      */
     get(): Player[] {
-        return Object.values(this.players);
+        return clone(Object.values(this.players));
     }
 
     /**

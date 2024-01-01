@@ -45,7 +45,7 @@ class MapWidget {
     }
 
     async buttonClick(login: string, data: any) {
-        tmc.server.emit("Trackmania.PlayerChat", [1, login, "/maps"]);
+        tmc.chatCmd.execute(login, "/maps");
     }
 }
 

@@ -103,10 +103,7 @@ export default class TAlimitPlugin {
         await tmc.ui.hide(this.widgetId);
     }
 
-
-
-
 }
 
-tmc.addPlugin("talimit", new TAlimitPlugin());
+tmc.addPlugin("tmnf_talimit", new TAlimitPlugin());
 

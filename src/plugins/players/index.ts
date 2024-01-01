@@ -1,4 +1,4 @@
-import ListWindow from "../../core/ui/listwindow";
+import PlayerWindow from "./PlayerWindow";
 
 export class PlayersPlugin {
     constructor() {
@@ -11,10 +11,19 @@ export class PlayersPlugin {
     }
 
     async cmdPlayers(login: any, args: string[]) {
-        const window = new ListWindow(login, 20);
-        window.size = { width: 105, height: 100 };
+        const window = new PlayerWindow(login);
+        window.size = { width: 135, height: 100 };
         window.title = "Players";
-        window.setItemsAndColumns(tmc.players.get(), [{ key: "nickname", title: "Nickname", width: 50 }, { key: "login", title: "Login", width: 50 }])
+        window.setItems(tmc.players.get());
+        window.setColumns([
+            { key: "nickname", title: "Nickname", width: 50 },
+            { key: "login", title: "Login", width: 50 }
+        ]);
+
+        if (tmc.admins.includes(login)) {
+            window.setActions(["Kick", "Ban"]);
+        }
+
         await window.display();
     }
 

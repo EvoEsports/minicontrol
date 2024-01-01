@@ -1,13 +1,15 @@
 export interface ChatCommand {
     trigger: string;
+    help: string;
+    admin: boolean;
     callback: CallableFunction;
 }
 
 export interface Map {
-    UId: string;  
-    Name: string;  
+    UId: string;
+    Name: string;
     Author: string;
-    AuthorNickName?: string;     
+    AuthorNickName?: string;
     AuthorTime: number;
     GoldTime: number;
     FileName: string;
@@ -15,7 +17,7 @@ export interface Map {
     Mood: string;
     LapRace: boolean;
     NbLaps: number;
-    NbCheckpoints: number;    
+    NbCheckpoints: number;
 }
 
 export interface GameStruct {
