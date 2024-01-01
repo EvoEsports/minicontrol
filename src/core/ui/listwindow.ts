@@ -18,7 +18,6 @@ export default class ListWindow extends Window {
     private template: string = fs.readFileSync(__dirname + "/templates/list.twig", 'utf-8');
     private paginate: { [key: string]: number } = {};
     private tempActions: { [key: string]: number } = {};
-
     private listActions: string[];
     private columns: Column[] = [];
 
@@ -27,7 +26,7 @@ export default class ListWindow extends Window {
         this.paginate['start'] = tmc.ui.addAction(this.uiPaginate.bind(this), "start");
         this.paginate['prev'] = tmc.ui.addAction(this.uiPaginate.bind(this), "prev");
         this.paginate['next'] = tmc.ui.addAction(this.uiPaginate.bind(this), "next");
-        this.paginate['end'] = tmc.ui.addAction(this.uiPaginate.bind(this), "end");     
+        this.paginate['end'] = tmc.ui.addAction(this.uiPaginate.bind(this), "end");
         this.currentPage = 0;
         this.listActions = [];
     }
@@ -37,7 +36,7 @@ export default class ListWindow extends Window {
     }
 
     setItems(items: any[]): void {
-        this.items = items;        
+        this.items = items;
     }
 
     setActions(actions: string[]): void {
@@ -78,7 +77,7 @@ export default class ListWindow extends Window {
         const items = paginate(itemsArray, this.currentPage, this.pageSize);
         for (let item of items.items) {
             for (let action of this.listActions || []) {
-                if (!this.tempActions[action + "_" + item.index]) {                    
+                if (!this.tempActions[action + "_" + item.index]) {
                     this.tempActions[action + "_" + item.index] = tmc.ui.addAction(this.uiAction.bind(this), [action, item]);
                 }
             }
@@ -100,6 +99,10 @@ export default class ListWindow extends Window {
         super.display();
     }
 
+    addApplyButtons(): void {
+        this.actions['apply'] = tmc.ui.addAction(this.onApply.bind(this), "");
+        this.actions['cancel'] = tmc.ui.addAction(this.close.bind(this), "");
+    }
 
     uiAction(login: string, answer: any): void {
         const action = answer[0];
@@ -116,5 +119,11 @@ export default class ListWindow extends Window {
     onAction(login: string, action: string, item: any): void {
         // Override this
     }
+
+    onApply(login: string, answer: any, entries: any): void {
+        // Override this
+    }
+
+
 }
 

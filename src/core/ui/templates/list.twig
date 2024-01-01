@@ -24,7 +24,7 @@
                     <label pos="{{ posx + 6.5 }} -2" z-index="1" size="12 3" 
                     text="{{action}}" textsize="1.2" 
                     valign="center2" halign="center"
-                    focusareacolor1="{{colors.button}}" focusareacolor2="{{colors.button_dark}}" 
+                    focusareacolor1="{{colors.button_dark}}" focusareacolor2="{{colors.button}}" 
                     action="{{ tempActions[key] }}" />
                     {% set posx = (posx + 13) %}                    
              {% endfor %}
@@ -38,10 +38,25 @@
 	</frame>
 {% endfor %}
 
-<frame pos="{{ (size.width / 2) -16}} -{{ size.height - 7}}">
+<frame pos="{{ (size.width / 2) -16}} -{{ size.height - 9}}">
         <quad pos="-3 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowFirst"  halign="center" valign="center" action="{{paginate.start}}" />
         <quad pos="3 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowPrev"  halign="center" valign="center" action="{{paginate.prev}}" />
         <label pos="12 -2.5" z-index="1" size="6 6" text="$fff$o{{ data.currentPage + 1 }}/{{ data.totalPages }}" halign="center" textsize="1" valign="center2"/>
         <quad pos="22 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowNext" halign="center"  valign="center" action="{{paginate.next}}" />
         <quad pos="28 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowLast"  halign="center" valign="center" action="{{paginate.end}}"/>        
 </frame>
+ 
+ {% if actions['apply'] %}
+ <frame>
+    <label pos="{{ sizes.width - 26 }} -{{ size.height - 9}}" z-index="1" size="12 5" 
+       text="Apply" textsize="1.2" 
+        valign="center2" halign="center"
+        focusareacolor1="{{colors.button_dark}}" focusareacolor2="{{colors.button}}" 
+        action="{{ actions['apply'] }}" />
+    <label pos="{{ sizes.width - 12 }} -{{ size.height - 9}}" z-index="1" size="12 5" 
+       text="Cancel" textsize="1.2" 
+        valign="center2" halign="center"
+        focusareacolor1="{{colors.button_dark}}" focusareacolor2="{{colors.button}}" 
+        action="{{ actions['close'] }}" />
+</frame>
+{% endif %}

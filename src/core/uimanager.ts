@@ -89,8 +89,9 @@ export default class UiManager {
     private async onManialinkAnswer(data: any) {
         const login = data[1];
         const answer = data[2].toString();
+        const entries = data[3];
         if (this.actions[answer]) {
-            await this.actions[answer].callback(login, this.actions[answer].data);
+            await this.actions[answer].callback(login, this.actions[answer].data, entries);
         }
     }
 

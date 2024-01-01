@@ -108,8 +108,7 @@ class AdminPlugin {
                 if (!params[0]) {
                     return await tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
                 }
-                const settings = await tmc.server.call("GetModeScriptSettings");
-                settings["S_TimeLimit"] = Number.parseInt(params[0]);
+                const settings = { "S_TimeLimit": Number.parseInt(params[0]) };
                 await tmc.server.call("SetModeScriptSettings", settings);
                 return;
             }

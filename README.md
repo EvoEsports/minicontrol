@@ -44,9 +44,9 @@ await tmc.server.call("GetMapList", -1,0);
 await tmc.chat("message", recipient /*optional*/ );
 
 // public commands
-tmc.addCommand("/command", callable);
+tmc.addCommand("/command", callable, "help text");
 // admin commands
-tmc.addCommand("//command", callable);
+tmc.addCommand("//command", callable, "help text");
 ```
 
 ## UI
@@ -54,7 +54,7 @@ tmc.addCommand("//command", callable);
 const action = tmc.ui.addAction(this.buttonClick.bind(this), {map: "testmap", id: 47}); // this return generated action id for the button click
 
 // usage
-async buttonClick(login:string, data:any) {
+async buttonClick(login:string, data:any, entries:string[]|undefined) {
     // do things when user clicks button with data
 }
 ```
