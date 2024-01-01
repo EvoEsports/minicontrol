@@ -63,7 +63,7 @@ export default class CommandManager {
                     tmc.chat("¤error¤Not allowed.", login);
                     return;
                 }
-                const cmd = text.match(/\/\/\w+/)?.[0];
+                const cmd = text.match(/[/]{1,2}\w+/)?.[0];
                 if (cmd == command.trigger) {
                     const words = text.replace(command.trigger, "").trim();
                     let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s\"]+/gi) || []).map((word) => word.replace(/^"(.+(?="$))"$/, '$1').replaceAll("\\", ""));

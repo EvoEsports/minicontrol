@@ -10,9 +10,7 @@ export default class Admin_ModeSettings {
     async onInit() {
         if (tmc.game.Name == "TmForever") return;
         tmc.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");
-        tmc.addCommand("//set", this.cmdSetSetting.bind(this), "Set mode setting");
-        
-        this.cmdModeSettings("EdbzfLXMS_aI_PjZCVaygQ", []);
+        tmc.addCommand("//set", this.cmdSetSetting.bind(this), "Set mode setting");       
     }
 
 
