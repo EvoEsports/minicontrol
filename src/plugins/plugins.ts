@@ -1,6 +1,5 @@
 import './chat';
 import './admin';
-import './admin_modesettings';
 import './players'
 import './maps'
 import './bestcps';
