@@ -21,7 +21,7 @@ class MiniControl {
     admins: string[];
     chatCmd: CommandManager;
     maps: MapManager;
-    version: string = "1.0.0";
+    version: string = "2024-01-01";
 
     constructor() {
         console.time("Startup");

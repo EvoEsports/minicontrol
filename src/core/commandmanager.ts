@@ -11,23 +11,27 @@ export default class CommandManager {
 
     async beforeInit() {
         this.addCommand("/help", async (login: string, args: string[]) => {
-            let help = "";
+            let help = "Available: \n";
             for (let command in this.commands) {
                 if (this.commands[command].admin) continue;
-                help += `¤cmd¤${this.commands[command].trigger} ¤white¤${this.commands[command].help}\n`;
+                help += `¤cmd¤${this.commands[command].trigger} ¤white¤${this.commands[command].help}, `;
             }
             tmc.chat(help, login);
         }, "Display help for command");
 
         this.addCommand("//help", async (login: string, args: string[]) => {
-            let help = "";
+            let help = "Available: \n";
             for (let command in this.commands) {
                 if (!this.commands[command].admin) continue;
-                help += `¤cmd¤${this.commands[command].trigger} ¤white¤${this.commands[command].help}\n`;
+                help += `¤cmd¤${this.commands[command].trigger} ¤white¤${this.commands[command].help}, `;
             }
             tmc.chat(help, login);
         }, "Display help for command");
 
+        this.addCommand("/serverlogin", async() => {}, "Display server login");
+        this.addCommand("/version", async(login: string) => {
+            tmc.chat(`MiniController version: ${tmc.version}`, login);
+        }, "Display server versions");
     }
 
     async afterInit() {

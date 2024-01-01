@@ -2,15 +2,15 @@ import fs from 'fs';
 
 class TmxPlugin {
     constructor() {
-        tmc.addCommand("//tmx add", this.addMap.bind(this));
-        tmc.addCommand("//tmxpack add", this.addMapPack.bind(this));
+        tmc.addCommand("//tmx add", this.addMap.bind(this), "Add map from tmx");
+        tmc.addCommand("//tmxpack add", this.addMapPack.bind(this), "Add map pack from tmx");
         tmc.server.on("TMC.Init", this.onInit.bind(this));
     }
 
     async onInit() {
         if (tmc.game.Name == "TmForever") {
-            tmc.addCommand("//tmux add", this.addTmuMap.bind(this));
-            tmc.addCommand("//tmuxpack add", this.addMapPackTmu.bind(this));
+            tmc.addCommand("//tmux add", this.addTmuMap.bind(this), "Add map from tmuf");
+            tmc.addCommand("//tmuxpack add", this.addMapPackTmu.bind(this), "Add map pack from tmuf");
         }
     }
 

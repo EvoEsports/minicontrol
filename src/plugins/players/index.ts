@@ -3,7 +3,7 @@ import PlayerWindow from "./PlayerWindow";
 export class PlayersPlugin {
     constructor() {
         tmc.server.on("TMC.Init", this.onInit.bind(this));
-        tmc.addCommand("/players", this.cmdPlayers.bind(this));
+        tmc.addCommand("/players", this.cmdPlayers.bind(this), "Display players list");
     }
 
     async onInit() {

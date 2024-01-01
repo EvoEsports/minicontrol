@@ -9,8 +9,8 @@ export class MapsPlugin {
 
     constructor() {
         tmc.server.on("TMC.Init", this.onInit.bind(this));
-        tmc.addCommand("/maps", this.cmdMaps.bind(this));
-        tmc.addCommand("/list", this.cmdMaps.bind(this));
+        tmc.addCommand("/maps", this.cmdMaps.bind(this), "Display maps list");
+        tmc.addCommand("/list", this.cmdMaps.bind(this), "Display maps list");
     }
 
     async onInit() {
