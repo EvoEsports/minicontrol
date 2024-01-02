@@ -12,10 +12,7 @@ export default class DedimaniaClient {
     });
 
     async call(method: string, ...params: any[]) {
-        let url = "http://dedimania.net:8001/Dedimania";
-        if (method == "dedimania.OpenSession") {
-            url = "http://dedimania.net/RPC5/server.php";
-        }
+        let url = "http://dedimania.net:8002/Dedimania";
 
         const body = await Serializer.serializeMethodCall(method, params);
         const response = await fetch(url, {
@@ -48,8 +45,8 @@ export default class DedimaniaClient {
 
             return answer;
         } catch (err) {
-            console.log(err);
-            console.log(data);
+            tmc.cli(err);
+            tmc.debug(data);
             return {};
         }
     }

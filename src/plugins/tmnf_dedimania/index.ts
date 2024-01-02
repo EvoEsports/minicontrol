@@ -50,7 +50,7 @@ export class Dedimania {
                     tmc.server.on("Trackmania.EndMap", this.onEndMap.bind(this));
                 }
             } catch (e: any) {
-                console.log(e);
+                tmc.cli(e);
             }
         }
     }
@@ -80,7 +80,7 @@ export class Dedimania {
         },
         this.getDedimaniaPlayers()
         );
-        console.log(res);
+        tmc.debug("Dedimania: Updated players.");
     }
 
     /**
@@ -124,10 +124,9 @@ export class Dedimania {
                 map.NbCheckpoints,
                 this.maxRank,
                 this.getDedimaniaScores(scores)
-            );
-            console.log(res);
+            );            
         } catch (e: any) {
-            console.log(e);
+            tmc.cli(e);
         }
     }
 
@@ -200,8 +199,8 @@ export class Dedimania {
         const map: any = data[0];
         try {
             await this.getRecords(map);
-        } catch (e: any) {
-            console.log(e);
+        } catch (e: any) {            
+            tmc.cli(e);
             await this.authenticate();;
             await this.getRecords(map);
         }
