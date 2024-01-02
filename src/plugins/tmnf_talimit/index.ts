@@ -15,7 +15,7 @@ export default class TAlimitPlugin {
         tmc.server.on("TMC.Init", this.onInit.bind(this));
     }
 
-    async onBeginRound() {
+        async onBeginRound() {
         this.startTime = Date.now();
         this.active = true;
         if (this.extend) {
@@ -36,13 +36,13 @@ export default class TAlimitPlugin {
                     
             tmc.server.on("Trackmania.BeginRound", this.onBeginRound.bind(this));
             tmc.server.on("Trackmania.EndRound", this.onEndRound.bind(this));
-
-            if (await tmc.server.call("GetTimeAttackLimit") > 0) {
-                tmc.server.send("SetTimeAttackLimit", 0);
+            const limit = await tmc.server.call("GetTimeAttackLimit") ;
+            if (limit.CurrentValue > 0) {
+                await tmc.server.send("SetTimeAttackLimit", 0);
                 await tmc.chat("TALimit: TimeAttackLimit was set, disabling it.");
                 tmc.server.send("NextMap");
             }
-               
+            
             tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
             setInterval(this.tick.bind(this), 1000);
             this.active = true;
@@ -50,6 +50,10 @@ export default class TAlimitPlugin {
     }
 
     async tick() {
+        if (this.timeLimit < 1000) {            
+            return;
+        }
+
         const timeLeft = this.timeLimit - (Date.now() - this.startTime) / 1000;
         if (this.active && timeLeft <= 0) {
             this.active = false;
