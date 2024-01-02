@@ -30,20 +30,24 @@ export default class DedimaniaClient {
             },
             keepalive: true
         });
-        
+
         const data = await response.text();
         const deserializer = new Deserializer();
-        
-        const answer = new Promise((resolve, reject) => {
-            deserializer.deserializeMethodResponse(Readable.from(data), (err: any, res: any) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(res);
-                }
+        try {
+            const answer = new Promise((resolve, reject) => {
+                deserializer.deserializeMethodResponse(Readable.from(data), (err: any, res: any) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(res);
+                    }
+                });
             });
-        });
-
-        return answer;     
+            return answer;
+        } catch (err) {
+            console.log(err);
+            console.log(data);
+            return {};
+        }
     }
 }

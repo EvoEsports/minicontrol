@@ -94,7 +94,7 @@ export class Dedimania {
             this.getDedimaniaPlayers()
         );
 
-        this.records = res.Records;
+        this.records = res.Records ?? [];
         tmc.debug("Dedimania: Got records.");
         await this.updateWidget();
     }
@@ -127,7 +127,7 @@ export class Dedimania {
             outRecords.push(
                 {
                     rank: record.Rank,
-                    nickname: escape(record.NickName.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}|/i, "$1").replaceAll(/[$][lh]/gi, "")),
+                    nickname: escape(record.NickName.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")),
                     time: tm.Time.fromMilliseconds(record.Best).toTmString(),
                 });
             x += 1;
