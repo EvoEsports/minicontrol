@@ -17,7 +17,7 @@ export class PlayersPlugin {
         window.setItems(tmc.players.get());
         window.setColumns([
             { key: "nickname", title: "Nickname", width: 50 },
-            { key: "login", title: "Login", width: 50 }
+            { key: "login", title: "Login", width: 50, type:"entry" }
         ]);
 
         if (tmc.admins.includes(login)) {

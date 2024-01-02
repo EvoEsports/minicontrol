@@ -46,8 +46,9 @@ class BesCpPlugin {
         if (nb >= this.maxCp) return;
         if (this.bestTimes[nb] && time < this.bestTimes[nb].time) {
             this.bestTimes[nb] = { nickname: (await tmc.getPlayer(login)).nickname, time: time, prettyTime: tm.Time.fromMilliseconds(time).toTmString() };
+            this.display();
         }
-        await this.display();
+       
     }
 
     async finish(data: any) {

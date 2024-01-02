@@ -174,7 +174,7 @@ export class VotesPlugin {
         const no = votes.filter((vote) => vote === false).length;
         const total = yes + no;
         const percent = Math.round((yes / total) * 100);
-        
+
         if (forcePass) {
             tmc.chat('¤info¤Admin passed the vote');
             tmc.server.emit("TMC.Vote.Pass", { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
@@ -199,7 +199,7 @@ export class VotesPlugin {
         const yes = Array.from(this.currentVote.votes.values()).filter((vote) => vote === true).length;
         const no = Array.from(this.currentVote.votes.values()).filter((vote) => vote === false).length;
         const total = yes + no;
-        const percent = Math.round((yes / total));
+        const percent = yes / total;
         const manialink = tmc.ui.render(this.widget, {
             id: this.widgetId,
             yes: yes,

@@ -58,13 +58,13 @@ export default class CommandManager {
 
     async execute(login: string, text: string) {
         if (text.startsWith("/")) {
-            for (let command of Object.values(this.commands)) {
-                if (command.admin && !tmc.admins.includes(login)) {
+            for (let command of Object.values(this.commands)) {                
+                if (text.startsWith("//") && !tmc.admins.includes(login)) {
                     tmc.chat("¤error¤Not allowed.", login);
                     return;
                 }
                 const cmd = text.match(/[/]{1,2}\w+/)?.[0];
-                if (cmd == command.trigger) {
+                if (cmd == command.trigger) {                    
                     const words = text.replace(command.trigger, "").trim();
                     let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s\"]+/gi) || []).map((word) => word.replace(/^"(.+(?="$))"$/, '$1').replaceAll("\\", ""));
                     command.callback(login, params);
