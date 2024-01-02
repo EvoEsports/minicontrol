@@ -1,5 +1,5 @@
 
-let environments = ['Stadium', 'Speed', 'Alpine', 'Bay', 'Coast', 'Island', 'Rally'];
+const environments = ['Stadium', 'Speed', 'Alpine', 'Bay', 'Coast', 'Island', 'Rally'];
 
 export class TmnfUiPlugin {
     constructor() {
@@ -9,13 +9,14 @@ export class TmnfUiPlugin {
     async onInit() {
         if (tmc.game.Name == "TmForever") {
             tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
-            await this.sendMod();
+            this.sendMod();
         }
     }
 
     async onBeginMap() {
-        await this.sendMod();
+        this.sendMod();
     }
+
     async sendMod() {
         let mods = [];
         for (let env of environments) {
@@ -24,7 +25,7 @@ export class TmnfUiPlugin {
                 Url: "http://reaby.kapsi.fi/trackmania/tmnf_mod.zip"
             });
         }
-        await tmc.server.send("SetForcedMods", true, mods);
+        tmc.server.send("SetForcedMods", true, mods);
     }
 }
 

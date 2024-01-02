@@ -15,7 +15,7 @@ export default class TAlimitPlugin {
         tmc.server.on("TMC.Init", this.onInit.bind(this));
     }
 
-        async onBeginRound() {
+    async onBeginRound() {
         this.startTime = Date.now();
         this.active = true;
         if (this.extend) {
@@ -42,7 +42,7 @@ export default class TAlimitPlugin {
                 await tmc.chat("TALimit: TimeAttackLimit was set, disabling it.");
                 tmc.server.send("NextMap");
             }
-            
+
             tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
             setInterval(this.tick.bind(this), 1000);
             this.active = true;
@@ -50,7 +50,7 @@ export default class TAlimitPlugin {
     }
 
     async tick() {
-        if (this.timeLimit < 1000) {            
+        if (this.timeLimit < 1) {            
             return;
         }
 
@@ -84,6 +84,7 @@ export default class TAlimitPlugin {
         const newlimit = Number.parseInt(args) / 1000;
         process.env["TALIMIT"] = newlimit.toString();
         this.timeLimit = newlimit;
+        this.hideWidget();
     }
 
     async showWidget() {
