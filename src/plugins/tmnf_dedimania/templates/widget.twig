@@ -1,0 +1,13 @@
+<manialink id="{{ id }}" version="3">
+
+<frame pos="-160 40">
+    <label pos="1 0" z-index="1" size="30 4" textcolor="fff" textsize="1.5" text="Records" valign="center2" />
+    <quad pos="0 0" z-index="0" size="46 4" bgcolor="{{colors.title}}e" valign="center" />
+
+    {% for item in records %}      
+    <label pos="1 -{{ (loop.index * 3.5) }}" z-index="1" size="30 3" textcolor="fff" textsize="1" text="{{item.rank}} {{ item.nickname }}" valign="center2" />    
+    <label pos="34 -{{ (loop.index * 3.5) }}" z-index="1" size="14 3" textcolor="fff" textsize="1" text="$n$o{{ item.time }}" valign="center2"  />    
+    <quad pos="0 -{{ (loop.index * 3.5) }}" z-index="0" size="46 3.5" bgcolor="{{colors.bg}}e" valign="center" />
+    {% endfor %}
+</frame>
+</manialink>

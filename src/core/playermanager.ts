@@ -9,7 +9,16 @@ export class Player {
     isSpectator: boolean = false;
     teamId: number = -1;
     isAdmin: boolean = false;
+    [key: string]: any; // Add index signature
 
+    syncFromDetailedPlayerInfo(data: any) {
+        for (let key in data) {
+            key = key[0].toLowerCase() + key.slice(1);
+            this[key] = data[key];
+        }                
+        this.isAdmin = tmc.admins.includes(data.Login);
+    }
+    
     syncFromPlayerInfo(data: any) {
         this.login = data.Login;
         this.nickname = data.NickName;
@@ -87,9 +96,9 @@ export default class PlayerManager {
         if (this.players[login]) return this.players[login];
         tmc.debug(`$888 Player ${login} not found, fetching from server.`);
 
-        const data = await this.server.call("GetPlayerInfo", login);
+        const data = await this.server.call("GetDetailedPlayerInfo", login);
         const player = new Player();
-        player.syncFromPlayerInfo(data);
+        player.syncFromDetailedPlayerInfo(data);
         this.players[login] = player;
         return player;
     }
@@ -97,8 +106,10 @@ export default class PlayerManager {
     private async onPlayerInfoChanged(data: any) {
         data = data[0];
         if (data.PlayerId === 0) return;
-        const player = new Player();
-        player.syncFromPlayerInfo(data);
-        this.players[data.Login] = player;
+        if (this.players[data.Login]) {
+            this.players[data.Login].syncFromPlayerInfo(data);
+        } else {
+            await this.getPlayer(data.Login);
+        }
     }
 }
