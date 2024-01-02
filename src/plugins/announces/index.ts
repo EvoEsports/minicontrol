@@ -4,7 +4,7 @@ export class AnnouncesPlugin {
     }
 
     async onInit() {
-        tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
+     //   tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
         tmc.server.on("Trackmania.PlayerConnect", this.onPlayerConnect.bind(this));
         tmc.server.on("Trackmania.PlayerDisconnect", this.onPlayerDisconnect.bind(this));
     }

@@ -6,34 +6,46 @@ class TmxPlugin {
     }
 
     async onInit() {
-        tmc.addCommand("//tmx add", this.addMap.bind(this), "Add map from tmx");
-        tmc.addCommand("//tmxpack add", this.addMapPack.bind(this), "Add map pack from tmx");
+        tmc.addCommand("//tmx", this.addMap.bind(this), "Add map from tmx");
+        tmc.addCommand("//tmxpack", this.addMapPack.bind(this), "Add map pack from tmx");
         if (tmc.game.Name == "TmForever") {
-            tmc.addCommand("//tmux add", this.addTmuMap.bind(this), "Add map for tmuf");
-            tmc.addCommand("//tmuxpack add", this.addMapPackTmu.bind(this), "Add map pack for tmuf");
+            tmc.addCommand("//tmux", this.addTmuMap.bind(this), "Add map for tmuf");
+            tmc.addCommand("//tmuxpack", this.addMapPackTmu.bind(this), "Add map pack for tmuf");
         }
     }
 
     async addMapPackTmu(login: string, params: string[]) {
         const player = await tmc.getPlayer(login);
         if (!params[0]) {
-            await tmc.chat("No maps to fetch", login);
+            await tmc.chat("¤error¤No action. ¤white¤Available: add", login);
             return;
         }
-        return await this.addTmnPack(login, params[0], "tmuf");
+        if (params[0] == "add") {
+            if (!params[1]) {
+                await tmc.chat("No maps to fetch", login);
+                return;
+            }
+            return await this.addTmnPack(login, params[1], "tmuf");
+        }
     }
 
     async addMapPack(login: string, params: string[]) {
         const player = await tmc.getPlayer(login);
         if (!params[0]) {
-            await tmc.chat("No maps to fetch", login);
+            await tmc.chat("¤error¤No action. ¤white¤Available: add", login);
             return;
         }
-        if (tmc.game.Name == "TmForever") {
-            return await this.addTmnPack(login, params[0]);
-        }
-        if (tmc.game.Name == "Trackmania") {
-            return await this.addTmxPack(login, params[0]);
+        if (params[0] == "add") {
+            if (!params[1]) {
+                await tmc.chat("No maps to fetch", login);
+                return;
+            }
+            if (tmc.game.Name == "TmForever") {
+                return await this.addTmnPack(login, params[1]);
+            }
+            if (tmc.game.Name == "Trackmania") {
+                return await this.addTmxPack(login, params[1]);
+            }
         }
         return await tmc.chat("Not implemented yet.", login);
     }
@@ -79,24 +91,34 @@ class TmxPlugin {
     async addTmuMap(login: string, params: string[]) {
         const player = await tmc.getPlayer(login);
         if (!params[0]) {
+            await tmc.chat("¤error¤No action. ¤white¤Available: add", login);
+            return;
+        }
+        if (!params[0]) {
             await tmc.chat("¤error¤No maps to fetch", login);
             return;
         }
-
-        for (let id of params[0].split(",")) {
-            await this.download(id, login, true, "tmuf");
+        if (params[0] == "add") {
+            for (let id of params[1].split(",")) {
+                await this.download(id, login, true, "tmuf");
+            }
         }
     }
 
     async addMap(login: string, params: string[]) {
         const player = await tmc.getPlayer(login);
         if (!params[0]) {
-            await tmc.chat("¤error¤No maps to fetch", login);
+            await tmc.chat("¤error¤No action. ¤white¤Available: add", login);
             return;
         }
-
-        for (let id of params[0].split(",")) {
-            await this.download(id, login);
+        if (params[0] == "add") {
+            if (!params[1]) {
+                await tmc.chat("¤error¤No maps to fetch", login);
+                return;
+            }
+            for (let id of params[1].split(",")) {
+                await this.download(id, login);
+            }
         }
     }
 
