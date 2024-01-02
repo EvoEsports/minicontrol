@@ -68,15 +68,15 @@ class MiniControl {
     }
 
     async run() {
-        const port = Number.parseInt(process.env.PORT || "5000");
-        const status = await this.server.connect(process.env.HOST ?? "127.0.0.1", port);
+        const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
+        const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
         if (!status) {
             this.cli("¤error¤Couldn't connect to server.");
             process.exit();
         }
         this.cli("¤info¤Connected to Trackmania Dedicated server.");
-        try {
-            await this.server.call("Authenticate", process.env.USER ?? "SuperAdmin", process.env.PASS ?? "SuperAdmin");
+        try {            
+            await this.server.call("Authenticate", process.env.XMLRPC_USER ?? "SuperAdmin", process.env.XMLRPC_PASS ?? "SuperAdmin");
         } catch (e: any) {
             this.cli("¤error¤Authenticate to server failed.");
             this.cli(e.message);

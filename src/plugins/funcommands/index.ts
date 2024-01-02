@@ -11,7 +11,7 @@ class FunCommands {
         tmc.addCommand("/bb", this.command_bb.bind(this), "Bye bye");
         tmc.addCommand("/go", this.command_go.bind(this), "Go go go");
         tmc.addCommand("/n1", this.command_n1.bind(this), "Nice one");
-        tmc.addCommand("/nt", this.command_nt.bind(this), "Nice catch");
+        tmc.addCommand("/nt", this.command_nt.bind(this), "Nice time");
         tmc.addCommand("/posture", this.command_posture.bind(this), "Posture check");
         tmc.addCommand("/hydrate", this.command_hydrate.bind(this), "Hydrate");
     }
