@@ -15,6 +15,7 @@ export interface DediRecord {
 
 export class Dedimania {
     enabled: boolean = false;
+    maxRank: number = 30;
     api: Api = new Api();
     serverLogin: string = "";
     sessionId: string = "";
@@ -23,6 +24,7 @@ export class Dedimania {
     records: any = [];
     widgetId: string = tmc.ui.uuid();
     widgetTemplate: string = fs.readFileSync(__dirname + "/templates/widget.twig", "utf8");
+    sendRecords: boolean = false;
 
     constructor() {
         tmc.server.on("TMC.Init", this.onInit.bind(this));
@@ -42,16 +44,49 @@ export class Dedimania {
 
                 if (res == true) {
                     tmc.cli("¤info¤Dedimania: Authenticated.");
-                    this.getRecords();
+                    // setInterval( () => { this.updatePlayers(); }, 240*1000);
+                    this.getRecords(tmc.maps.currentMap);
                     tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
+                    tmc.server.on("Trackmania.EndMap", this.onEndMap.bind(this));
                 }
             } catch (e: any) {
                 console.log(e);
             }
         }
     }
+    
+    /**
+     * Update the players on dedimania.
+     */
+    async updatePlayers() {        
+        const serverGameMode = await tmc.server.call("GetGameMode");
+        const serverInfo = await tmc.server.call("GetServerOptions", 0);
+        const res = await this.api.call('dedimania.UpdateServerPlayers',
+        "TMF",
+        serverGameMode,
+        {
+            SrvName: serverInfo.Name,
+            Comment: serverInfo.Comment,
+            Private: serverInfo.Password != "",
+            SrvIP: "127.0.0.1",
+            SrvPort: "2350",
+            XmlRpcPort: "5000",
+            NumPlayers: tmc.players.get().filter((pl: Player) => !pl.isSpectator).length,
+            MaxPlayers: serverInfo.CurrentMaxPlayers,
+            NumSpectators: tmc.players.get().filter((pl: Player) => pl.isSpectator).length,
+            MaxSpectators: serverInfo.CurrentMaxSpectators,
+            LadderMode: serverInfo.LadderMode,
+            NextFiveUID: "",
+        },
+        this.getDedimaniaPlayers()
+        );
+        console.log(res);
+    }
 
-
+    /**
+     * authenticate to dedimania
+     * @returns {boolean}
+     */
     async authenticate() {
         this.server = await tmc.server.call("GetDetailedPlayerInfo", this.serverInfo.Login);
         const packmask = await tmc.server.call("GetServerPackMask");
@@ -71,20 +106,55 @@ export class Dedimania {
         );
 
         this.enabled = res ?? false;
-        return res;
+        return this.enabled;
     }
 
-    async getRecords() {
-        if (!this.enabled) return;
+    async onEndMap(data: any) {
+        const serverGameMode = await tmc.server.call("GetGameMode");
+        const scores: any = data[0];
+        const map: any = data[1];
+        try {
+            const res = await this.api.call("dedimania.ChallengeRaceTimes",
+                map.UId,
+                map.Name,
+                map.Environnement,
+                map.Author,
+                "TMF",
+                serverGameMode,
+                map.NbCheckpoints,
+                this.maxRank,
+                this.getDedimaniaScores(scores)
+            );
+            console.log(res);
+        } catch (e: any) {
+            console.log(e);
+        }
+    }
 
+    getDedimaniaScores(scores: any) {
+        const out = [];
+        for (let score of scores) {
+            out.push({
+                Login: score.Login,
+                Best: score.BestTime,
+                Checks: [score.BestCheckpoints].join(",")
+            });
+        }
+        return out;
+    }
+
+
+    async getRecords(map: any) {
+        if (!this.enabled) return;
+        if (!map) return;
         // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
         const serverGameMode = await tmc.server.call("GetGameMode");
         const serverInfo = await tmc.server.call("GetServerOptions", 0);
         const res: any = await this.api.call("dedimania.CurrentChallenge",
-            tmc.maps.currentMap?.UId,
-            tmc.maps.currentMap?.Name,
-            tmc.maps.currentMap?.Environnement,
-            tmc.maps.currentMap?.Author,
+            map.UId,
+            map.Name,
+            map.Environnement,
+            map.Author,
             "TMF",
             serverGameMode,
             {
@@ -92,7 +162,7 @@ export class Dedimania {
                 Comment: serverInfo.Comment,
                 Private: serverInfo.Password != "",
                 SrvIP: "127.0.0.1",
-                SrvPort: "5000",
+                SrvPort: "2350",
                 XmlRpcPort: "5000",
                 NumPlayers: tmc.players.get().filter((pl: Player) => !pl.isSpectator).length,
                 MaxPlayers: serverInfo.CurrentMaxPlayers,
@@ -101,7 +171,7 @@ export class Dedimania {
                 LadderMode: serverInfo.LadderMode,
                 NextFiveUID: "",
             },
-            30,
+            this.maxRank,
             this.getDedimaniaPlayers()
         );
 
@@ -126,13 +196,14 @@ export class Dedimania {
         return out;
     }
 
-    async onBeginMap() {
+    async onBeginMap(data: any) {
+        const map: any = data[0];
         try {
-            await this.getRecords();
+            await this.getRecords(map);
         } catch (e: any) {
             console.log(e);
             await this.authenticate();;
-            await this.getRecords();
+            await this.getRecords(map);
         }
     }
 

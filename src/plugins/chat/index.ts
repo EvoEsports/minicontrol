@@ -24,7 +24,7 @@ class ChatPlugin {
         const player = await tmc.getPlayer(data[1]);
         const nick = player.nickname;
         const text = data[2];
-        const msg = `$fff${nick}$ff0 ${text}`;
+        const msg = `$fff${nick}$z$s$ff0 ${text}`;
         tmc.server.send("ChatSendServerMessage", msg);
         tmc.cli(msg);
     }
