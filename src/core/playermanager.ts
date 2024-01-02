@@ -13,15 +13,16 @@ export class Player {
 
     syncFromDetailedPlayerInfo(data: any) {
         for (let key in data) {
-            key = key[0].toLowerCase() + key.slice(1);
-            this[key] = data[key];
+            let k = key[0].toLowerCase() + key.slice(1);
+            if (k == "nickName") k = "nickname";
+            this[k] = data[key];
         }                
         this.isAdmin = tmc.admins.includes(data.Login);
     }
-    
+
     syncFromPlayerInfo(data: any) {
         this.login = data.Login;
-        this.nickname = data.NickName;
+        this.nickname = data.NickName.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")
         this.teamId = Number.parseInt(data.TeamId);
         this.isSpectator = data.SpectatorStatus !== 0;
         this.isAdmin = tmc.admins.includes(data.Login);
@@ -95,7 +96,7 @@ export default class PlayerManager {
     async getPlayer(login: string): Promise<Player> {
         if (this.players[login]) return this.players[login];
         tmc.debug(`$888 Player ${login} not found, fetching from server.`);
-
+        
         const data = await this.server.call("GetDetailedPlayerInfo", login);
         const player = new Player();
         player.syncFromDetailedPlayerInfo(data);

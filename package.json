@@ -7,17 +7,19 @@
     },
     "dependencies": {
         "@evotm/gbxclient": "^1.4.3",
+        "casual": "1.6.2",
         "chalk": "^4.1.2",
         "dotenv": "^16.3.1",
-        "casual": "1.6.2",
+        "node-fetch": "2.6.7",
         "tm-essentials": "^1.0.5",
         "ts-node": "^10.9.2",
         "twig": "^1.17.1",
         "xslt-processor": "^2.1.2",
         "xsltjs": "^0.0.52"
     },
-    "devDependencies": {        
+    "devDependencies": {
         "@types/node": "20.10.5",
+        "@types/node-fetch": "^2.6.10",
         "@types/twig": "^1.12.16",
         "env-cmd": "^10.1.0"
     }

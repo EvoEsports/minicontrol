@@ -18,6 +18,7 @@ export class Dedimania {
     api: Api = new Api();
     serverLogin: string = "";
     sessionId: string = "";
+    server: any = {};
     serverInfo: any = {};
     records: any = [];
     widgetId: string = tmc.ui.uuid();
@@ -31,35 +32,46 @@ export class Dedimania {
         if (tmc.game.Name == "TmForever") {
             this.serverInfo = await tmc.server.call("GetMainServerPlayerInfo");
             this.serverLogin = this.serverInfo.Login;
-            const server = await tmc.server.call("GetDetailedPlayerInfo", this.serverInfo.Login);
-            const packmask = await tmc.server.call("GetServerPackMask");
             const pass = process.env.DEDIMANIA_PASS || "";
             if (pass == "") {
                 this.enabled = false;
                 return;
             }
+            try {
+                const res = await this.authenticate();
 
-            const res: any = await this.api.call("dedimania.Authenticate", {
-                Game: 'TMF',
-                Login: this.serverLogin,
-                Password: pass.toString(),
-                Tool: "MINIcontrol",
-                Version: tmc.version,
-                Nation: server.Path,
-                Packmask: packmask,
-                ServerVersion: tmc.game.Version,
-                ServerBuild: tmc.game.Build
-            }
-            );
-
-            this.enabled = res ?? false;
-
-            if (res == true) {
-                tmc.cli("¤info¤Dedimania: Authenticated.");
-                this.getRecords();
-                tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
+                if (res == true) {
+                    tmc.cli("¤info¤Dedimania: Authenticated.");
+                    this.getRecords();
+                    tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
+                }
+            } catch (e: any) {
+                console.log(e);
             }
         }
+    }
+
+
+    async authenticate() {
+        this.server = await tmc.server.call("GetDetailedPlayerInfo", this.serverInfo.Login);
+        const packmask = await tmc.server.call("GetServerPackMask");
+        const pass = process.env.DEDIMANIA_PASS || "";
+
+        const res: any = await this.api.call("dedimania.Authenticate", {
+            Game: 'TMF',
+            Login: this.serverLogin,
+            Password: pass.toString(),
+            Tool: "MINIcontrol",
+            Version: tmc.version,
+            Nation: this.server.Path,
+            Packmask: packmask,
+            ServerVersion: tmc.game.Version,
+            ServerBuild: tmc.game.Build
+        }
+        );
+
+        this.enabled = res ?? false;
+        return res;
     }
 
     async getRecords() {
@@ -68,7 +80,6 @@ export class Dedimania {
         // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
         const serverGameMode = await tmc.server.call("GetGameMode");
         const serverInfo = await tmc.server.call("GetServerOptions", 0);
-
         const res: any = await this.api.call("dedimania.CurrentChallenge",
             tmc.maps.currentMap?.UId,
             tmc.maps.currentMap?.Name,
@@ -116,7 +127,13 @@ export class Dedimania {
     }
 
     async onBeginMap() {
-        await this.getRecords();
+        try {
+            await this.getRecords();
+        } catch (e: any) {
+            console.log(e);
+            await this.authenticate();;
+            await this.getRecords();
+        }
     }
 
     async updateWidget() {
