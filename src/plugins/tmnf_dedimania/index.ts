@@ -149,6 +149,16 @@ export class Dedimania {
                 });
             x += 1;
         }
+        const lastRecord: any = this.records[this.records.length - 1];
+        if (lastRecord != undefined && lastRecord.Rank > 10) {
+            outRecords.push(
+                {
+                    rank: lastRecord.Rank,
+                    nickname: escape(lastRecord.NickName.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")),
+                    time: tm.Time.fromMilliseconds(lastRecord.Best).toTmString(),
+                }
+            )
+        }
         const xml = tmc.ui.render(this.widgetTemplate, { records: outRecords, id: this.widgetId, colors: colors });
         await tmc.ui.display(xml);
     }
