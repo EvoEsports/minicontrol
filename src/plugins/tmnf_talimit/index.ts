@@ -54,29 +54,12 @@ export default class TAlimitPlugin {
             return;
         }
 
-        const timeLeft = this.timeLimit - (Date.now() - this.startTime) / 1000;
+        const timeLeft = 3 + this.timeLimit - (Date.now() - this.startTime) / 1000;
         if (this.active && timeLeft <= 0) {
             this.active = false;
             tmc.server.send("NextMap");
         } else if (this.active) {
             this.showWidget();
-        }
-    }
-
-    async cmdExtendAdm(login: string, params: string[]) {
-        if (this.active) {
-            this.timeLimit += Number.parseInt(params[0]) || Number.parseInt(process.env.TALIMIT || "300");
-            tmc.cli(`TALimit: Time limit extended by ${params[0]} seconds. New limit: ${this.timeLimit} seconds.`);
-        }
-    }
-
-    async cmdExtend(login: string, params: string[]) {
-        if (this.active) {
-            if (this.extend) return;
-            this.extend = true;
-            this.timeLimit += Number.parseInt(process.env.TALIMIT || "300");
-            tmc.chat(`Time limit extended`);
-            tmc.cli(`Time limit extended`);
         }
     }
 
@@ -89,7 +72,7 @@ export default class TAlimitPlugin {
 
     async showWidget() {
         let color = "$fff";
-        const timeLeft = this.timeLimit - (Date.now() - this.startTime) / 1000;
+        const timeLeft = 3 + this.timeLimit - (Date.now() - this.startTime) / 1000;
         if (timeLeft < 60) color = "$ff0";
         if (timeLeft < 30) color = "$f00";
         let time = tm.Time.fromSeconds(timeLeft).toTmString(true).replace(/\.\d\d/, "");

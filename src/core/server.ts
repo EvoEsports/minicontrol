@@ -11,6 +11,11 @@ export default class Server extends EventEmitter {
         this.setMaxListeners(100);
         this.gbx = gbx;
         const that = this;
+        gbx.on("disconnect", () => {
+            tmc.cli("$f00Disconnected from server.");
+            process.exit(1);
+        });
+        
         gbx.on("callback", (method, data) => {
             method = method.replace(/(ManiaPlanet\.)|(TrackMania\.)/i, "Trackmania.").replace("Challenge", "Map");
             // convert script events to legacy
@@ -79,7 +84,7 @@ export default class Server extends EventEmitter {
         tmc.debug("call >$888 " + method);
         if (tmc.game.Name == "Trackmania") {
             if (method == "SetTimeAttackLimit") {
-                const settings = { "S_TimeLimit": Number.parseInt(args[0])/1000 };
+                const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };
                 await tmc.server.call("SetModeScriptSettings", settings);
                 return
             }
@@ -111,7 +116,7 @@ export default class Server extends EventEmitter {
         tmc.debug("$090send >$686 " + method);
         if (tmc.game.Name == "Trackmania") {
             if (method == "SetTimeAttackLimit") {
-                const settings = { "S_TimeLimit": Number.parseInt(args[0])/1000 };
+                const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };
                 tmc.server.send("SetModeScriptSettings", settings);
                 return
             }
