@@ -1,0 +1,11 @@
+<manialink id="{{id}}" version="3">
+	<frame pos="-{{ size.width / 2 }} {{ size.height / 2 + pos.y }}" z-index="{{pos.z}}">
+        <label pos="3 -3.5" z-index="1" size="{{size.width}} 6" text="$fff{{title}}" halign="left" textfont="GameFontSemiBold" textsize="2" valign="center2"/>
+        <label pos="{{size.width -5}} -3" z-index="2" size="7 6" halign="center" valign="center2" action="{{actions.close}}" text="$n$ox" focusareacolor1="{{colors.title}}" focusareacolor2="d00"/>
+        <quad pos="0 -3" size="{{size.width}} 6" valign="center" z-index="-1" bgcolor="{{colors.title}}" opacity="1" />
+        <frame pos="4 -8">
+        {{ content }}
+        </frame>
+        <quad pos="0 -6" z-index="-1" size="{{size.width}} {{size.height}}" bgcolor="{{colors.bg}}e"/>
+    </frame>
+</manialink>

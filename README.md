@@ -1,23 +1,22 @@
 # minicontrol
-Minicontrol for trackmania united forever and trackmania 2020
+Minicontrol for trackmania united forever, maniaplanet and trackmania 2020
 
-# Install
+# Usage
 
-1. npm i
-2. copy .env.example to .env and configure
-3. npm i typescript ts-node nodemon -g
-4. npm start
+Usage is super easy:
 
-
-The controller is still in its very early stages.
-Idea is to use same codebase as much as possible to both games, tmuf and tm2020.
+1. copy .env.example to .env and configure
+2. enable or disable needed plugins at `plugins.json`
+3. start with `./minicontrol`
 
 # Development
 
 The core is set as simple as possible, so you should be able to just do plugins very easily.
+> Notice: I changed to use bun instead of node, easiest way to migrate is just  `npm i -g bun`
 
-to start instance 1 (tmnf): npm run dev
-to start instance 2 (tm2020): npm run dev2
+1. bun install
+2. copy .env.example to .env and configure
+3. bun run dev
 
 ## TMC
 
@@ -41,7 +40,7 @@ Interactions and shortcuts:
 ```ts
 // server call
 await tmc.server.call("GetMapList", -1,0);
-await tmc.chat("message", recipient /*optional*/ );
+tmc.chat("message", recipient /*optional*/ );
 
 // public commands
 tmc.addCommand("/command", callable, "help text");

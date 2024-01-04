@@ -1,15 +1,14 @@
 {
     "scripts": {
-        "build": "tsc -w",
-        "dev": "env-cmd -f .env nodemon src/app.ts",
-        "dev2": "env-cmd -f .env2 nodemon src/app.ts",
-        "start": "ts-node src/app.ts"
+        "dev": "env-cmd -f .env bun --watch run app.ts",
+        "dev2": "env-cmd -f .env2 bun --watch run app.ts",
+        "start": "bun app.ts",
+        "build": "bun build ./app.ts --compile --outfile dist/minicontrol"
     },
+    "module": "index.ts",
     "dependencies": {
         "@evotm/gbxclient": "^1.4.3",
         "casual": "1.6.2",
-        "chalk": "^4.1.2",
-        "dotenv": "^16.3.1",
         "node-fetch": "2.6.7",
         "tm-essentials": "^1.0.5",
         "ts-node": "^10.9.2",
@@ -18,9 +17,12 @@
         "xsltjs": "^0.0.52"
     },
     "devDependencies": {
-        "@types/node": "20.10.5",
+        "@types/bun": "latest",
         "@types/node-fetch": "^2.6.10",
         "@types/twig": "^1.12.16",
         "env-cmd": "^10.1.0"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
     }
 }
