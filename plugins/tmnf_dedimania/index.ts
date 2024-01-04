@@ -106,9 +106,8 @@ export class Dedimania {
                 NextFiveUID: "",
             },
             this.getDedimaniaPlayers()
-        );
-        console.log(res);
-        tmc.debug("Dedimania: Updated players.");
+        );       
+        tmc.debug("¤info¤Dedimania: Updated players.");
     }
 
     /**
@@ -153,6 +152,7 @@ export class Dedimania {
                 this.maxRank,
                 this.getDedimaniaScores(scores)
             );
+            tmc.debug("¤info¤Dedimania: Sent scores.");
         } catch (e: any) {
             tmc.cli(e);
         }
