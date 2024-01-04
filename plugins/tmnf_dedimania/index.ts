@@ -3,6 +3,7 @@ import Api from './api';
 import * as fs from 'fs';
 import { colors, escape } from 'core/utils';
 import tm from 'tm-essentials';
+import ListWindow from 'core/ui/listwindow';
 
 export interface DediRecord {
     Login: string;
@@ -23,7 +24,8 @@ export class Dedimania {
     serverInfo: any = {};
     records: any = [];
     widgetId: string = tmc.ui.uuid();
-    widgetTemplate: string = fs.readFileSync(__dirname + "/templates/widget.twig", "utf8");
+    widgetAction: number = tmc.ui.addAction(this.widgetClick.bind(this), null);
+    widgetTemplate: string = fs.readFileSync(import.meta.dir + "/templates/widget.twig", "utf8");
     sendRecords: boolean = false;
 
     constructor() {
@@ -32,6 +34,9 @@ export class Dedimania {
 
     async onInit() {
         if (tmc.game.Name == "TmForever") {
+            tmc.debug("¤info¤Dedimania: TmForever detected, enabling plugin.");
+            tmc.addCommand("/records", this.cmdDediRecords.bind(this), "Show dedimania records");
+
             this.serverInfo = await tmc.server.call("GetMainServerPlayerInfo");
             this.serverLogin = this.serverInfo.Login;
             const pass = process.env.DEDIMANIA_PASS || "";
@@ -54,31 +59,52 @@ export class Dedimania {
             }
         }
     }
-    
+
+    async cmdDediRecords(login: string, args: string[]) {
+        let records = [];
+        for (let record of this.records) {
+            records.push(
+                {
+                    rank: record.Rank,
+                    nickname: escape(record.NickName),
+                    time: "$o"+tm.Time.fromMilliseconds(record.Best).toTmString().replace(/^0:/, ""),
+                });
+        }
+        const window = new ListWindow(login);
+        window.size = { width: 90, height: 100 };
+        window.title = "Dedimania records";
+        window.setItems(records);
+        window.setColumns([
+            { key: "rank", title: "Rank", width: 10 },
+            { key: "nickname", title: "Nickname", width: 50 },
+            { key: "time", title: "Time", width: 20 },
+        ]);
+        await window.display();
+    }
     /**
      * Update the players on dedimania.
      */
-    async updatePlayers() {        
+    async updatePlayers() {
         const serverGameMode = await tmc.server.call("GetGameMode");
         const serverInfo = await tmc.server.call("GetServerOptions", 0);
         const res = await this.api.call('dedimania.UpdateServerPlayers',
-        "TMF",
-        serverGameMode,
-        {
-            SrvName: serverInfo.Name,
-            Comment: serverInfo.Comment,
-            Private: serverInfo.Password != "",
-            SrvIP: "127.0.0.1",
-            SrvPort: "2350",
-            XmlRpcPort: "5000",
-            NumPlayers: tmc.players.get().filter((pl: Player) => !pl.isSpectator).length,
-            MaxPlayers: serverInfo.CurrentMaxPlayers,
-            NumSpectators: tmc.players.get().filter((pl: Player) => pl.isSpectator).length,
-            MaxSpectators: serverInfo.CurrentMaxSpectators,
-            LadderMode: serverInfo.LadderMode,
-            NextFiveUID: "",
-        },
-        this.getDedimaniaPlayers()
+            "TMF",
+            serverGameMode,
+            {
+                SrvName: serverInfo.Name,
+                Comment: serverInfo.Comment,
+                Private: serverInfo.Password != "",
+                SrvIP: "127.0.0.1",
+                SrvPort: "2350",
+                XmlRpcPort: "5000",
+                NumPlayers: tmc.players.get().filter((pl: Player) => !pl.isSpectator).length,
+                MaxPlayers: serverInfo.CurrentMaxPlayers,
+                NumSpectators: tmc.players.get().filter((pl: Player) => pl.isSpectator).length,
+                MaxSpectators: serverInfo.CurrentMaxSpectators,
+                LadderMode: serverInfo.LadderMode,
+                NextFiveUID: "",
+            },
+            this.getDedimaniaPlayers()
         );
         tmc.debug("Dedimania: Updated players.");
     }
@@ -124,7 +150,7 @@ export class Dedimania {
                 map.NbCheckpoints,
                 this.maxRank,
                 this.getDedimaniaScores(scores)
-            );            
+            );
         } catch (e: any) {
             tmc.cli(e);
         }
@@ -199,7 +225,7 @@ export class Dedimania {
         const map: any = data[0];
         try {
             await this.getRecords(map);
-        } catch (e: any) {            
+        } catch (e: any) {
             tmc.cli(e);
             await this.authenticate();;
             await this.getRecords(map);
@@ -214,8 +240,8 @@ export class Dedimania {
             outRecords.push(
                 {
                     rank: record.Rank,
-                    nickname: escape(record.NickName.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")),
-                    time: tm.Time.fromMilliseconds(record.Best).toTmString(),
+                    nickname: escape(record.NickName),
+                    time: tm.Time.fromMilliseconds(record.Best).toTmString().replace(/^0:/, ""),
                 });
             x += 1;
         }
@@ -224,13 +250,17 @@ export class Dedimania {
             outRecords.push(
                 {
                     rank: lastRecord.Rank,
-                    nickname: escape(lastRecord.NickName.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")),
-                    time: tm.Time.fromMilliseconds(lastRecord.Best).toTmString(),
+                    nickname: escape(lastRecord.NickName),
+                    time: tm.Time.fromMilliseconds(lastRecord.Best).toTmString().replace(/^0:/, ""),
                 }
             )
         }
-        const xml = tmc.ui.render(this.widgetTemplate, { records: outRecords, id: this.widgetId, colors: colors });
+        const xml = tmc.ui.render(this.widgetTemplate, { records: outRecords, id: this.widgetId, colors: colors, action: this.widgetAction });
         await tmc.ui.display(xml);
+    }
+
+    async widgetClick(login: string, data: any) {
+        tmc.chatCmd.execute(login, "/records");
     }
 
 }

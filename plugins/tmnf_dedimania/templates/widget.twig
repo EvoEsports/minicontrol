@@ -7,7 +7,7 @@
     {% for item in records %}      
         <label pos="1 -{{ (loop.index * 3.5) }}" z-index="1" size="30 3" textcolor="fff" textsize="1" text="{{item.rank}} {{ item.nickname }}" valign="center2" />    
         <label pos="34 -{{ (loop.index * 3.5) }}" z-index="1" size="14 3" textcolor="fff" textsize="1" text="$n$o{{ item.time }}" valign="center2"  />    
-        <quad pos="0 -{{ (loop.index * 3.5) }}" z-index="0" size="46 3.5" bgcolor="{{colors.bg}}e" valign="center" />
+        <quad pos="0 -{{ (loop.index * 3.5) }}" z-index="0" size="46 3.5" bgcolor="{{colors.bg}}e" valign="center" action="{{action}}" />
             {% if loop.index == 10 %}
                 <quad pos="0 -{{ 1.5+(loop.index * 3.5) }}" z-index="2" size="46 0.3" bgcolor="fffa" valign="center" />
             {% endif %}

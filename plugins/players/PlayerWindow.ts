@@ -1,4 +1,4 @@
-import ListWindow from "../../core/ui/listwindow";
+import ListWindow from 'core/ui/listwindow';
 
 export default class PlayerWindow extends ListWindow {
 

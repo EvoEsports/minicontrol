@@ -1,4 +1,4 @@
-import { castType } from "../../core/utils";
+import { castType } from "core/utils";
 import ModeSettingsWindow from "./ModeSettingsWindow";
 
 class AdminPlugin {
