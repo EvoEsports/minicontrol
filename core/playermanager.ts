@@ -29,7 +29,7 @@ export class Player {
 }
 
 export default class PlayerManager {
-    players: any = {};
+    private players: any = {};
     private server: Server;
 
     constructor(server: Server) {
@@ -70,7 +70,7 @@ export default class PlayerManager {
     }
 
     /**    
-     * @returns {Player[]} Returns the current playerlist
+     * @returns {Player[]} Returns clone of the current playerlist
      */
     get(): Player[] {
         return clone(Object.values(this.players));

@@ -49,7 +49,8 @@ export class Dedimania {
 
                 if (res == true) {
                     tmc.cli("¤info¤Dedimania: Authenticated.");
-                    // setInterval( () => { this.updatePlayers(); }, 240*1000);
+                    await this.updatePlayers(); 
+                    setInterval( async () => { await this.updatePlayers(); }, 180*1000);
                     this.getRecords(tmc.maps.currentMap);
                     tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
                     tmc.server.on("Trackmania.EndMap", this.onEndMap.bind(this));
@@ -106,6 +107,7 @@ export class Dedimania {
             },
             this.getDedimaniaPlayers()
         );
+        console.log(res);
         tmc.debug("Dedimania: Updated players.");
     }
 
