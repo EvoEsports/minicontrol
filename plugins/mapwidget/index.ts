@@ -1,6 +1,6 @@
 import tm from 'tm-essentials';
 import fs from 'fs';
-import { escape } from '../../core/utils';
+import { escape } from 'core/utils';
 
 interface Time {
     login: string;
@@ -17,7 +17,7 @@ class MapWidget {
     constructor() {
         this.id = tmc.ui.uuid();
         this.action = tmc.ui.addAction(this.buttonClick.bind(this), null);
-        this.template = fs.readFileSync(__dirname + "/templates/info.twig", "utf8").toString();
+        this.template = fs.readFileSync(import.meta.dir + "/templates/info.twig", "utf8").toString();
         tmc.server.on("TMC.Init", this.onInit.bind(this));
     }
 

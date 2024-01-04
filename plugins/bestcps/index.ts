@@ -16,8 +16,8 @@ class BesCpPlugin {
 
     constructor() {
         this.id = tmc.ui.uuid();
-        this.template = fs.readFileSync(__dirname + "/templates/widget.twig").toString('utf-8');
-
+        this.template = fs.readFileSync(import.meta.dir + "/templates/widget.twig").toString('utf-8');
+        
         tmc.server.on("TMC.Init", this.onInit.bind(this));
         tmc.server.on("Trackmania.BeginMap", this.beginMap.bind(this));
         tmc.server.on("TMC.PlayerCheckpoint", this.checkpoint.bind(this));

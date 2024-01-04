@@ -1,7 +1,7 @@
-import { Player } from '../../core/playermanager';
+import { Player } from 'core/playermanager';
 import Api from './api';
 import * as fs from 'fs';
-import { colors, escape } from '../../core/utils';
+import { colors, escape } from 'core/utils';
 import tm from 'tm-essentials';
 
 export interface DediRecord {

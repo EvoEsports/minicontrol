@@ -3,7 +3,7 @@
         "dev": "env-cmd -f .env bun --watch run app.ts",
         "dev2": "env-cmd -f .env2 bun --watch run app.ts",
         "start": "bun app.ts",
-        "build": "bun build ./app.ts --compile --outfile dist/minicontrol"
+        "build": "bun build ./app.ts --compile --minify --outfile minicontrol"
     },
     "module": "index.ts",
     "dependencies": {

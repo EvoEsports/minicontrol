@@ -1,4 +1,3 @@
-import { GbxClient } from "@evotm/gbxclient";
 import Server from "./server";
 import { clone } from "./utils";
 // import casual from 'casual';

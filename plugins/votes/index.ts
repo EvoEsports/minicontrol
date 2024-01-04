@@ -1,5 +1,4 @@
 import fs from 'fs';
-import { extend } from 'twig';
 
 export class Vote {
     type: string;

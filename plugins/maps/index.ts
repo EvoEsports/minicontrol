@@ -1,6 +1,6 @@
 import tm from 'tm-essentials';
 import MapsWindow from './mapsWindow';
-import { escape } from '../../core/utils';
+import { escape } from 'core/utils';
 
 const pageLength = 20;
 

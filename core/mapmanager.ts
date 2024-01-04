@@ -1,6 +1,5 @@
-import { Interface } from "readline";
 import Server from "./server";
-import { Map } from "./types";
+import { type Map } from "./types";
 import { clone } from "./utils";
 
 class MapManager {

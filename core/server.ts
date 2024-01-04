@@ -1,6 +1,5 @@
 import { GbxClient } from "@evotm/gbxclient";
 import EventEmitter from "events";
-import 'dotenv/config'
 
 export default class Server extends EventEmitter {
     gbx: GbxClient

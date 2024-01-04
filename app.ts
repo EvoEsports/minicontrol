@@ -6,7 +6,6 @@ import MapManager from './core/mapmanager';
 import CommandManager from './core/commandmanager';
 import { type GameStruct } from './core/types';
 import { processColorString } from './core/utils';
-import 'dotenv/config'
 import log from './core/log';
 import fs from 'fs';
 

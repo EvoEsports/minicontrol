@@ -7,7 +7,7 @@ export default class TAlimitPlugin {
     active: boolean = false;
     extend: boolean = false;
     widgetId: string = "";
-    widgetTemplate: string = fs.readFileSync(__dirname + "/templates/widget.twig", "utf8");
+    widgetTemplate: string = fs.readFileSync(import.meta.dir + "/templates/widget.twig", "utf8");
 
     constructor() {
         this.widgetId = tmc.ui.uuid();
