@@ -2,14 +2,12 @@ import Twig from 'twig';
 import fs from 'fs';
 import Server from "./server";
 import { colors } from './utils';
-import { EventEmitter } from 'stream';
 
 export default class UiManager {
     private server: Server;
     private counter = 0;
     private actions: any = {};
     private publicManialinks: any = {};
-    events: EventEmitter = new EventEmitter();
 
     constructor(server: Server) {
         this.server = server;

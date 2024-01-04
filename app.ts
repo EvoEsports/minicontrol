@@ -1,6 +1,6 @@
 import { GbxClient } from '@evotm/gbxclient';
 import PlayerManager, { Player } from './core/playermanager';
-import TmServer from './core/server';
+import Server from './core/server';
 import UiManager from './core/uimanager';
 import MapManager from './core/mapmanager';
 import CommandManager from './core/commandmanager';
@@ -11,8 +11,8 @@ import fs from 'fs';
 
 const controllerStr = "$z$s$n$fff$oMINI$ocontrol$z$s$fff";
 
-class MiniControl {
-    server: TmServer;
+export default class MiniControl {
+    server: Server;
     players: PlayerManager;
     ui: UiManager;
     plugins: any = {};
@@ -21,11 +21,11 @@ class MiniControl {
     admins: string[];
     chatCmd: CommandManager;
     maps: MapManager;
-    version: string = "2024-01-01";
+    version: string = "2024-01-04";
 
     constructor() {
         console.time("Startup");
-        this.server = new TmServer(new GbxClient());
+        this.server = new Server(new GbxClient());
         this.maps = new MapManager(this.server);
         this.players = new PlayerManager(this.server);
         this.ui = new UiManager(this.server);
@@ -115,7 +115,7 @@ class MiniControl {
     }
 }
 
-const tmc = new MiniControl();
+export const tmc = new MiniControl();
 (async () => await tmc.run())();
 
 declare global {

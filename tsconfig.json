@@ -9,20 +9,19 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
+   // "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "noEmit": true,
+    // "noEmit": false,
 
     /* Linting */
     "skipLibCheck": true,
     "strict": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "dist",
     "rootDir": "./",
     "baseUrl": "./",
-    "paths": {       
-        "core/*": ["core/*"],  // wildcard matching
-      }
+    "paths": {        
+        "core/*": ["./core/*"], 
+    },
   }
 }

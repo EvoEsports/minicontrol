@@ -7,19 +7,19 @@
     },
     "module": "index.ts",
     "dependencies": {
-        "@evotm/gbxclient": "^1.4.3",
-        "casual": "1.6.2",
+        "@evotm/gbxclient": "^1.4.3",       
         "node-fetch": "2.6.7",
         "tm-essentials": "^1.0.5",
-        "ts-node": "^10.9.2",
         "twig": "^1.17.1",
         "xslt-processor": "^2.1.2",
         "xsltjs": "^0.0.52"
     },
     "devDependencies": {
+        "casual": "1.6.2",
         "@types/bun": "latest",
         "@types/node-fetch": "^2.6.10",
         "@types/twig": "^1.12.16",
+        "bun-plugin-dts": "^0.2.1",
         "env-cmd": "^10.1.0"
     },
     "peerDependencies": {

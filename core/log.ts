@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import { rgb2hsl } from "./utils";
 
 function Tm2Console(input: string, ansi256: boolean = false) {
@@ -68,7 +67,7 @@ function Tm2Console(input: string, ansi256: boolean = false) {
 class log {
     Level: number = 0;
     constructor() {
-        this.Level = chalk.Level;
+        this.Level = 1;
         if (Boolean(process.env.ANSI256)) {
             this.Level = 2;
         }

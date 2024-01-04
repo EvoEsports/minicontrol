@@ -1,22 +1,15 @@
 # minicontrol
 Minicontrol for trackmania united forever, maniaplanet and trackmania 2020
 
-# Usage
-
-Usage is super easy:
-
-1. copy .env.example to .env and configure
-2. enable or disable needed plugins at `plugins.json`
-3. start with `./minicontrol`
-
-# Development
+# Intall
 
 The core is set as simple as possible, so you should be able to just do plugins very easily.
 > Notice: I changed to use bun instead of node, easiest way to migrate is just  `npm i -g bun`
 
 1. bun install
 2. copy .env.example to .env and configure
-3. bun run dev
+3. enable or disable needed plugins at `plugins.json` 
+4. bun start
 
 ## TMC
 
@@ -59,7 +52,3 @@ async buttonClick(login:string, data:any, entries:string[]|undefined) {
 ```
 
 for more examples check the bestcps and map widget plugins...
-
-
-
-
