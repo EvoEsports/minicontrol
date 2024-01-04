@@ -7,7 +7,7 @@
     },
     "module": "index.ts",
     "dependencies": {
-        "@evotm/gbxclient": "^1.4.3",       
+        "@evotm/gbxclient": "1.4.4",
         "node-fetch": "2.6.7",
         "tm-essentials": "^1.0.5",
         "twig": "^1.17.1",

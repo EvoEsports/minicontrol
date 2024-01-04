@@ -1,4 +1,4 @@
-import { GbxClient } from "@evotm/gbxclient";
+import type { GbxClient } from "@evotm/gbxclient";
 import EventEmitter from "events";
 
 export default class Server extends EventEmitter {
@@ -116,14 +116,14 @@ export default class Server extends EventEmitter {
         if (tmc.game.Name == "Trackmania") {
             if (method == "SetTimeAttackLimit") {
                 const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };
-                tmc.server.send("SetModeScriptSettings", settings);
+                this.gbx.send("SetModeScriptSettings", settings);
                 return
             }
         }
         if (this.methodOverrides[method]) {
             return this.methodOverrides[method](...args);
         }
-        return this.gbx.call(method, ...args);
+        this.gbx.send(method, ...args);
     }
 
     /**

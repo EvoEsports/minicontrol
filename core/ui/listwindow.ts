@@ -55,6 +55,8 @@ export default class ListWindow extends Window {
         this.template = "";
         this.columns = [];
         this.items = [];
+        this.listActions = [];
+        this.tempActions = {};
         super.hide(login, data);
     }
 

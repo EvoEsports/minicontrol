@@ -143,15 +143,13 @@ let prevValueMem: number = -1;
 let startValueMem: number = (process.memoryUsage().rss / 1048576);
 
 export function memInfo(section = "") {
-    let memMB = (process.memoryUsage().rss / 1048576);
-    if (prevValueMem != memMB) {
-        let prefix = "$d00 +";
-        if (memMB < prevValueMem) {
-            prefix = "$0d0 -";
-        }
-        section = (section != "") ? `¤info¤${section} ` : "";
-        const out = section + "$fff" + memMB.toFixed(1) + "Mb " + prefix + Math.abs(memMB - prevValueMem).toFixed(1) + 'Mb $fff(' + (memMB - startValueMem).toFixed(1) + "Mb)";
-        prevValueMem = memMB;
-        return out;
+    const memMB = (process.memoryUsage().rss / 1048576);
+    let prefix = "$d00 +";
+    if (memMB < prevValueMem) {
+        prefix = "$0d0 -";
     }
+    section = (section != "") ? `¤info¤${section} ` : "";
+    const out = section + "$fff" + memMB.toFixed(1) + "Mb " + prefix + Math.abs(memMB - prevValueMem).toFixed(1) + 'Mb $fff(' + (memMB - startValueMem).toFixed(1) + "Mb)";
+    prevValueMem = memMB;
+    return out;
 }

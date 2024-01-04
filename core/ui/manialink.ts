@@ -28,6 +28,7 @@ export default class Manialink {
         for (let actionId of Object.values(this.actions)) {
             tmc.ui.removeAction(actionId);
         }
+        this.actions = {};
         tmc.ui.hide(this.id, this.login);
     }
 
