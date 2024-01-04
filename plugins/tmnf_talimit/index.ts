@@ -17,7 +17,11 @@ export default class TAlimitPlugin {
 
     async onBeginRound() {
         this.startTime = Date.now();
-        this.active = true;
+        const gamemode = await tmc.server.call("GetGameMode"); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
+        this.active = false;
+        if (gamemode === 1) {
+            this.active = true;
+        }
         if (this.extend) {
             this.extend = false;
             this.timeLimit = Number.parseInt(process.env.TALIMIT || "300");
@@ -33,24 +37,26 @@ export default class TAlimitPlugin {
         this.startTime = Date.now();
         if (tmc.game.Name == "TmForever") {
             tmc.debug("TALimit: TmForever detected, enabling plugin.");
-                    
+
             tmc.server.on("Trackmania.BeginRound", this.onBeginRound.bind(this));
             tmc.server.on("Trackmania.EndRound", this.onEndRound.bind(this));
-            const limit = await tmc.server.call("GetTimeAttackLimit") ;
-            if (limit.CurrentValue > 0) {
-                await tmc.server.send("SetTimeAttackLimit", 0);
-                await tmc.chat("TALimit: TimeAttackLimit was set, disabling it.");
-                tmc.server.send("NextMap");
+            const gamemode = await tmc.server.call("GetGameMode"); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
+            if (gamemode === 1) {
+                const limit = await tmc.server.call("GetTimeAttackLimit");
+                if (limit.CurrentValue > 0) {
+                    await tmc.server.send("SetTimeAttackLimit", 0);
+                    await tmc.chat("TALimit: TimeAttackLimit was set, disabling it.");
+                    tmc.server.send("NextMap");
+                }
+                this.active = true;
             }
-
             tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
-            setInterval(this.tick.bind(this), 1000);
-            this.active = true;
+            setInterval(this.tick.bind(this), 1000);            
         }
     }
 
     async tick() {
-        if (this.timeLimit < 1) {            
+        if (this.timeLimit < 1) {
             return;
         }
 
