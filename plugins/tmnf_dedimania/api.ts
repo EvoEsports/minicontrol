@@ -1,6 +1,7 @@
 import * as http from "http";
 import { Readable } from "stream";
 import fetch from 'node-fetch';
+import { memInfo } from "core/utils";
 const Serializer = require("xmlrpc/lib/serializer");
 const Deserializer = require("xmlrpc/lib/deserializer");
 
@@ -11,26 +12,24 @@ export default class DedimaniaClient {
         maxSockets: 1,
     });
 
-    async call(method: string, ...params: any[]) {
-        let url = "http://dedimania.net:8002/Dedimania";
-
+    async call(method: string, ...params: any[]) {        
+        const url = "http://dedimania.net:8002/Dedimania";
         const body = await Serializer.serializeMethodCall(method, params);
         const response = await fetch(url, {
             method: "POST",
             body: body,
             compress: true,
             headers: {
-                "Content-Type": "text/xml",                
+                "Content-Type": "text/xml",
             },
             agent: this.keepAliveAgent
         });
 
         const data = (await response.text()).replaceAll("<int></int>", "<int>-1</int>");
-
         try {
-            const deserializer = new Deserializer();
-            const answer = new Promise((resolve, reject) => {
+            const answer = await new Promise((resolve, reject) => {
                 try {
+                    const deserializer = new Deserializer();
                     deserializer.deserializeMethodResponse(Readable.from(data), (err: any, res: any) => {
                         if (err) {
                             reject(err);
@@ -41,8 +40,7 @@ export default class DedimaniaClient {
                 } catch (err) {
                     reject(err);
                 }
-            });
-
+            });            
             return answer;
         } catch (err) {
             tmc.cli(err);

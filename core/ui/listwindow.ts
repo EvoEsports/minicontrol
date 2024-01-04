@@ -1,3 +1,4 @@
+import { isThisTypeNode } from "typescript";
 import { colors, paginate } from "../utils";
 import Window from "./window";
 import fs from 'fs';
@@ -16,7 +17,7 @@ export default class ListWindow extends Window {
     items: any = [];
     private pageSize: number = 20;
     private currentPage: number;
-    private template: string = fs.readFileSync(__dirname + "/templates/list.twig", 'utf-8');
+    private template: string = fs.readFileSync(import.meta.dir + "/templates/list.twig", 'utf-8');
     private paginate: { [key: string]: number } = {};
     private tempActions: { [key: string]: number } = {};
     private listActions: string[];
@@ -44,14 +45,17 @@ export default class ListWindow extends Window {
         this.listActions = actions;
     }
 
-    async close(login: string, data: any): Promise<void> {
+    async hide(login: string, data: any): Promise<void> {
         for (let action in this.paginate) {
             tmc.ui.removeAction(this.paginate[action]);
         }
         for (let action in this.tempActions) {
             tmc.ui.removeAction(this.tempActions[action]);
         }
-        super.close(login, data);
+        this.template = "";
+        this.columns = [];
+        this.items = [];
+        super.hide(login, data);
     }
 
     uiPaginate(login: string, answer: any, entries: any): void {
@@ -102,7 +106,7 @@ export default class ListWindow extends Window {
 
     addApplyButtons(): void {
         this.actions['apply'] = tmc.ui.addAction(this.onApply.bind(this), "");
-        this.actions['cancel'] = tmc.ui.addAction(this.close.bind(this), "");
+        this.actions['cancel'] = tmc.ui.addAction(this.hide.bind(this), "");
     }
 
     uiAction(login: string, answer: any): void {

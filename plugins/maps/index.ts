@@ -19,7 +19,6 @@ export class MapsPlugin {
 
     async cmdMaps(login: any, args: string[]) {
         const window = new MapsWindow(login);
-
         const maps = [];
         let i = 1;
         for (const map of tmc.maps.get()) {

@@ -100,7 +100,7 @@ export function rgb2hsl(r: number, g: number, b: number) {
 
 export function escape(str: string): string {
     return str.replaceAll(/&/g, "&amp;").replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;").replaceAll(/"/g, "&quot;").replaceAll(/'/g, "&apos;")
-    .replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "");
+        .replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "");
 }
 
 export function clone(obj: any): any {
@@ -136,5 +136,22 @@ export function castType(value: string, type: string | undefined = undefined): a
     else {
         console.log("Unknown type: " + value);
         return;
+    }
+}
+
+let prevValueMem: number = -1;
+let startValueMem: number = (process.memoryUsage().rss / 1048576);
+
+export function memInfo(section = "") {
+    let memMB = (process.memoryUsage().rss / 1048576);
+    if (prevValueMem != memMB) {
+        let prefix = "$d00 +";
+        if (memMB < prevValueMem) {
+            prefix = "$0d0 -";
+        }
+        section = (section != "") ? `¤info¤${section} ` : "";
+        const out = section + "$fff" + memMB.toFixed(1) + "Mb " + prefix + Math.abs(memMB - prevValueMem).toFixed(1) + 'Mb $fff(' + (memMB - startValueMem).toFixed(1) + "Mb)";
+        prevValueMem = memMB;
+        return out;
     }
 }

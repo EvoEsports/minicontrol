@@ -5,8 +5,8 @@ export default class Window extends Manialink {
 
     constructor(login: string) {
         super(login);
-        this.baseTemplate = fs.readFileSync(__dirname + "/templates/window.twig", 'utf-8');
-        this.actions['close'] = tmc.ui.addAction(this.close.bind(this), "");
+        this.baseTemplate = fs.readFileSync(import.meta.dir + "/templates/window.twig", 'utf-8');
+        this.actions['close'] = tmc.ui.addAction(this.hide.bind(this), "");
     }
 
     /**
@@ -14,7 +14,8 @@ export default class Window extends Manialink {
      * @param login 
      * @param data 
      */
-    async close(login: string, data: any) {
+    async hide(login: string, data: any) {
+        this.baseTemplate = "";
         super.hide(login, data);
     }
 }

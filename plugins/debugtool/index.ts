@@ -1,22 +1,28 @@
+import { memInfo } from "core/utils";
 
-let prevValue:number = -1;
-let startValue:number = (process.memoryUsage().rss / 1048576);
+export default class DebugTool {
+    id: string = "";
 
-function tickHeapDump() {
-    setImmediate(function () {
-        let memMB = (process.memoryUsage().rss / 1048576);
-        if (prevValue != memMB) {
-            let prefix = "$d00▲ +";
-            if (memMB < prevValue) {
-                prefix = "$0d0▼ -";
-            }
-            tmc.cli("¤info¤Current Mem: $fff" + memMB.toFixed(1) + "Mb " + prefix +  Math.abs(memMB - prevValue).toFixed(1) + 'Mb $aaa(' + (memMB - startValue).toFixed(1) + "Mb)");
-            prevValue = memMB;
-        }
-    });
+    constructor() {
+        this.id = tmc.ui.uuid();
+        tmc.server.on('TMC.Init', this.onInit.bind(this));
+    }
+    
+    async onInit() {
+        this.displayMemInfo();
+        setInterval(() => {
+            this.displayMemInfo();
+        }, 5000);
+    }
+
+    async displayMemInfo() {
+        const mem = memInfo();
+        const xml = `
+            <manialink id="${this.id}" version="3">
+                <label pos="159 -70" z-index="1" size="120 6" text="$s${mem}" textsize="1" halign="right" valign="center" />
+            </manialink>`;
+        tmc.ui.display(xml);
+    }
 }
 
-tickHeapDump();
-setInterval(() => {
-    tickHeapDump();
-}, 10000);
+tmc.addPlugin("debugtool", new DebugTool());
