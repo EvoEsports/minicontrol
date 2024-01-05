@@ -1,4 +1,4 @@
-import { drizzle, type BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
+import { type BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 import Plugin from "core/plugins";
 import { Score } from "schemas/scores";
 import { Player } from "schemas/players";
@@ -7,7 +7,6 @@ import { escape, removeLinks } from "core/utils";
 import tm from 'tm-essentials';
 import { colors } from "core/utils";
 import fs from "fs";
-import { date } from 'drizzle-orm/mysql-core';
 
 export class Record {
     login: string = "";
@@ -112,7 +111,7 @@ export default class Records extends Plugin {
 
             const newRecord = new Record().fromScore({
                 login: login,
-                nickName: removeLinks(ranking.NickName),
+                nickname: removeLinks(ranking.NickName),
                 time: ranking.BestTime,
                 avgTime: ranking.BestTime,
                 totalFinishes: 1,
@@ -148,6 +147,7 @@ export default class Records extends Plugin {
         const record = this.records.find(r => r.login === login);
         if (record) {
             if (time < record.time) {
+                record.nickname = removeLinks(ranking.NickName);
                 record.avgTime = record.avgTime + (time - record.avgTime) / record.totalFinishes;
                 record.time = ranking.BestTime;
                 record.checkpoints = ranking.BestCheckpoints.join(",");

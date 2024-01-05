@@ -130,6 +130,18 @@ export default class MiniControl {
             // unload
             await this.plugins[unloadName].onUnload();
             delete this.plugins[unloadName];
+            const path = process.cwd() + "/plugins/" + unloadName + "/index.ts";
+            if (require.cache[path]) {
+                delete require.cache[path];
+                try {
+                    // eslint-disable-next-line drizzle/enforce-delete-with-where
+                    Loader.registry.delete(path);
+                } catch (e: any) {
+                    this.cli(`$fffFailed to remove Loader cache for $fd0${unloadName}$fff, hotreload will not work right.`);
+                }
+            } else {
+                this.cli(`$fffFailed to remove require cache for $fd0${unloadName}$fff, hotreload will not work right.`);
+            }
             // remove from dependecies
             for (const key in this.pluginDependecies) {
                 const index = this.pluginDependecies[key].indexOf(unloadName);
