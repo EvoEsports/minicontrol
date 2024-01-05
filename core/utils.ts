@@ -103,6 +103,10 @@ export function escape(str: string): string {
         .replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "");
 }
 
+export function removeLinks(str: string): string {
+    return str.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")
+}
+
 export function clone(obj: any): any {
     return JSON.parse(JSON.stringify(obj));
 }

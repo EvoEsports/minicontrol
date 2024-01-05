@@ -3,6 +3,7 @@ import tm from 'tm-essentials';
 import Plugin from 'core/plugins';
 
 export default class TAlimitPlugin extends Plugin {
+    depends: string[] = ["game:TmForever"];
     startTime: number = Date.now();
     timeLimit: number = 0;
     active: boolean = false;
@@ -33,26 +34,22 @@ export default class TAlimitPlugin extends Plugin {
         this.widgetId = tmc.ui.uuid();
         this.timeLimit = Number.parseInt(process.env.TALIMIT || "300");
         this.startTime = Date.now();
-        if (tmc.game.Name == "TmForever") {
-            tmc.debug("TALimit: TmForever detected, enabling plugin.");
-
-            tmc.server.on("Trackmania.BeginRound", this.onBeginRound.bind(this));
-            tmc.server.on("Trackmania.EndRound", this.onEndRound.bind(this));
-            const gamemode = await tmc.server.call("GetGameMode"); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
-            if (gamemode === 1) {
-                const limit = await tmc.server.call("GetTimeAttackLimit");
-                if (limit.CurrentValue > 0) {
-                    await tmc.server.send("SetTimeAttackLimit", 0);
-                    await tmc.chat("TALimit: TimeAttackLimit was set, disabling it.");
-                    tmc.server.send("NextMap");
-                }
-                this.active = true;
+        tmc.server.on("Trackmania.BeginRound", this.onBeginRound.bind(this));
+        tmc.server.on("Trackmania.EndRound", this.onEndRound.bind(this));
+        const gamemode = await tmc.server.call("GetGameMode"); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
+        if (gamemode === 1) {
+            const limit = await tmc.server.call("GetTimeAttackLimit");
+            if (limit.CurrentValue > 0) {
+                await tmc.server.send("SetTimeAttackLimit", 0);
+                await tmc.chat("TALimit: TimeAttackLimit was set, disabling it.");
+                tmc.server.send("NextMap");
             }
-            tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
-            this.intervalId = setInterval(this.tick.bind(this), 1000);
+            this.active = true;
         }
+        tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
+        this.intervalId = setInterval(this.tick.bind(this), 1000);
     }
-    
+
     async onUnload() {
         if (this.intervalId) {
             clearInterval(this.intervalId);

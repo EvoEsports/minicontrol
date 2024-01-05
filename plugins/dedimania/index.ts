@@ -217,6 +217,7 @@ export default class Dedimania extends Plugin {
 
         this.records = res.Records ?? [];
         tmc.debug("Dedimania: Got records.");
+        tmc.server.emit("Plugin.Dedimania.onSync", this.records);
         await this.updateWidget();
     }
 

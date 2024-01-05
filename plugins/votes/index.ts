@@ -28,7 +28,7 @@ export interface VoteStruct {
 
 export default class VotesPlugin extends Plugin {
     pluginName: string = "votes";
-    depends: string[] = [""];
+    depends: string[] = [];
     timeout: number = 30;
     ratio: number = process.env.VOTE_RATIO ? parseFloat(process.env.VOTE_RATIO) : 0.5;
     currentVote: Vote | null = null;

@@ -24,6 +24,7 @@ export default class MiniControl {
     players: PlayerManager;
     ui: UiManager;
     plugins: { [key: string]: Plugin } = {};
+    pluginDependecies: { [key: string]: string[] } = {};
     game: GameStruct;
     mapsPath: string = "";
     admins: string[];
@@ -78,7 +79,31 @@ export default class MiniControl {
                 return;
             }
             const cls = new plugin.default();
+            for (const depend of cls.depends) {
+                if (depend.startsWith("game:")) {
+                    const game = depend.split(":")[1];
+                    if (game != this.game.Name) {
+                        const msg = `$aaaPlugin $fd0${name}$fff failed to load. Game is not $fd0${game}$fff.`;
+                        this.cli(msg);
+                        this.chat(msg);
+                        return;
+                    }
+                    continue;
+                }
+                if (this.plugins[depend] == undefined) {
+                    const msg = `$aaaPlugin $fd0${name}$fff failed to load. Missing dependency $fd0${depend}$fff.`;
+                    this.cli(msg);
+                    this.chat(msg);
+                    Bun.gc(true);
+                    return;
+                }
+                this.pluginDependecies[depend].push(name);
+            }
+            // load and init the plugin
             this.plugins[name] = cls;
+            if (this.pluginDependecies[name] == undefined) {
+                this.pluginDependecies[name] = [];
+            }
             const msg = `$aaaPlugin $fd0${name}$fff loaded.`;
             this.cli(msg);
             await cls.onLoad();
@@ -93,16 +118,31 @@ export default class MiniControl {
         }
     }
 
-    async unloadPlugin(name: string) {
-        if (this.plugins[name]) {
-            await this.plugins[name].onUnload();
-            delete this.plugins[name];
+
+    async unloadPlugin(unloadName: string) {
+        if (this.plugins[unloadName]) {
+            if (this.pluginDependecies[unloadName].length > 0) {
+                const msg = `$aaaPlugin $fd0${unloadName}$fff cannot be unloaded. It is a dependency of $fd0${this.pluginDependecies[unloadName].join(", ")}$fff.`;
+                this.cli(msg);
+                this.chat(msg);
+                return;
+            }
+            // unload
+            await this.plugins[unloadName].onUnload();
+            delete this.plugins[unloadName];
+            // remove from dependecies
+            for (const key in this.pluginDependecies) {
+                const index = this.pluginDependecies[key].indexOf(unloadName);
+                if (index > -1) {
+                    this.pluginDependecies[key].splice(index, 1);
+                }
+            }
             Bun.gc(true);
-            const msg = `$aaaPlugin $fd0${name}$fff unloaded.`;
+            const msg = `$aaaPlugin $fd0${unloadName}$fff unloaded.`;
             this.cli(msg);
             this.chat(msg);
         } else {
-            const msg = `$aaaPlugin $fd0${name}$fff not loaded.`
+            const msg = `$aaaPlugin $fd0${unloadName}$fff not loaded.`
             this.cli(msg);
             this.chat(msg);
         }
@@ -195,10 +235,10 @@ declare global {
 
 (global as any).tmc = tmc
 
-process.on('SIGINT', function() {    
+process.on('SIGINT', function () {
     tmc.server.send("SendHideManialinkPage", 0, false);
     process.exit();
-});  
+});
 
 process.on("SIGTERM", () => {
     tmc.server.send("SendHideManialinkPage", 0, false);

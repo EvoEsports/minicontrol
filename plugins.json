@@ -1,4 +1,4 @@
-[    
+[     
     "database",
     "chat",    
     "admin",
@@ -10,8 +10,9 @@
     "announces",
     "tmnf_talimit",
     "tmnf_ui",
-    "dedimania",
+    "dedimania", 
     "debugtool",
     "votes",
-    "funcommands"
+    "funcommands",
+    "records"
 ]

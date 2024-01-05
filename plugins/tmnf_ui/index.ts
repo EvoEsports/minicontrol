@@ -3,18 +3,15 @@ import Plugin from "core/plugins";
 const environments = ['Stadium', 'Speed', 'Alpine', 'Bay', 'Coast', 'Island', 'Rally'];
 
 export default class TmnfUiPlugin extends Plugin {
+    depends: string[] = ["game:TmForever"];
 
     async onLoad() {
-        if (tmc.game.Name == "TmForever") {
-            tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
-            this.sendMod();
-        }
+        tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
+        this.sendMod();
     }
 
     async onUnload() {
-        if (tmc.game.Name == "TmForever") {
-            tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
-        }
+        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
     }
 
     async onBeginMap() {

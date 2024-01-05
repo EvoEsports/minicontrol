@@ -3,14 +3,14 @@ import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 import { Database } from 'bun:sqlite';
 import { eq } from "drizzle-orm";
 import type { Logger } from 'drizzle-orm/logger';
-import * as schema from './schema';
 import { sleep } from 'bun';
-import type { Player } from 'core/playermanager';
+import type { Player as PlayerType } from 'core/playermanager';
+import { Player } from 'schemas/players';
 import Plugin from 'core/plugins';
 
 class SqliteLogger implements Logger {
     logQuery(query: string, params: unknown[]): void {
-        console.log({ query, params });
+        tmc.debug(`$c8c${query}` );
     }
 }
 
@@ -22,18 +22,24 @@ export default class SqliteDb extends Plugin {
             logger: new SqliteLogger()
         });
         console.log("Running Migrates...");
-        migrate(client, {
-            migrationsFolder: "./drizzle"
-        });
-        tmc.storage['db'] = client;
+        try {
+            migrate(client, {
+                migrationsFolder: "./drizzle"
+            });
+        } catch (e: any) {
+            tmc.cli("¤error¤Error running migrations: $fff" + e.message);
+            process.exit(1);
+        }
+
+        tmc.storage['sqlite'] = client;
         tmc.cli("¤success¤Database connected.");
         tmc.server.on("Trackmania.PlayerConnect", this.onPlayerConnect.bind(this));
     }
 
     async onUnload() {
-        if (tmc.storage['db']) {
-            await tmc.storage['db'].close();
-            delete (tmc.storage['db']);
+        if (tmc.storage['sqlite']) {
+            await tmc.storage['sqlite'].close();
+            delete (tmc.storage['sqlite']);
         }
         tmc.server.removeListener("Trackmania.PlayerConnect", this.onPlayerConnect.bind(this));
     }
@@ -49,19 +55,19 @@ export default class SqliteDb extends Plugin {
         await this.syncPlayer(player);
     }
 
-    async syncPlayer(player: Player) {
-        if (!tmc.storage['db']) return;
-        const db: BunSQLiteDatabase = tmc.storage['db'];
-        const query = await db.select().from(schema.players).where(eq(schema.players.login, player.login));
+    async syncPlayer(player: PlayerType) {
+        if (!tmc.storage['sqlite']) return;
+        const db: BunSQLiteDatabase = tmc.storage['sqlite'];
+        const query = await db.select().from(Player).where(eq(Player.login, player.login));
         if (query.length == 0) {
-            await db.insert(schema.players).values({
+            await db.insert(Player).values({
                 login: player.login,
                 nickname: player.nickname,
             });
         } else {
-            await db.update(schema.players).set({
+            await db.update(Player).set({
                 nickname: player.nickname,
-            }).where(eq(schema.players.login, player.login));
+            }).where(eq(Player.login, player.login));
 
             if (query[0] && query[0].customNick) {
                 tmc.cli("Setting nickname to " + query[0].customNick);
