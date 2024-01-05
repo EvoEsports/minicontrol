@@ -45,7 +45,6 @@ export default class Dedimania extends Plugin {
             }
             try {
                 const res = await this.authenticate();
-
                 if (res == true) {
                     tmc.cli("¤info¤Dedimania: Authenticated.");
                     await this.updatePlayers(); 
@@ -53,6 +52,8 @@ export default class Dedimania extends Plugin {
                     this.getRecords(tmc.maps.currentMap);
                     tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
                     tmc.server.on("Trackmania.EndMap", this.onEndMap.bind(this));
+                } else {
+                    tmc.cli("¤error¤Dedimania: Failed to authenticate.");
                 }
             } catch (e: any) {
                 tmc.cli(e);
@@ -96,6 +97,7 @@ export default class Dedimania extends Plugin {
      * Update the players on dedimania.
      */
     async updatePlayers() {
+        if (!this.enabled) return;
         const serverGameMode = await tmc.server.call("GetGameMode");
         const serverInfo = await tmc.server.call("GetServerOptions", 0);
         const res = await this.api.call('dedimania.UpdateServerPlayers',
@@ -147,6 +149,7 @@ export default class Dedimania extends Plugin {
     }
 
     async onEndMap(data: any) {
+        if (!this.enabled) return;
         const serverGameMode = await tmc.server.call("GetGameMode");
         const scores: any = data[0];
         const map: any = data[1];
@@ -235,6 +238,7 @@ export default class Dedimania extends Plugin {
 
     async onBeginMap(data: any) {
         const map: any = data[0];
+        if (!this.enabled) return;
         try {
             await this.getRecords(map);
         } catch (e: any) {

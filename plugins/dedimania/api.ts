@@ -12,7 +12,7 @@ export default class DedimaniaClient {
         maxSockets: 1,
     });
 
-    async call(method: string, ...params: any[]) {        
+    async call(method: string, ...params: any[]) {
         const url = "http://dedimania.net:8002/Dedimania";
         const body = await Serializer.serializeMethodCall(method, params);
         const response = await fetch(url, {
@@ -26,26 +26,20 @@ export default class DedimaniaClient {
         });
 
         const data = (await response.text()).replaceAll("<int></int>", "<int>-1</int>");
-        try {
-            const answer = await new Promise((resolve, reject) => {
-                try {
-                    const deserializer = new Deserializer();
-                    deserializer.deserializeMethodResponse(Readable.from(data), (err: any, res: any) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(res);
-                        }
-                    });
-                } catch (err) {
-                    reject(err);
-                }
-            });            
-            return answer;
-        } catch (err) {
-            tmc.cli(err);
-            tmc.debug(data);
-            return {};
-        }
+        const answer = await new Promise((resolve, reject) => {
+            try {
+                const deserializer = new Deserializer();
+                deserializer.deserializeMethodResponse(Readable.from(data), (err: any, res: any) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(res);
+                    }
+                });
+            } catch (err) {
+                reject(err);
+            }
+        });
+        return answer;
     }
 }
