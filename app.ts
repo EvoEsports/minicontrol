@@ -195,3 +195,13 @@ declare global {
 
 (global as any).tmc = tmc
 
+process.on('SIGINT', function() {    
+    tmc.server.send("SendHideManialinkPage", 0, false);
+    process.exit();
+});  
+
+process.on("SIGTERM", () => {
+    tmc.server.send("SendHideManialinkPage", 0, false);
+    process.exit();
+});
+
