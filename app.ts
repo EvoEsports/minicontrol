@@ -8,20 +8,29 @@ import { type GameStruct } from './core/types';
 import { processColorString } from './core/utils';
 import log from './core/log';
 import fs from 'fs';
+import Plugin from './core/plugins';
 
 const controllerStr = "$z$s$n$fff$oMINI$ocontrol$z$s$fff";
 
+if (!process.versions.bun) {
+    log.info(`Please install bun using "npm install -g bun"`);
+    process.exit();
+}
+
 export default class MiniControl {
+    version: string = "2024-01-04";
+    startTime: string = Date.now().toString();
     server: Server;
     players: PlayerManager;
     ui: UiManager;
-    plugins: any = {};
+    plugins: { [key: string]: Plugin } = {};
     game: GameStruct;
     mapsPath: string = "";
     admins: string[];
     chatCmd: CommandManager;
     maps: MapManager;
-    version: string = "2024-01-04";
+    storage: { [key: string]: any } = {};
+    startComplete: boolean = false;
 
     constructor() {
         console.time("Startup");
@@ -42,10 +51,60 @@ export default class MiniControl {
         this.chatCmd.addCommand(command, callback, help);
     }
 
-    addPlugin(name: string, object: any) {
+    removeCommand(command: string) {
+        this.chatCmd.removeCommand(command);
+    }
+
+    async loadPlugin(name: string) {
         if (!this.plugins[name]) {
-            this.plugins[name] = object;
-            this.cli(`$aaaPlugin $fd0${name}$fff loaded.`);
+            if (fs.existsSync("./plugins/" + name + "/index.ts") == false) {
+                const msg = `$aaaPlugin $fd0${name}$fff does not exist.`;
+                this.cli(msg);
+                this.chat(msg);
+                return;
+            }
+            const plugin = await import("./plugins/" + name);
+
+            if (plugin == undefined) {
+                const msg = `$aaaPlugin $fd0${name}$fff failed to load, plugin is undefined.`;
+                this.cli(msg);
+                this.chat(msg);
+                return;
+            }
+            if (!(plugin.default.prototype instanceof Plugin)) {
+                const msg = `$aaaPlugin $fd0${name}$fff is not a valid plugin.`;
+                this.cli(msg);
+                this.chat(msg);
+                return;
+            }
+            const cls = new plugin.default();
+            this.plugins[name] = cls;
+            const msg = `$aaaPlugin $fd0${name}$fff loaded.`;
+            this.cli(msg);
+            await cls.onLoad();
+            if (this.startComplete) {
+                this.chat(msg);
+                await cls.onInit();
+            }
+        } else {
+            const msg = `$aaaPlugin $fd0${name}$fff already loaded.`;
+            this.chat(msg)
+            this.cli(msg);
+        }
+    }
+
+    async unloadPlugin(name: string) {
+        if (this.plugins[name]) {
+            await this.plugins[name].onUnload();
+            delete this.plugins[name];
+            Bun.gc(true);
+            const msg = `$aaaPlugin $fd0${name}$fff unloaded.`;
+            this.cli(msg);
+            this.chat(msg);
+        } else {
+            const msg = `$aaaPlugin $fd0${name}$fff not loaded.`
+            this.cli(msg);
+            this.chat(msg);
         }
     }
 
@@ -75,7 +134,7 @@ export default class MiniControl {
             process.exit();
         }
         this.cli("¤info¤Connected to Trackmania Dedicated server.");
-        try {            
+        try {
             await this.server.call("Authenticate", process.env.XMLRPC_USER ?? "SuperAdmin", process.env.XMLRPC_PASS ?? "SuperAdmin");
         } catch (e: any) {
             this.cli("¤error¤Authenticate to server failed.");
@@ -98,20 +157,32 @@ export default class MiniControl {
         await this.players.init();
         await this.ui.init();
         await this.beforeInit();
-        this.server.emit("TMC.Init");
-        await this.afterInit();
         console.timeEnd("Startup");
     }
-    
+
     async beforeInit() {
         this.chatCmd.beforeInit();
+        const plugins = JSON.parse(await fs.readFileSync("plugins.json").toString());
+        for (const plugin of plugins) {
+            try {
+                await tmc.loadPlugin(plugin);
+            } catch (e: any) {
+                console.log(e.message);
+            }
+        }
+        this.server.send("Echo", this.startTime, "MiniControl",);
     }
-    
-    async afterInit() {
+
+    async afterStart() {
+        tmc.cli("¤success¤MiniControl started successfully.");
         this.players.afterInit();
         this.chatCmd.afterInit();
         this.cli(`¤white¤Welcome to ${controllerStr} v${this.version}!`);
-        await this.server.send("ChatSendServerMessage", `Welcome to ${controllerStr} v${this.version}!`);
+        this.server.send("ChatSendServerMessage", `Welcome to ${controllerStr} v${this.version}!`);
+        this.startComplete = true;
+        for (const plugin of Object.values(this.plugins)) {
+            await plugin.onInit();
+        }
     }
 }
 
@@ -124,8 +195,3 @@ declare global {
 
 (global as any).tmc = tmc
 
-const plugins = JSON.parse(await fs.readFileSync("plugins.json").toString());
-
-for (const plugin of plugins) {
-    await import(plugin);
-}

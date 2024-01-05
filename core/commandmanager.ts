@@ -1,5 +1,6 @@
 import Server from "./server";
 import { type ChatCommand } from "./types";
+import fs from 'fs';
 
 export default class CommandManager {
     private commands: { [key: string]: ChatCommand } = {};
@@ -32,6 +33,64 @@ export default class CommandManager {
         this.addCommand("/version", async (login: string) => {
             tmc.chat(`MiniController version: ${tmc.version}`, login);
         }, "Display server versions");
+
+        this.addCommand("//plugin", async (login: string, args: string[]) => {
+            if (args.length < 1) {
+                tmc.chat("Valid options are: list, load, unload", login);
+                return;
+            }
+            const action = args[0];
+            switch (action) {
+                case "list": {
+                    let plugins = "Loaded plugins: ";
+                    for (let plugin in tmc.plugins) {
+                        plugins += `¤cmd¤${plugin}¤white¤, `;
+                    }
+                    tmc.chat(plugins, login);
+                    break;
+                }
+                case "load": {
+                    if (args.length < 2) {
+                        tmc.chat("Please specify a plugin name.", login);
+                        return;
+                    }
+                    const plugin = args[1];
+                    if (tmc.plugins[plugin]) {
+                        tmc.chat(`Plugin $fd0${args[0]}$fff already loaded.`, login);
+                        return;
+                    }
+                    if (fs.existsSync(`./plugins/${plugin}/index.ts`)) {
+                        try {
+                            await tmc.loadPlugin(plugin);
+                        } catch (e: any) {
+                            const msg = `Plugin $fd0${plugin}$fff failed to load: ${e.message}`;
+                            tmc.chat(msg, login);
+                            tmc.cli(msg);
+                        }
+                    } else {
+                        tmc.chat(`Plugin $fd0${plugin}$fff not found.`, login);
+                    }
+                    break;
+                }
+                case "unload": {
+                    if (args.length < 2) {
+                        tmc.chat("Please specify a plugin name.", login);
+                        return;
+                    }
+                    const plugin = args[1];
+                    if (!tmc.plugins[plugin]) {
+                        tmc.chat(`Plugin $fd0${plugin}$fff not loaded.`, login);
+                        return;
+                    }
+                    tmc.unloadPlugin(plugin);
+                    break;
+                }
+                default: {
+                    tmc.chat("Valid options are: list, load, unload", login);
+                }
+            }
+        }, "Manage plugins");
+
     }
 
     async afterInit() {
@@ -43,17 +102,23 @@ export default class CommandManager {
         if (admin === undefined) {
             admin = command.startsWith("//") ? true : false;
         }
-
-        this.commands[command] = {
-            trigger: command,
-            callback: callback,
-            admin: admin,
-            help: help,
+        if (!this.commands[command]) {
+            this.commands[command] = {
+                trigger: command,
+                callback: callback,
+                admin: admin,
+                help: help,
+            }
+        }
+        else {
+            tmc.cli(`¤white¤Command $fd0${command} ¤white¤already exists.`);
         }
     }
 
     removeCommand(command: string) {
-        delete this.commands[command];
+        if (this.commands[command]) {
+            delete this.commands[command];
+        }
     }
 
     async execute(login: string, text: string) {
@@ -81,5 +146,5 @@ export default class CommandManager {
         let text: string = data[2];
         this.execute(login, text);
     }
-    
+
 }

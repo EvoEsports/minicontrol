@@ -1,12 +1,17 @@
-export class AnnouncesPlugin {
-    constructor() {
-       tmc.server.on("TMC.Init", this.onInit.bind(this));
-    }
+import Plugin from "core/plugins";
 
-    async onInit() {
+export class Announces extends Plugin {
+
+    async onLoad() {
      //   tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
         tmc.server.on("Trackmania.PlayerConnect", this.onPlayerConnect.bind(this));
         tmc.server.on("Trackmania.PlayerDisconnect", this.onPlayerDisconnect.bind(this));
+    }
+
+    async onUnload() {
+        // tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
+        tmc.server.removeListener("Trackmania.PlayerConnect", this.onPlayerConnect.bind(this));
+        tmc.server.removeListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect.bind(this));
     }
 
     async onBeginMap(data: any) {
@@ -33,5 +38,3 @@ export class AnnouncesPlugin {
     }
 
 }
-
-tmc.addPlugin("announces", new AnnouncesPlugin);

@@ -1,3 +1,4 @@
+import Plugin from 'core/plugins';
 import fs from 'fs';
 
 export class Vote {
@@ -25,22 +26,28 @@ export interface VoteStruct {
     percent: number;
 }
 
-export class VotesPlugin {
+export default class VotesPlugin extends Plugin {
+    pluginName: string = "votes";
+    depends: string[] = [""];
     timeout: number = 30;
     ratio: number = process.env.VOTE_RATIO ? parseFloat(process.env.VOTE_RATIO) : 0.5;
     currentVote: Vote | null = null;
     widgetId: string = tmc.ui.uuid();
-    widget: string = fs.readFileSync(__dirname + "/templates/votes.twig", 'utf-8');
+    widget: string = fs.readFileSync(import.meta.dir + "/templates/votes.twig", 'utf-8');
     actions: { [key: string]: number } = {};
     origTimeLimit = Number.parseInt(process.env.TALIMIT || "300");
     newLimit = this.origTimeLimit;
     extendCounter = 1;
 
     constructor() {
+        super();
         this.timeout = process.env.VOTE_TIMEOUT ? parseInt(process.env.VOTE_TIMEOUT) : 30;
         this.actions['yes'] = tmc.ui.addAction(this.vote.bind(this), true);
         this.actions['no'] = tmc.ui.addAction(this.vote.bind(this), false);
-        tmc.server.on("TMC.Init", this.onInit.bind(this));
+    }
+
+    async onLoad() {
+        tmc.debug("[Votes] onLoad");
         tmc.server.addOverride("CancelVote", this.overrideCancel.bind(this));
         tmc.server.on("TMC.Vote.Cancel", this.onVoteCancel.bind(this));
         tmc.server.on("TMC.Vote.Deny", this.onVoteDeny.bind(this));
@@ -48,7 +55,28 @@ export class VotesPlugin {
         tmc.server.on("Trackmania.EndMatch", this.cancelVote.bind(this));
     }
 
+    async onUnload() {
+        tmc.server.removeOverride("CancelVote");
+        tmc.server.removeListener("TMC.Vote.Cancel", this.onVoteCancel.bind(this));
+        tmc.server.removeListener("TMC.Vote.Deny", this.onVoteDeny.bind(this));
+        tmc.server.removeListener("TMC.Vote.Pass", this.onVotePass.bind(this));
+        tmc.server.removeListener("Trackmania.EndMatch", this.cancelVote.bind(this));
+        for (const action in this.actions) {
+            tmc.ui.removeAction(this.actions[action]);
+        }
+        this.currentVote = null;
+        this.hideWidget();
+        tmc.removeCommand("//vote");
+        tmc.removeCommand("//pass");
+        tmc.removeCommand("/skip");
+        tmc.removeCommand("/extend");
+        tmc.removeCommand("//extend");
+        tmc.removeCommand("/yes");
+        tmc.removeCommand("/no");        
+    }
+
     async onInit() {
+        tmc.debug("[Votes] onInit");
         tmc.server.on("Trackmania.BeginMap", this.onBeginRound.bind(this));
         tmc.addCommand("//vote", this.cmdVotes.bind(this), "Start custom vote");
         tmc.addCommand("//pass", this.cmdPassVote.bind(this), "Pass vote");
@@ -209,7 +237,7 @@ export class VotesPlugin {
             actions: this.actions,
             time_percent: (this.currentVote.timeout - Date.now()) / (this.timeout * 1000),
             time: (Date.now() - this.currentVote.timeout)
-        });        
+        });
         tmc.ui.display(manialink);
     }
 
@@ -246,5 +274,3 @@ export class VotesPlugin {
 
     }
 }
-
-tmc.addPlugin("votes", new VotesPlugin());

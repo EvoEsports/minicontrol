@@ -1,5 +1,6 @@
 import type { GbxClient } from "@evotm/gbxclient";
 import EventEmitter from "events";
+import tm from 'tm-essentials';
 
 export default class Server extends EventEmitter {
     gbx: GbxClient
@@ -11,12 +12,21 @@ export default class Server extends EventEmitter {
         this.gbx = gbx;
         const that = this;
         gbx.on("disconnect", () => {
-            tmc.cli("$f00Disconnected from server.");
+            tmc.cli("¤error¤Disconnected from server.");
             process.exit(1);
         });
-        
-        gbx.on("callback", (method, data) => {
+
+        gbx.on("callback", async (method, data) => {
             method = method.replace(/(ManiaPlanet\.)|(TrackMania\.)/i, "Trackmania.").replace("Challenge", "Map");
+            if (method == "Trackmania.Echo") {
+                if (data[0] == "MiniControl" && data[1] != tmc.startTime) {
+                    tmc.cli("¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!");
+                    process.exit(1);
+                } else if (data[0] == "MiniControl" && data[1] == tmc.startTime) {                    
+                    this.emit("TMC.Start");
+                    await tmc.afterStart();                                         
+                }
+            }
             // convert script events to legacy
             if (method == "Trackmania.ModeScriptCallbackArray") {
                 let params = data[1];
@@ -65,9 +75,10 @@ export default class Server extends EventEmitter {
             }
             if (process.env.DEBUG == "true") {
                 console.log(method, data);
-            }
+            }          
             that.emit(method, data);
-        })
+        }
+        );
     }
 
     /**

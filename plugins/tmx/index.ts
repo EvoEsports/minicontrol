@@ -1,11 +1,9 @@
+import Plugin from 'core/plugins';
 import fs from 'fs';
 
-class TmxPlugin {
-    constructor() {
-        tmc.server.on("TMC.Init", this.onInit.bind(this));
-    }
-
-    async onInit() {
+export default class Tmx extends Plugin {
+    
+    async onLoad() {
         tmc.addCommand("//tmx", this.addMap.bind(this), "Add map from tmx");
         tmc.addCommand("//tmxpack", this.addMapPack.bind(this), "Add map pack from tmx");
         if (tmc.game.Name == "TmForever") {
@@ -14,10 +12,23 @@ class TmxPlugin {
         }
     }
 
+    async onUnload() {
+        tmc.removeCommand("//tmx");
+        tmc.removeCommand("//tmxpack");
+        if (tmc.game.Name == "TmForever") {
+            tmc.removeCommand("//tmux");
+            tmc.removeCommand("//tmuxpack");
+        }
+    }
+
+    async onInit() {
+
+    }
+
     async addMapPackTmu(login: string, params: string[]) {
         const player = await tmc.getPlayer(login);
         if (!params[0]) {
-            tmc.chat("¤error¤No action. ¤white¤Available: add", login);
+            tmc.chat("¤white¤Available: add", login);
             return;
         }
         if (params[0] == "add") {
@@ -33,7 +44,7 @@ class TmxPlugin {
     async addMapPack(login: string, params: string[]) {
         const player = await tmc.getPlayer(login);
         if (!params[0]) {
-            await tmc.chat("¤error¤No action. ¤white¤Available: add", login);
+            await tmc.chat("¤white¤Available: add", login);
             return;
         }
         if (params[0] == "add") {
@@ -170,5 +181,3 @@ class TmxPlugin {
         }
     }
 }
-
-tmc.addPlugin("tmx", new TmxPlugin);

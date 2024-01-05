@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { colors, escape } from 'core/utils';
 import tm from 'tm-essentials';
 import ListWindow from 'core/ui/listwindow';
+import Plugin from 'core/plugins';
 
 export interface DediRecord {
     Login: string;
@@ -14,7 +15,7 @@ export interface DediRecord {
     Vote: number;
 }
 
-export class Dedimania {
+export default class Dedimania extends Plugin {
     enabled: boolean = false;
     maxRank: number = 30;
     api: Api = new Api();
@@ -23,17 +24,15 @@ export class Dedimania {
     server: any = {};
     serverInfo: any = {};
     records: any = [];
-    widgetId: string = tmc.ui.uuid();
+    widgetId: string = "";
     widgetAction: number = tmc.ui.addAction(this.widgetClick.bind(this), null);
     widgetTemplate: string = fs.readFileSync(import.meta.dir + "/templates/widget.twig", "utf8");
     sendRecords: boolean = false;
+    intervalId: NodeJS.Timeout | null = null;
 
-    constructor() {
-        tmc.server.on("TMC.Init", this.onInit.bind(this));
-    }
-
-    async onInit() {
+    async onLoad() {
         if (tmc.game.Name == "TmForever") {
+            this.widgetId = tmc.ui.uuid();
             tmc.debug("¤info¤Dedimania: TmForever detected, enabling plugin.");
             tmc.addCommand("/records", this.cmdDediRecords.bind(this), "Show dedimania records");
 
@@ -50,7 +49,7 @@ export class Dedimania {
                 if (res == true) {
                     tmc.cli("¤info¤Dedimania: Authenticated.");
                     await this.updatePlayers(); 
-                    setInterval( async () => { await this.updatePlayers(); }, 180*1000);
+                    this.intervalId = setInterval( async () => { await this.updatePlayers(); }, 180*1000);
                     this.getRecords(tmc.maps.currentMap);
                     tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
                     tmc.server.on("Trackmania.EndMap", this.onEndMap.bind(this));
@@ -58,6 +57,17 @@ export class Dedimania {
             } catch (e: any) {
                 tmc.cli(e);
             }
+        }
+    }
+
+    async onUnload() {
+        if (tmc.game.Name == "TmForever") {
+            clearInterval(this.intervalId!);
+            tmc.removeCommand("/records");
+            tmc.ui.removeAction(this.widgetAction);
+            tmc.ui.hide(this.widgetId);
+            tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
+            tmc.server.removeListener("Trackmania.EndMap", this.onEndMap.bind(this));
         }
     }
 
@@ -264,7 +274,5 @@ export class Dedimania {
     async widgetClick(login: string, data: any) {
         tmc.chatCmd.execute(login, "/records");
     }
-
+    
 }
-
-tmc.addPlugin("tmnf_dedimania", new Dedimania());

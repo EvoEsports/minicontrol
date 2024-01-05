@@ -132,4 +132,4 @@ dist
 .env1
 .env2
 minicontrol
-
+local.sqlite

@@ -1,16 +1,17 @@
-[
-    "./plugins/chat",
-    "./plugins/admin",
-    "./plugins/players",
-    "./plugins/maps",
-    "./plugins/bestcps",
-    "./plugins/mapwidget",
-    "./plugins/tmx",
-    "./plugins/announces",
-    "./plugins/tmnf_talimit",
-    "./plugins/tmnf_ui",
-    "./plugins/tmnf_dedimania",
-    "./plugins/debugtool",
-    "./plugins/votes",
-    "./plugins/funcommands"
+[    
+    "database",
+    "chat",    
+    "admin",
+    "players",
+    "maps",
+    "bestcps",
+    "mapwidget",
+    "tmx",
+    "announces",
+    "tmnf_talimit",
+    "tmnf_ui",
+    "dedimania",
+    "debugtool",
+    "votes",
+    "funcommands"
 ]

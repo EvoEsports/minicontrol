@@ -7,15 +7,17 @@ const pageLength = 20;
 export class MapsPlugin {
     windos: any = {};
 
-    constructor() {
-        tmc.server.on("TMC.Init", this.onInit.bind(this));
+    async onLoad() {      
         tmc.addCommand("/maps", this.cmdMaps.bind(this), "Display maps list");
         tmc.addCommand("/list", this.cmdMaps.bind(this), "Display maps list");
     }
 
-    async onInit() {
-        // await this.cmdMaps("reaby", []);
+    async onUnload() {
+        tmc.removeCommand("/maps");
+        tmc.removeCommand("/list");
+
     }
+
 
     async cmdMaps(login: any, args: string[]) {
         const window = new MapsWindow(login);
@@ -45,9 +47,7 @@ export class MapsPlugin {
         if (tmc.admins.includes(login)) {
             window.setActions(["Jump", "Remove"]);
         }
-
+        
         await window.display()
     }
 }
-
-tmc.addPlugin("maps", new MapsPlugin);

@@ -10,22 +10,31 @@ export class Player {
     isAdmin: boolean = false;
     [key: string]: any; // Add index signature
 
-    syncFromDetailedPlayerInfo(data: any) {
+    async syncFromDetailedPlayerInfo(data: any) {
         for (let key in data) {
             let k = key[0].toLowerCase() + key.slice(1);
-            if (k == "nickName") k = "nickname";
+            if (k == "nickName") {
+                k = "nickname";
+                data[key] = data[key].replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "");
+            }
             this[k] = data[key];
-        }                
-        this.isAdmin = tmc.admins.includes(data.Login);
+        }                        
+        this.isAdmin = tmc.admins.includes(data.Login);       
     }
 
     syncFromPlayerInfo(data: any) {
-        this.login = data.Login;
-        this.nickname = data.NickName.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")
+        this.login = data.Login;        
+        // disabled for now, doens't need to be updated every time
+        //    this.nickname = data.NickName.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")        
         this.teamId = Number.parseInt(data.TeamId);
         this.isSpectator = data.SpectatorStatus !== 0;
         this.isAdmin = tmc.admins.includes(data.Login);
     }
+    
+    set(key: string, value: any) {
+        this[key] = value;
+    }
+
 }
 
 export default class PlayerManager {
@@ -42,9 +51,7 @@ export default class PlayerManager {
         const players = await this.server.call('GetPlayerList', -1, 0);
         for (const data of players) {
             if (data.PlayerId === 0) continue;
-            const player = new Player();
-            player.syncFromPlayerInfo(data);
-            this.players[data.Login] = player;
+            await this.getPlayer(data.Login);
         }
 
         // Generate mock players
@@ -98,7 +105,7 @@ export default class PlayerManager {
         
         const data = await this.server.call("GetDetailedPlayerInfo", login);
         const player = new Player();
-        player.syncFromDetailedPlayerInfo(data);
+        await player.syncFromDetailedPlayerInfo(data);
         this.players[login] = player;
         return player;
     }

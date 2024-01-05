@@ -1,5 +1,6 @@
 import fs from 'fs';
 import tm from 'tm-essentials';
+import Plugin from 'core/plugins';
 
 interface Time {
     nickname: string;
@@ -7,28 +8,28 @@ interface Time {
     prettyTime: string;
 }
 
-class BesCpPlugin {
-    id: string;
+export default class BesCps extends Plugin {
+    id: string = "";
     bestTimes: Time[] = [];
     nbCheckpoints: number = -1;
     maxCp: number = 16;
-    template: string;
+    template: string = "";
 
-    constructor() {
+    async onLoad() {
         this.id = tmc.ui.uuid();
-        this.template = fs.readFileSync(import.meta.dir + "/templates/widget.twig").toString('utf-8');
-        
-        tmc.server.on("TMC.Init", this.onInit.bind(this));
+        this.template = fs.readFileSync(import.meta.dir + "/templates/widget.twig").toString('utf-8');                
         tmc.server.on("Trackmania.BeginMap", this.beginMap.bind(this));
         tmc.server.on("TMC.PlayerCheckpoint", this.checkpoint.bind(this));
-        tmc.server.on("TMC.PlayerFinish", this.finish.bind(this));
-    }
-
-    async onInit() {
         const info = tmc.maps.currentMap;
         this.nbCheckpoints = info?.NbCheckpoints||-1;
         this.reset();
         await this.display();
+    }
+
+    async onUnload() {
+        tmc.server.removeListener("Trackmania.BeginMap", this.beginMap.bind(this));
+        tmc.server.removeListener("TMC.PlayerCheckpoint", this.checkpoint.bind(this));
+        tmc.ui.hide(this.id);
     }
 
     reset() {
@@ -51,9 +52,6 @@ class BesCpPlugin {
        
     }
 
-    async finish(data: any) {
-
-    }
     async beginMap(data: any) {
         this.nbCheckpoints = Number.parseInt(data[0].NbCheckpoints);
         this.reset();
@@ -68,5 +66,3 @@ class BesCpPlugin {
         tmc.ui.display(xml);
     }
 }
-
-tmc.addPlugin("bestCps", new BesCpPlugin);

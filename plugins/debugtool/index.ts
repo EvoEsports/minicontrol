@@ -1,23 +1,29 @@
 import { generateHeapSnapshot } from "bun";
 import { memInfo } from "core/utils";
+import Plugin from "core/plugins";
 
-export default class DebugTool {
+export default class DebugToo extends Plugin {
     id: string = "";
+    intervalId: NodeJS.Timeout | null = null;
+    
 
-    constructor() {
+    async onLoad() {
         this.id = tmc.ui.uuid();
-        tmc.server.on('TMC.Init', this.onInit.bind(this));
-    }
-
-    async onInit() {
         if (process.env.DEBUG == "true") {
             tmc.addCommand("//heap", this.cmdHeap.bind(this), "Log heap memory usage");
         }
         this.displayMemInfo();
-        setInterval(() => {
+        this.intervalId = setInterval(() => {
             this.displayMemInfo();
         }, 5000);
     }
+
+    async onUnload() {
+        clearInterval(this.intervalId!);
+        tmc.removeCommand("//heap");
+        tmc.ui.hide(this.id);
+    }
+
 
     async cmdHeap(login: string, args: string[]) {
         const snapshot = generateHeapSnapshot();
@@ -35,5 +41,3 @@ export default class DebugTool {
         tmc.ui.display(xml);
     }
 }
-
-tmc.addPlugin("debugtool", new DebugTool());

@@ -1,15 +1,19 @@
+import Plugin from "core/plugins";
 
 const environments = ['Stadium', 'Speed', 'Alpine', 'Bay', 'Coast', 'Island', 'Rally'];
 
-export class TmnfUiPlugin {
-    constructor() {
-        tmc.server.on("TMC.Init", this.onInit.bind(this));
-    }
+export default class TmnfUiPlugin extends Plugin {
 
-    async onInit() {
+    async onLoad() {
         if (tmc.game.Name == "TmForever") {
             tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
             this.sendMod();
+        }
+    }
+
+    async onUnload() {
+        if (tmc.game.Name == "TmForever") {
+            tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
         }
     }
 
@@ -28,5 +32,3 @@ export class TmnfUiPlugin {
         tmc.server.send("SetForcedMods", true, mods);
     }
 }
-
-tmc.addPlugin("tmnf_ui", new TmnfUiPlugin());

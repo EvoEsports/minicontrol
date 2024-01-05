@@ -1,16 +1,13 @@
 import { castType } from "core/utils";
 import ModeSettingsWindow from "./ModeSettingsWindow";
+import Plugin from "core/plugins";
 
-class AdminPlugin {
+export default class AdminPlugin extends Plugin {
 
-    constructor() {
-        tmc.server.on("TMC.Init", this.onInit.bind(this));
-    }
-
-    async onInit() {
+    async onLoad() {
         if (tmc.game.Name != "TmForever") {
             tmc.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");
-            tmc.addCommand("//set", this.cmdSetSetting.bind(this), "Set mode setting");                 
+            tmc.addCommand("//set", this.cmdSetSetting.bind(this), "Set mode setting");
         }
         tmc.addCommand("//skip", async () => await tmc.server.call("NextMap"), "Skips Map");
         tmc.addCommand("//res", async () => await tmc.server.call("RestartMap"), "Restarts Map");
@@ -64,7 +61,7 @@ class AdminPlugin {
                 await tmc.server.call("SetScriptName", scripts[params[0]]);
             }
         }, "Sets gamemode");
-        tmc.addCommand("//pass", async (login: string, params: string[]) => {
+        tmc.addCommand("//setpass", async (login: string, params: string[]) => {
             if (!params[0]) {
                 return await tmc.chat("¤cmd¤//passwd ¤info¤needs a password", login);
             }
@@ -72,7 +69,7 @@ class AdminPlugin {
             await tmc.chat(`¤info¤Password set to "¤white¤${params[0]}¤info¤"`, login);
         }, "Sets server password");
 
-        tmc.addCommand("//specpass", async (login: string, params: string[]) => {
+        tmc.addCommand("//setspecpass", async (login: string, params: string[]) => {
             if (!params[0]) {
                 return await tmc.chat("¤cmd¤//spectpasswd ¤info¤needs a password", login);
             }
@@ -225,7 +222,33 @@ class AdminPlugin {
         }, "Calls server method");
     }
 
-    
+    async onUnload() {
+        tmc.removeCommand("//skip");
+        tmc.removeCommand("//res");
+        tmc.removeCommand("//kick");
+        tmc.removeCommand("//ban");
+        tmc.removeCommand("//unban");
+        tmc.removeCommand("//cancel");
+        tmc.removeCommand("//er");
+        tmc.removeCommand("//mode");
+        tmc.removeCommand("//setpass");
+        tmc.removeCommand("//setspecpass");
+        tmc.removeCommand("//warmup");
+        tmc.removeCommand("//ignore");
+        tmc.removeCommand("//unignore");
+        tmc.removeCommand("//talimit");
+        tmc.removeCommand("//jump");
+        tmc.removeCommand("//wml");
+        tmc.removeCommand("//rml");
+        tmc.removeCommand("//shuffle");
+        tmc.removeCommand("//remove");
+        tmc.removeCommand("//call");
+        if (tmc.game.Name != "TmForever") {
+            tmc.removeCommand("//modesettings");
+            tmc.removeCommand("//set");
+        }
+    }
+
     async cmdModeSettings(login: any, args: string[]) {
         const window = new ModeSettingsWindow(login);
         window.size = { width: 160, height: 100 };
@@ -256,7 +279,7 @@ class AdminPlugin {
             return;
         }
         const setting = args[0];
-        const value: string = args[1];       
+        const value: string = args[1];
 
         try {
             await tmc.server.call("SetModeScriptSettings", { [setting]: castType(value) });
@@ -266,7 +289,4 @@ class AdminPlugin {
         }
         tmc.chat(`Set ${setting} to ${value}`, login);
     }
-
 }
-
-tmc.addPlugin("admin", new AdminPlugin);

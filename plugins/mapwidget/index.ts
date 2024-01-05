@@ -1,31 +1,34 @@
 import tm from 'tm-essentials';
 import fs from 'fs';
 import { escape } from 'core/utils';
+import Plugin from 'core/plugins';
 
 interface Time {
     login: string;
     time: number;
 }
 
-class MapWidget {
-    id: string;
+export default class MapWidget extends Plugin {
+    id: string = "";
     bestTimes: Time[] = [];
     nbCheckpoints: number = -1;
-    action: number;
+    action: number = -1;
     template = "";
 
-    constructor() {
+    async onLoad() {
         this.id = tmc.ui.uuid();
         this.action = tmc.ui.addAction(this.buttonClick.bind(this), null);
         this.template = fs.readFileSync(import.meta.dir + "/templates/info.twig", "utf8").toString();
-        tmc.server.on("TMC.Init", this.onInit.bind(this));
-    }
-
-    async onInit() {
         tmc.server.on("Trackmania.BeginMap", this.beginMap.bind(this));
         const info = tmc.maps.currentMap;
         this.nbCheckpoints = info?.NbCheckpoints || -1;
         await this.display([info]);
+    }
+
+    async onUnload() {
+        tmc.server.removeListener("Trackmania.BeginMap", this.beginMap.bind(this));
+        tmc.ui.removeAction(this.action);
+        tmc.ui.hide(this.id);
     }
 
     async beginMap(data: any) {
@@ -48,5 +51,3 @@ class MapWidget {
         tmc.chatCmd.execute(login, "/maps");
     }
 }
-
-tmc.addPlugin("mapWidget", new MapWidget);

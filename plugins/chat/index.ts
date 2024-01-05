@@ -1,22 +1,29 @@
-class ChatPlugin {
+import Plugin from 'core/plugins';
+
+export default class Chat extends Plugin {
     enabled: boolean = false;
 
-    constructor() {
-        tmc.server.on("TMC.Init", this.onInit.bind(this));
-    }
-
-    async onInit() {
+    async onLoad() {
         try {
-        tmc.server.send("ChatEnableManualRouting", true, false);
-        tmc.server.on("Trackmania.PlayerChat", this.onPlayerChat.bind(this));
-        this.enabled = true;
-        } catch (e) {
-            this.enabled = false;
-            console.log(e);
-            tmc.cli("ChatPlugin: ¤error¤Failed to enable chat plugin.");
+            await tmc.server.call("ChatEnableManualRouting", true, false) as boolean;
+            this.enabled = true;
+            tmc.server.on("Trackmania.PlayerChat", this.onPlayerChat.bind(this));
+        } catch (e: any) {
+            this.enabled = false;      
+            tmc.cli("ChatPlugin: ¤error¤ " + e.message);
         }
     }
 
+    async onUnload() {
+        try {
+            await tmc.server.call("ChatEnableManualRouting", false, false);
+        } catch (e: any) {
+            console.log(e.message);
+        }
+        tmc.server.removeListener("Trackmania.PlayerChat", this.onPlayerChat.bind(this));
+        this.enabled = false;
+    }
+    
     async onPlayerChat(data: any) {
         if (!this.enabled) return;
         if (data[0] == 0) return;
@@ -29,5 +36,3 @@ class ChatPlugin {
         tmc.cli(msg);
     }
 }
-
-tmc.addPlugin("chat", new ChatPlugin);

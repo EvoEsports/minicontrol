@@ -1,28 +1,32 @@
 {
-    "scripts": {
-        "dev": "env-cmd -f .env bun --watch run app.ts",
-        "dev2": "env-cmd -f .env2 bun --watch run app.ts",
-        "start": "bun app.ts",
-        "build": "bun build ./app.ts --compile --minify --outfile minicontrol"
-    },
-    "module": "index.ts",
-    "dependencies": {
-        "@evotm/gbxclient": "1.4.4",
-        "node-fetch": "2.6.7",
-        "tm-essentials": "^1.0.5",
-        "twig": "^1.17.1",
-        "xslt-processor": "^2.1.2",
-        "xsltjs": "^0.0.52"
-    },
-    "devDependencies": {
-        "casual": "1.6.2",
-        "@types/bun": "latest",
-        "@types/node-fetch": "^2.6.10",
-        "@types/twig": "^1.12.16",
-        "bun-plugin-dts": "^0.2.1",
-        "env-cmd": "^10.1.0"
-    },
-    "peerDependencies": {
-        "typescript": "^5.0.0"
-    }
+  "scripts": {
+    "dev": "drizzle-kit generate:sqlite && env-cmd -f .env bun --watch run app.ts",
+    "dev2": "drizzle-kit generate:sqlite && env-cmd -f .env2 bun --watch run app.ts",
+    "start": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun app.ts",
+    "build": "bun build ./app.ts --compile --minify --outfile minicontrol"
+  },
+  "module": "index.ts",
+  "dependencies": {
+    "@evotm/gbxclient": "1.4.4",
+    "drizzle-orm": "0.29.3",
+    "node-fetch": "2.6.7",
+    "tm-essentials": "^1.0.5",
+    "twig": "^1.17.1",
+    "xslt-processor": "^2.1.2",
+    "xsltjs": "^0.0.52"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node-fetch": "^2.6.10",
+    "@types/twig": "^1.12.16",  
+    "casual": "1.6.2",
+    "drizzle-kit": "^0.20.9",
+    "env-cmd": "^10.1.0",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
+    "eslint-plugin-drizzle": "^0.2.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
 }

@@ -1,19 +1,15 @@
 import fs from 'fs';
 import tm from 'tm-essentials';
+import Plugin from 'core/plugins';
 
-export default class TAlimitPlugin {
+export default class TAlimitPlugin extends Plugin {
     startTime: number = Date.now();
     timeLimit: number = 0;
     active: boolean = false;
     extend: boolean = false;
     widgetId: string = "";
     widgetTemplate: string = fs.readFileSync(import.meta.dir + "/templates/widget.twig", "utf8");
-
-    constructor() {
-        this.widgetId = tmc.ui.uuid();
-        this.timeLimit = Number.parseInt(process.env.TALIMIT || "300");
-        tmc.server.on("TMC.Init", this.onInit.bind(this));
-    }
+    intervalId: NodeJS.Timeout | null = null;
 
     async onBeginRound() {
         this.startTime = Date.now();
@@ -33,7 +29,9 @@ export default class TAlimitPlugin {
         await this.hideWidget();
     }
 
-    async onInit() {
+    async onLoad() {
+        this.widgetId = tmc.ui.uuid();
+        this.timeLimit = Number.parseInt(process.env.TALIMIT || "300");
         this.startTime = Date.now();
         if (tmc.game.Name == "TmForever") {
             tmc.debug("TALimit: TmForever detected, enabling plugin.");
@@ -51,8 +49,19 @@ export default class TAlimitPlugin {
                 this.active = true;
             }
             tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
-            setInterval(this.tick.bind(this), 1000);            
+            this.intervalId = setInterval(this.tick.bind(this), 1000);
         }
+    }
+    
+    async onUnload() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+        }
+        tmc.server.removeOverride("SetTimeAttackLimit");
+        tmc.server.removeListener("Trackmania.BeginRound", this.onBeginRound.bind(this));
+        tmc.server.removeListener("Trackmania.EndRound", this.onEndRound.bind(this));
+        this.active = false;
+        await this.hideWidget();
     }
 
     async tick() {
@@ -94,8 +103,4 @@ export default class TAlimitPlugin {
     async hideWidget() {
         await tmc.ui.hide(this.widgetId);
     }
-
 }
-
-tmc.addPlugin("tmnf_talimit", new TAlimitPlugin());
-

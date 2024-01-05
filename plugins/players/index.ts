@@ -1,13 +1,14 @@
+import Plugin from "core/plugins";
 import PlayerWindow from "./PlayerWindow";
 
-export class PlayersPlugin {
-    constructor() {
-        tmc.server.on("TMC.Init", this.onInit.bind(this));
-        tmc.addCommand("/players", this.cmdPlayers.bind(this), "Display players list");
+export class Players extends Plugin {
+
+    async onLoad() {
+        tmc.addCommand("/players", this.cmdPlayers.bind(this), "Show players");
     }
 
-    async onInit() {
-        // await this.cmdPlayers("reaby", []);
+    async onUnload() {
+        tmc.removeCommand("/players");
     }
 
     async cmdPlayers(login: any, args: string[]) {
@@ -26,7 +27,4 @@ export class PlayersPlugin {
 
         await window.display();
     }
-
 }
-
-tmc.addPlugin("players", new PlayersPlugin);

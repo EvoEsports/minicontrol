@@ -1,6 +1,8 @@
-class FunCommands {
+import Plugin from 'core/plugins';
 
-    constructor() {
+export default class FunCommands extends Plugin {
+
+    async onLoad() {
         tmc.addCommand("/afk", this.command_afk.bind(this), "Go AFK");
         tmc.addCommand("/bootme", this.command_bootme.bind(this), "Boot yourself");
         tmc.addCommand("/rq", this.command_rq.bind(this), "Rage quit");
@@ -14,6 +16,22 @@ class FunCommands {
         tmc.addCommand("/nt", this.command_nt.bind(this), "Nice time");
         tmc.addCommand("/posture", this.command_posture.bind(this), "Posture check");
         tmc.addCommand("/hydrate", this.command_hydrate.bind(this), "Hydrate");
+    }
+
+    async onUnload() {
+        tmc.removeCommand("/afk");
+        tmc.removeCommand("/bootme");
+        tmc.removeCommand("/rq");
+        tmc.removeCommand("/bwoah");
+        tmc.removeCommand("/gg");
+        tmc.removeCommand("/ty");
+        tmc.removeCommand("/gn");
+        tmc.removeCommand("/bb");
+        tmc.removeCommand("/go");
+        tmc.removeCommand("/n1");
+        tmc.removeCommand("/nt");
+        tmc.removeCommand("/posture");
+        tmc.removeCommand("/hydrate");
     }
 
     async command_afk(login: string, data: any) {
@@ -69,5 +87,3 @@ class FunCommands {
         await tmc.chat(`$o$1df $18fH$09fY$09fD$0afR$0bfA$0bfT$0cfI$0dfO$1dfN  $1dfC$0cfH$0bfE$09fC$18fK $1df`);
     }
 }
-
-tmc.addPlugin("funcommands", new FunCommands());
