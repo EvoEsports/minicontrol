@@ -66,7 +66,7 @@ export default class MiniControl {
             const plugin = await import("./plugins/" + name);
 
             if (plugin.default == undefined) {
-                const msg = `$aaaPlugin $fd0${name}¤error¤ failed to load, plugin is undefined.`;
+                const msg = `$aaaPlugin $fd0${name}¤error¤ failed to load. Plugin has no default export.`;
                 this.cli(msg);
                 this.chat(msg);
                 return;

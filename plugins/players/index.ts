@@ -1,7 +1,7 @@
 import Plugin from "core/plugins";
 import PlayerWindow from "./PlayerWindow";
 
-export class Players extends Plugin {
+export default class Players extends Plugin {
 
     async onLoad() {
         tmc.addCommand("/players", this.cmdPlayers.bind(this), "Show players");
