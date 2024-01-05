@@ -1,10 +1,11 @@
 import tm from 'tm-essentials';
 import MapsWindow from './mapsWindow';
 import { escape } from 'core/utils';
+import Plugin from 'core/plugins';
 
 const pageLength = 20;
 
-export class MapsPlugin {
+export default class Maps extends Plugin {
     windos: any = {};
 
     async onLoad() {      
@@ -15,10 +16,8 @@ export class MapsPlugin {
     async onUnload() {
         tmc.removeCommand("/maps");
         tmc.removeCommand("/list");
-
     }
-
-
+    
     async cmdMaps(login: any, args: string[]) {
         const window = new MapsWindow(login);
         const maps = [];
@@ -47,7 +46,7 @@ export class MapsPlugin {
         if (tmc.admins.includes(login)) {
             window.setActions(["Jump", "Remove"]);
         }
-        
+
         await window.display()
     }
 }

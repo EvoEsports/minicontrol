@@ -1,6 +1,6 @@
 import Plugin from "core/plugins";
 
-export class Announces extends Plugin {
+export default class Announces extends Plugin {
 
     async onLoad() {
      //   tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));

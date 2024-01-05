@@ -2,7 +2,7 @@ import { generateHeapSnapshot } from "bun";
 import { memInfo } from "core/utils";
 import Plugin from "core/plugins";
 
-export default class DebugToo extends Plugin {
+export default class DebugTool extends Plugin {
     id: string = "";
     intervalId: NodeJS.Timeout | null = null;
     

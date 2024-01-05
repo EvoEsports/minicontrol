@@ -8,7 +8,7 @@ interface Time {
     prettyTime: string;
 }
 
-export default class BesCps extends Plugin {
+export default class BestCps extends Plugin {
     id: string = "";
     bestTimes: Time[] = [];
     nbCheckpoints: number = -1;
