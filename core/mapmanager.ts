@@ -1,6 +1,21 @@
 import Server from "./server";
-import { type Map } from "./types";
 import { clone } from "./utils";
+
+export interface Map {
+    UId: string;
+    Name: string;
+    Author: string;
+    AuthorNickName?: string;
+    AuthorTime: number;
+    GoldTime: number;
+    FileName: string;
+    Environnement: string;
+    Mood: string;
+    LapRace: boolean;
+    NbLaps: number;
+    NbCheckpoints: number;
+}
+
 /**
  * MapManager class
  */

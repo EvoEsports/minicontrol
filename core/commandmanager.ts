@@ -1,6 +1,12 @@
 import Server from "./server";
-import { type ChatCommand } from "./types";
 import fs from 'fs';
+
+export interface ChatCommand {
+    trigger: string;
+    help: string;
+    admin: boolean;
+    callback: CallableFunction;
+}
 
 /**
  * CommandManager class
