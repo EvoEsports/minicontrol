@@ -10,12 +10,13 @@ import log from './core/log';
 import fs from 'fs';
 import Plugin from './core/plugins';
 
-const controllerStr = "$z$s$n$fff$oMINI$ocontrol$z$s$fff";
+const controllerStr = "$n$o$eeeMINI$o$z$s$abccontrol$z$s$fff";
 
 if (!process.versions.bun) {
     log.info(`Please install bun using "npm install -g bun"`);
     process.exit();
 }
+
 /**
  * MiniControl class
  */
@@ -111,7 +112,7 @@ export default class MiniControl {
     async loadPlugin(name: string) {
         if (!this.plugins[name]) {
             if (fs.existsSync("./plugins/" + name + "/index.ts") == false) {
-                const msg = `$aaaPlugin $fd0${name}$fff does not exist.`;
+                const msg = `¤gray¤Plugin $fd0${name}$fff does not exist.`;
                 this.cli(msg);
                 this.chat(msg);
                 return;
@@ -119,13 +120,13 @@ export default class MiniControl {
             const plugin = await import("./plugins/" + name);
 
             if (plugin.default == undefined) {
-                const msg = `$aaaPlugin $fd0${name}¤error¤ failed to load. Plugin has no default export.`;
+                const msg = `¤gray¤Plugin $fd0${name}¤error¤ failed to load. Plugin has no default export.`;
                 this.cli(msg);
                 this.chat(msg);
                 return;
             }
             if (!(plugin.default.prototype instanceof Plugin)) {
-                const msg = `$aaaPlugin $fd0${name}$fff is not a valid plugin.`;
+                const msg = `¤gray¤Plugin $fd0${name}$fff is not a valid plugin.`;
                 this.cli(msg);
                 this.chat(msg);
                 return;
@@ -135,15 +136,14 @@ export default class MiniControl {
                 if (depend.startsWith("game:")) {
                     const game = depend.split(":")[1];
                     if (game != this.game.Name) {
-                        const msg = `$aaaPlugin $fd0${name}$fff failed to load. Game is not $fd0${game}$fff.`;
-                        this.cli(msg);
-                        this.chat(msg);
+                        const msg = `¤gray¤Plugin $fd0${name}$fff not loaded. Game is not $fd0${game}$fff.`;
+                        this.cli(msg);                        
                         return;
                     }
                     continue;
                 }
                 if (this.plugins[depend] == undefined) {
-                    const msg = `$aaaPlugin $fd0${name}$fff failed to load. Missing dependency $fd0${depend}$fff.`;
+                    const msg = `¤gray¤Plugin $fd0${name}$fff failed to load. Missing dependency $fd0${depend}$fff.`;
                     this.cli(msg);
                     this.chat(msg);
                     Bun.gc(true);
@@ -156,7 +156,7 @@ export default class MiniControl {
             if (this.pluginDependecies[name] == undefined) {
                 this.pluginDependecies[name] = [];
             }
-            const msg = `$aaaPlugin $fd0${name}$fff loaded.`;
+            const msg = `¤gray¤Plugin $fd0${name}$fff loaded.`;
             this.cli(msg);
             await cls.onLoad();
             if (this.startComplete) {
@@ -164,7 +164,7 @@ export default class MiniControl {
                 await cls.onInit();
             }
         } else {
-            const msg = `$aaaPlugin $fd0${name}$fff already loaded.`;
+            const msg = `¤gray¤Plugin $fd0${name}$fff already loaded.`;
             this.chat(msg)
             this.cli(msg);
         }
@@ -178,7 +178,7 @@ export default class MiniControl {
     async unloadPlugin(unloadName: string) {
         if (this.plugins[unloadName]) {
             if (this.pluginDependecies[unloadName].length > 0) {
-                const msg = `$aaaPlugin $fd0${unloadName}$fff cannot be unloaded. It is a dependency of $fd0${this.pluginDependecies[unloadName].join(", ")}$fff.`;
+                const msg = `¤gray¤Plugin $fd0${unloadName}$fff cannot be unloaded. It is a dependency of $fd0${this.pluginDependecies[unloadName].join(", ")}$fff.`;
                 this.cli(msg);
                 this.chat(msg);
                 return;
@@ -206,11 +206,11 @@ export default class MiniControl {
                 }
             }
             Bun.gc(true);
-            const msg = `$aaaPlugin $fd0${unloadName}$fff unloaded.`;
+            const msg = `¤gray¤Plugin $fd0${unloadName}$fff unloaded.`;
             this.cli(msg);
             this.chat(msg);
         } else {
-            const msg = `$aaaPlugin $fd0${unloadName}$fff not loaded.`
+            const msg = `¤gray¤Plugin $fd0${unloadName}$fff not loaded.`
             this.cli(msg);
             this.chat(msg);
         }
@@ -312,7 +312,7 @@ export default class MiniControl {
         this.players.afterInit();
         this.chatCmd.afterInit();
         this.cli(`¤white¤Welcome to ${controllerStr} v${this.version}!`);
-        this.server.send("ChatSendServerMessage", `Welcome to ${controllerStr} v${this.version}!`);
+        this.chat(`Welcome to ${controllerStr} ¤info¤version $fff$n${this.version}$m¤info¤!`);
         this.startComplete = true;
         for (const plugin of Object.values(this.plugins)) {
             await plugin.onInit();

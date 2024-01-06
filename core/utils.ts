@@ -3,15 +3,16 @@ import { type PaginationResult } from "./types";
 export let colors: { [key: string]: string } = {
     white: "fff",
     black: "000",
-    title: "112",
+    title_fg: "eef",
+    title_bg: "27f",    
     bg: "334",
     cmd: "fd0",
-    info: "0cf",
+    info: "4cf",
     success: "0f0",
     warning: "fa0",
     error: "f00",
-    grey: "888",
-    button: "079",
+    gray: "abc",
+    button: "778",
 };
 
 /** load colors from environment variables */
@@ -20,8 +21,8 @@ for (let color in colors) {
     colors[color] = process.env[vari] || colors[color];
 }
 
-colors['button_light'] = modLightness(colors['button'], 10);
-colors['button_dark'] = modLightness(colors['button'], -10);
+colors['button_light'] = modLightness(colors['button'], 15);
+colors['button_dark'] = modLightness(colors['button'], -15);
 colors['bg_light'] = modLightness(colors['bg'], 5);
 colors['bg_dark'] = modLightness(colors['bg'], -5);
 
@@ -148,9 +149,9 @@ let startValueMem: number = (process.memoryUsage().rss / 1048576);
 
 export function memInfo(section = "") {
     const memMB = (process.memoryUsage().rss / 1048576);
-    let prefix = "$d00 +";
+    let prefix = "$f22 +";
     if (memMB < prevValueMem) {
-        prefix = "$0d0 -";
+        prefix = "$0f0 -";
     }
     section = (section != "") ? `¤info¤${section} ` : "";
     const out = section + "$fff" + memMB.toFixed(1) + "Mb " + prefix + Math.abs(memMB - prevValueMem).toFixed(1) + 'Mb $fff(' + (memMB - startValueMem).toFixed(1) + "Mb)";

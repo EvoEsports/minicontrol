@@ -100,7 +100,7 @@ export default class Server extends EventEmitter {
         if (tmc.game.Name == "TmForever") {
             method = method.replace("Map", "Challenge");
         }
-        tmc.debug("call >$888 " + method);
+        tmc.debug("$27fcall $fff<> $89a" + method);
         if (tmc.game.Name == "Trackmania") {
             if (method == "SetTimeAttackLimit") {
                 const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };
@@ -140,7 +140,7 @@ export default class Server extends EventEmitter {
         if (tmc.game.Name == "TmForever") {
             method = method.replace("Map", "Challenge");
         }
-        tmc.debug("$090send >$686 " + method);
+        tmc.debug("$4a2send $fff>> $89a" + method);
         if (tmc.game.Name == "Trackmania") {
             if (method == "SetTimeAttackLimit") {
                 const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };

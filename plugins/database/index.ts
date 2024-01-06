@@ -10,7 +10,7 @@ import Plugin from 'core/plugins';
 
 class SqliteLogger implements Logger {
     logQuery(query: string, params: unknown[]): void {
-        tmc.debug(`$c8c${query}` );
+        tmc.debug(`$d7c${query}` );
     }
 }
 

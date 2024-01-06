@@ -26,9 +26,9 @@
             {% for action in listActions %}
                     {% set key = action ~ "_" ~ item.index %}
                     <label pos="{{ posx + 6.5 }} -2" z-index="1" size="12 3" 
-                    text="{{action}}" textsize="1.2" 
+                    text="{{action}}" textsize="1" 
                     valign="center2" halign="center"
-                    focusareacolor1="{{colors.button_dark}}" focusareacolor2="{{colors.button}}" 
+                    focusareacolor1="{{colors.button}}" focusareacolor2="{{colors.button_dark}}" 
                     action="{{ tempActions[key] }}" />
                     {% set posx = (posx + 13) %}                    
              {% endfor %}
