@@ -28,7 +28,7 @@
                     <label pos="{{ posx + 6.5 }} -2" z-index="1" size="12 3" 
                     text="{{action}}" textsize="1" 
                     valign="center2" halign="center"
-                    focusareacolor1="{{colors.button}}" focusareacolor2="{{colors.button_dark}}" 
+                    focusareacolor1="{{colors.button}}" focusareacolor2="{{colors.button_hover}}" 
                     action="{{ tempActions[key] }}" />
                     {% set posx = (posx + 13) %}                    
              {% endfor %}
@@ -52,7 +52,7 @@
  
  {% if actions.apply is defined %}
  <frame  pos="{{ (size.width) -6}} -{{ size.height - 7}}" z-index="2">
-    <label pos="-21 0" z-index="1" size="12 5" text="Apply" textsize="1.2" valign="center2" halign="center" focusareacolor1="{{colors.button_dark}}" focusareacolor2="{{colors.button}}" action="{{ actions.apply }}" />
-    <label pos="-7 0" z-index="1" size="12 5" text="Cancel" textsize="1.2" valign="center2" halign="center" focusareacolor1="{{colors.button_dark}}" focusareacolor2="{{colors.button}}" action="{{ actions.close }}" />
+    <label pos="-21 0" z-index="1" size="12 5" text="Apply" textsize="1.2" valign="center2" halign="center" focusareacolor1="{{colors.button}}" focusareacolor2="{{colors.button_hover}}" action="{{ actions.apply }}" />
+    <label pos="-7 0" z-index="1" size="12 5" text="Cancel" textsize="1.2" valign="center2" halign="center" focusareacolor1="{{colors.button}}" focusareacolor2="{{colors.button_hover}}" action="{{ actions.close }}" />
 </frame>
 {% endif %}

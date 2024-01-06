@@ -130,9 +130,9 @@ export default class Maps extends Plugin {
             { key: "GoldTime", title: "Gold Time", width: 25 }
         ]);
 
-        window.setActions(["Queue"]);
+        window.setActions(["Juke"]);
         if (tmc.admins.includes(login)) {
-            window.setActions(["Queue", "Remove"]);
+            window.setActions(["Juke", "Trash"]);
         }
 
         await window.display()

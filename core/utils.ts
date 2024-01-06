@@ -13,6 +13,7 @@ export let colors: { [key: string]: string } = {
     error: "f00",
     gray: "abc",
     button: "778",
+    button_hover: "27f",
 };
 
 /** load colors from environment variables */
