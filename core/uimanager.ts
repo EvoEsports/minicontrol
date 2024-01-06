@@ -54,25 +54,42 @@ export default class UiManager {
         return this.manialinkUUID.toString();
     }
 
+    hash(str: string): number {
+        let hash = 0;
+        if (str.length == 0) return hash;
+        for (let i = 0; i < str.length; i++) {
+            let char = str.charCodeAt(i);
+            hash = ((hash << 4) - hash) + char;
+            hash |= 0;
+        }
+        return hash;
+    }
     /**
      * Add manialink action, increase manialink counter by one
      * @param callback 
      * @param data
-     * @returns {Number}
+     * @returns {str}
      */
-    addAction(callback: CallableFunction, data: any): number {
-        this.counter = Object.keys(this.actions).length;
-        this.actions[this.counter.toString()] = { callback: callback, data: data };
-        tmc.debug("¤info¤Added action: ¤white¤" + this.counter.toString() + " ¤info¤total actions: ¤white¤" + Object.keys(this.actions).length.toString());
-        return this.counter;
+    addAction(callback: CallableFunction, data: any): string {
+        const getHash = (data: any) => {
+        const salt = Math.random().toString(36).substring(2, 12);
+        return this.hash(salt + JSON.stringify(data));
+        };
+        let hash = getHash(data);
+        if (this.actions[hash.toString()]) {
+            tmc.debug("¤error¤action already exists: ¤white¤" + hash.toString() + "$fff trying again...");
+            hash = getHash(data);
+        }
+        this.actions[hash.toString()] = { callback: callback, data: data };
+        tmc.debug("¤info¤Added action: ¤white¤" + hash.toString() + " ¤info¤total actions: ¤white¤" + Object.keys(this.actions).length.toString());
+        return hash.toString();
     }
-
+    
     /**
      * remove manialink action
      * @param actionId 
      */
-    removeAction(actionId: string | number) {
-        if (typeof actionId === 'number') actionId = actionId.toString();
+    removeAction(actionId: string) {
         if (this.actions[actionId]) {
             delete this.actions[actionId];
             tmc.debug("¤info¤deleted action: ¤white¤" + actionId + " ¤info¤total actions: ¤white¤" + Object.keys(this.actions).length.toString());
@@ -204,7 +221,7 @@ export default class UiManager {
 
     /** @ignore */
     private onHidePlayerManialink(id: string, login: string | string[]) {
-        let split:string[] = [];
+        let split: string[] = [];
         if (typeof login === 'string') split = login.split(',');
         for (let l of split) {
             if (this.playerManialinks[l.toString()][id.toString()]) {
@@ -221,7 +238,7 @@ export default class UiManager {
         }
     }
 
-    
+
     /**      
      * @ignore
      * @returns {string} Returns the default ui for tmuf

@@ -12,7 +12,7 @@ export default class MapWidget extends Plugin {
     id: string = "";
     bestTimes: Time[] = [];
     nbCheckpoints: number = -1;
-    action: number = -1;
+    action: string ="";
     template = "";
 
     async onLoad() {
@@ -26,8 +26,8 @@ export default class MapWidget extends Plugin {
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.BeginMap", this.beginMap.bind(this));
         tmc.ui.removeAction(this.action);
+        tmc.server.removeListener("Trackmania.BeginMap", this.beginMap.bind(this));        
         tmc.ui.hide(this.id);
     }
 
