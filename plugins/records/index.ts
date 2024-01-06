@@ -142,7 +142,7 @@ export default class Records extends Plugin {
         let ranking = await tmc.server.call("GetCurrentRankingForLogin", login);
         ranking = ranking[0];
 
-        if (ranking.BestTime >= lastRecord.time) return;
+        if (lastIndex >= this.limit && ranking.BestTime >= lastRecord.time) return;
         const time = ranking.BestTime;
         const record = this.records.find(r => r.login === login);
         if (record) {

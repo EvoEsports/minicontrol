@@ -206,10 +206,12 @@ export default class VotesPlugin extends Plugin {
             tmc.chat('¤info¤Admin passed the vote');
             tmc.server.emit("TMC.Vote.Pass", { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
         } else if (percent >= this.ratio * 100) {
-            tmc.chat(`¤info¤Vote passed: ¤white¤${yes} / ${no} (${percent}%)`);
+            tmc.chat(`¤info¤Vote: $fff${this.currentVote.question}`);
+            tmc.chat(`¤info¤Did pass: ¤white¤${yes} / ${no} (${percent}%)`);
             tmc.server.emit("TMC.Vote.Pass", { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
         } else {
-            tmc.chat(`¤info¤ Vote did not pass: ¤white¤${yes} / ${no} (${percent}%)`);
+            tmc.chat(`¤info¤Vote: $fff${this.currentVote.question}`);
+            tmc.chat(`¤info¤Did not pass: ¤white¤${yes} / ${no} (${percent}%)`);
             tmc.server.emit("TMC.Vote.Deny", { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
         }
 
