@@ -48,10 +48,11 @@ export default class Server extends EventEmitter {
                 // convert waypoints to checkpoints
                 if (outmethod == "Trackmania.Event.WayPoint") {
                     if (params.isendrace) {
-                        that.emit("TMC.PlayerFinish", [params.login, params.racetime]);
+                        console.log(params);
+                        that.emit("TMC.PlayerFinish", [params.login, params.racetime, params]);
                         return;
                     } else {
-                        that.emit("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace]);
+                        that.emit("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace, params]);
                         return;
                     }
                 }

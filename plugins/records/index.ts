@@ -103,11 +103,25 @@ export default class Records extends Plugin {
         tmc.server.emit("Plugin.Records.onSync", this.records);
     }
 
+    async getRankingsForLogin(data: any) {
+        const login = data[0];
+        if (tmc.game.Name === "TmForever") {
+            const ranking = await tmc.server.call("GetCurrentRankingForLogin", login);
+            return ranking[0];
+        }
+        console.log(data);;
+        return {
+            login: login,
+            NickName: (await tmc.players.getPlayer(login)).nickname,
+            BestTime: data[1],
+            BestCheckpoints: [],
+        };
+    }
+
     async onPlayerFinish(data: any) {
         const login = data[0];
         if (this.records.length == 0) {
-            let ranking = await tmc.server.call("GetCurrentRankingForLogin", login);
-            ranking = ranking[0];
+            let ranking = await this.getRankingsForLogin(data);
 
             const newRecord = new Record().fromScore({
                 login: login,
@@ -139,8 +153,7 @@ export default class Records extends Plugin {
         const lastIndex = this.records.length > this.limit ? this.limit : this.records.length;
         const lastRecord = this.records[lastIndex - 1];
 
-        let ranking = await tmc.server.call("GetCurrentRankingForLogin", login);
-        ranking = ranking[0];
+        let ranking = await this.getRankingsForLogin(data);
 
         if (lastIndex >= this.limit && ranking.BestTime >= lastRecord.time) return;
         const time = ranking.BestTime;
