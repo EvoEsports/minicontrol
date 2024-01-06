@@ -239,10 +239,10 @@ export default class MiniControl {
      */
     chat(text: string, login: undefined | string | string[] = undefined) {
         if (login !== undefined) {
-            const msg = "$z$s$5f0» ¤white¤" + text.toString().replaceAll("", "");
+            const msg = "$fff» " + text.toString();
             this.server.send("ChatSendServerMessageToLogin", processColorString(msg, "$z$s"), (typeof login == "string") ? login : login.join(","));
         } else {
-            const msg = controllerStr + " »¤info¤ " + text.replaceAll("", "")
+            const msg = controllerStr + " »¤info¤ " + text.toString();
             this.server.send("ChatSendServerMessage", processColorString(msg, "$z$s"));
         }
     }

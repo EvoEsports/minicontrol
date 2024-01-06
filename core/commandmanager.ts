@@ -167,7 +167,7 @@ export default class CommandManager {
                     return;
                 }
             }
-            tmc.chat(`Command $<¤cmd¤${text}$> not found.`, login);
+            tmc.chat(`$fffCommand ¤cmd¤${text} $fffnot found.`, login);
         }
     }
 
