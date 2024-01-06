@@ -1,9 +1,17 @@
 import type { GbxClient } from "@evotm/gbxclient";
 import EventEmitter from "events";
-import tm from 'tm-essentials';
 
+/**
+ * Server class
+ */
 export default class Server extends EventEmitter {
+    /**
+     * GbxClient instance
+     */
     gbx: GbxClient
+    /** 
+     * method overrides
+     */
     methodOverrides: { [key: string]: CallableFunction } = {};
 
     constructor(gbx: GbxClient) {
@@ -22,9 +30,9 @@ export default class Server extends EventEmitter {
                 if (data[0] == "MiniControl" && data[1] != tmc.startTime) {
                     tmc.cli("¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!");
                     process.exit(1);
-                } else if (data[0] == "MiniControl" && data[1] == tmc.startTime) {                    
+                } else if (data[0] == "MiniControl" && data[1] == tmc.startTime) {
                     this.emit("TMC.Start");
-                    await tmc.afterStart();                                         
+                    await tmc.afterStart();
                 }
             }
             // convert script events to legacy
@@ -75,14 +83,14 @@ export default class Server extends EventEmitter {
             }
             if (process.env.DEBUG == "true") {
                 console.log(method, data);
-            }          
+            }
             that.emit(method, data);
         }
         );
     }
 
     /**
-     * send request and wait for response
+     * Send request and wait for response
      * @param method
      * @param args 
      * @returns 
@@ -104,17 +112,25 @@ export default class Server extends EventEmitter {
         }
         return await this.gbx.call(method, ...args);
     }
-
+    /**
+     * adds override for a method
+     * @param method method to override
+     * @param callback callback function
+     */
     async addOverride(method: string, callback: Function) {
         this.methodOverrides[method] = callback;
     }
 
+    /**
+     * removes override for a method
+     * @param method method to remove override
+     */
     async removeOverride(method: string) {
         delete this.methodOverrides[method];
     }
 
     /**
-     * send request and forget request
+     * send request and ignore everything
      * @param method 
      * @param args 
      * @returns 

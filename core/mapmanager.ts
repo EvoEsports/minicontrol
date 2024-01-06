@@ -1,13 +1,19 @@
 import Server from "./server";
 import { type Map } from "./types";
 import { clone } from "./utils";
-
+/**
+ * MapManager class
+ */
 class MapManager {
     private maps: { [key: string]: Map; };
     currentMap?: Map;
     currentmapIndex: number = 0;
     private server: Server;
 
+    /**
+     * @ignore
+     * @param server server instance
+     */
     constructor(server: Server) {
         this.server = server;
         this.maps = {};
@@ -15,6 +21,10 @@ class MapManager {
         server.on("Trackmania.MapListModified", this.onMapListModified.bind(this));
     }
 
+    /**
+     * Initialize the map manager 
+     * @ignore 
+     **/
     async init() {
         this.maps = {};
         this.currentMap = await this.server.call("GetCurrentMapInfo");

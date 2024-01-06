@@ -5,7 +5,7 @@ export default class FunCommands extends Plugin {
     async onLoad() {
         tmc.addCommand("/afk", this.command_afk.bind(this), "Go AFK");
         tmc.addCommand("/bootme", this.command_bootme.bind(this), "Boot yourself");
-        tmc.addCommand("/rq", this.command_rq.bind(this), "Rage quit");
+        tmc.addCommand("/ragequit", this.command_rq.bind(this), "Rage quit");
         tmc.addCommand("/bwoah", this.command_bwoah.bind(this), "Bwoah");
         tmc.addCommand("/gg", this.command_gg.bind(this), "Good game");
         tmc.addCommand("/ty", this.command_ty.bind(this), "Thank you");
@@ -15,13 +15,13 @@ export default class FunCommands extends Plugin {
         tmc.addCommand("/n1", this.command_n1.bind(this), "Nice one");
         tmc.addCommand("/nt", this.command_nt.bind(this), "Nice time");
         tmc.addCommand("/posture", this.command_posture.bind(this), "Posture check");
-        tmc.addCommand("/hydrate", this.command_hydrate.bind(this), "Hydrate");
+        tmc.addCommand("/hydrate", this.command_hydrate.bind(this), "Hydrate check");
     }
 
     async onUnload() {
         tmc.removeCommand("/afk");
         tmc.removeCommand("/bootme");
-        tmc.removeCommand("/rq");
+        tmc.removeCommand("/ragequit");
         tmc.removeCommand("/bwoah");
         tmc.removeCommand("/gg");
         tmc.removeCommand("/ty");

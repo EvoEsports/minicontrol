@@ -34,7 +34,7 @@ export default class Dedimania extends Plugin {
         if (tmc.game.Name == "TmForever") {
             this.widgetId = tmc.ui.uuid();
             tmc.debug("¤info¤Dedimania: TmForever detected, enabling plugin.");
-            tmc.addCommand("/records", this.cmdDediRecords.bind(this), "Show dedimania records");
+            tmc.addCommand("/dedirecords", this.cmdDediRecords.bind(this), "Show dedimania records");
 
             this.serverInfo = await tmc.server.call("GetMainServerPlayerInfo");
             this.serverLogin = this.serverInfo.Login;
@@ -64,7 +64,7 @@ export default class Dedimania extends Plugin {
     async onUnload() {
         if (tmc.game.Name == "TmForever") {
             clearInterval(this.intervalId!);
-            tmc.removeCommand("/records");
+            tmc.removeCommand("/dedirecords");
             tmc.ui.removeAction(this.widgetAction);
             tmc.ui.hide(this.widgetId);
             tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
@@ -277,7 +277,7 @@ export default class Dedimania extends Plugin {
     }
 
     async widgetClick(login: string, data: any) {
-        tmc.chatCmd.execute(login, "/records");
+        tmc.chatCmd.execute(login, "/dedirecords");
     }
     
 }

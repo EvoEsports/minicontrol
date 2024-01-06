@@ -16,20 +16,52 @@ if (!process.versions.bun) {
     log.info(`Please install bun using "npm install -g bun"`);
     process.exit();
 }
-
+/**
+ * MiniControl class
+ */
 export default class MiniControl {
-    version: string = "2024-01-04";
-    startTime: string = Date.now().toString();
+    /**
+     * The version of MiniControl.
+     */
+    readonly version: string = "2024-01-04";
+    /**
+     * The start time of MiniControl.
+     */
+    readonly startTime: string = Date.now().toString();
+    /**
+     * The admins of MiniControl.
+     */
+    admins: string[];
+    /**
+     * The server object.
+     */
     server: Server;
+    /**
+     * The command manager.
+     */
+    chatCmd: CommandManager;
+    /**
+     * The map manager.
+     */
+    maps: MapManager;
+    /**
+     * The player manager.
+     */
     players: PlayerManager;
+    /**
+     * The UI manager.
+     */
     ui: UiManager;
+    /**
+    * The plugins.
+    */
     plugins: { [key: string]: Plugin } = {};
-    pluginDependecies: { [key: string]: string[] } = {};
+    private pluginDependecies: { [key: string]: string[] } = {};
+    /**
+     * The game object.
+     */
     game: GameStruct;
     mapsPath: string = "";
-    admins: string[];
-    chatCmd: CommandManager;
-    maps: MapManager;
     storage: { [key: string]: any } = {};
     startComplete: boolean = false;
 
@@ -44,18 +76,38 @@ export default class MiniControl {
         this.game = { Name: "" };
     }
 
+    /**
+     * Gets a player object from the player manager.
+     * @param login The login of the player.
+     * @returns A promise that resolves to the player object.
+     */
     async getPlayer(login: string): Promise<Player> {
         return await this.players.getPlayer(login);
     }
 
+    /**
+     * Adds chat command
+     * @param command The command name, should start with / for public or // for admin only
+     * @param callback The callback function to execute when the command is triggered.
+     * @param help The help text for the command.
+     */
     addCommand(command: string, callback: CallableFunction, help: string = "") {
         this.chatCmd.addCommand(command, callback, help);
     }
 
+    /**
+     *  Removes chat command
+     * @param command The command name to remove.
+     */
     removeCommand(command: string) {
         this.chatCmd.removeCommand(command);
     }
 
+    /**
+     * Loads a plugin to runtime
+     * @param name name of the plugin folder in ./plugins
+     * @returns 
+     */
     async loadPlugin(name: string) {
         if (!this.plugins[name]) {
             if (fs.existsSync("./plugins/" + name + "/index.ts") == false) {
@@ -118,7 +170,11 @@ export default class MiniControl {
         }
     }
 
-
+    /**
+     * unloads plugin from runtime, also checks for dependecies, runs onUnload and removes require cache
+     * @param unloadName name of the plugin folder in ./plugins
+     * @returns 
+     */
     async unloadPlugin(unloadName: string) {
         if (this.plugins[unloadName]) {
             if (this.pluginDependecies[unloadName].length > 0) {
@@ -160,15 +216,28 @@ export default class MiniControl {
         }
     }
 
+    /**
+     * send message to console
+     * @param object The object to log.
+     */
     cli(object: any) {
         log.info(processColorString(object.toString()));
     }
 
+    /**
+     * log command to console if debug is enabled
+     * @param object The object to log.
+     */
     debug(object: any) {
         if (process.env.DEBUG == "true") log.info(processColorString(object.toString()));
     }
 
-    async chat(text: string, login: undefined | string | string[] = undefined) {
+    /**
+     * Sends chat message to server
+     * @param text string to send to chat
+     * @param login {string | string[]} login(s) to send message to, if undefined sends to all players
+     */
+    chat(text: string, login: undefined | string | string[] = undefined) {
         if (login !== undefined) {
             const msg = "$z$s$5f0» ¤white¤" + text.toString().replaceAll("", "");
             this.server.send("ChatSendServerMessageToLogin", processColorString(msg, "$z$s"), (typeof login == "string") ? login : login.join(","));
@@ -178,6 +247,10 @@ export default class MiniControl {
         }
     }
 
+    /**
+     * Runs MiniControl.
+     * @ignore Should not be called directly
+     */
     async run() {
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
@@ -212,6 +285,10 @@ export default class MiniControl {
         console.timeEnd("Startup");
     }
 
+    /**
+     * Executes tasks before MiniControl initialization. 
+     * @ignore Shouldn't be called directly
+     */
     async beforeInit() {
         this.chatCmd.beforeInit();
         const plugins = JSON.parse(await fs.readFileSync("plugins.json").toString());
@@ -225,6 +302,11 @@ export default class MiniControl {
         this.server.send("Echo", this.startTime, "MiniControl",);
     }
 
+    /**
+     * Executes tasks after MiniControl initialization.
+     * @ignore Should not be called directly
+     * 
+     */
     async afterStart() {
         tmc.cli("¤success¤MiniControl started successfully.");
         this.players.afterInit();

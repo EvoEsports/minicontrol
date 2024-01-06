@@ -48,7 +48,7 @@ export default class UiManager {
      * @param nb 
      * @returns 
      */
-    uuid(nb = 1): string {
+    uuid(): string {
         this.manialinkUUID += 1;
         tmc.debug("¤info¤new manialink uuid: ¤white¤" + this.manialinkUUID.toString());
         return this.manialinkUUID.toString();
@@ -81,12 +81,15 @@ export default class UiManager {
         }
     }
 
+    /**
+    * @ignore
+    */
     async init() {
         if (tmc.game.Name == "TmForever") {
             this.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
         }
     }
-
+    /** @ignore */
     private async onManialinkAnswer(data: any) {
         const login = data[1];
         const answer = data[2].toString();
@@ -95,7 +98,7 @@ export default class UiManager {
             await this.actions[answer].callback(login, this.actions[answer].data, entries);
         }
     }
-
+    /** @ignore */
     private async onPlayerConnect(data: any) {
         const login = data[0];
 
@@ -110,6 +113,7 @@ export default class UiManager {
         }
     }
 
+    /** @ignore */
     private async onPlayerDisconnect(data: any) {
         const login = data[0];
         for (const id in this.playerManialinks[login.toString()]) {
@@ -142,8 +146,8 @@ export default class UiManager {
 
 
     /**
-     * show manialink
-     * @param manialink 
+     * display a manialink
+     * @param manialink string xml
      * @param login 
      * @returns 
      */
@@ -198,7 +202,8 @@ export default class UiManager {
         }
     }
 
-    onHidePlayerManialink(id: string, login: string | string[]) {
+    /** @ignore */
+    private onHidePlayerManialink(id: string, login: string | string[]) {
         let split:string[] = [];
         if (typeof login === 'string') split = login.split(',');
         for (let l of split) {
@@ -218,6 +223,7 @@ export default class UiManager {
 
     
     /**      
+     * @ignore
      * @returns {string} Returns the default ui for tmuf
      */
     private getTmufCustomUi() {

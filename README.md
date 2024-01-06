@@ -16,18 +16,6 @@ The core is set as simple as possible, so you should be able to just do plugins 
 
 Mostly you wish to use tmc variable which is set to global scope.
 
-## Server
-To make everything cross platform with the games, i had to do few compromises.
-
-Callbacks starting with:
-`TrackMania.` and  `ManiaPlanet.` are all renamed to start with `Trackmania.`
-Checkpoints and Finish event has custom ones:
-```ts
-tmc.server.on("Trackmania.", callback); // for generic ones
-tmc.server.on("TMC.PlayerCheckpoint", this.checkpoint.bind(this));
-tmc.server.on("TMC.PlayerFinish", this.finish.bind(this));
-tmc.server.on("TMC.PlayerGiveup", this.giveup.bind(this));
-```
 
 Interactions and shortcuts:
 

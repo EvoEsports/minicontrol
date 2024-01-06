@@ -3,10 +3,7 @@ import MapsWindow from './mapsWindow';
 import { escape } from 'core/utils';
 import Plugin from 'core/plugins';
 
-const pageLength = 20;
-
 export default class Maps extends Plugin {
-    windos: any = {};
 
     async onLoad() {      
         tmc.addCommand("/maps", this.cmdMaps.bind(this), "Display maps list");

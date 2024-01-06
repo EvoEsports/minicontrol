@@ -2,6 +2,9 @@ import Server from "./server";
 import { type ChatCommand } from "./types";
 import fs from 'fs';
 
+/**
+ * CommandManager class
+ */
 export default class CommandManager {
     private commands: { [key: string]: ChatCommand } = {};
     private server: Server;
@@ -10,6 +13,10 @@ export default class CommandManager {
         this.server = server;
     }
 
+    /**
+     * Initialize the command manager
+     * @ignore
+     */
     async beforeInit() {
         this.addCommand("/help", async (login: string, args: string[]) => {
             let help = "Available: \n";
@@ -93,11 +100,21 @@ export default class CommandManager {
 
     }
 
+    /**
+     * @ignore
+     */
     async afterInit() {
         this.server.on("Trackmania.PlayerChat", this.onPlayerChat.bind(this));
     }
 
 
+    /**
+     * adds command to the command manager
+     * @param command command to add
+     * @param callback callack function
+     * @param help help text
+     * @param admin force admin
+     */
     addCommand(command: string, callback: CallableFunction, help: string = "", admin: boolean | undefined = undefined) {
         if (admin === undefined) {
             admin = command.startsWith("//") ? true : false;
@@ -114,13 +131,21 @@ export default class CommandManager {
             tmc.cli(`¤white¤Command $fd0${command} ¤white¤already exists.`);
         }
     }
-
+    /**
+     * removes command from the command manager
+     * @param command remove command
+     */
     removeCommand(command: string) {
         if (this.commands[command]) {
             delete this.commands[command];
         }
     }
 
+    /**
+     * execute command
+     * @param login 
+     * @param text 
+     */
     async execute(login: string, text: string) {
         if (text.startsWith("/")) {
             for (let command of Object.values(this.commands)) {
@@ -132,7 +157,7 @@ export default class CommandManager {
                 if (cmd == command.trigger) {
                     const words = text.replace(command.trigger, "").trim();
                     let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s\"]+/gi) || []).map((word) => word.replace(/^"(.+(?="$))"$/, '$1').replaceAll("\\", ""));
-                    command.callback(login, params);
+                    await command.callback(login, params);
                     return;
                 }
             }
@@ -140,7 +165,12 @@ export default class CommandManager {
         }
     }
 
-    onPlayerChat(data: any) {
+    /**
+     * @ignore
+     * @param data data from the server
+     * @returns 
+     */
+    private onPlayerChat(data: any) {
         if (data[0] == 0) return;
         const login: string = data[1];
         let text: string = data[2];
