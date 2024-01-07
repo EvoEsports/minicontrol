@@ -178,7 +178,7 @@ export default class UiManager {
                 tmc.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
                 return;
             }
-            if (id) {
+            if (id) {                
                 this.publicManialinks[id[1].toString()] = xml;
             } else {
                 const message = "¤error¤manialink id not found!, remember to call ¤white¤tmc.ui.uuid()¤error¤ and assign the value for your manialink!";

@@ -1,4 +1,3 @@
-import { GbxClient } from '@evotm/gbxclient';
 import PlayerManager, { Player } from './core/playermanager';
 import Server from './core/server';
 import UiManager from './core/uimanager';

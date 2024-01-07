@@ -76,7 +76,7 @@ export class GbxClient {
     }
 
     private handleData(data: Buffer): void {
-        this.recvData = Buffer.concat([this.recvData, data]);
+        this.recvData = Buffer.concat([this.recvData, data]);     
         if (this.recvData.length > 0 && this.responseLength == null) {
             this.responseLength = this.recvData.readUInt32LE();
             if (this.isConnected) this.responseLength += 4;

@@ -1,11 +1,11 @@
 {
   "scripts": {
-    "dev": "drizzle-kit generate:sqlite && env-cmd -f .env bun --watch run app.ts",
-    "dev2": "drizzle-kit generate:sqlite && env-cmd -f .env2 bun --watch run app.ts",
-    "start": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun app.ts",
+    "dev": "drizzle-kit generate:sqlite && env-cmd -f .env bun --smol --watch run app.ts",
+    "dev2": "drizzle-kit generate:sqlite && env-cmd -f .env2 bun --smol --watch run app.ts",
+    "start": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --smol app.ts",
     "build": "bun build ./app.ts --compile --minify --outfile minicontrol"
   },
-  "module": "index.ts",
+
   "dependencies": {
     "drizzle-orm": "0.29.3",
     "node-fetch": "2.6.7",

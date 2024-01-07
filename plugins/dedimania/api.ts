@@ -1,7 +1,6 @@
 import * as http from "http";
 import { Readable } from "stream";
 import fetch from 'node-fetch';
-import { memInfo } from "core/utils";
 const Serializer = require("xmlrpc/lib/serializer");
 const Deserializer = require("xmlrpc/lib/deserializer");
 

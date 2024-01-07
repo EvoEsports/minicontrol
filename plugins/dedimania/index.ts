@@ -25,7 +25,7 @@ export default class Dedimania extends Plugin {
     serverInfo: any = {};
     records: any = [];
     widgetId: string = "";
-    widgetAction: number = tmc.ui.addAction(this.widgetClick.bind(this), null);
+    widgetAction: string = tmc.ui.addAction(this.widgetClick.bind(this), null);
     widgetTemplate: string = fs.readFileSync(import.meta.dir + "/templates/widget.twig", "utf8");
     sendRecords: boolean = false;
     intervalId: NodeJS.Timeout | null = null;

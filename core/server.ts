@@ -50,8 +50,7 @@ export default class Server extends EventEmitter {
 
             // convert waypoints to checkpoints
             if (outmethod == "Trackmania.Event.WayPoint") {
-                if (params.isendrace) {
-                    console.log(params);
+                if (params.isendrace) {        
                     this.emit("TMC.PlayerFinish", [params.login, params.racetime, params]);
                     return;
                 } else {
@@ -142,7 +141,7 @@ export default class Server extends EventEmitter {
         if (tmc.game.Name == "TmForever") {
             method = method.replace("Map", "Challenge");
         }
-        tmc.debug("$4a2send $fff>> $89a" + method);
+      //  tmc.debug("$4a2send $fff>> $89a" + method);
         if (tmc.game.Name == "Trackmania") {
             if (method == "SetTimeAttackLimit") {
                 const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };
