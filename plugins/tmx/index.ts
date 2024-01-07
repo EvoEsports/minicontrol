@@ -142,8 +142,11 @@ export default class Tmx extends Plugin {
         if (tmc.game.Name == "TmForever") {
             res = await fetch(`https://${site}.exchange/trackgbx/${id}`);
             ext = ".Challenge.Gbx";
-        } else {
+        } else if (tmc.game.Name == "Trackmania") {
             res = await fetch(`https://trackmania.exchange/maps/download/${id}`);
+        } else if (tmc.game.Name == "ManiaPlanet") {
+            res = await fetch(`https://tm.mania.exchange/maps/download/${id}`);
+        
         }
         if (!res) {
             await tmc.chat("Invalid http response", login);

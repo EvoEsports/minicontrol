@@ -1,7 +1,7 @@
 import { Buffer } from "buffer";
 import type Server from "core/server";
 import * as net from "net";
-import { Readable } from "stream";
+const { Readable } = require('stream');
 const Serializer = require("xmlrpc/lib/serializer");
 const Deserializer = require("xmlrpc/lib/deserializer");
 
@@ -50,6 +50,7 @@ export class GbxClient {
     async connect(host?: string, port?: number): Promise<boolean> {
         host = host || "127.0.0.1";
         port = port || 5000;
+        console.log("Connecting to " + host + ":" + port);
         this.socket = net.connect(port, host);
         this.socket.setKeepAlive(true);
         this.socket.on("error", (error) => {

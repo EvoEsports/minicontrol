@@ -1,6 +1,7 @@
 import { generateHeapSnapshot } from "bun";
 import { memInfo } from "core/utils";
 import Plugin from "core/plugins";
+import tm from 'tm-essentials';
 
 export default class DebugTool extends Plugin {
     id: string = "";
@@ -35,9 +36,11 @@ export default class DebugTool extends Plugin {
         const mem = memInfo();
         const xml = `
             <manialink id="${this.id}" version="3">
-                <label pos="159 -70" z-index="1" size="120 6" text="$s${mem}" textsize="1" halign="right" valign="center" />
+                <label pos="159 -60" z-index="1" size="120 6" text="$s${mem}" textsize="1" halign="right" valign="center" />
             </manialink>`;
-        tmc.cli("¤info¤Memory usage: " + mem);
+
+        let start = Date.now() - Number.parseInt(tmc.startTime);         
+        tmc.cli("¤info¤Memory usage: " + mem + " ¤info¤uptime: $fff" + tm.Time.fromMilliseconds(start).toTmString().replace(/[.]\d{3}/, ""));
         tmc.ui.display(xml);
     }
 }

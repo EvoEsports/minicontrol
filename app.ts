@@ -330,11 +330,11 @@ declare global {
 
 process.on('SIGINT', function () {
     tmc.server.send("SendHideManialinkPage", 0, false);
-    process.exit();
+    process.exit(0);
 });
 
 process.on("SIGTERM", () => {
     tmc.server.send("SendHideManialinkPage", 0, false);
-    process.exit();
+    process.exit(0);
 });
 

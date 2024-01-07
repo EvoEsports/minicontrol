@@ -23,7 +23,7 @@ export default class Server extends EventEmitter {
     }
 
     onDisconnect(str: string) {
-        tmc.cli("¤error¤Disconnected from server.");
+        tmc.cli("¤error¤Disconnected from server.\n"  + str);
         process.exit(1);
     }
 
