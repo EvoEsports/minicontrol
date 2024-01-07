@@ -18,8 +18,8 @@ export default class ListWindow extends Window {
     private pageSize: number = 20;
     private currentPage: number;
     private template: string = fs.readFileSync(import.meta.dir + "/templates/list.twig", 'utf-8');
-    private paginate: { [key: string]: number } = {};
-    private tempActions: { [key: string]: number } = {};
+    private paginate: { [key: string]: string } = {};
+    private tempActions: { [key: string]: string } = {};
     private listActions: string[];
     private columns: Column[] = [];
 

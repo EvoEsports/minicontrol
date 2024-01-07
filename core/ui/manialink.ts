@@ -3,7 +3,7 @@ export default class Manialink {
     size: any = { width: 160, height: 90 };
     pos: any = { x: 0, y: 20, z: 1 };
     baseTemplate: string = "";
-    actions: { [key: string]: number } = {};
+    actions: { [key: string]: string } = {};
     content: string = "";
     login: string = "";
     title: string = "Window";

@@ -1,22 +1,12 @@
 import Twig from 'twig';
 import fs from 'fs';
-import Server from "./server";
 import { colors } from './utils';
 
-export default class UiManager {
-    private server: Server;
-    private counter = 0;
+export default class UiManager {    
     private actions: any = {};
     private publicManialinks: any = {};
     private playerManialinks: any = {};
     private manialinkUUID: number = 0;
-
-    constructor(server: Server) {
-        this.server = server;
-        server.on("Trackmania.PlayerManialinkPageAnswer", (data) => this.onManialinkAnswer(data));
-        server.on("Trackmania.PlayerConnect", (data) => this.onPlayerConnect(data));
-        server.on("Trackmania.PlayerDisconnect", (data) => this.onPlayerDisconnect(data));
-    }
 
     private convertLine(line: string): string {
         const matches = line.matchAll(/(pos|size)="([-.\d]+)\s+([-.\d]+)"/g);
@@ -84,7 +74,7 @@ export default class UiManager {
         tmc.debug("¤info¤Added action: ¤white¤" + hash.toString() + " ¤info¤total actions: ¤white¤" + Object.keys(this.actions).length.toString());
         return hash.toString();
     }
-    
+
     /**
      * remove manialink action
      * @param actionId 
@@ -103,8 +93,13 @@ export default class UiManager {
     */
     async init() {
         if (tmc.game.Name == "TmForever") {
-            this.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
+            tmc.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
         }
+        tmc.server.on("Trackmania.PlayerManialinkPageAnswer", (data) => this.onManialinkAnswer(data));
+        tmc.server.on("Trackmania.PlayerConnect", (data) => this.onPlayerConnect(data));
+        tmc.server.on("Trackmania.PlayerDisconnect", (data) => this.onPlayerDisconnect(data));
+
+
     }
     /** @ignore */
     private async onManialinkAnswer(data: any) {
@@ -123,10 +118,10 @@ export default class UiManager {
         for (let id in this.publicManialinks) {
             multi.push(['SendDisplayManialinkPageToLogin', login, this.publicManialinks[id], 0, false]);
         }
-        this.server.gbx.multicall(multi);
+        tmc.server.gbx.multicall(multi);
 
         if (tmc.game.Name == "TmForever") {
-            this.server.send('SendDisplayManialinkPageToLogin', login, this.getTmufCustomUi(), 0, false);
+            tmc.server.send('SendDisplayManialinkPageToLogin', login, this.getTmufCustomUi(), 0, false);
         }
     }
 
@@ -180,7 +175,7 @@ export default class UiManager {
                         this.playerManialinks[l.toString()][id[1].toString()] = xml;
                     }
                 }
-                this.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
+                tmc.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
                 return;
             }
             if (id) {
@@ -190,7 +185,7 @@ export default class UiManager {
                 tmc.cli(message);
                 tmc.chat(message);
             }
-            this.server.send("SendDisplayManialinkPage", xml, 0, false);
+            tmc.server.send("SendDisplayManialinkPage", xml, 0, false);
         } catch (e) {
             tmc.debug(e);
         }
@@ -207,12 +202,12 @@ export default class UiManager {
             const manialink = `<manialinks><manialink id="${id}"></manialink></manialinks>`;
             if (login !== undefined) {
                 this.onHidePlayerManialink(id, login);
-                this.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), manialink, 0, false)
+                tmc.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), manialink, 0, false)
                 Bun.gc(true);
                 return;
             }
             delete this.publicManialinks[id.toString()];
-            this.server.send("SendDisplayManialinkPage", manialink, 0, false);
+            tmc.server.send("SendDisplayManialinkPage", manialink, 0, false);
             Bun.gc(true);
         } catch (e) {
             tmc.debug(e);

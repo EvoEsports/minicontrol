@@ -44,12 +44,6 @@ export class Player {
  */
 export default class PlayerManager {
     private players: any = {};
-    private server: Server;
-
-    constructor(server: Server) {
-        this.server = server;
-        this.server.on("Trackmania.PlayerInfoChanged", this.onPlayerInfoChanged.bind(this));
-    }
 
     /**
      * Initialize the player manager
@@ -57,7 +51,8 @@ export default class PlayerManager {
      * @ignore
      */
     async init() {
-        const players = await this.server.call('GetPlayerList', -1, 0);
+        tmc.server.on("Trackmania.PlayerInfoChanged", this.onPlayerInfoChanged.bind(this));
+        const players = await tmc.server.call('GetPlayerList', -1, 0);
         for (const data of players) {
             if (data.PlayerId === 0) continue;
             await this.getPlayer(data.Login);
@@ -78,7 +73,7 @@ export default class PlayerManager {
      * @ignore
      */
     afterInit() {
-        this.server.on("Trackmania.PlayerDisconnect", this.onPlayerDisconnect.bind(this));
+        tmc.server.on("Trackmania.PlayerDisconnect", this.onPlayerDisconnect.bind(this));
     }
 
     /**
@@ -123,7 +118,7 @@ export default class PlayerManager {
         if (this.players[login]) return this.players[login];
         tmc.debug(`$888 Player ${login} not found, fetching from server.`);
 
-        const data = await this.server.call("GetDetailedPlayerInfo", login);
+        const data = await tmc.server.call("GetDetailedPlayerInfo", login);
         const player = new Player();
         await player.syncFromDetailedPlayerInfo(data);
         this.players[login] = player;

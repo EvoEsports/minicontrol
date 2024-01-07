@@ -47,7 +47,7 @@ export default class TAlimitPlugin extends Plugin {
             this.active = true;
         }
         tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
-        this.intervalId = setInterval(this.tick.bind(this), 1000);
+        this.intervalId = setInterval( () => this.tick(), 1000);
     }
 
     async onUnload() {
@@ -65,7 +65,6 @@ export default class TAlimitPlugin extends Plugin {
         if (this.timeLimit < 1) {
             return;
         }
-
         const timeLeft = 3 + this.timeLimit - (Date.now() - this.startTime) / 1000;
         if (this.active && timeLeft <= 0) {
             this.active = false;

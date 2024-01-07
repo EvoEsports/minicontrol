@@ -23,17 +23,13 @@ class MapManager {
     private maps: { [key: string]: Map; };
     currentMap?: Map;
     currentmapIndex: number = 0;
-    private server: Server;
 
     /**
      * @ignore
      * @param server server instance
      */
-    constructor(server: Server) {
-        this.server = server;
-        this.maps = {};
-        server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
-        server.on("Trackmania.MapListModified", this.onMapListModified.bind(this));
+    constructor() {
+        this.maps = {};        
     }
 
     /**
@@ -42,8 +38,10 @@ class MapManager {
      **/
     async init() {
         this.maps = {};
-        this.currentMap = await this.server.call("GetCurrentMapInfo");
-        const serverMaps = await this.server.call("GetMapList", -1, 0);
+        tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
+        tmc.server.on("Trackmania.MapListModified", this.onMapListModified.bind(this));
+        this.currentMap = await tmc.server.call("GetCurrentMapInfo");
+        const serverMaps = await tmc.server.call("GetMapList", -1, 0);
         let i = 0;
 
         for (const map of serverMaps) {

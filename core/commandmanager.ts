@@ -13,12 +13,7 @@ export interface ChatCommand {
  */
 export default class CommandManager {
     private commands: { [key: string]: ChatCommand } = {};
-    private server: Server;
-
-    constructor(server: Server) {
-        this.server = server;
-    }
-
+    
     /**
      * Initialize the command manager
      * @ignore
@@ -110,7 +105,7 @@ export default class CommandManager {
      * @ignore
      */
     async afterInit() {
-        this.server.on("Trackmania.PlayerChat", this.onPlayerChat.bind(this));
+        tmc.server.on("Trackmania.PlayerChat", this.onPlayerChat.bind(this));
     }
 
 

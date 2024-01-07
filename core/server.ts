@@ -1,4 +1,6 @@
-import type { GbxClient } from "@evotm/gbxclient";
+
+// import { GbxClient } from "@evotm/gbxclient";
+import { GbxClient } from "./gbx";
 import EventEmitter from "events";
 
 /**
@@ -14,80 +16,80 @@ export default class Server extends EventEmitter {
      */
     methodOverrides: { [key: string]: CallableFunction } = {};
 
-    constructor(gbx: GbxClient) {
+    constructor() {
         super();
-        this.setMaxListeners(100);
-        this.gbx = gbx;
-        const that = this;
-        gbx.on("disconnect", () => {
-            tmc.cli("¤error¤Disconnected from server.");
-            process.exit(1);
-        });
+        this.setMaxListeners(50);
+        this.gbx = new GbxClient(this);
+    }
 
-        gbx.on("callback", async (method, data) => {
-            method = method.replace(/(ManiaPlanet\.)|(TrackMania\.)/i, "Trackmania.").replace("Challenge", "Map");
-            if (method == "Trackmania.Echo") {
-                if (data[0] == "MiniControl" && data[1] != tmc.startTime) {
-                    tmc.cli("¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!");
-                    process.exit(1);
-                } else if (data[0] == "MiniControl" && data[1] == tmc.startTime) {
-                    this.emit("TMC.Start");
-                    await tmc.afterStart();
-                }
+    onDisconnect(str: string) {
+        tmc.cli("¤error¤Disconnected from server.");
+        process.exit(1);
+    }
+
+    async onCallback(method: string, data: any) {
+        method = method.replace(/(ManiaPlanet\.)|(TrackMania\.)/i, "Trackmania.").replace("Challenge", "Map");
+        if (method == "Trackmania.Echo") {
+            if (data[0] == "MiniControl" && data[1] != tmc.startTime) {
+                tmc.cli("¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!");
+                process.exit(1);
+            } else if (data[0] == "MiniControl" && data[1] == tmc.startTime) {
+                this.emit("TMC.Start");
+                await tmc.afterStart();
             }
-            // convert script events to legacy
-            if (method == "Trackmania.ModeScriptCallbackArray") {
-                let params = data[1];
-                try {
-                    params = JSON.parse(params);
-                } catch (err) {
-                    console.log(err);
-                }
-                const outmethod = data[0].replace(/(ManiaPlanet\.)|(TrackMania\.)/i, "Trackmania.")
+        }
+        // convert script events to legacy
+        if (method == "Trackmania.ModeScriptCallbackArray") {
+            let params = data[1];
+            try {
+                params = JSON.parse(params);
+            } catch (err) {
+                console.log(err);
+            }
+            const outmethod = data[0].replace(/(ManiaPlanet\.)|(TrackMania\.)/i, "Trackmania.")
 
-                // convert waypoints to checkpoints
-                if (outmethod == "Trackmania.Event.WayPoint") {
-                    if (params.isendrace) {
-                        console.log(params);
-                        that.emit("TMC.PlayerFinish", [params.login, params.racetime, params]);
-                        return;
-                    } else {
-                        that.emit("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace, params]);
-                        return;
-                    }
-                }
-                if (outmethod == "Trackmania.Event.GiveUp") {
-                    that.emit("TMC.PlayerGiveup");
+            // convert waypoints to checkpoints
+            if (outmethod == "Trackmania.Event.WayPoint") {
+                if (params.isendrace) {
+                    console.log(params);
+                    this.emit("TMC.PlayerFinish", [params.login, params.racetime, params]);
+                    return;
+                } else {
+                    this.emit("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace, params]);
                     return;
                 }
-                if (process.env.DEBUG == "true") {
-                    console.log(outmethod, params);
-                }
-
-                that.emit(outmethod, params);
+            }
+            if (outmethod == "Trackmania.Event.GiveUp") {
+                this.emit("TMC.PlayerGiveup");
                 return;
             }
-
-            switch (method) {
-                case "Trackmania.PlayerCheckpoint": {
-                    that.emit("TMC.PlayerCheckpoint", [data[1], data[2], data[4]]);
-                    return;
-                }
-                case "Trackmania.PlayerFinish": {
-                    if (data[2] < 1) {
-                        that.emit("TMC.PlayerGiveup");
-                        return;
-                    }
-                    that.emit("TMC.PlayerFinish", [data[1], data[2]]);
-                    return;
-                }
-            }
             if (process.env.DEBUG == "true") {
-                console.log(method, data);
+                console.log(outmethod, params);
             }
-            that.emit(method, data);
+
+            this.emit(outmethod, params);
+            return;
         }
-        );
+
+        switch (method) {
+            case "Trackmania.PlayerCheckpoint": {
+                this.emit("TMC.PlayerCheckpoint", [data[1], data[2], data[4]]);
+                return;
+            }
+            case "Trackmania.PlayerFinish": {
+                if (data[2] < 1) {
+                    this.emit("TMC.PlayerGiveup");
+                    return;
+                }
+                this.emit("TMC.PlayerFinish", [data[1], data[2]]);
+                return;
+            }
+        }
+        if (process.env.DEBUG == "true") {
+            console.log(method, data);
+        }
+
+        this.emit(method, data);
     }
 
     /**

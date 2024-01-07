@@ -68,11 +68,11 @@ export default class MiniControl {
 
     constructor() {
         console.time("Startup");
-        this.server = new Server(new GbxClient());
-        this.maps = new MapManager(this.server);
-        this.players = new PlayerManager(this.server);
-        this.ui = new UiManager(this.server);
-        this.chatCmd = new CommandManager(this.server);
+        this.server = new Server();
+        this.maps = new MapManager();
+        this.players = new PlayerManager();
+        this.ui = new UiManager();
+        this.chatCmd = new CommandManager();
         this.admins = (process.env.ADMINS || "").split(",");
         this.game = { Name: "" };
     }
