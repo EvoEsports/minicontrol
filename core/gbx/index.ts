@@ -49,8 +49,7 @@ export class GbxClient {
     */
     async connect(host?: string, port?: number): Promise<boolean> {
         host = host || "127.0.0.1";
-        port = port || 5000;
-        console.log("Connecting to " + host + ":" + port);
+        port = port || 5000;        
         this.socket = net.connect(port, host);
         this.socket.setKeepAlive(true);
         this.socket.on("error", (error) => {

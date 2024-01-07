@@ -252,6 +252,8 @@ export default class MiniControl {
      */
     async run() {
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
+        this.cli("¤info¤Starting MiniControl...");
+        this.cli("¤info¤Connecting to Trackmania Dedicated server at $fff" + (process.env.XMLRPC_HOST) + ":" + port);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
         if (!status) {
             this.cli("¤error¤Couldn't connect to server.");

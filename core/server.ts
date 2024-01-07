@@ -171,7 +171,7 @@ export default class Server extends EventEmitter {
      * @param port 
      * @returns {boolean} Returns true if connection was successful
      */
-    async connect(host: string, port: number) {
+    async connect(host: string, port: number) {       
         return await this.gbx.connect(host, port);
     }
 
