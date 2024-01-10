@@ -1,15 +1,16 @@
 import { Buffer } from "buffer";
 import type Server from "core/server";
-import * as net from "net";
+// import * as net from "net";
 const { Readable } = require('stream');
 const Serializer = require("xmlrpc/lib/serializer");
 const Deserializer = require("xmlrpc/lib/deserializer");
+//Buffer.poolSize = 1024;
 
 export class GbxClient {
     isConnected: boolean;
     doHandShake: boolean;
     reqHandle: number;
-    private socket: net.Socket | null;
+    private socket: any;
     recvData: Buffer;
     responseLength: null | number;
     requestHandle: number;
@@ -29,7 +30,7 @@ export class GbxClient {
         this.isConnected = false;
         this.reqHandle = 0x80000000;
         this.socket = null;
-        this.recvData = Buffer.alloc(0);
+        this.recvData = Buffer.from([]);
         this.responseLength = null;
         this.requestHandle = 0;
         this.dataPointer = 0;
@@ -49,23 +50,25 @@ export class GbxClient {
     */
     async connect(host?: string, port?: number): Promise<boolean> {
         host = host || "127.0.0.1";
-        port = port || 5000;        
-        this.socket = net.connect(port, host);
-        this.socket.setKeepAlive(true);
-        this.socket.on("error", (error) => {
-            this.socket?.destroy();
-            this.socket = null;
-            this.isConnected = false;
-            this.server.onDisconnect(error.message);
-        });
-        this.socket.on("end", () => {
-            this.isConnected = false;
-            this.socket?.destroy();
-            this.server.onDisconnect("end");
-            this.socket = null;
-        });
-        this.socket.on("data", (data) => {
-            this.handleData(data);
+        port = port || 5000;
+        const that = this;
+        this.socket = await Bun.connect({
+            hostname: host,
+            port: port,
+            socket: {
+                end() {
+                    that.isConnected = false;
+                    that.server.onDisconnect("end");
+                },
+                error(error: any) {
+                    that.isConnected = false;
+                    that.server.onDisconnect(error.message);
+                },
+                data(socket: any, data: Buffer) {
+                    that.handleData(data);
+                }
+
+            }
         });
         const res: boolean = await new Promise((resolve, reject) => {
             this.promiseCallbacks['onConnect'] = { resolve, reject };
@@ -75,9 +78,11 @@ export class GbxClient {
         return res;
     }
 
-    private handleData(data: Buffer): void {
-        this.recvData = Buffer.concat([this.recvData, data]);     
-        if (this.recvData.length > 0 && this.responseLength == null) {
+    private handleData(data: Buffer | null): void {
+        if (data != null) {
+            this.recvData = Buffer.concat([this.recvData, data]);
+        }
+        if (this.recvData.length > 0 && this.responseLength === null) {
             this.responseLength = this.recvData.readUInt32LE();
             if (this.isConnected) this.responseLength += 4;
             this.recvData = this.recvData.subarray(4);
@@ -88,7 +93,7 @@ export class GbxClient {
             if (this.recvData.length > this.responseLength) {
                 this.recvData = this.recvData.subarray(this.responseLength);
             } else {
-                this.recvData = Buffer.alloc(0);
+                this.recvData = Buffer.from([]);
             }
 
             if (!this.isConnected) {
@@ -106,7 +111,7 @@ export class GbxClient {
             } else {
                 const deserializer = new Deserializer("utf-8");
                 const requestHandle = data.readUInt32LE();
-                const readable = Readable.from(data.subarray(4));                
+                const readable = Readable.from(data.subarray(4));
                 if (requestHandle >= 0x80000000) {
                     deserializer.deserializeMethodResponse(
                         readable,
@@ -130,7 +135,7 @@ export class GbxClient {
                 }
             }
             this.responseLength = null;
-            if (this.recvData.length > 0) return this.handleData(Buffer.alloc(0));
+            if (this.recvData.length > 0) return this.handleData(null);
             return;
         }
         return;

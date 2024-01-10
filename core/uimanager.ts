@@ -226,9 +226,9 @@ export default class UiManager {
                     this.removeAction(match[1]);
                 }
                 delete this.playerManialinks[l.toString()][id.toString()];
-                tmc.debug("¤info¤manialink removed: " + id);
+                tmc.debug("¤info¤manialink removed: $fff" + id);
             } else {
-                tmc.debug("¤error¤manialink not found: " + id);
+                tmc.debug("¤error¤manialink not found: $fff" + id);
             }
         }
     }

@@ -6,7 +6,6 @@ import tm from 'tm-essentials';
 export default class DebugTool extends Plugin {
     id: string = "";
     intervalId: NodeJS.Timeout | null = null;
-    
 
     async onLoad() {
         this.id = tmc.ui.uuid();
@@ -39,7 +38,7 @@ export default class DebugTool extends Plugin {
                 <label pos="159 -60" z-index="1" size="120 6" text="$s${mem}" textsize="1" halign="right" valign="center" />
             </manialink>`;
 
-        let start = Date.now() - Number.parseInt(tmc.startTime);         
+        let start = Date.now() - Number.parseInt(tmc.startTime);
         tmc.cli("¤info¤Memory usage: " + mem + " ¤info¤uptime: $fff" + tm.Time.fromMilliseconds(start).toTmString().replace(/[.]\d{3}/, ""));
         tmc.ui.display(xml);
     }

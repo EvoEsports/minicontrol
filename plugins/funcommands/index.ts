@@ -35,8 +35,10 @@ export default class FunCommands extends Plugin {
     }
 
     async command_afk(login: string, data: any) {
-        await tmc.chat(`$z$s$fff is now away from keyboard.`);;
-        await tmc.server.call(`ForceSpectator`, login, 3);
+        const player = await tmc.getPlayer(login);
+        await tmc.chat(`${player.nickname} ¤info¤is now away from keyboard.`);;
+        tmc.server.send(`ForceSpectator`, login, 1);
+        tmc.server.send(`ForceSpectator`, login, 0);
     }
 
     async command_bootme(login: string, data: any) {

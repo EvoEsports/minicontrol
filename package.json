@@ -6,7 +6,7 @@
     "build": "bun build ./app.ts --compile --minify --outfile minicontrol",
     "daemon": "drizzle-kit generate:sqlite --config=drizzle.config.ts && pm2 start --interpreter ~/.bun/bin/bun --smol app.ts"
   },
-  "dependencies": {
+  "dependencies": {    
     "drizzle-orm": "0.29.3",
     "node-fetch": "2.6.7",
     "tm-essentials": "^1.0.5",
@@ -20,7 +20,7 @@
     "@types/node-fetch": "^2.6.10",
     "@types/twig": "^1.12.16",
     "casual": "1.6.2",
-    "drizzle-kit": "^0.20.9",
+    "drizzle-kit": "^0.20.10",
     "env-cmd": "^10.1.0",
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "@typescript-eslint/parser": "^6.17.0",

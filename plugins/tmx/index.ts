@@ -36,7 +36,7 @@ export default class Tmx extends Plugin {
                 tmc.chat("No maps to fetch", login);
                 return;
             }
-            return await this.addTmnPack(login, params[1], "tmuf");
+            return await this.addTmnPack(login, params[1].trim(), "tmuf");
         }
         
     }
@@ -53,10 +53,10 @@ export default class Tmx extends Plugin {
                 return;
             }
             if (tmc.game.Name == "TmForever") {
-                return await this.addTmnPack(login, params[1]);
+                return await this.addTmnPack(login, params[1].trim());
             }
             if (tmc.game.Name == "Trackmania") {
-                return await this.addTmxPack(login, params[1]);
+                return await this.addTmxPack(login, params[1].trim());
             }
         }
         return await tmc.chat("Not implemented yet.", login);
@@ -114,7 +114,7 @@ export default class Tmx extends Plugin {
         }
         if (params[0] == "add") {
             for (let id of params[1].split(",")) {
-                await this.download(id, login, true, "tmuf");
+                await this.download(id.trim(), login, true, "tmuf");
             }
         }
     }
@@ -131,7 +131,7 @@ export default class Tmx extends Plugin {
                 return;
             }
             for (let id of params[1].split(",")) {
-                await this.download(id, login);
+                await this.download(id.trim(), login);
             }
         }
     }
@@ -164,7 +164,7 @@ export default class Tmx extends Plugin {
                     await tmc.chat(`Map path "${tmc.mapsPath}" is unreachable.`, login);
                     return;
                 }
-                await tmc.server.call("InsertMap", `tmx/${id}${ext}`);
+                await tmc.server.call("AddMap", `tmx/${id}${ext}`);
                 if (announce) {
                     await tmc.chat(`Added MapId: ${id} from tmx!`);
                 }
