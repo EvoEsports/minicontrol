@@ -15,6 +15,9 @@ export default class Server extends EventEmitter {
      * method overrides
      */
     methodOverrides: { [key: string]: CallableFunction } = {};
+    login: any;
+    name: any;
+    path: any;
 
     constructor() {
         super();
@@ -172,7 +175,13 @@ export default class Server extends EventEmitter {
      * @returns {boolean} Returns true if connection was successful
      */
     async connect(host: string, port: number) {       
-        return await this.gbx.connect(host, port);
+        const status = await this.gbx.connect(host, port);
+        if (status) {
+            const info = await this.gbx.call("GetMainServerPlayerInfo");            
+            this.login = info.Login;
+            this.name = info.NickName;     
+        }
+        return status;
     }
 
 }

@@ -62,15 +62,15 @@ export default class AdminPlugin extends Plugin {
             }
         }, "Sets gamemode");
         tmc.addCommand("//setpass", async (login: string, params: string[]) => {
-            if (!params[0]) {
-                return await tmc.chat("¤cmd¤//passwd ¤info¤needs a password", login);
+            if (params.length < 1) {
+                return await tmc.chat("¤cmd¤//setpass ¤info¤needs a password", login);
             }
             await tmc.server.call("SetServerPassword", params[0]);
             await tmc.chat(`¤info¤Password set to "¤white¤${params[0]}¤info¤"`, login);
         }, "Sets server password");
 
         tmc.addCommand("//setspecpass", async (login: string, params: string[]) => {
-            if (!params[0]) {
+            if (params.length < 1) {
                 return await tmc.chat("¤cmd¤//spectpasswd ¤info¤needs a password", login);
             }
             await tmc.server.call("SetServerPasswordForSpectator", params[0]);
