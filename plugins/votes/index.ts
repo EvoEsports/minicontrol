@@ -30,11 +30,11 @@ export default class VotesPlugin extends Plugin {
     pluginName: string = "votes";
     depends: string[] = [];
     timeout: number = 30;
-    ratio: number = process.env.VOTE_RATIO ? parseFloat(process.env.VOTE_RATIO) : 0.5;
+    ratio: number = process.env.VOTE_RATIO ? parseFloat(process.env.VOTE_RATIO) : 0.55;
     currentVote: Vote | null = null;
     widgetId: string = tmc.ui.uuid();
     widget: string = fs.readFileSync(import.meta.dir + "/templates/votes.twig", 'utf-8');
-    actions: { [key: string]: number } = {};
+    actions: { [key: string]: string } = {};
     origTimeLimit = Number.parseInt(process.env.TALIMIT || "300");
     newLimit = this.origTimeLimit;
     extendCounter = 1;

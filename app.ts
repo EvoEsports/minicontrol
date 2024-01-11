@@ -23,7 +23,7 @@ export default class MiniControl {
     /**
      * The version of MiniControl.
      */
-    readonly version: string = "2024-01-04";
+    readonly version: string = "2024-01-11";
     /**
      * The start time of MiniControl.
      */

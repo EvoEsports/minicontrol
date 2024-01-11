@@ -6,7 +6,7 @@ export let colors: { [key: string]: string } = {
     white: "fff",
     black: "000",
     title_fg: "eef",
-    title_bg: "27f",
+    title_bg: "112", //27f
     bg: "334",
     cmd: "fd0",
     info: "4cf",
