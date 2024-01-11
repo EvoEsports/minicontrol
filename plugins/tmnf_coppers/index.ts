@@ -41,7 +41,7 @@ export default class tmnf_coppers extends Plugin {
             const bill = this.billStates[BillId];
             if (StateName == "error") {
 
-            } else if(StateName == "Issued") {
+            } else if (StateName == "Issued") {
                 tmc.chat(`¤info¤${bill.login} issued a bill of $fff${bill.amount} ¤info¤coppers to $fff${bill.recipient}`)
 
             } else if (StateName == "Payed") {
@@ -54,7 +54,7 @@ export default class tmnf_coppers extends Plugin {
             } else {
                 tmc.chat(`Unknown StateName: $fff${StateName}`);
             }
-            
+
         } else {
             tmc.cli(`¤info¤Bill $fff${BillId} ¤info¤updated to $fff${StateName} ¤info¤with transaction id $fff${TransactionId}`);
         }
@@ -62,7 +62,7 @@ export default class tmnf_coppers extends Plugin {
 
     async bill(login: string, params: string[]) {
         const player = await tmc.getPlayer(login);
-        if(params.length < 2) {
+        if (params.length < 2) {
             tmc.chat("¤info¤Usage: ¤cmd¤//bill $fff<login> <amount>", login);
             return;
         }
@@ -80,7 +80,7 @@ export default class tmnf_coppers extends Plugin {
         }
 
         const amount = Number.parseInt(params[1]);
-        const billId = await tmc.server.call("SendBill", params[0], amount, `${login} wants to you to pay ${amount} coppers to the server.`, "");
+        const billId = await tmc.server.call("SendBill", params[0], amount, `Transfer ${amount} coppers to server?`, "");
         this.billStates[billId] = {
             login: login,
             recipient: params[0],

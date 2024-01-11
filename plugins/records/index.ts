@@ -3,7 +3,7 @@ import Plugin from "core/plugins";
 import { Score } from "schemas/scores";
 import { Player } from "schemas/players";
 import { eq, asc, and, sql } from "drizzle-orm";
-import { escape, removeLinks } from "core/utils";
+import { clone, escape, removeLinks } from "core/utils";
 import tm from 'tm-essentials';
 import { colors } from "core/utils";
 import fs from "fs";
@@ -95,12 +95,14 @@ export default class Records extends Plugin {
                 checkpoints: score.checkpoints,
                 created_at: score.created_at,
                 updated_at: score.updated_at,
-
             }));
             rank += 1;
         }
         await this.updateWidget();
-        tmc.server.emit("Plugin.Records.onSync", this.records);
+        tmc.server.emit("Plugin.Records.onSync", {
+            mapUid: mapUuid,
+            records: clone(this.records)
+        });
     }
 
     async getRankingsForLogin(data: any) {
@@ -109,7 +111,7 @@ export default class Records extends Plugin {
             const ranking = await tmc.server.call("GetCurrentRankingForLogin", login);
             return ranking[0];
         }
-        console.log(data);;
+
         return {
             login: login,
             NickName: (await tmc.players.getPlayer(login)).nickname,
@@ -122,7 +124,6 @@ export default class Records extends Plugin {
         const login = data[0];
         if (this.records.length == 0) {
             let ranking = await this.getRankingsForLogin(data);
-
             const newRecord = new Record().fromScore({
                 login: login,
                 nickname: removeLinks(ranking.NickName),
@@ -145,7 +146,10 @@ export default class Records extends Plugin {
                 updated_at: newRecord.updated_at,
                 mapUuid: this.currentMapUid
             });
-            tmc.server.emit("Plugin.Records.onUpdate", newRecord, this.records);
+            tmc.server.emit("Plugin.Records.onNewRecord", {
+                oldRecord: null,
+                record: newRecord
+            }, clone(this.records));
             await this.updateWidget();
             return;
         }
@@ -157,21 +161,21 @@ export default class Records extends Plugin {
 
         if (lastIndex >= this.limit && ranking.BestTime >= lastRecord.time) return;
         const time = ranking.BestTime;
-        const record = this.records.find(r => r.login === login);
-        if (record) {
-            if (time < record.time) {
-                record.nickname = removeLinks(ranking.NickName);
-                record.avgTime = record.avgTime + (time - record.avgTime) / record.totalFinishes;
-                record.time = ranking.BestTime;
-                record.checkpoints = ranking.BestCheckpoints.join(",");
-                record.totalFinishes++;
-                record.updated_at = new Date().toISOString();
+        const oldRecord = this.records.find(r => r.login === login);
+        if (oldRecord) {
+            if (time < oldRecord.time) {
+                oldRecord.nickname = removeLinks(ranking.NickName);
+                oldRecord.avgTime = oldRecord.avgTime + (time - oldRecord.avgTime) / oldRecord.totalFinishes;
+                oldRecord.time = ranking.BestTime;
+                oldRecord.checkpoints = ranking.BestCheckpoints.join(",");
+                oldRecord.totalFinishes++;
+                oldRecord.updated_at = new Date().toISOString();
                 await this.db?.update(Score).set({
-                    time: record.time,
-                    avgTime: record.avgTime,
-                    checkpoints: record.checkpoints,
-                    totalFinishes: record.totalFinishes,
-                    updated_at: record.updated_at
+                    time: oldRecord.time,
+                    avgTime: oldRecord.avgTime,
+                    checkpoints: oldRecord.checkpoints,
+                    totalFinishes: oldRecord.totalFinishes,
+                    updated_at: oldRecord.updated_at
                 }).where(and(eq(Score.login, login), eq(Score.mapUuid, this.currentMapUid)));
             }
         } else {
@@ -205,14 +209,22 @@ export default class Records extends Plugin {
             return a.time - b.time;
         });
         // Update ranks
+        let newRecord = {};
         for (let i = 0; i < this.records.length; i++) {
             this.records[i].rank = i + 1;
+            if (this.records[i].login === login) {
+                newRecord = this.records[i];
+            }
             if (i >= this.limit) {
                 tmc.cli(`Deleting record ${i} because it's out of limit.`);
                 await this.db?.delete(Score).where(and(eq(Score.login, this.records[i].login), eq(Score.mapUuid, this.currentMapUid)));
             }
         }
         this.records = this.records.slice(0, this.limit);
+        tmc.server.emit("Plugin.Records.onUpdateRecord", {
+            oldRecord: oldRecord,
+            record: newRecord
+        }, clone(this.records));
         await this.updateWidget();
     }
 

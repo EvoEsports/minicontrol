@@ -1,10 +1,12 @@
 import { isNumberObject } from "util/types";
 import { type PaginationResult } from "./types";
+import tm from 'tm-essentials';
+
 export let colors: { [key: string]: string } = {
     white: "fff",
     black: "000",
     title_fg: "eef",
-    title_bg: "27f",    
+    title_bg: "27f",
     bg: "334",
     cmd: "fd0",
     info: "4cf",
@@ -109,8 +111,15 @@ export function removeLinks(str: string): string {
     return str.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")
 }
 
+export function removeColors(str: string): string {
+    return tm.TextFormatter.deformat(str);
+}
+
 export function clone(obj: any): any {
     return JSON.parse(JSON.stringify(obj));
+}
+export function formatTime(time: number): string {
+    return tm.Time.fromMilliseconds(time).toTmString().replace(/^0:/, "");
 }
 
 export function castType(value: string, type: string | undefined = undefined): any {
