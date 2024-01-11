@@ -1,6 +1,7 @@
 import { castType } from "core/utils";
 import ModeSettingsWindow from "./ModeSettingsWindow";
 import Plugin from "core/plugins";
+import Tmx from "plugins/tmx";
 
 export default class AdminPlugin extends Plugin {
 
@@ -62,19 +63,23 @@ export default class AdminPlugin extends Plugin {
             }
         }, "Sets gamemode");
         tmc.addCommand("//setpass", async (login: string, params: string[]) => {
-            if (params.length < 1) {
-                return await tmc.chat("¤cmd¤//setpass ¤info¤needs a password", login);
+            const newPass = params[0] || "";
+            await tmc.server.call("SetServerPassword", newPass);
+            if (newPass == "") {
+                tmc.chat(`¤info¤Password removed`, login);
+            } else {
+                tmc.chat(`¤info¤Password set to "¤white¤${newPass}¤info¤"`, login);
             }
-            await tmc.server.call("SetServerPassword", params[0]);
-            await tmc.chat(`¤info¤Password set to "¤white¤${params[0]}¤info¤"`, login);
         }, "Sets server password");
 
         tmc.addCommand("//setspecpass", async (login: string, params: string[]) => {
-            if (params.length < 1) {
-                return await tmc.chat("¤cmd¤//spectpasswd ¤info¤needs a password", login);
+            const newPass = params[0] || "";
+            await tmc.server.call("SetServerPasswordForSpectator", newPass);
+            if (newPass == "") {
+                tmc.chat(`¤info¤Spectator password removed`, login);
+            } else {
+                tmc.chat(`¤info¤Spectator password set to "¤white¤${newPass}¤info¤"`, login);
             }
-            await tmc.server.call("SetServerPasswordForSpectator", params[0]);
-            await tmc.chat(`¤info¤Spectator password set to ¤white¤${params[0]}`, login);
         }, "Sets spectator password");
 
         tmc.addCommand("//warmup", async (login: string, params: string[]) => {

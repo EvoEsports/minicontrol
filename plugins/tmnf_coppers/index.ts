@@ -3,7 +3,7 @@ import Plugin from "core/plugins";
 interface BillState {
     login: string;
     amount: number;
-    from: string;
+    recipient: string;
     to: string;
     type: string;
 }
@@ -41,15 +41,20 @@ export default class tmnf_coppers extends Plugin {
             const bill = this.billStates[BillId];
             if (StateName == "error") {
 
-            } else if (StateName == "accepted") {
-                tmc.chat(`¤info¤${bill.from} $fff${bill.type}s $fff${bill.amount} ¤info¤coppers to $fff${bill.to}`, bill.login);
+            } else if(StateName == "Issued") {
+                tmc.chat(`¤info¤${bill.login} issued a bill of $fff${bill.amount} ¤info¤coppers to $fff${bill.recipient}`)
+
+            } else if (StateName == "Payed") {
+                delete this.billStates[BillId];
+                tmc.chat(`¤info¤${bill.recipient} paid bill of $fff${bill.amount} ¤info¤coppers`);
             }
-            else if (StateName == "refuced") {
-                tmc.chat(`¤info¤${bill.from} ¤info¤refused to $fff${bill.type} $fff${bill.amount} ¤info¤coppers to $fff${bill.to}`, bill.login);
+            else if (StateName == "Refused") {
+                delete this.billStates[BillId];
+                tmc.chat(`¤info¤${bill.recipient} ¤info¤refused to pay the bill.`);
             } else {
-                tmc.chat(`Unknown StateName: $fff${StateName}`, bill.login);
+                tmc.chat(`Unknown StateName: $fff${StateName}`);
             }
-            delete this.billStates[BillId];
+            
         } else {
             tmc.cli(`¤info¤Bill $fff${BillId} ¤info¤updated to $fff${StateName} ¤info¤with transaction id $fff${TransactionId}`);
         }
@@ -57,12 +62,12 @@ export default class tmnf_coppers extends Plugin {
 
     async bill(login: string, params: string[]) {
         const player = await tmc.getPlayer(login);
-        if(params.length < 3) {
-            tmc.chat("¤info¤Usage: ¤cmd¤//bill $fff<login> <amount> <recipient>", login);
+        if(params.length < 2) {
+            tmc.chat("¤info¤Usage: ¤cmd¤//bill $fff<login> <amount>", login);
             return;
         }
         if (!params[0]) {
-            tmc.chat("¤info¤No sender specified", login);
+            tmc.chat("¤info¤No bill recipient specified", login);
             return;
         }
         if (!params[1]) {
@@ -73,18 +78,14 @@ export default class tmnf_coppers extends Plugin {
             tmc.chat("¤info¤Invalid amount specified", login);
             return;
         }
-        if (!params[2]) {
-            tmc.chat("¤info¤No recipient specified", login);
-            return;
-        }
 
         const amount = Number.parseInt(params[1]);
-        const billId = await tmc.server.call("Bill", params[0], amount, params[2], `${params[0]} wants to send you ${amount} coppers`);
+        const billId = await tmc.server.call("SendBill", params[0], amount, `${login} wants to you to pay ${amount} coppers to the server.`, "");
         this.billStates[billId] = {
             login: login,
-            from: params[0],
+            recipient: params[0],
             amount: amount,
-            to: params[2],
+            to: tmc.server.login,
             type: "bill"
         };
     }
@@ -107,7 +108,7 @@ export default class tmnf_coppers extends Plugin {
         const billId = await tmc.server.call("Pay", params[0], amount, "Coppers payment from " + tmc.server.name);
         this.billStates[billId] = {
             login: login,
-            from: tmc.server.login,
+            recipient: tmc.server.login,
             amount: amount,
             to: params[0],
             type: "pay"
