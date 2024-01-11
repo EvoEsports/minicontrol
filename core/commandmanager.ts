@@ -1,5 +1,6 @@
 import Server from "./server";
 import fs from 'fs';
+import { sleep } from "./utils";
 
 export interface ChatCommand {
     trigger: string;
@@ -91,6 +92,21 @@ export default class CommandManager {
                         return;
                     }
                     tmc.unloadPlugin(plugin);
+                    break;
+                }
+                case "reload": {
+                    if (args.length < 2) {
+                        tmc.chat("Please specify a plugin name.", login);
+                        return;
+                    }
+                    const plugin = args[1];
+                    if (!tmc.plugins[plugin]) {
+                        tmc.chat(`Plugin $fd0${plugin}$fff not loaded.`, login);
+                        return;
+                    }
+                    await tmc.unloadPlugin(plugin);
+                    sleep(50);
+                    await tmc.loadPlugin(plugin);
                     break;
                 }
                 default: {

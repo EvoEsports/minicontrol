@@ -46,17 +46,21 @@ export default class Announces extends Plugin {
 
     async onNewRecord(data: any, records: Record[]) {
         const newRecord = data.record;
-        tmc.chat(`$fff${newRecord.nickname}¤info¤ has set a new $fff#1 ¤info¤server record of ¤white¤${formatTime(newRecord.time)}¤info¤!`);
+        tmc.chat(`$fff${newRecord.nickname}¤info¤ has set a new $fff#1 ¤info¤server record ¤white¤${formatTime(newRecord.time)}¤info¤!`);
     }
 
     async onUpdateRecord(data: any, records: Record[]) {
         const newRecord = data.record;
         const oldRecord = data.oldRecord;
+        let extrainfo = "";
+        if (oldRecord.rank) {
+            extrainfo = `(${oldRecord.rank} ${formatTime(oldRecord.time)})`;
+        }
         let recipient = undefined;
         if (newRecord.rank > 15) {
             recipient = newRecord.login;
         }
-        tmc.chat(`$fff${newRecord.nickname}¤info¤ has improved the $fff#${newRecord.rank} ¤info¤server record to $fff${formatTime(newRecord.time)}¤info¤ (${oldRecord.rank} ${formatTime(oldRecord.time)})!`, recipient);
+        tmc.chat(`$fff${newRecord.nickname}¤info¤ improved $fff#${newRecord.rank} ¤info¤server record $fff${formatTime(newRecord.time)}¤info¤ ${extrainfo}!`, recipient);
     }
 
     async onSyncRecord(data: any) {
@@ -66,7 +70,7 @@ export default class Announces extends Plugin {
             tmc.chat(`No server records for this map yet!`);
             return;
         }
-        const msg = `$fff${records[0].nickname}¤info¤ holds the $fff#1 ¤info¤server record of ¤white¤${formatTime(records[0].time)}¤info¤!`;
+        const msg = `$fff${records[0].nickname}¤info¤ holds the $fff#1 ¤info¤server record ¤white¤${formatTime(records[0].time)}¤info¤!`;
         tmc.chat(msg);
     }
 }

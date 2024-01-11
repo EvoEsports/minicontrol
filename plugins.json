@@ -14,5 +14,6 @@
     "debugtool",
     "votes",
     "funcommands",
-    "records"
+    "records",
+    "togglechat"
 ]
