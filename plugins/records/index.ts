@@ -161,22 +161,25 @@ export default class Records extends Plugin {
 
         if (lastIndex >= this.limit && ranking.BestTime >= lastRecord.time) return;
         const time = ranking.BestTime;
-        const oldRecord = this.records.find(r => r.login === login);
+        const oldRecord = clone(this.records.find(r => r.login === login) || {});
         if (oldRecord) {
+            if (ranking.BestTime >= oldRecord.time) return;
             if (time < oldRecord.time) {
-                oldRecord.nickname = removeLinks(ranking.NickName);
-                oldRecord.avgTime = oldRecord.avgTime + (time - oldRecord.avgTime) / oldRecord.totalFinishes;
-                oldRecord.time = ranking.BestTime;
-                oldRecord.checkpoints = ranking.BestCheckpoints.join(",");
-                oldRecord.totalFinishes++;
-                oldRecord.updated_at = new Date().toISOString();
+                const newRecord = clone(oldRecord);
+                newRecord.nickname = removeLinks(ranking.NickName);
+                newRecord.avgTime = newRecord.avgTime + (time - newRecord.avgTime) / newRecord.totalFinishes;
+                newRecord.time = ranking.BestTime;
+                newRecord.checkpoints = ranking.BestCheckpoints.join(",");
+                newRecord.totalFinishes++;
+                newRecord.updated_at = new Date().toISOString();
                 await this.db?.update(Score).set({
-                    time: oldRecord.time,
-                    avgTime: oldRecord.avgTime,
-                    checkpoints: oldRecord.checkpoints,
-                    totalFinishes: oldRecord.totalFinishes,
-                    updated_at: oldRecord.updated_at
+                    time: newRecord.time,
+                    avgTime: newRecord.avgTime,
+                    checkpoints: newRecord.checkpoints,
+                    totalFinishes: newRecord.totalFinishes,
+                    updated_at: newRecord.updated_at
                 }).where(and(eq(Score.login, login), eq(Score.mapUuid, this.currentMapUid)));
+                this.records[this.records.findIndex(r => r.login === login)] = newRecord;
             }
         } else {
             const newRecord = new Record().fromScore({
@@ -220,9 +223,9 @@ export default class Records extends Plugin {
                 await this.db?.delete(Score).where(and(eq(Score.login, this.records[i].login), eq(Score.mapUuid, this.currentMapUid)));
             }
         }
-        this.records = this.records.slice(0, this.limit);        
+        this.records = this.records.slice(0, this.limit);
         tmc.server.emit("Plugin.Records.onUpdateRecord", {
-            oldRecord: clone(oldRecord||{}),
+            oldRecord: oldRecord,
             record: newRecord
         }, clone(this.records));
         await this.updateWidget();
