@@ -29,7 +29,7 @@ class MapManager {
      * @param server server instance
      */
     constructor() {
-        this.maps = {};        
+        this.maps = {};
     }
 
     /**
@@ -41,16 +41,7 @@ class MapManager {
         tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
         tmc.server.on("Trackmania.MapListModified", this.onMapListModified.bind(this));
         this.currentMap = await tmc.server.call("GetCurrentMapInfo");
-        const serverMaps = await tmc.server.call("GetMapList", -1, 0);
-        let i = 0;
-
-        for (const map of serverMaps) {
-            this.maps[map.UId] = map;
-            if (map.UId === this.currentMap?.UId) {
-                this.currentmapIndex = i;
-            }
-            i += 1;
-        }
+        await this.syncMaplist();
     }
 
     private async onBeginMap(data: any) {
@@ -59,17 +50,23 @@ class MapManager {
 
     private async onMapListModified(data: any) {
         if (data[2] === true) {
-            this.maps = {};
-            this.currentMap = await tmc.server.call("GetCurrentMapInfo");
-            const serverMaps = await tmc.server.call("GetMapList", -1, 0);
-            let i = 0;    
-            for (const map of serverMaps) {
-                this.maps[map.UId] = map;
-                if (map.UId === this.currentMap?.UId) {
-                    this.currentmapIndex = i;
-                }
-                i += 1;
+            await this.syncMaplist();
+        }
+    }
+
+    /**
+     * Sync the maplist with the server
+     */
+    async syncMaplist() {
+        this.maps = {};
+        const serverMaps = await tmc.server.call("GetMapList", -1, 0);
+        let i = 0;
+        for (const map of serverMaps) {
+            this.maps[map.UId] = map;
+            if (map.UId === this.currentMap?.UId) {
+                this.currentmapIndex = i;
             }
+            i += 1;
         }
     }
 
@@ -82,7 +79,7 @@ class MapManager {
             delete this.maps[mapUId];
         }
     }
-    
+
     /**
      * get maps
      * @returns {Map[]} Returns the current maplist
