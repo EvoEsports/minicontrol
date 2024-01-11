@@ -58,8 +58,18 @@ class MapManager {
     }
 
     private async onMapListModified(data: any) {
-        if (data[2]) {
-            this.init();
+        if (data[2] === true) {
+            this.maps = {};
+            this.currentMap = await tmc.server.call("GetCurrentMapInfo");
+            const serverMaps = await tmc.server.call("GetMapList", -1, 0);
+            let i = 0;    
+            for (const map of serverMaps) {
+                this.maps[map.UId] = map;
+                if (map.UId === this.currentMap?.UId) {
+                    this.currentmapIndex = i;
+                }
+                i += 1;
+            }
         }
     }
 
