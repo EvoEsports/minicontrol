@@ -60,7 +60,7 @@ export default class Announces extends Plugin {
         if (newRecord.rank > 15) {
             recipient = newRecord.login;
         }
-        tmc.chat(`$fff${newRecord.nickname}¤info¤ improved $fff#${newRecord.rank} ¤info¤server record $fff${formatTime(newRecord.time)}¤info¤ ${extrainfo}!`, recipient);
+        tmc.chat(`$fff${newRecord.nickname}¤info¤ improved $fff${newRecord.rank}. ¤info¤server record $fff${formatTime(newRecord.time)}¤info¤ ${extrainfo}!`, recipient);
     }
 
     async onSyncRecord(data: any) {
@@ -70,7 +70,7 @@ export default class Announces extends Plugin {
             tmc.chat(`No server records for this map yet!`);
             return;
         }
-        const msg = `$fff${records[0].nickname}¤info¤ holds the $fff#1 ¤info¤server record ¤white¤${formatTime(records[0].time)}¤info¤!`;
+        const msg = `$fff${records[0].nickname}¤info¤ holds the $fff1. ¤info¤server record ¤white¤${formatTime(records[0].time)}¤info¤!`;
         tmc.chat(msg);
     }
 }
