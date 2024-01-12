@@ -216,8 +216,10 @@ export default class UiManager {
         }
         manialink.data = [];
         if (manialink.recipient !== undefined) {
-            if (this.playerManialinks[manialink.id]) {
-                delete this.publicManialinks[manialink.id];
+            for(let login in this.playerManialinks) {
+                if (this.playerManialinks[login][manialink.id]) {
+                    delete this.publicManialinks[login][manialink.id];
+                }
             }
         } else {
             for (let id in this.publicManialinks) {
