@@ -226,7 +226,7 @@ export default class Records extends Plugin {
         }
         this.records = this.records.slice(0, this.limit);
         tmc.server.emit("Plugin.Records.onUpdateRecord", {
-            oldRecord: oldRecord,
+            oldRecord: clone(oldRecord || {} ),
             record: newRecord
         }, clone(this.records));
         await this.updateWidget();

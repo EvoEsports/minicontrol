@@ -133,8 +133,8 @@ export default class UiManager {
     /** @ignore */
     private async onPlayerDisconnect(data: any) {
         const login = data[0];
-        for (const manialink of Object.values(this.playerManialinks[login.toString()])) {
-            await (manialink as Manialink).destroy();
+        for (const id in this.playerManialinks[login]) {
+            await this.playerManialinks[login.toString()][id.toString()].destroy();            
         }
     }
 
