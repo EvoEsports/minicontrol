@@ -101,12 +101,14 @@ export default class ListWindow extends Window {
             itemsArray.push(item);
             x++;
         }
-        for(let itemAction of Object.keys(this.actions)) {
-            if(itemAction.startsWith("item_")) {
-                tmc.ui.removeAction(itemAction);
-                delete this.actions[itemAction];
+
+        for(let id in this.actions) {
+            if (id.startsWith("item_")) {
+                tmc.ui.removeAction(this.actions[id]);
+                delete this.actions[id];
             }
         }
+
         const items = this.doPaginate(itemsArray, this.currentPage, this.pageSize);
         for (let item of items.items) {
             for (let action of this.listActions || []) {
