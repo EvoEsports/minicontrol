@@ -7,7 +7,7 @@ export default class Chat extends Plugin {
         try {
             await tmc.server.call("ChatEnableManualRouting", true, false) as boolean;
             this.enabled = true;
-            tmc.server.on("Trackmania.PlayerChat", this.onPlayerChat.bind(this));
+            tmc.server.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
         } catch (e: any) {
             this.enabled = false;      
             tmc.cli("ChatPlugin: ¤error¤ " + e.message);

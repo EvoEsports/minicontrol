@@ -16,7 +16,7 @@ export default class tmnf_coppers extends Plugin {
         tmc.addCommand("//coppers", this.coppers.bind(this), "Display coppers");
         tmc.addCommand("//pay", this.pay.bind(this), "Pay coppers");
         tmc.addCommand("//bill", this.bill.bind(this), "Bill coppers");
-        tmc.server.on("Trackmania.BillUpdated", this.onBillUpdated.bind(this));
+        tmc.server.addListener("Trackmania.BillUpdated", this.onBillUpdated, this);
     }
 
     async onUnload() {

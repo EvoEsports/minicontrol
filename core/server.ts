@@ -3,14 +3,16 @@
 import { GbxClient } from "./gbx";
 import EventEmitter from "events";
 
+
 /**
  * Server class
  */
-export default class Server extends EventEmitter {
+export default class Server {
     /**
      * GbxClient instance
      */
     gbx: GbxClient
+    events: EventEmitter = new EventEmitter();
     /** 
      * method overrides
      */
@@ -20,8 +22,7 @@ export default class Server extends EventEmitter {
     path: any;
 
     constructor() {
-        super();
-        this.setMaxListeners(50);
+        this.events.setMaxListeners(50);
         this.gbx = new GbxClient(this);
     }
 
@@ -37,7 +38,7 @@ export default class Server extends EventEmitter {
                 tmc.cli("¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!");
                 process.exit(1);
             } else if (data[0] == "MiniControl" && data[1] == tmc.startTime) {
-                this.emit("TMC.Start");
+                this.events.emit("TMC.Start");
                 await tmc.afterStart();
             }
         }
@@ -54,36 +55,36 @@ export default class Server extends EventEmitter {
             // convert waypoints to checkpoints
             if (outmethod == "Trackmania.Event.WayPoint") {
                 if (params.isendrace) {        
-                    this.emit("TMC.PlayerFinish", [params.login, params.racetime, params]);
+                    this.events.emit("TMC.PlayerFinish", [params.login, params.racetime, params]);
                     return;
                 } else {
-                    this.emit("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace, params]);
+                    this.events.emit("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace, params]);
                     return;
                 }
             }
             if (outmethod == "Trackmania.Event.GiveUp") {
-                this.emit("TMC.PlayerGiveup");
+                this.events.emit("TMC.PlayerGiveup");
                 return;
             }
             if (process.env.DEBUG == "true") {
                 console.log(outmethod, params);
             }
 
-            this.emit(outmethod, params);
+            this.events.emit(outmethod, params);
             return;
         }
 
         switch (method) {
             case "Trackmania.PlayerCheckpoint": {
-                this.emit("TMC.PlayerCheckpoint", [data[1], data[2], data[4]]);
+                this.events.emit("TMC.PlayerCheckpoint", [data[1], data[2], data[4]]);
                 return;
             }
             case "Trackmania.PlayerFinish": {
                 if (data[2] < 1) {
-                    this.emit("TMC.PlayerGiveup");
+                    this.events.emit("TMC.PlayerGiveup");
                     return;
                 }
-                this.emit("TMC.PlayerFinish", [data[1], data[2]]);
+                this.events.emit("TMC.PlayerFinish", [data[1], data[2]]);
                 return;
             }
         }
@@ -91,7 +92,7 @@ export default class Server extends EventEmitter {
             console.log(method, data);
         }
 
-        this.emit(method, data);
+        this.events.emit(method, data);
     }
 
     /**
@@ -132,6 +133,20 @@ export default class Server extends EventEmitter {
      */
     async removeOverride(method: string) {
         delete this.methodOverrides[method];
+    }
+
+    addListener(method: string, callback: any, obj: object) {
+        const wrapper = callback.bind(obj);
+        wrapper.listener = callback;
+        this.events.on(method, wrapper);
+    }
+
+    removeListener(method: string, callback: any) {
+        this.events.removeListener(method, callback);
+    }
+
+    emit(method: string, ...args: any) {
+        this.events.emit(method, ...args);
     }
 
     /**

@@ -29,8 +29,8 @@ To make everything working with all generations of the games, some things had to
 Callbacks starting with: `TrackMania.` and  `ManiaPlanet.` are all renamed to start with `Trackmania.`
 Checkpoints and Finish event has custom ones:
 ```ts
-tmc.server.on("Trackmania.*", this.callback.bind(this)); // for generic ones
-tmc.server.on("TMC.PlayerCheckpoint", this.checkpoint.bind(this));
-tmc.server.on("TMC.PlayerFinish", this.finish.bind(this));
-tmc.server.on("TMC.PlayerGiveup", this.giveup.bind(this));
+tmc.server.addListener("Trackmania.*", this.callback, this); // for generic ones
+tmc.server.addListener("TMC.PlayerCheckpoint", this.checkpoint, this);
+tmc.server.addListener("TMC.PlayerFinish", this.finish, this);
+tmc.server.addListener("TMC.PlayerGiveup", this.giveup, this);
 ```

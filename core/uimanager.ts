@@ -1,5 +1,4 @@
 import Twig from 'twig';
-import { colors } from './utils';
 import type Manialink from './ui/manialink';
 import Window from './ui/window';
 
@@ -47,6 +46,11 @@ export default class UiManager {
         return this.manialinkUUID.toString();
     }
 
+    /**
+     * hash string
+     * @param str 
+     * @returns 
+     */
     hash(str: string): number {
         let hash = 0;
         if (str.length == 0) return hash;
@@ -98,11 +102,9 @@ export default class UiManager {
         if (tmc.game.Name == "TmForever") {
             tmc.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
         }
-        tmc.server.on("Trackmania.PlayerManialinkPageAnswer", (data) => this.onManialinkAnswer(data));
-        tmc.server.on("Trackmania.PlayerConnect", (data) => this.onPlayerConnect(data));
-        tmc.server.on("Trackmania.PlayerDisconnect", (data) => this.onPlayerDisconnect(data));
-
-
+        tmc.server.addListener("Trackmania.PlayerManialinkPageAnswer", this.onManialinkAnswer, this);
+        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
     }
     /** @ignore */
     private async onManialinkAnswer(data: any) {
@@ -134,7 +136,7 @@ export default class UiManager {
     private async onPlayerDisconnect(data: any) {
         const login = data[0];
         for (const id in this.playerManialinks[login]) {
-            await this.playerManialinks[login.toString()][id.toString()].destroy();            
+            await this.playerManialinks[login.toString()][id.toString()].destroy();
         }
     }
 

@@ -121,7 +121,7 @@ export default class CommandManager {
      * @ignore
      */
     async afterInit() {
-        tmc.server.on("Trackmania.PlayerChat", this.onPlayerChat.bind(this));
+        tmc.server.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
     }
 
 

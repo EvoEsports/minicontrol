@@ -25,7 +25,7 @@ export default class Maps extends Plugin {
         tmc.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");
         tmc.addCommand("/drop", this.cmdDrop.bind(this), "Drop Map from queue");
         tmc.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
-        tmc.server.on("Trackmania.EndRace", this.onEndRace.bind(this));
+        tmc.server.addListener("Trackmania.EndRace", this.onEndRace, this);
     }
 
     async onUnload() {

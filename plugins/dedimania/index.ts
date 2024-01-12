@@ -54,8 +54,8 @@ export default class Dedimania extends Plugin {
                     await this.updatePlayers();
                     this.intervalId = setInterval(async () => { await this.updatePlayers(); }, 180 * 1000);
                     this.getRecords(tmc.maps.currentMap);
-                    tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
-                    tmc.server.on("Trackmania.EndMap", this.onEndMap.bind(this));
+                    tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+                    tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
                 } else {
                     tmc.cli("¤error¤Dedimania: Failed to authenticate.");
                 }

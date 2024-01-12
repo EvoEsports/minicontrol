@@ -4,21 +4,21 @@ import { formatTime } from 'core/utils';
 
 export default class Announces extends Plugin {
     async onLoad() {
-        //   tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
-        tmc.server.on("Trackmania.PlayerConnect", this.onPlayerConnect.bind(this));
-        tmc.server.on("Trackmania.PlayerDisconnect", this.onPlayerDisconnect.bind(this));
-        tmc.server.on("Plugin.Records.onNewRecord", this.onNewRecord.bind(this));
-        tmc.server.on("Plugin.Records.onUpdateRecord", this.onUpdateRecord.bind(this));
-        tmc.server.on("Plugin.Records.onSync", this.onSyncRecord.bind(this));
+        //   tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
+        tmc.server.addListener("Plugin.Records.onNewRecord", this.onNewRecord, this);
+        tmc.server.addListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord, this);
+        tmc.server.addListener("Plugin.Records.onSync", this.onSyncRecord, this);
     }
 
     async onUnload() {
         // tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
-        tmc.server.removeListener("Trackmania.PlayerConnect", this.onPlayerConnect.bind(this));
-        tmc.server.removeListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect.bind(this));
-        tmc.server.removeListener("Plugin.Records.onNewRecord", this.onNewRecord.bind(this));
-        tmc.server.removeListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord.bind(this));
-        tmc.server.removeListener("Plugin.Records.onSync", this.onSyncRecord.bind(this));
+        tmc.server.removeListener("Trackmania.PlayerConnect", this.onPlayerConnect);
+        tmc.server.removeListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect);
+        tmc.server.removeListener("Plugin.Records.onNewRecord", this.onNewRecord);
+        tmc.server.removeListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord);
+        tmc.server.removeListener("Plugin.Records.onSync", this.onSyncRecord);
     }
 
     async onBeginMap(data: any) {
@@ -54,7 +54,7 @@ export default class Announces extends Plugin {
         const oldRecord = data.oldRecord;
         let extrainfo = "";
         if (oldRecord.rank) {
-            extrainfo = `(¤gray¤${formatTime(oldRecord.time)} #${oldRecord.rank}¤info¤)`;
+            extrainfo = `(¤gray¤${formatTime(newRecord.time - oldRecord.time).replace("0:", "")} #${oldRecord.rank}¤info¤)`;
         }
         let recipient = undefined;
         if (newRecord.rank > 15) {

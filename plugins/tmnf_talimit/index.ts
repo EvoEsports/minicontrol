@@ -34,8 +34,8 @@ export default class TAlimitPlugin extends Plugin {
         this.widget.pos = { x: 139, y: -40 };
         this.timeLimit = Number.parseInt(process.env.TALIMIT || "300");
         this.startTime = Date.now();
-        tmc.server.on("Trackmania.BeginRound", this.onBeginRound.bind(this));
-        tmc.server.on("Trackmania.EndRound", this.onEndRound.bind(this));
+        tmc.server.addListener("Trackmania.BeginRound", this.onBeginRound, this);
+        tmc.server.addListener("Trackmania.EndRound", this.onEndRound, this);
         const gamemode = await tmc.server.call("GetGameMode"); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
         if (gamemode === 1) {
             const limit = await tmc.server.call("GetTimeAttackLimit");

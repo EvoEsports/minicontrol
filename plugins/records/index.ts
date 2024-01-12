@@ -52,8 +52,8 @@ export default class Records extends Plugin {
         this.widget.pos = { x: 115, y: 60 };
         this.widget.size = { width: 45, height: 45 };
      //   this.widget.setOpenAction(this.widgetClick.bind(this));
-        tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
-        tmc.server.on("TMC.PlayerFinish", this.onPlayerFinish.bind(this));
+        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
     }
 
     async onUnload() {

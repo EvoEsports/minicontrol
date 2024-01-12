@@ -21,7 +21,7 @@ export default class MapWidget extends Plugin {
         this.widget.pos = { x: 115, y: 90 };
         this.widget.size = { width: 45, height: 14 };
         this.widget.setOpenAction(this.buttonClick.bind(this));
-        tmc.server.on("Trackmania.BeginMap", this.beginMap.bind(this));
+        tmc.server.addListener("Trackmania.BeginMap", this.beginMap, this);
         const info = tmc.maps.currentMap;
         this.nbCheckpoints = info?.NbCheckpoints || -1;
         await this.display([info]);

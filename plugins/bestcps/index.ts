@@ -16,8 +16,8 @@ export default class BestCps extends Plugin {
     widget: Widget | null = null;
 
     async onLoad() {
-        tmc.server.on("Trackmania.BeginMap", this.beginMap.bind(this));
-        tmc.server.on("TMC.PlayerCheckpoint", this.checkpoint.bind(this));
+        tmc.server.addListener("Trackmania.BeginMap", this.beginMap, this);
+        tmc.server.addListener("TMC.PlayerCheckpoint", this.checkpoint, this);
         this.widget = new Widget("plugins/bestcps/widget.twig");
         this.widget.pos = { x: -160, y: 90 };
         this.widget.size = { width: 240, height: 20 };

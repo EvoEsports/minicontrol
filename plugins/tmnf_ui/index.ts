@@ -6,7 +6,7 @@ export default class TmnfUiPlugin extends Plugin {
     depends: string[] = ["game:TmForever"];
 
     async onLoad() {
-        tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
+        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         this.sendMod();
     }
 

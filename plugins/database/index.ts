@@ -33,7 +33,7 @@ export default class SqliteDb extends Plugin {
 
         tmc.storage['sqlite'] = client;
         tmc.cli("¤success¤Database connected.");
-        tmc.server.on("Trackmania.PlayerConnect", this.onPlayerConnect.bind(this));
+        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
     }
 
     async onUnload() {

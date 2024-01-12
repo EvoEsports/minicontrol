@@ -51,7 +51,7 @@ export default class PlayerManager {
      * @ignore
      */
     async init() {
-        tmc.server.on("Trackmania.PlayerInfoChanged", this.onPlayerInfoChanged.bind(this));
+        tmc.server.addListener("Trackmania.PlayerInfoChanged", this.onPlayerInfoChanged, this);
         const players = await tmc.server.call('GetPlayerList', -1, 0);
         for (const data of players) {
             if (data.PlayerId === 0) continue;
@@ -73,7 +73,7 @@ export default class PlayerManager {
      * @ignore
      */
     afterInit() {
-        tmc.server.on("Trackmania.PlayerDisconnect", this.onPlayerDisconnect.bind(this));
+        tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
     }
 
     /**

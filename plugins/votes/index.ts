@@ -50,10 +50,10 @@ export default class VotesPlugin extends Plugin {
         this.widget.actions['yes'] = tmc.ui.addAction(this.vote.bind(this), true);
         this.widget.actions['no'] = tmc.ui.addAction(this.vote.bind(this), false);
         tmc.server.addOverride("CancelVote", this.overrideCancel.bind(this));
-        tmc.server.on("TMC.Vote.Cancel", this.onVoteCancel.bind(this));
-        tmc.server.on("TMC.Vote.Deny", this.onVoteDeny.bind(this));
-        tmc.server.on("TMC.Vote.Pass", this.onVotePass.bind(this));
-        tmc.server.on("Trackmania.EndMatch", this.cancelVote.bind(this));
+        tmc.server.addListener("TMC.Vote.Cancel", this.onVoteCancel, this);
+        tmc.server.addListener("TMC.Vote.Deny", this.onVoteDeny, this);
+        tmc.server.addListener("TMC.Vote.Pass", this.onVotePass, this);
+        tmc.server.addListener("Trackmania.EndMatch", this.cancelVote, this);
     }
 
     async onUnload() {
@@ -76,7 +76,7 @@ export default class VotesPlugin extends Plugin {
 
     async onInit() {
         tmc.debug("[Votes] onInit");
-        tmc.server.on("Trackmania.BeginMap", this.onBeginRound.bind(this));
+        tmc.server.addListener("Trackmania.BeginMap", this.onBeginRound, this);
         tmc.addCommand("//vote", this.cmdVotes.bind(this), "Start custom vote");
         tmc.addCommand("//pass", this.cmdPassVote.bind(this), "Pass vote");
         tmc.addCommand("/skip", this.cmdSkip.bind(this), "Start vote to Skip map");
