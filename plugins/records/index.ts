@@ -6,6 +6,7 @@ import { eq, asc, and } from "drizzle-orm";
 import { clone, escape, removeLinks } from "core/utils";
 import tm from 'tm-essentials';
 import Widget from 'core/ui/widget';
+import ListWindow from 'core/ui/listwindow';
 
 export class Record {
     login: string = "";
@@ -55,9 +56,10 @@ export default class Records extends Plugin {
         this.widget.title = "Records";
         this.widget.pos = { x: 115, y: 60 };
         this.widget.size = { width: 45, height: 45 };
-     //   this.widget.setOpenAction(this.widgetClick.bind(this));
+        this.widget.setOpenAction(this.widgetClick.bind(this));
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
+        tmc.chatCmd.addCommand("/records", this.cmdRecords.bind(this), "Display records");
     }
 
     async onUnload() {
@@ -66,6 +68,7 @@ export default class Records extends Plugin {
         this.widget = null;
         tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
         tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish.bind(this));
+        tmc.chatCmd.removeCommand("/records");
     }
 
     async onInit() {
@@ -81,7 +84,29 @@ export default class Records extends Plugin {
         this.currentMapUid = map.UId;
         this.syncRecords(map.UId);
     }
-
+   
+    async cmdRecords(login: string, args: string[]) {
+        let records = [];
+        for (let record of this.records) {
+            records.push(
+                {
+                    rank: record.rank,
+                    nickname: escape(record.nickname),
+                    time: "$o" + tm.Time.fromMilliseconds(record.time).toTmString().replace(/^0:/, ""),
+                });
+        }
+        const window = new ListWindow(login);
+        window.size = { width: 90, height: 100 };
+        window.title = "records";
+        window.setItems(records);
+        window.setColumns([
+            { key: "rank", title: "Rank", width: 10 },
+            { key: "nickname", title: "Nickname", width: 50 },
+            { key: "time", title: "Time", width: 20 },
+        ]);
+        await window.display();
+    }
+    
     async syncRecords(mapUuid: string) {
         if (!this.db) return;
         const scores: any = this.db.select().from(Score).leftJoin(Player, eq(Score.login, Player.login)).where(eq(Score.mapUuid, mapUuid)).orderBy(asc(Score.time), asc(Score.updated_at)).all();

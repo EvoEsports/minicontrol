@@ -15,7 +15,7 @@ export default class MapsWindow extends ListWindow {
                     GoldTime: formatTime(map.GoldTime)
                 })
             );
-        }
+        }        
         this.setItems(maps);
         super.uiPaginate(login, answer, entries);
     }

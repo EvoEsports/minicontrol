@@ -32,7 +32,7 @@ export default class Dedimania extends Plugin {
 
     async onLoad() {
         this.widget = new Widget("plugins/dedimania/widget.twig");
-        this.widget.title = "World Records";
+        this.widget.title = "Dedimania";
         this.widget.pos = { x: -160, y: 40 };
         this.widget.size = { width: 45, height: 45 };
         this.widget.setOpenAction(this.widgetClick.bind(this));
@@ -47,6 +47,7 @@ export default class Dedimania extends Plugin {
             this.enabled = false;
             return;
         }
+        
         try {
             const res = await this.authenticate();
             if (res == true) {

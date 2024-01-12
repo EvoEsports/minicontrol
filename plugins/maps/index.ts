@@ -114,9 +114,7 @@ export default class Maps extends Plugin {
 
 
     async cmdMaps(login: any, args: string[]) {
-        const window = new MapsWindow(login);
-        const maps = [];
-        window.title = "Maps (" + maps.length + ")";
+        const window = new MapsWindow(login);       
         window.size = { width: 180, height: 95 };
         window.setColumns([
             { key: "Index", title: "#", width: 4 },
@@ -125,7 +123,7 @@ export default class Maps extends Plugin {
             { key: "Environnement", title: "Environment", width: 25 },
             { key: "GoldTime", title: "Gold Time", width: 25 }
         ]);
-
+        window.title = "Maps (" + tmc.maps.getMapCount() + ")";
         window.setActions(["Juke"]);
         if (tmc.admins.includes(login)) {
             window.setActions(["Juke", "Trash"]);

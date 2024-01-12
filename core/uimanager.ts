@@ -79,7 +79,7 @@ export default class UiManager {
         return hash;
     }
     /**
-     * Add manialink action, increase manialink counter by one
+     * Add manialink action
      * @param callback 
      * @param data
      * @returns {str}
@@ -87,7 +87,7 @@ export default class UiManager {
     addAction(callback: CallableFunction, data: any): string {
         const getHash = (data: any) => {
             const salt = Math.random().toString(36).substring(2, 12);
-            return this.hash(salt + JSON.stringify(data));
+            return this.hash(salt) // + JSON.stringify(data));
         };
         let hash = getHash(data);
         if (this.actions[hash.toString()]) {
