@@ -162,7 +162,7 @@ export default class Records extends Plugin {
 
         if (lastIndex >= this.limit && ranking.BestTime >= lastRecord.time) return;
         const time = ranking.BestTime;
-        const oldRecord = clone(this.records.find(r => r.login === login) || {});
+        const oldRecord = this.records.find(r => r.login === login);
         if (oldRecord) {
             if (ranking.BestTime >= oldRecord.time) return;
             if (time < oldRecord.time) {
