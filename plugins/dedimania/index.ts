@@ -17,6 +17,7 @@ export interface DediRecord {
 }
 
 export default class Dedimania extends Plugin {
+    depends: string[] = ["game:TmForever"];
     enabled: boolean = false;
     maxRank: number = 30;
     api: Api = new Api();
@@ -30,50 +31,46 @@ export default class Dedimania extends Plugin {
     intervalId: NodeJS.Timeout | null = null;
 
     async onLoad() {
-        if (tmc.game.Name == "TmForever") {
-            this.widget = new Widget("plugins/dedimania/widget.twig");
-            this.widget.title = "World Records";
-            this.widget.pos = { x: -160, y: 40 };
-            this.widget.size = { width: 45, height: 45 };
-            this.widget.setOpenAction(this.widgetClick.bind(this));
+        this.widget = new Widget("plugins/dedimania/widget.twig");
+        this.widget.title = "World Records";
+        this.widget.pos = { x: -160, y: 40 };
+        this.widget.size = { width: 45, height: 45 };
+        this.widget.setOpenAction(this.widgetClick.bind(this));
 
-            tmc.debug("¤info¤Dedimania: TmForever detected, enabling plugin.");
-            tmc.addCommand("/dedirecords", this.cmdDediRecords.bind(this), "Show dedimania records");
+        tmc.debug("¤info¤Dedimania: TmForever detected, enabling plugin.");
+        tmc.addCommand("/dedirecords", this.cmdDediRecords.bind(this), "Show dedimania records");
 
-            this.serverInfo = await tmc.server.call("GetMainServerPlayerInfo");
-            this.serverLogin = this.serverInfo.Login;
-            const pass = process.env.DEDIMANIA_PASS || "";
-            if (pass == "") {
-                this.enabled = false;
-                return;
+        this.serverInfo = await tmc.server.call("GetMainServerPlayerInfo");
+        this.serverLogin = this.serverInfo.Login;
+        const pass = process.env.DEDIMANIA_PASS || "";
+        if (pass == "") {
+            this.enabled = false;
+            return;
+        }
+        try {
+            const res = await this.authenticate();
+            if (res == true) {
+                tmc.cli("¤info¤Dedimania: Authenticated.");
+                await this.updatePlayers();
+                this.intervalId = setInterval(async () => { await this.updatePlayers(); }, 180 * 1000);
+                this.getRecords(tmc.maps.currentMap);
+                tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+                tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
+            } else {
+                tmc.cli("¤error¤Dedimania: Failed to authenticate.");
             }
-            try {
-                const res = await this.authenticate();
-                if (res == true) {
-                    tmc.cli("¤info¤Dedimania: Authenticated.");
-                    await this.updatePlayers();
-                    this.intervalId = setInterval(async () => { await this.updatePlayers(); }, 180 * 1000);
-                    this.getRecords(tmc.maps.currentMap);
-                    tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-                    tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
-                } else {
-                    tmc.cli("¤error¤Dedimania: Failed to authenticate.");
-                }
-            } catch (e: any) {
-                tmc.cli(e);
-            }
+        } catch (e: any) {
+            tmc.cli(e);
         }
     }
 
     async onUnload() {
-        if (tmc.game.Name == "TmForever") {
-            clearInterval(this.intervalId!);
-            tmc.removeCommand("/dedirecords");
-            this.widget?.destroy();
-            this.widget = null;
-            tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
-            tmc.server.removeListener("Trackmania.EndMap", this.onEndMap.bind(this));
-        }
+        clearInterval(this.intervalId!);
+        tmc.removeCommand("/dedirecords");
+        this.widget?.destroy();
+        this.widget = null;
+        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
+        tmc.server.removeListener("Trackmania.EndMap", this.onEndMap.bind(this));
     }
 
     async cmdDediRecords(login: string, args: string[]) {

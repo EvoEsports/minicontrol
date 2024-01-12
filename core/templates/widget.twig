@@ -3,7 +3,7 @@
         {% if title != "" %}
             <frame pos="0 0" z-index="1">
             <label pos="{{size.width / 2}} -2" z-index="1" size="{{size.width}} 4" textsize="1.5" text="$o{{title}}" textcolor="{{colors.title_fg}}" halign="center" valign="center2"/>
-            <quad pos="0 -2" z-index="0" size="{{size.width}} 4" bgcolor="{{colors.title_bg}}a" valign="center"/>
+            <quad pos="0 -2" z-index="0" size="{{size.width}} 4" bgcolor="{{colors.title_bg}}e" valign="center"/>
         </frame>
         <frame pos="0 -4" z-index="1">
         {% else %}
@@ -12,7 +12,7 @@
             {% block content %}{% endblock %}
           
         {% if title != "" %}
-            <quad pos="0 0" z-index="-2" size="{{size.width}} {{size.height}}" bgcolor="{{colors.bg}}a" action="{{actions['openWidget']}}"/>
+            <quad pos="0 0" z-index="-2" size="{{size.width}} {{size.height}}" bgcolor="{{colors.bg}}9" action="{{actions['openWidget']}}"/>           
         {% endif %}
         </frame>       
     </frame>

@@ -312,6 +312,7 @@ export default class MiniControl {
         tmc.cli("¤success¤MiniControl started successfully.");
         this.players.afterInit();
         this.chatCmd.afterInit();
+        this.ui.afterInit();
         this.cli(`¤white¤Welcome to ${controllerStr} v${this.version}!`);
         this.chat(`Welcome to ${controllerStr} ¤info¤version $fff$n${this.version}$m¤info¤!`);
         this.startComplete = true;

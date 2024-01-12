@@ -2,10 +2,30 @@
 
 {% block content %}
 	{% for item in data.records %}
-		<label pos="1 -{{ (1 + loop.index0 * 4) }}" z-index="1" size="30 4" textcolor="fff" textsize="1" text="{{item.rank}} {{ item.nickname }}" valign="top"/>
-		<label pos="34 -{{ (1 + loop.index0 * 4) }}" z-index="1" size="14 4" textcolor="fff" textsize="1" text="{{ item.time }}" valign="top"/>		
-		{% if loop.index == 10 %}
-			<quad pos="0 -{{ 2 + (loop.index0 * 4) }}" z-index="2" size="46 0.3" bgcolor="fffa" valign="center"/>
-		{% endif %}
+		<frame pos="0 -{{ loop.index0 * 4 }}" z-index="1">
+            <label pos="2.5 -2" z-index="1" size="5 3.5" text="$n$o{{ item.rank }}" textcolor="{{colors.title_fg}}" halign="center" textsize="1" valign="center2"/>
+            {% if loop.index == 1 %}
+                <quad pos="2.5 -2" z-index="0" size="5 3.5" bgcolor="db0e" valign="center" halign="center"/>
+            {% endif %}
+            {% if loop.index == 2 %}
+                <quad pos="2.5 -2" z-index="0" size="5 3.5" bgcolor="aabe" valign="center" halign="center"/>
+            {% endif %}
+            {% if loop.index == 3 %}
+                <quad pos="2.5 -2" z-index="0" size="5 3.5" bgcolor="963e" valign="center" halign="center"/>
+            {% endif %}
+            {% if loop.index > 3 %}
+                <quad pos="2.5 -2" z-index="0" size="5 3.5" bgcolor="000e" valign="center" halign="center"/>
+            {% endif %}
+
+            <label pos="6.5 -2" z-index="1" size="28 3.5" text="{{ item.nickname }}" halign="left" textsize="1" valign="center2"/>
+            <quad pos="5.75 -2" z-index="0" size="28.5 3.5" bgcolor="0008" halign="left" valign="center" />
+
+            <label pos="40 -2" z-index="1" size="9 3.5" text="$n$o{{ item.time }}" halign="center" textsize="1" valign="center2"/>
+            <quad pos="40 -2" z-index="0" size="10 3.5" bgcolor="000e" valign="center" halign="center"/>
+
+            {% if loop.index == 11 %}
+                <quad pos="0 0" z-index="2" size="45 0.2" bgcolor="fff" valign="center"/>
+            {% endif %}
+        </frame>
 	{% endfor %}
 {% endblock %}

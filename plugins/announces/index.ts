@@ -54,7 +54,7 @@ export default class Announces extends Plugin {
         const oldRecord = data.oldRecord;
         let extrainfo = "";
         if (oldRecord.rank) {
-            extrainfo = `(¤gray¤${formatTime(newRecord.time - oldRecord.time).replace("0:", "")} #${oldRecord.rank}¤info¤)`;
+            extrainfo = `(¤gray¤$n${formatTime(newRecord.time - oldRecord.time).replace("0:", "")}$m¤info¤)`;
         }
         let recipient = undefined;
         if (newRecord.rank > 15) {

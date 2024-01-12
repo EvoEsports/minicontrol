@@ -10,6 +10,23 @@ export default class UiManager {
     private playerManialinks: any = {};
     private manialinkUUID: number = 0;
 
+    /**
+    * @ignore
+    */
+    async init() {
+        tmc.server.addListener("Trackmania.PlayerManialinkPageAnswer", this.onManialinkAnswer, this);
+        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
+    }
+    /**
+     *  @ignore
+     */
+    async afterInit() {
+        if (tmc.game.Name == "TmForever") {
+            tmc.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
+        }
+    }
+
     private convertLine(line: string): string {
         const matches = line.matchAll(/(pos|size)="([-.\d]+)\s+([-.\d]+)"/g);
         let out = line;
@@ -95,17 +112,7 @@ export default class UiManager {
         }
     }
 
-    /**
-    * @ignore
-    */
-    async init() {
-        if (tmc.game.Name == "TmForever") {
-            tmc.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
-        }
-        tmc.server.addListener("Trackmania.PlayerManialinkPageAnswer", this.onManialinkAnswer, this);
-        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
-        tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
-    }
+
     /** @ignore */
     private async onManialinkAnswer(data: any) {
         const login = data[1];
@@ -115,6 +122,7 @@ export default class UiManager {
             await this.actions[answer].callback(login, this.actions[answer].data, entries);
         }
     }
+
     /** @ignore */
     private async onPlayerConnect(data: any) {
         const login = data[0];
@@ -221,31 +229,11 @@ export default class UiManager {
         Bun.gc(true);
     }
 
-    /** @ignore */
-    private onHidePlayerManialink(id: string, login: string | string[]) {
-        let split: string[] = [];
-        if (typeof login === 'string') split = login.split(',');
-        for (let l of split) {
-            if (this.playerManialinks[l.toString()][id.toString()]) {
-                const xml = this.playerManialinks[l.toString()][id.toString()];
-                const matches = xml.matchAll(/action\s*=\s*"(.*?)"/g);
-                for (let match of matches) {
-                    this.removeAction(match[1]);
-                }
-                delete this.playerManialinks[l.toString()][id.toString()];
-                tmc.debug("¤info¤manialink removed: $fff" + id);
-            } else {
-                tmc.debug("¤error¤manialink not found: $fff" + id);
-            }
-        }
-    }
-
-
     /**      
      * @ignore
      * @returns {string} Returns the default ui for tmuf
      */
-    private getTmufCustomUi() {
+    getTmufCustomUi() {
         return `
         <manialinks><manialink id="-1"></manialink><custom_ui>
             <notice visible="false"/>            
