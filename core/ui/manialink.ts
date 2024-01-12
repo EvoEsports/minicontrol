@@ -1,37 +1,64 @@
+import Twig from 'twig';
+import { colors } from '../utils';
+import fs from 'fs';
+Twig.cache(false);
+
 export default class Manialink {
     id: string = tmc.ui.uuid();
     size: any = { width: 160, height: 90 };
     pos: any = { x: 0, y: 20, z: 1 };
-    baseTemplate: string = "";
+    template: string = "core/templates/manialink.twig";
     actions: { [key: string]: string } = {};
-    content: string = "";
-    login: string = "";
-    title: string = "Window";
-    
-    constructor(login: string = "") {
-        this.login = login;        
+    data: { [key: string]: any } = {};
+    recipient: string | undefined = undefined;
+    title: string = "";
+    private _firstDisplay: boolean = true;
+    _data: string = "";    
+
+    constructor(login: string | undefined = undefined) {
+        this.recipient = login
     }
-      
+
     async display() {
-        const xml = tmc.ui.render(this.baseTemplate, {
+        if (this._firstDisplay) {
+            this._firstDisplay = false;
+            await tmc.ui.displayManialink(this);
+        } else {
+            await tmc.ui.refreshManialink(this);
+        }
+    }
+
+    async hide() {
+        await tmc.ui.hideManialink(this);
+    }
+
+    async destroy() {
+        await tmc.ui.destroyManialink(this);
+    }
+
+    /**
+     * render manialink template
+     * @param options 
+     * @returns 
+     */
+    render(): string {
+        if (this._data == "") {
+            this._data = fs.readFileSync(import.meta.dir + "/../../" + this.template, 'utf-8');
+        }
+        const template = Twig.twig({
+            base: import.meta.dir + "/../../",
+            path: import.meta.dir + "/../../",
+            data: this._data,
+            async: false
+        });
+        return template.render({
             id: this.id,
             size: this.size,
-            content: this.content,
             pos: this.pos,
             actions: this.actions,
+            colors: colors,
+            data: this.data,
             title: this.title
         });
-        tmc.ui.display(xml, this.login);
     }
-
-    async hide(login: string, data: any) {
-        for (let actionId of Object.values(this.actions)) {
-            tmc.ui.removeAction(actionId);
-        }
-        this.actions = {};
-        tmc.ui.hide(this.id, this.login);
-    }
-
 }
-
-

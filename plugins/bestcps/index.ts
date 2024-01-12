@@ -1,6 +1,6 @@
-import fs from 'fs';
 import tm from 'tm-essentials';
 import Plugin from 'core/plugins';
+import Widget from 'core/ui/widget';
 
 interface Time {
     nickname: string;
@@ -13,15 +13,16 @@ export default class BestCps extends Plugin {
     bestTimes: Time[] = [];
     nbCheckpoints: number = -1;
     maxCp: number = 16;
-    template: string = "";
+    widget: Widget | null = null;
 
     async onLoad() {
-        this.id = tmc.ui.uuid();
-        this.template = fs.readFileSync(import.meta.dir + "/templates/widget.twig").toString('utf-8');                
         tmc.server.on("Trackmania.BeginMap", this.beginMap.bind(this));
         tmc.server.on("TMC.PlayerCheckpoint", this.checkpoint.bind(this));
+        this.widget = new Widget("plugins/bestcps/widget.twig");
+        this.widget.pos = { x: -160, y: 90 };
+        this.widget.size = { width: 240, height: 20 };
         const info = tmc.maps.currentMap;
-        this.nbCheckpoints = info?.NbCheckpoints||-1;
+        this.nbCheckpoints = info?.NbCheckpoints || -1;
         this.reset();
         await this.display();
     }
@@ -29,7 +30,8 @@ export default class BestCps extends Plugin {
     async onUnload() {
         tmc.server.removeListener("Trackmania.BeginMap", this.beginMap.bind(this));
         tmc.server.removeListener("TMC.PlayerCheckpoint", this.checkpoint.bind(this));
-        tmc.ui.hide(this.id);
+        this.widget?.destroy();
+        this.widget = null;
     }
 
     reset() {
@@ -49,7 +51,7 @@ export default class BestCps extends Plugin {
             this.bestTimes[nb] = { nickname: (await tmc.getPlayer(login)).nickname, time: time, prettyTime: tm.Time.fromMilliseconds(time).toTmString() };
             this.display();
         }
-       
+
     }
 
     async beginMap(data: any) {
@@ -59,10 +61,9 @@ export default class BestCps extends Plugin {
     }
 
     async display() {
-        const xml = tmc.ui.render(this.template, {
-            id: this.id,
+        this.widget?.setData({
             checkpoints: this.bestTimes
         });
-        tmc.ui.display(xml);
+        this.widget?.display();
     }
 }

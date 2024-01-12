@@ -1,8 +1,11 @@
 import Twig from 'twig';
-import fs from 'fs';
 import { colors } from './utils';
+import type Manialink from './ui/manialink';
+import Window from './ui/window';
 
-export default class UiManager {    
+Twig.cache(false);
+
+export default class UiManager {
     private actions: any = {};
     private publicManialinks: any = {};
     private playerManialinks: any = {};
@@ -62,8 +65,8 @@ export default class UiManager {
      */
     addAction(callback: CallableFunction, data: any): string {
         const getHash = (data: any) => {
-        const salt = Math.random().toString(36).substring(2, 12);
-        return this.hash(salt + JSON.stringify(data));
+            const salt = Math.random().toString(36).substring(2, 12);
+            return this.hash(salt + JSON.stringify(data));
         };
         let hash = getHash(data);
         if (this.actions[hash.toString()]) {
@@ -115,8 +118,10 @@ export default class UiManager {
         const login = data[0];
 
         let multi = [];
-        for (let id in this.publicManialinks) {
-            multi.push(['SendDisplayManialinkPageToLogin', login, this.publicManialinks[id], 0, false]);
+        for (let manialink of Object.values(this.publicManialinks)) {
+            const render = (manialink as Manialink).render();
+            const xml = `<manialinks>${this.convert(render)}</manialinks>`;
+            multi.push(['SendDisplayManialinkPageToLogin', login, xml, 0, false]);
         }
         tmc.server.gbx.multicall(multi);
 
@@ -128,90 +133,90 @@ export default class UiManager {
     /** @ignore */
     private async onPlayerDisconnect(data: any) {
         const login = data[0];
-        for (const id in this.playerManialinks[login.toString()]) {
-            await this.hide(id, login);
+        for (const manialink of Object.values(this.playerManialinks[login.toString()])) {
+            await (manialink as Manialink).destroy();
         }
     }
 
     /**
-     * Get manialink template from file and render it
-     * @param file 
-     * @param options 
-     * @returns 
+     * Display manialink
+     * @param manialink 
      */
-    renderFile(file: string, options: object): string {
-        const template = Twig.twig({ data: fs.readFileSync(file).toString('utf-8') });
-
-        return template.render(Object.assign(options, { colors: colors }));
-    }
-
-    /**
-     * render manialink template
-     * @param xml 
-     * @param options 
-     * @returns 
-     */
-    render(xml: string, options: object): string {
-        const template = Twig.twig({ data: xml });
-        return template.render(Object.assign(options, { colors: colors }));
-    }
-
-
-    /**
-     * display a manialink
-     * @param manialink string xml
-     * @param login 
-     * @returns 
-     */
-    async display(manialink: string, login: string | string[] | undefined = undefined) {
-        const xml = `<manialinks>${this.convert(manialink)}</manialinks>`;
-        const id = xml.match(/<manialink id="(\d+)"/);
-        try {
-            if (login !== undefined) {
-                if (id) {
-                    if (typeof login == "string") login = login.split(",");
-                    for (let l of login) {
-                        if (!this.playerManialinks[l.toString()]) this.playerManialinks[l.toString()] = {};
-                        this.playerManialinks[l.toString()][id[1].toString()] = xml;
-                    }
+    async displayManialink(manialink: Manialink) {
+        if (manialink.recipient == undefined) {
+            if (!this.publicManialinks[manialink.id]) {
+                this.publicManialinks[manialink.id] = manialink;
+            }
+        } else {
+            if (this.playerManialinks[manialink.recipient] == undefined) this.playerManialinks[manialink.recipient] = {};
+            if (manialink instanceof Window) {
+                for (let id in this.playerManialinks[manialink.recipient]) {
+                    await (this.playerManialinks[manialink.recipient][id] as Window).destroy();
+                    delete this.playerManialinks[manialink.recipient][id];
                 }
-                tmc.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), xml, 0, false)
+            }
+            this.playerManialinks[manialink.recipient][manialink.id.toString()] = manialink;
+        }
+        const render = await manialink.render();
+        const xml = `<manialinks>${this.convert(render)}</manialinks>`;
+        if (manialink.recipient !== undefined) {
+            await tmc.server.call("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false,);
+        } else {
+            await tmc.server.call("SendDisplayManialinkPage", xml, 0, false);
+        }
+    }
+
+    /**
+     * Refresh manialink
+     * @param manialink 
+     */
+    async refreshManialink(manialink: Manialink) {
+        const render = await manialink.render();
+        const xml = `<manialinks>${this.convert(render)}</manialinks>`;
+        if (manialink.recipient !== undefined) {
+            tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false,);
+        } else {
+            tmc.server.send("SendDisplayManialinkPage", xml, 0, false);
+        }
+    }
+
+    /**
+     * Hide manialink
+     * @param manialink 
+     */
+    async hideManialink(manialink: Manialink) {
+        try {
+            tmc.debug("¤info¤hiding manialink: $fff" + manialink.id);
+            const xml = `<manialinks><manialink id="${manialink.id}"></manialink></manialinks>`;
+            if (manialink.recipient !== undefined) {
+                await tmc.server.call('SendDisplayManialinkPageToLogin', manialink.recipient, xml, 0, false);
                 return;
             }
-            if (id) {                
-                this.publicManialinks[id[1].toString()] = xml;
-            } else {
-                const message = "¤error¤manialink id not found!, remember to call ¤white¤tmc.ui.uuid()¤error¤ and assign the value for your manialink!";
-                tmc.cli(message);
-                tmc.chat(message);
-            }
-            tmc.server.send("SendDisplayManialinkPage", xml, 0, false);
+            await tmc.server.call("SendDisplayManialinkPage", xml, 0, false);
         } catch (e) {
             tmc.debug(e);
         }
     }
 
-    /**
-     * hide manialink
-     * @param id 
-     * @param login 
-     * @returns 
-     */
-    async hide(id: string, login: string | string[] | undefined = undefined) {
-        try {
-            const manialink = `<manialinks><manialink id="${id}"></manialink></manialinks>`;
-            if (login !== undefined) {
-                this.onHidePlayerManialink(id, login);
-                tmc.server.send('SendDisplayManialinkPageToLogin', typeof login === 'string' ? login : login.join(','), manialink, 0, false)
-                Bun.gc(true);
-                return;
-            }
-            delete this.publicManialinks[id.toString()];
-            tmc.server.send("SendDisplayManialinkPage", manialink, 0, false);
-            Bun.gc(true);
-        } catch (e) {
-            tmc.debug(e);
+    async destroyManialink(manialink: Manialink) {
+        tmc.debug("¤info¤destroying manialink: $fff" + manialink.id);
+        await this.hideManialink(manialink);
+        for (let id in manialink.actions) {
+            this.removeAction(manialink.actions[id]);
         }
+        manialink.data = [];
+        if (manialink.recipient !== undefined) {
+            if (this.playerManialinks[manialink.id]) {
+                delete this.publicManialinks[manialink.id];
+            }
+        } else {
+            for (let login in this.playerManialinks) {
+                if (this.playerManialinks[login][manialink.id]) {
+                    delete this.playerManialinks[login][manialink.id];
+                }
+            }
+        }
+        Bun.gc(true);
     }
 
     /** @ignore */
@@ -240,7 +245,7 @@ export default class UiManager {
      */
     private getTmufCustomUi() {
         return `
-        <custom_ui>
+        <manialinks><manialink id="-1"></manialink><custom_ui>
             <notice visible="false"/>            
             <challenge_info visible="false"/>
             <net_infos visible="true"/>
@@ -252,7 +257,7 @@ export default class UiManager {
             <speed_and_distance visible="false"/>
             <player_ranking visible="false"/>
             <global visible="true"/>
-        </custom_ui>`.replaceAll("\n", "");
+        </custom_ui></manialinks>`.replaceAll("\n", "");
     }
 
 }

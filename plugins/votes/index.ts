@@ -1,5 +1,6 @@
 import Plugin from 'core/plugins';
-import fs from 'fs';
+import Widget from 'core/ui/widget';
+import { formatTime } from 'core/utils';
 
 export class Vote {
     type: string;
@@ -32,9 +33,7 @@ export default class VotesPlugin extends Plugin {
     timeout: number = 30;
     ratio: number = process.env.VOTE_RATIO ? parseFloat(process.env.VOTE_RATIO) : 0.55;
     currentVote: Vote | null = null;
-    widgetId: string = tmc.ui.uuid();
-    widget: string = fs.readFileSync(import.meta.dir + "/templates/votes.twig", 'utf-8');
-    actions: { [key: string]: string } = {};
+    widget: Widget | null = null;
     origTimeLimit = Number.parseInt(process.env.TALIMIT || "300");
     newLimit = this.origTimeLimit;
     extendCounter = 1;
@@ -42,12 +41,14 @@ export default class VotesPlugin extends Plugin {
     constructor() {
         super();
         this.timeout = process.env.VOTE_TIMEOUT ? parseInt(process.env.VOTE_TIMEOUT) : 30;
-        this.actions['yes'] = tmc.ui.addAction(this.vote.bind(this), true);
-        this.actions['no'] = tmc.ui.addAction(this.vote.bind(this), false);
     }
 
     async onLoad() {
         tmc.debug("[Votes] onLoad");
+        this.widget = new Widget("plugins/votes/widget.twig");
+        this.widget.pos = { x: 0, y: 60 };
+        this.widget.actions['yes'] = tmc.ui.addAction(this.vote.bind(this), true);
+        this.widget.actions['no'] = tmc.ui.addAction(this.vote.bind(this), false);
         tmc.server.addOverride("CancelVote", this.overrideCancel.bind(this));
         tmc.server.on("TMC.Vote.Cancel", this.onVoteCancel.bind(this));
         tmc.server.on("TMC.Vote.Deny", this.onVoteDeny.bind(this));
@@ -61,18 +62,16 @@ export default class VotesPlugin extends Plugin {
         tmc.server.removeListener("TMC.Vote.Deny", this.onVoteDeny.bind(this));
         tmc.server.removeListener("TMC.Vote.Pass", this.onVotePass.bind(this));
         tmc.server.removeListener("Trackmania.EndMatch", this.cancelVote.bind(this));
-        for (const action in this.actions) {
-            tmc.ui.removeAction(this.actions[action]);
-        }
+        this.widget?.destroy();
+        this.widget = null;
         this.currentVote = null;
-        this.hideWidget();
         tmc.removeCommand("//vote");
         tmc.removeCommand("//pass");
         tmc.removeCommand("/skip");
         tmc.removeCommand("/extend");
         tmc.removeCommand("//extend");
         tmc.removeCommand("/yes");
-        tmc.removeCommand("/no");        
+        tmc.removeCommand("/no");
     }
 
     async onInit() {
@@ -222,29 +221,27 @@ export default class VotesPlugin extends Plugin {
 
     async showWidget() {
         if (!this.currentVote) {
-            tmc.ui.hide(this.widgetId);
+            this.widget?.hide();
             return;
         };
         const yes = Array.from(this.currentVote.votes.values()).filter((vote) => vote === true).length;
         const no = Array.from(this.currentVote.votes.values()).filter((vote) => vote === false).length;
         const total = yes + no;
         const percent = yes / total;
-        const manialink = tmc.ui.render(this.widget, {
-            id: this.widgetId,
+        this.widget?.setData({
             yes: yes,
             no: no,
             vote: this.currentVote,
             total: total,
             yes_ratio: percent,
-            actions: this.actions,
             time_percent: (this.currentVote.timeout - Date.now()) / (this.timeout * 1000),
-            time: (Date.now() - this.currentVote.timeout)
+            timer: formatTime(Math.abs(Date.now() - this.currentVote.timeout)).replace(/\.\d\d\d/, "")
         });
-        tmc.ui.display(manialink);
+        this.widget?.display();
     }
 
     hideWidget() {
-        tmc.ui.hide(this.widgetId);
+        this.widget?.hide();
     }
 
     cmdAdmExtend(login: string, params: string[]) {

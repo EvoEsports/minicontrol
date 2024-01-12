@@ -1,7 +1,6 @@
 import { castType } from "core/utils";
 import ModeSettingsWindow from "./ModeSettingsWindow";
 import Plugin from "core/plugins";
-import Tmx from "plugins/tmx";
 
 export default class AdminPlugin extends Plugin {
 
@@ -131,13 +130,19 @@ export default class AdminPlugin extends Plugin {
                 return await tmc.chat("¤cmd¤//jump ¤info¤needs numeric value");
             }
             try {
-                const index = Number.parseInt(params[0]) - 1;
-                const maps = tmc.maps.get();
-                if (maps[index]) {
-                    const map = maps[index];
+                let map: any = tmc.maps.currentMap;
+                if (params[0].toString().length < 5) {
+                    let index = Number.parseInt(params[0]) - 1;
+                    map = tmc.maps.getMaplist()[index];
+                } else {
+                    map = tmc.maps.getMaplist().find((m: any) => m.UId == params[0]);
+                }
+                if (map) {
                     await tmc.chat(`¤info¤Jumped to ¤white¤${map.Name}¤info¤ by ¤white¤${map.AuthorNickName ? map.AuthorNickName : map.Author}`);
-                    await tmc.server.call("SetNextMapIndex", index);
+                    await tmc.server.call("ChooseNextChallenge", map.FileName);
                     tmc.server.send("NextMap");
+                } else {
+                    tmc.chat("¤error¤Couldn't find map", login)
                 }
             } catch (err: any) {
                 await tmc.chat(err.message, login);
@@ -167,6 +172,7 @@ export default class AdminPlugin extends Plugin {
                     await tmc.chat(`¤error¤Couldn't read matchsettings from ¤white¤${file}`, login);
                     return;
                 }
+                await tmc.maps.syncMaplist();
                 await tmc.chat(`¤info¤Matchsettings read from ¤white¤${file}`, login);
             } catch (err: any) {
                 await tmc.chat(err.message, login);
@@ -182,6 +188,7 @@ export default class AdminPlugin extends Plugin {
                 }
                 await tmc.server.call("RemoveMapList", toserver);
                 tmc.server.send("AddMapList", toserver);
+                await tmc.maps.syncMaplist();
                 await tmc.chat(`¤info¤Maplist Shuffled.`);
             } catch (err: any) {
                 await tmc.chat("¤error¤" + err.message, login);
@@ -189,9 +196,13 @@ export default class AdminPlugin extends Plugin {
         }, "Shuffles maplist");
         tmc.addCommand("//remove", async (login: string, params: string[]) => {
             let map: any = tmc.maps.currentMap;
-            if (params[0]) {
-                let index = Number.parseInt(params[0]) - 1;
-                map = tmc.maps.getMaplist()[index];
+            if (params[0] != undefined) {
+                if (params[0].toString().length < 5) {
+                    let index = Number.parseInt(params[0]) - 1;
+                    map = tmc.maps.getMaplist()[index];
+                } else {
+                    map = tmc.maps.getMaplist().find((m: any) => m.UId == params[0]);
+                }
             }
 
             try {
@@ -200,6 +211,7 @@ export default class AdminPlugin extends Plugin {
                     return;
                 }
                 await tmc.server.call("RemoveMap", map.FileName);
+                tmc.maps.removeMap(map.UId);
                 await tmc.chat(`¤info¤Removed map ¤white¤${map.Name} ¤info¤from the playlist.`, login);
             } catch (err: any) {
                 await tmc.chat(err.message, login);

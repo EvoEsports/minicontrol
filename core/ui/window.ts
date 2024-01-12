@@ -4,19 +4,15 @@ import fs from 'fs';
 export default class Window extends Manialink {
 
     constructor(login: string) {
-        super(login);
-        this.baseTemplate = fs.readFileSync(import.meta.dir + "/templates/window.twig", 'utf-8');
+        super(login);            
         this.actions['close'] = tmc.ui.addAction(this.hide.bind(this), "");
     }
 
     /**
-     * closes the window
-     * @param login 
-     * @param data 
+     * closes the window     
      */
-    async hide(login: string, data: any) {
-        this.baseTemplate = "";
-        super.hide(login, data);
+    async hide() {        
+        super.destroy();
     }
 }
 

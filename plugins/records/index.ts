@@ -2,11 +2,10 @@ import { type BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 import Plugin from "core/plugins";
 import { Score } from "schemas/scores";
 import { Player } from "schemas/players";
-import { eq, asc, and, sql } from "drizzle-orm";
+import { eq, asc, and } from "drizzle-orm";
 import { clone, escape, removeLinks } from "core/utils";
 import tm from 'tm-essentials';
-import { colors } from "core/utils";
-import fs from "fs";
+import Widget from 'core/ui/widget';
 
 export class Record {
     login: string = "";
@@ -43,22 +42,24 @@ export default class Records extends Plugin {
     records: Record[] = [];
     currentMapUid: string = "";
     limit: number = 100;
-    widgetId: string = "";
-    widgetTemplate: string = "";
-    widgetAction: number = -1;
+    widget: Widget | null = null;
 
     async onLoad() {
         if (!tmc.storage['sqlite']) return;
         this.db = tmc.storage['sqlite'];
-        this.widgetId = tmc.ui.uuid();
-        this.widgetTemplate = fs.readFileSync(import.meta.dir + "/templates/widget.twig", "utf8");
-        // this.widgetAction = tmc.ui.addAction(this.widgetClick.bind(this));
+        this.widget = new Widget("plugins/records/widget.twig");
+        this.widget.title = "Records";
+        this.widget.pos = { x: 115, y: 60 };
+        this.widget.size = { width: 45, height: 45 };
+     //   this.widget.setOpenAction(this.widgetClick.bind(this));
         tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
         tmc.server.on("TMC.PlayerFinish", this.onPlayerFinish.bind(this));
     }
 
     async onUnload() {
         this.db = null;
+        this.widget?.destroy();
+        this.widget = null;
         tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
         tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish.bind(this));
     }
@@ -254,8 +255,14 @@ export default class Records extends Plugin {
                 }
             )
         }
-        const xml = tmc.ui.render(this.widgetTemplate, { records: outRecords, id: this.widgetId, colors: colors, action: this.widgetAction });
-        await tmc.ui.display(xml);
+
+        if (this.widget) {
+            this.widget.setData({
+                records: outRecords
+            });
+            this.widget.size = { width: 45, height: 4 * outRecords.length + 1 };
+            this.widget.display();
+        }
     }
 
     async widgetClick(login: string, data: any) {

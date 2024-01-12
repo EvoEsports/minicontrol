@@ -176,6 +176,7 @@ export class GbxClient {
     send(method: string, ...params: any) {
         if (!this.isConnected) { return undefined }
         try {
+            // tmc.debug(`$080send $fff>> $888${method}`);
             const xml = Serializer.serializeMethodCall(method, params);
             return this.query(xml, false);
         } catch (err: any) {

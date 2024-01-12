@@ -38,20 +38,28 @@ export default class Maps extends Plugin {
         tmc.removeCommand("/list");
     }
 
-    async cmdQueue(login: any, args: string[]) {
-        const index = args[0] ? parseInt(args[0]) : 0;
-        const map = tmc.maps.get()[index - 1];
+    async cmdQueue(login: any, params: string[]) {
+        let map: any = null;
+        if (params[0].toString().length < 5) {
+            let index = Number.parseInt(params[0]) - 1;
+            map = tmc.maps.getMaplist()[index];
+        } else {
+            map = tmc.maps.getMaplist().find((m: any) => m.UId == params[0]);
+        }
+        if (!map) {
+            tmc.chat("¤info¤map not found", login);
+            return;
+        }
         const player = await tmc.players.getPlayer(login);
         const previous = this.queue.find(m => m.QueueBy === login);
         if (previous && !player.isAdmin) {
             tmc.chat("¤info¤You already have a map in queue", login);
             return;
         }
-
-        if (map == undefined) {
-            tmc.chat("¤info¤map not found", login);
+        if (this.queue.find(m => m.UId === map.UId)) {
+            tmc.chat("¤info¤Map already in queue", login);
             return;
-        }
+        }   
         this.queue.push({
             UId: map.UId,
             File: map.FileName,
@@ -68,7 +76,7 @@ export default class Maps extends Plugin {
     async cmdDrop(login: any, args: string[]) {
         const player = await tmc.players.getPlayer(login);
         let index = 0;
-        let map:any = null;
+        let map: any = null;
         if (player.isAdmin && args.length > 0) {
             index = parseInt(args[0]) - 1;
             map = this.queue[index];
@@ -108,20 +116,8 @@ export default class Maps extends Plugin {
     async cmdMaps(login: any, args: string[]) {
         const window = new MapsWindow(login);
         const maps = [];
-        let i = 1;
-        for (const map of tmc.maps.get()) {
-            maps.push(
-                Object.assign(map, {
-                    Index: i++,
-                    Name: escape(map.Name),
-                    Author: map.AuthorNickname ? map.AuthorNickname : map.Author,
-                    GoldTime: tm.Time.fromMilliseconds(map.GoldTime).toTmString()
-                })
-            );
-        }
         window.title = "Maps (" + maps.length + ")";
         window.size = { width: 180, height: 95 };
-        window.setItems(maps);
         window.setColumns([
             { key: "Index", title: "#", width: 4 },
             { key: "Name", title: "Name", width: 50 },

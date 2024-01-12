@@ -8,7 +8,7 @@ export default class DedimaniaClient {
 
     keepAliveAgent = new http.Agent({
         keepAlive: true,
-        maxSockets: 1,
+        maxSockets: 1,       
     });
 
     async call(method: string, ...params: any[]) {
@@ -38,7 +38,7 @@ export default class DedimaniaClient {
             } catch (err) {
                 reject(err);
             }
-        });
+        });        
         return answer;
     }
 }

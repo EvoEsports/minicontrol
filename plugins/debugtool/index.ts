@@ -2,13 +2,15 @@ import { generateHeapSnapshot } from "bun";
 import { memInfo } from "core/utils";
 import Plugin from "core/plugins";
 import tm from 'tm-essentials';
+import Widget from 'core/ui/widget';
 
 export default class DebugTool extends Plugin {
-    id: string = "";
+    widget: Widget | null = null;
     intervalId: NodeJS.Timeout | null = null;
 
     async onLoad() {
-        this.id = tmc.ui.uuid();
+        this.widget = new Widget("plugins/debugtool/widget.twig");
+        this.widget.pos = { x: 159, y: -60 };
         if (process.env.DEBUG == "true") {
             tmc.addCommand("//heap", this.cmdHeap.bind(this), "Log heap memory usage");
         }
@@ -21,7 +23,8 @@ export default class DebugTool extends Plugin {
     async onUnload() {
         clearInterval(this.intervalId!);
         tmc.removeCommand("//heap");
-        tmc.ui.hide(this.id);
+        this.widget?.destroy();
+        this.widget = null;
     }
 
 
@@ -33,13 +36,12 @@ export default class DebugTool extends Plugin {
 
     async displayMemInfo() {
         const mem = memInfo();
-        const xml = `
-            <manialink id="${this.id}" version="3">
-                <label pos="159 -60" z-index="1" size="120 6" text="$s${mem}" textsize="1" halign="right" valign="center" />
-            </manialink>`;
 
         let start = Date.now() - Number.parseInt(tmc.startTime);
         tmc.cli("¤info¤Memory usage: " + mem + " ¤info¤uptime: $fff" + tm.Time.fromMilliseconds(start).toTmString().replace(/[.]\d{3}/, ""));
-        tmc.ui.display(xml);
+        if (this.widget) {
+            this.widget.setData({ mem: mem });
+            await this.widget.display();
+        }
     }
 }

@@ -1,0 +1,11 @@
+{% extends "core/templates/widget.twig" %}
+
+{% block content %}
+	{% for item in data.records %}
+		<label pos="1 -{{ (1 + loop.index0 * 4) }}" z-index="1" size="30 4" textcolor="fff" textsize="1" text="{{item.rank}} {{ item.nickname }}" valign="top"/>
+		<label pos="34 -{{ (1 + loop.index0 * 4) }}" z-index="1" size="14 4" textcolor="fff" textsize="1" text="{{ item.time }}" valign="top"/>		
+		{% if loop.index == 10 %}
+			<quad pos="0 -{{ 2 + (loop.index0 * 4) }}" z-index="2" size="46 0.3" bgcolor="fffa" valign="center"/>
+		{% endif %}
+	{% endfor %}
+{% endblock %}

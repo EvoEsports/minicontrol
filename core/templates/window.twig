@@ -4,7 +4,7 @@
         <label pos="{{size.width -5}} -3" z-index="2" size="7 6" halign="center" valign="center2" action="{{actions.close}}" text="$n$ox" focusareacolor1="{{colors.title_bg}}" focusareacolor2="d00"/>
         <quad pos="0 -3" size="{{size.width}} 6" valign="center" z-index="-1" bgcolor="{{colors.title_bg}}" opacity="1" />
         <frame pos="4 -8">
-        {{ content }}
+        {% block content %} {% endblock %}
         </frame>
         <quad pos="0 -6" z-index="-1" size="{{size.width}} {{size.height}}" bgcolor="{{colors.bg}}e"/>
     </frame>

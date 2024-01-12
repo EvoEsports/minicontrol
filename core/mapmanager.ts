@@ -1,4 +1,3 @@
-import Server from "./server";
 import { clone } from "./utils";
 
 export interface Map {
@@ -22,7 +21,6 @@ export interface Map {
 class MapManager {
     private maps: { [key: string]: Map; };
     currentMap?: Map;
-    currentmapIndex: number = 0;
 
     /**
      * @ignore
@@ -39,7 +37,7 @@ class MapManager {
     async init() {
         this.maps = {};
         tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
-        tmc.server.on("Trackmania.MapListModified", this.onMapListModified.bind(this));
+        // tmc.server.on("Trackmania.MapListModified", this.onMapListModified.bind(this));
         this.currentMap = await tmc.server.call("GetCurrentMapInfo");
         await this.syncMaplist();
     }
@@ -60,21 +58,16 @@ class MapManager {
     async syncMaplist() {
         this.maps = {};
         const serverMaps = await tmc.server.call("GetMapList", -1, 0);
-        let i = 0;
         for (const map of serverMaps) {
             this.maps[map.UId] = map;
-            if (map.UId === this.currentMap?.UId) {
-                this.currentmapIndex = i;
-            }
-            i += 1;
         }
     }
 
-    private addMap(map: Map) {
+    addMap(map: Map) {
         this.maps[map.UId] = map;
     }
 
-    private removeMap(mapUId: string) {
+    removeMap(mapUId: string) {
         if (this.maps[mapUId]) {
             delete this.maps[mapUId];
         }

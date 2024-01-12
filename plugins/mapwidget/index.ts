@@ -1,7 +1,7 @@
 import tm from 'tm-essentials';
-import fs from 'fs';
 import { escape } from 'core/utils';
 import Plugin from 'core/plugins';
+import Widget from 'core/ui/widget';
 
 interface Time {
     login: string;
@@ -12,13 +12,15 @@ export default class MapWidget extends Plugin {
     id: string = "";
     bestTimes: Time[] = [];
     nbCheckpoints: number = -1;
-    action: string ="";
-    template = "";
+    widget: Widget | null = null;
 
     async onLoad() {
         this.id = tmc.ui.uuid();
-        this.action = tmc.ui.addAction(this.buttonClick.bind(this), null);
-        this.template = fs.readFileSync(import.meta.dir + "/templates/info.twig", "utf8").toString();
+        this.widget = new Widget("plugins/mapwidget/widget.twig");
+        this.widget.title ="Map Info";
+        this.widget.pos = { x: 115, y: 90 };
+        this.widget.size = { width: 45, height: 14 };
+        this.widget.setOpenAction(this.buttonClick.bind(this));
         tmc.server.on("Trackmania.BeginMap", this.beginMap.bind(this));
         const info = tmc.maps.currentMap;
         this.nbCheckpoints = info?.NbCheckpoints || -1;
@@ -26,9 +28,9 @@ export default class MapWidget extends Plugin {
     }
 
     async onUnload() {
-        tmc.ui.removeAction(this.action);
-        tmc.server.removeListener("Trackmania.BeginMap", this.beginMap.bind(this));        
-        tmc.ui.hide(this.id);
+        this.widget?.hide();
+        this.widget = null;
+        tmc.server.removeListener("Trackmania.BeginMap", this.beginMap.bind(this));
     }
 
     async beginMap(data: any) {
@@ -37,14 +39,12 @@ export default class MapWidget extends Plugin {
 
     async display(data: any) {
         data = data[0];
-        const file = tmc.ui.render(this.template, {
-            id: this.id,
-            action: this.action,
+        this.widget?.setData({
             author: data.AuthorNickname ? data.AuthorNickname : data.Author,
             mapname: escape(data.Name),
             authortime: tm.Time.fromMilliseconds(data.AuthorTime).toTmString()
         });
-        tmc.ui.display(file);
+        this.widget?.display();
     }
 
     async buttonClick(login: string, data: any) {

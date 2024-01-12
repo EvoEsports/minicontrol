@@ -1,28 +1,23 @@
 import Plugin from 'core/plugins';
-import fs from 'fs';
-import { colors } from 'core/utils';
+import Widget from 'core/ui/widget';
 
 export default class ToggleChat extends Plugin {
     depends: string[] = ["game:TmForever"];
     enabled: { [key: string]: boolean } = {};
-    manialinkId: string = "";
-    manialinkAction: string = "";
-    template: string = "";
+    widget: Widget | null = null;
 
     async onLoad() {
-        this.template = fs.readFileSync(import.meta.dir + "/templates/togglechat.twig", "utf8");
-        this.manialinkId = tmc.ui.uuid();
-        this.manialinkAction = tmc.ui.addAction(this.manialinkToggle.bind(this), "");
-        tmc.addCommand("/togglechat", this.cmdChat.bind(this), "Toggle chat visibility");
-        const manialink = tmc.ui.render(this.template, { id: this.manialinkId, action: this.manialinkAction, colors: colors });
-        tmc.ui.display(manialink);
+        this.widget = new Widget("plugins/togglechat/widget.twig");
+        this.widget.pos = { x: -154, y: -40 };
+        this.widget.size = { width: 12, height: 5 };
+        this.widget.setOpenAction(this.manialinkToggle.bind(this));        
+        await this.widget.display();
+        tmc.addCommand("/togglechat", this.cmdChat.bind(this), "Toggle chat visibility");        
     }
 
     async onUnload() {
-        tmc.ui.hide(this.manialinkId);
-        tmc.ui.removeAction(this.manialinkAction);
-        this.manialinkAction = "";
-        this.manialinkId = "";
+        this.widget?.destroy();
+        this.widget = null;                
         tmc.removeCommand("/togglechat");
     }
 
@@ -38,7 +33,8 @@ export default class ToggleChat extends Plugin {
         this.enabled[login] = visible;
         let status = visible ? "on" : "off";
         tmc.chat(`¤info¤Chat visibility: $fff${status}`, login);
-        tmc.ui.display(this.getTmnfManialink(visible), login);
+        const manialink = this.getTmnfManialink(visible);
+        await tmc.server.call("SendDisplayManialinkPageToLogin", login, manialink, 0, false);
     }
 
     manialinkToggle(login: string, params: string[]) {
@@ -49,7 +45,7 @@ export default class ToggleChat extends Plugin {
 
     getTmnfManialink(chatStatus: boolean): string {
         const chatStatusString = chatStatus ? "true" : "false";
-        return `<custom_ui><chat visible="${chatStatusString}"/></custom_ui>`;
+        return `<manialinks><custom_ui><chat visible="${chatStatusString}"/></custom_ui></manialinks>`;
     }
 
 }

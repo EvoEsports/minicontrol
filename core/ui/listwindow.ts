@@ -1,7 +1,4 @@
-import { isThisTypeNode } from "typescript";
-import { colors, paginate } from "../utils";
 import Window from "./window";
-import fs from 'fs';
 
 /**
  * Columns is a map of column names to column widths
@@ -13,28 +10,33 @@ interface Column {
     type?: string;
 };
 
+interface PaginationResult<T> {
+    currentPage: number;
+    totalPages: number;
+    pageSize: number;
+    totalItems: number;
+    items: T[];
+}
+
+
 export default class ListWindow extends Window {
     items: any = [];
+    template = "core/templates/list.twig";
     private pageSize: number = 20;
     private currentPage: number;
-    private template: string = fs.readFileSync(import.meta.dir + "/templates/list.twig", 'utf-8');
-    private paginate: { [key: string]: string } = {};
-    private tempActions: { [key: string]: string } = {};
-    private listActions: string[];
-    private columns: Column[] = [];
+    listActions: string[] = [];
 
     constructor(login: string) {
         super(login);
-        this.paginate['start'] = tmc.ui.addAction(this.uiPaginate.bind(this), "start");
-        this.paginate['prev'] = tmc.ui.addAction(this.uiPaginate.bind(this), "prev");
-        this.paginate['next'] = tmc.ui.addAction(this.uiPaginate.bind(this), "next");
-        this.paginate['end'] = tmc.ui.addAction(this.uiPaginate.bind(this), "end");
+        this.actions['pg_start'] = tmc.ui.addAction(this.uiPaginate.bind(this), "start");
+        this.actions['pg_prev'] = tmc.ui.addAction(this.uiPaginate.bind(this), "prev");
+        this.actions['pg_next'] = tmc.ui.addAction(this.uiPaginate.bind(this), "next");
+        this.actions['pg_end'] = tmc.ui.addAction(this.uiPaginate.bind(this), "end");
         this.currentPage = 0;
-        this.listActions = [];
     }
 
     setColumns(columns: Column[]): void {
-        this.columns = columns;
+        this.data['columns'] = columns;
     }
 
     setItems(items: any[]): void {
@@ -42,22 +44,41 @@ export default class ListWindow extends Window {
     }
 
     setActions(actions: string[]): void {
+        this.data['listActions'] = actions;
         this.listActions = actions;
     }
 
-    async hide(login: string, data: any): Promise<void> {
-        for (let action in this.paginate) {
-            tmc.ui.removeAction(this.paginate[action]);
-        }
-        for (let action in this.tempActions) {
-            tmc.ui.removeAction(this.tempActions[action]);
-        }
+    async hide(): Promise<void> {
         this.template = "";
-        this.columns = [];
         this.items = [];
-        this.listActions = [];
-        this.tempActions = {};
-        super.hide(login, data);
+        super.hide();
+    }
+    /**
+     * @param items
+     * @param pageNb
+     * @param pageSize 
+     * @returns { PaginationResult }
+     * 
+     * @example
+     * const myObjectList = ["1","2","3"]
+     * const currentPage = 0;
+     * const itemsPerPage = 15;
+     *
+     * const result = paginate(myObjectList, currentPage, itemsPerPage);
+     * console.log(result);
+     */
+    doPaginate<T>(items: T[], pageNb: number, pageSize: number): PaginationResult<T> {
+        const startIndex = pageNb * pageSize;
+        const endIndex = startIndex + pageSize;
+        const slicedItems = items.slice(startIndex, endIndex);
+
+        return {
+            currentPage: pageNb,
+            totalPages: Math.ceil(items.length / pageSize),
+            pageSize,
+            totalItems: items.length,
+            items: slicedItems,
+        };
     }
 
     uiPaginate(login: string, answer: any, entries: any): void {
@@ -80,29 +101,26 @@ export default class ListWindow extends Window {
             itemsArray.push(item);
             x++;
         }
-
-        const items = paginate(itemsArray, this.currentPage, this.pageSize);
+        for(let itemAction of Object.keys(this.actions)) {
+            if(itemAction.startsWith("item_")) {
+                tmc.ui.removeAction(itemAction);
+                delete this.actions[itemAction];
+            }
+        }
+        const items = this.doPaginate(itemsArray, this.currentPage, this.pageSize);
         for (let item of items.items) {
             for (let action of this.listActions || []) {
-                if (!this.tempActions[action + "_" + item.index]) {
-                    this.tempActions[action + "_" + item.index] = tmc.ui.addAction(this.uiAction.bind(this), [action, item]);
+                if (!this.actions["item_" + action + "_" + item.index]) {
+                    this.actions["item_" + action + "_" + item.index] = tmc.ui.addAction(this.uiAction.bind(this), [action, item]);
                 }
             }
         }
-        this.content = tmc.ui.render(this.template, { data: items, columns: this.columns, currentPage: this.currentPage, paginate: this.paginate, size: this.size, listActions: this.listActions, tempActions: this.tempActions, actions: this.actions, colors: colors });
-        /*let debug = this.content.split("\r\n");
-        let i = 1;
-        let out = "";
-        for (let line of debug) {
-            out += i++ + " " + line + "\n";
-        }
-        console.log(out); */
-
+        this.data['items'] = items;
         super.display();
     }
 
     async display() {
-        this.uiPaginate(this.login, "start", []);
+        this.uiPaginate("", "start", []);
         super.display();
     }
 
@@ -127,10 +145,15 @@ export default class ListWindow extends Window {
         // Override this
     }
 
+    /**
+     * override this
+     * @param login 
+     * @param answer 
+     * @param entries 
+     */
     onApply(login: string, answer: any, entries: any): void {
-        // Override this
+        // override this
     }
-
 
 }
 

@@ -5,6 +5,7 @@ import { colors, escape } from 'core/utils';
 import tm from 'tm-essentials';
 import ListWindow from 'core/ui/listwindow';
 import Plugin from 'core/plugins';
+import Widget from 'core/ui/widget';
 
 export interface DediRecord {
     Login: string;
@@ -24,15 +25,18 @@ export default class Dedimania extends Plugin {
     server: any = {};
     serverInfo: any = {};
     records: any = [];
-    widgetId: string = "";
-    widgetAction: string = tmc.ui.addAction(this.widgetClick.bind(this), null);
-    widgetTemplate: string = fs.readFileSync(import.meta.dir + "/templates/widget.twig", "utf8");
+    widget: Widget | null = null;
     sendRecords: boolean = false;
     intervalId: NodeJS.Timeout | null = null;
 
     async onLoad() {
         if (tmc.game.Name == "TmForever") {
-            this.widgetId = tmc.ui.uuid();
+            this.widget = new Widget("plugins/dedimania/widget.twig");
+            this.widget.title = "World Records";
+            this.widget.pos = { x: -160, y: 40 };
+            this.widget.size = { width: 45, height: 45 };
+            this.widget.setOpenAction(this.widgetClick.bind(this));
+
             tmc.debug("¤info¤Dedimania: TmForever detected, enabling plugin.");
             tmc.addCommand("/dedirecords", this.cmdDediRecords.bind(this), "Show dedimania records");
 
@@ -47,8 +51,8 @@ export default class Dedimania extends Plugin {
                 const res = await this.authenticate();
                 if (res == true) {
                     tmc.cli("¤info¤Dedimania: Authenticated.");
-                    await this.updatePlayers(); 
-                    this.intervalId = setInterval( async () => { await this.updatePlayers(); }, 180*1000);
+                    await this.updatePlayers();
+                    this.intervalId = setInterval(async () => { await this.updatePlayers(); }, 180 * 1000);
                     this.getRecords(tmc.maps.currentMap);
                     tmc.server.on("Trackmania.BeginMap", this.onBeginMap.bind(this));
                     tmc.server.on("Trackmania.EndMap", this.onEndMap.bind(this));
@@ -65,8 +69,8 @@ export default class Dedimania extends Plugin {
         if (tmc.game.Name == "TmForever") {
             clearInterval(this.intervalId!);
             tmc.removeCommand("/dedirecords");
-            tmc.ui.removeAction(this.widgetAction);
-            tmc.ui.hide(this.widgetId);
+            this.widget?.destroy();
+            this.widget = null;
             tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
             tmc.server.removeListener("Trackmania.EndMap", this.onEndMap.bind(this));
         }
@@ -79,7 +83,7 @@ export default class Dedimania extends Plugin {
                 {
                     rank: record.Rank,
                     nickname: escape(record.NickName),
-                    time: "$o"+tm.Time.fromMilliseconds(record.Best).toTmString().replace(/^0:/, ""),
+                    time: "$o" + tm.Time.fromMilliseconds(record.Best).toTmString().replace(/^0:/, ""),
                 });
         }
         const window = new ListWindow(login);
@@ -118,7 +122,7 @@ export default class Dedimania extends Plugin {
                 NextFiveUID: "",
             },
             this.getDedimaniaPlayers()
-        );       
+        );
         tmc.debug("¤info¤Dedimania: Updated players.");
     }
 
@@ -272,12 +276,18 @@ export default class Dedimania extends Plugin {
                 }
             )
         }
-        const xml = tmc.ui.render(this.widgetTemplate, { records: outRecords, id: this.widgetId, colors: colors, action: this.widgetAction });
-        await tmc.ui.display(xml);
+        if (this.widget) {
+            this.widget.setData({
+                records: outRecords
+            });
+            this.widget.size = { width: 45, height: 4 * outRecords.length + 1 };
+            await this.widget.display();
+        }
+
     }
 
     async widgetClick(login: string, data: any) {
         tmc.chatCmd.execute(login, "/dedirecords");
     }
-    
+
 }

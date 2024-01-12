@@ -1,6 +1,6 @@
-import fs from 'fs';
-import tm from 'tm-essentials';
+import Widget from 'core/ui/widget';
 import Plugin from 'core/plugins';
+import tm from 'tm-essentials';
 
 export default class TAlimitPlugin extends Plugin {
     depends: string[] = ["game:TmForever"];
@@ -8,8 +8,7 @@ export default class TAlimitPlugin extends Plugin {
     timeLimit: number = 0;
     active: boolean = false;
     extend: boolean = false;
-    widgetId: string = "";
-    widgetTemplate: string = fs.readFileSync(import.meta.dir + "/templates/widget.twig", "utf8");
+    widget: Widget | null = null;
     intervalId: NodeJS.Timeout | null = null;
 
     async onBeginRound() {
@@ -31,7 +30,8 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async onLoad() {
-        this.widgetId = tmc.ui.uuid();
+        this.widget = new Widget("plugins/tmnf_talimit/widget.twig");
+        this.widget.pos = { x: 139, y: -40 };
         this.timeLimit = Number.parseInt(process.env.TALIMIT || "300");
         this.startTime = Date.now();
         tmc.server.on("Trackmania.BeginRound", this.onBeginRound.bind(this));
@@ -47,7 +47,7 @@ export default class TAlimitPlugin extends Plugin {
             this.active = true;
         }
         tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
-        this.intervalId = setInterval( () => this.tick(), 1000);
+        this.intervalId = setInterval(() => this.tick(), 1000);
     }
 
     async onUnload() {
@@ -88,15 +88,16 @@ export default class TAlimitPlugin extends Plugin {
         if (timeLeft < 30) color = "$f00";
         let time = tm.Time.fromSeconds(timeLeft).toTmString(true).replace(/\.\d\d/, "");
 
-        const data = {
-            time: `${color}$s${time}`,
-            id: this.widgetId
-        };
-        const xml = tmc.ui.render(this.widgetTemplate, data);
-        tmc.ui.display(xml);
+        if (this.widget) {
+            this.widget.setData({
+                time: `${color}$s${time}`,
+            });
+            await this.widget.display();
+        }
+
     }
 
     async hideWidget() {
-        await tmc.ui.hide(this.widgetId);
+        await this.widget?.hide();
     }
 }
