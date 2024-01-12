@@ -45,10 +45,6 @@ export default class VotesPlugin extends Plugin {
 
     async onLoad() {
         tmc.debug("[Votes] onLoad");
-        this.widget = new Widget("plugins/votes/widget.twig");
-        this.widget.pos = { x: 0, y: 60 };
-        this.widget.actions['yes'] = tmc.ui.addAction(this.vote.bind(this), true);
-        this.widget.actions['no'] = tmc.ui.addAction(this.vote.bind(this), false);
         tmc.server.addOverride("CancelVote", this.overrideCancel.bind(this));
         tmc.server.addListener("TMC.Vote.Cancel", this.onVoteCancel, this);
         tmc.server.addListener("TMC.Vote.Deny", this.onVoteDeny, this);
@@ -152,6 +148,10 @@ export default class VotesPlugin extends Plugin {
         this.currentVote = new Vote(login, type, question, Date.now() + this.timeout * 1000);
         this.currentVote.vote_ratio = this.ratio;
         this.vote(login, true);
+        this.widget = new Widget("plugins/votes/widget.twig");
+        this.widget.pos = { x: 0, y: 60 };
+        this.widget.actions['yes'] = tmc.ui.addAction(this.vote.bind(this), true);
+        this.widget.actions['no'] = tmc.ui.addAction(this.vote.bind(this), false);
         this.checkVote();
     }
 
@@ -221,14 +221,16 @@ export default class VotesPlugin extends Plugin {
 
     async showWidget() {
         if (!this.currentVote) {
-            this.widget?.hide();
+            this.hideWidget();
             return;
         };
+        if (!this.widget) return;
         const yes = Array.from(this.currentVote.votes.values()).filter((vote) => vote === true).length;
         const no = Array.from(this.currentVote.votes.values()).filter((vote) => vote === false).length;
         const total = yes + no;
         const percent = yes / total;
-        this.widget?.setData({
+
+        this.widget.setData({
             yes: yes,
             no: no,
             vote: this.currentVote,
@@ -237,11 +239,12 @@ export default class VotesPlugin extends Plugin {
             time_percent: (this.currentVote.timeout - Date.now()) / (this.timeout * 1000),
             timer: formatTime(Math.abs(Date.now() - this.currentVote.timeout)).replace(/\.\d\d\d/, "")
         });
-        this.widget?.display();
+        this.widget.display();
     }
 
     hideWidget() {
-        this.widget?.hide();
+        this.widget?.destroy();
+        this.widget = null;
     }
 
     cmdAdmExtend(login: string, params: string[]) {

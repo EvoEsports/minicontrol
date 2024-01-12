@@ -220,9 +220,9 @@ export default class UiManager {
                 delete this.publicManialinks[manialink.id];
             }
         } else {
-            for (let login in this.playerManialinks) {
-                if (this.playerManialinks[login][manialink.id]) {
-                    delete this.playerManialinks[login][manialink.id];
+            for (let id in this.publicManialinks) {
+                if (id == manialink.id) {
+                    delete this.publicManialinks[id];
                 }
             }
         }
@@ -240,7 +240,7 @@ export default class UiManager {
             <challenge_info visible="false"/>
             <net_infos visible="true"/>
             <chat visible="true"/>
-            <checkpoint_list visible="false"/>            
+            <checkpoint_list visible="true"/>            
             <round_scores visible="true"/>                
             <scoretable visible="true"/>
             <multilap_infos visible="true"/>
