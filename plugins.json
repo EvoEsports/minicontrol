@@ -9,11 +9,12 @@
     "tmx",
     "announces",
     "tmnf_talimit",
+    "tmnf_coppers",
     "tmnf_ui",
     "dedimania", 
     "debugtool",
     "votes",
     "funcommands",
     "records",
-    "togglechat"
+    "togglechat"    
 ]
