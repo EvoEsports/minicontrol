@@ -136,7 +136,7 @@ export default class MiniControl {
                     const game = depend.split(":")[1];
                     if (game != this.game.Name) {
                         const msg = `¤gray¤Plugin $fd0${name}$fff not loaded. Game is not $fd0${game}$fff.`;
-                        this.cli(msg);                        
+                        this.cli(msg);
                         return;
                     }
                     continue;

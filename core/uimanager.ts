@@ -205,14 +205,14 @@ export default class UiManager {
         const render = await manialink.render();
         const xml = `<manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
-            await tmc.server.call("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false,);
+            await tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false,);
         } else {
             if (this.hiddenManialinks.length > 0) {
                 const logins = tmc.players.get().map((player) => player.login);
                 const recipients = logins.filter((login) => !this.hiddenManialinks.includes(login));
-                await tmc.server.call("SendDisplayManialinkPageToLogin", recipients.join(","), xml, 0, false,);
+                await tmc.server.send("SendDisplayManialinkPageToLogin", recipients.join(","), xml, 0, false,);
             } else {
-                await tmc.server.call("SendDisplayManialinkPage", xml, 0, false);
+                await tmc.server.send("SendDisplayManialinkPage", xml, 0, false);
             }
         }
     }
@@ -230,9 +230,9 @@ export default class UiManager {
             if (this.hiddenManialinks.length > 0) {
                 const logins = tmc.players.get().map((player) => player.login);
                 const recipients = logins.filter((login) => !this.hiddenManialinks.includes(login));
-                await tmc.server.call("SendDisplayManialinkPageToLogin", recipients.join(","), xml, 0, false);
+                await tmc.server.send("SendDisplayManialinkPageToLogin", recipients.join(","), xml, 0, false);
             } else {
-                await tmc.server.call("SendDisplayManialinkPage", xml, 0, false);
+                await tmc.server.send("SendDisplayManialinkPage", xml, 0, false);
             }
         }
     }
