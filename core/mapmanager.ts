@@ -62,11 +62,18 @@ class MapManager {
             this.maps[map.UId] = map;
         }
     }
-
+    /**
+     * add map
+     * @param map 
+     */
     addMap(map: Map) {
         this.maps[map.UId] = map;
     }
 
+    /**
+     * remove map
+     * @param mapUId 
+     */
     removeMap(mapUId: string) {
         if (this.maps[mapUId]) {
             delete this.maps[mapUId];

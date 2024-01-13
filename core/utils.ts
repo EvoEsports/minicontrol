@@ -89,6 +89,7 @@ export function removeColors(str: string): string {
 export function clone(obj: any): any {
     return JSON.parse(JSON.stringify(obj));
 }
+
 export function formatTime(time: number): string {
     return tm.Time.fromMilliseconds(time).toTmString().replace(/^0:/, "");
 }

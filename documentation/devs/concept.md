@@ -31,11 +31,11 @@ Core of the controller itself doesn't do much, rather provides a playground for 
 * `tmc.admins` list of admin logins
 * `tmc.version` contains the current iteration of the controller
 * `tmc.startTime` is the start timestamp of the controller, for uptime and detecting the most newly started controller instance
-* `tmc.server` [Server class](./server.md) 
-* `tmc.players` [PlayerManager class](./playermanager.md) 
-* `tmc.ui` [UiManager class](./uimanager.md)
-* `tmc.chatCmd` [ChatCommandManager class](./chatcmd.md)
-* `tmc.maps` [MapManager class](./maps.md)
+* `tmc.server` [Server class](./class/server.md) 
+* `tmc.players` [PlayerManager class](./class/playermanager.md) 
+* `tmc.ui` [UiManager class](./class/uimanager.md)
+* `tmc.chatCmd` [ChatCommandManager class](./class/chatcmd.md)
+* `tmc.maps` [MapManager class](./class/maps.md)
 * `tmc.plugins` object containing all the plugin instances
 * `tmc.game` struct containing gameinfos 
 * `tmc.mapsPath` string to map folder at os

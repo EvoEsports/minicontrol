@@ -79,7 +79,7 @@ export default class MiniControl {
     /**
      * Gets a player object from the player manager.
      * @param login The login of the player.
-     * @returns A promise that resolves to the player object.
+     * @returns A promise that resolves to the player object.     
      */
     async getPlayer(login: string): Promise<Player> {
         return await this.players.getPlayer(login);
@@ -89,7 +89,7 @@ export default class MiniControl {
      * Adds chat command
      * @param command The command name, should start with / for public or // for admin only
      * @param callback The callback function to execute when the command is triggered.
-     * @param help The help text for the command.
+     * @param help The help text for the command.     
      */
     addCommand(command: string, callback: CallableFunction, help: string = "") {
         this.chatCmd.addCommand(command, callback, help);
@@ -97,7 +97,7 @@ export default class MiniControl {
 
     /**
      *  Removes chat command
-     * @param command The command name to remove.
+     * @param command The command name to remove.     
      */
     removeCommand(command: string) {
         this.chatCmd.removeCommand(command);
