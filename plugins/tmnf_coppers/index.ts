@@ -16,6 +16,7 @@ export default class tmnf_coppers extends Plugin {
         tmc.addCommand("//coppers", this.coppers.bind(this), "Display coppers");
         tmc.addCommand("//pay", this.pay.bind(this), "Pay coppers");
         tmc.addCommand("//bill", this.bill.bind(this), "Bill coppers");
+        tmc.addCommand("/donate", this.donate.bind(this), "Donate coppers to the server")
         tmc.server.addListener("Trackmania.BillUpdated", this.onBillUpdated, this);
     }
 
@@ -38,23 +39,72 @@ export default class tmnf_coppers extends Plugin {
         const TransactionId = data[3];
 
         if (this.billStates[BillId]) {
+            let recipient, player;
             const bill = this.billStates[BillId];
-            if (StateName == "error") {
-
-            } else if (StateName == "Issued") {
-                tmc.chat(`¤info¤${bill.login} issued a bill of $fff${bill.amount} ¤info¤coppers to $fff${bill.recipient}`)
-
-            } else if (StateName == "Payed") {
-                delete this.billStates[BillId];
-                tmc.chat(`¤info¤${bill.recipient} paid bill of $fff${bill.amount} ¤info¤coppers`);
+            switch(bill.type) {
+                case "bill":
+                    recipient = await tmc.getPlayer(bill.recipient);
+                    player = await tmc.getPlayer(bill.login);
+                    if (StateName == "error") {
+                        // do nothing
+                    } else if (StateName == "Issued") {
+                        tmc.chat(`¤info¤${player.nickname}¤info¤ issued a bill of $fff${bill.amount} ¤info¤coppers to $fff${recipient.nickname}¤info¤.`)
+                    } else if (StateName == "Payed") {
+                        delete this.billStates[BillId];
+                        tmc.chat(`¤info¤${recipient.nickname}¤info¤ paid bill of $fff${bill.amount} ¤info¤coppers`);
+                    }
+                    else if (StateName == "Refused") {
+                        delete this.billStates[BillId];
+                        tmc.chat(`¤info¤${recipient.nickname} ¤info¤refused to pay the bill.`);
+                    } 
+                    else if (StateName == "ValidatingPayement") {
+                        // do nothing
+                    } else {
+                        tmc.chat(`Unknown StateName: $fff${StateName}`);
+                    }
+                    break;
+                case "pay":
+                    recipient = await tmc.getPlayer(bill.to);
+                    player = await tmc.getPlayer(bill.login);
+                    if (StateName == "error") {
+                        // do nothing
+                    } else if (StateName == "Issued") {
+                        // do nothing
+                    } else if (StateName == "Payed") {
+                        delete this.billStates[BillId];
+                        tmc.chat(`¤info¤${recipient.nickname}¤info¤ was paid out $fff${bill.amount} ¤info¤coppers by ${player.nickname}¤info¤.`);
+                    }
+                    else if (StateName == "Refused") {
+                        delete this.billStates[BillId];
+                    } 
+                    else if (StateName == "ValidatingPayement") {
+                        // do nothing
+                    } else {
+                        tmc.chat(`Unknown StateName: $fff${StateName}`);
+                    }
+                    break;
+                case "donate":
+                    player = await tmc.getPlayer(bill.login);
+                    if (StateName == "error") {
+                        // do nothing
+                    } else if (StateName == "Issued") {
+                        // do nothing
+                    } else if (StateName == "Payed") {
+                        delete this.billStates[BillId];
+                        tmc.chat(`¤info¤${player.nickname}¤info¤ donated $fff${bill.amount} ¤info¤coppers - thanks!`);
+                    }
+                    else if (StateName == "Refused") {
+                        delete this.billStates[BillId];
+                    } 
+                    else if (StateName == "ValidatingPayement") {
+                        // do nothing
+                    } else {
+                        tmc.chat(`Unknown StateName: $fff${StateName}`);
+                    }
+                    break;
+                default:
+                    break;
             }
-            else if (StateName == "Refused") {
-                delete this.billStates[BillId];
-                tmc.chat(`¤info¤${bill.recipient} ¤info¤refused to pay the bill.`);
-            } else {
-                tmc.chat(`Unknown StateName: $fff${StateName}`);
-            }
-
         } else {
             tmc.cli(`¤info¤Bill $fff${BillId} ¤info¤updated to $fff${StateName} ¤info¤with transaction id $fff${TransactionId}`);
         }
@@ -80,7 +130,7 @@ export default class tmnf_coppers extends Plugin {
         }
 
         const amount = Number.parseInt(params[1]);
-        const billId = await tmc.server.call("SendBill", params[0], amount, `Transfer ${amount} coppers to server?`, "");
+        const billId = await tmc.server.call("SendBill", params[0], amount, `You were billed ${amount} coppers by an admin. Do you want to pay this bill?`, "");
         this.billStates[billId] = {
             login: login,
             recipient: params[0],
@@ -90,8 +140,33 @@ export default class tmnf_coppers extends Plugin {
         };
     }
 
+    async donate(login: string, params: string[]) {
+        if(params.length < 1 || params.length > 1) {
+            tmc.chat("¤info¤Usage: ¤cmd¤/donate $fff<amount>", login);
+            return;
+        }
+        if(isNaN(Number.parseInt(params[0]))) {
+            tmc.chat("¤info¤Invalid amount specified", login);
+            return;
+        }
+
+        const amount = Number.parseInt(params[0]);
+        const billId = await tmc.server.call("SendBill", login, amount, `Donate ${amount} coppers to the server?`, "");
+        this.billStates[billId] = {
+            login: login,
+            recipient: params[0],
+            amount: amount,
+            to: tmc.server.login,
+            type: "donate"
+        };
+    }
+
     async pay(login: string, params: string[]) {
-        const player = await tmc.getPlayer(login);
+        if(params.length < 2 || params.length > 3) {
+            tmc.chat("¤info¤Usage: ¤cmd¤//pay $fff<login> <amount> <optional:label>", login);
+            return;
+        }
+
         if (!params[0]) {
             tmc.chat("¤info¤No login specified", login);
             return;
@@ -105,7 +180,8 @@ export default class tmnf_coppers extends Plugin {
             return;
         }
         const amount = Number.parseInt(params[1]);
-        const billId = await tmc.server.call("Pay", params[0], amount, "Coppers payment from " + tmc.server.name);
+        const label = params[2] ?? `$fffYou received a payment of ${amount} from ${tmc.server.name}`;
+        const billId = await tmc.server.call("Pay", params[0], amount, label);
         this.billStates[billId] = {
             login: login,
             recipient: tmc.server.login,

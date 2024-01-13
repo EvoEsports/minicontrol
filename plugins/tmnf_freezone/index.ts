@@ -52,7 +52,7 @@ export default class Freezone extends Plugin {
         }
         else {
             this.isConnected = true;
-            tmc.chat(`¤info¤Freezone: Connected to ManiaLive webservices.`)
+            tmc.cli("¤info¤Freezone: Authenticated.");
         }
 
         this.heartbeatInterval = setInterval(async (): Promise<void> => {
@@ -79,7 +79,7 @@ export default class Freezone extends Plugin {
             visibility: 0,
             classHash: encodeURI(this.mlHash)
         }
-        if (!tmc.server.name.toString().toLowerCase().includes('freezone')) {
+        if (!serverInfo.Name.toLowerCase().includes("freezone")) {
             data.serverName = ('Freezone|' + data.serverName).substring(0, 80);
         }
 
@@ -93,7 +93,8 @@ export default class Freezone extends Plugin {
                 'Content-Type': "application/json",
                 'Accept': "application/json",
                 'User-Agent': "ManiaLib Rest Client"
-            }
+            },
+            timeout: 10000,
         }
 
         return new Promise<true | Error>((resolve, reject): void => {
@@ -105,7 +106,6 @@ export default class Freezone extends Plugin {
                 let data: string = ''
                 res.on('data', (chunk): void => { data += chunk })
             })
-            tmc.cli(JSON.stringify(req) + " " + JSON.stringify(options) + " " + JSON.stringify(data));
             req.write(JSON.stringify(data))
             req.on('error', (): void => {
                 reject(new Error(`HTTP request error.`))
