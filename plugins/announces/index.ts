@@ -46,7 +46,7 @@ export default class Announces extends Plugin {
 
     async onNewRecord(data: any, records: Record[]) {
         const newRecord = data.record;
-        tmc.chat(`$fff${newRecord.nickname}¤info¤ has set a new $fff#1 ¤info¤server record ¤white¤${formatTime(newRecord.time)}¤info¤!`);
+        tmc.chat(`$fff${newRecord.nickname}¤info¤ has set a new $fff1. ¤info¤server record ¤white¤${formatTime(newRecord.time)}¤info¤!`);
     }
 
     async onUpdateRecord(data: any, records: Record[]) {
