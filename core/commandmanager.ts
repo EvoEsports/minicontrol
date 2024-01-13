@@ -42,10 +42,10 @@ export default class CommandManager {
         this.addCommand("/version", async (login: string) => {
             tmc.chat(`MiniController version: ${tmc.version}`, login);
         }, "Display server versions");
-
+        this.addCommand("//shutdown", async () => { process.exit() }, "Close MINIcontroller");
         this.addCommand("//plugin", async (login: string, args: string[]) => {
             if (args.length < 1) {
-                tmc.chat("Valid options are: list, load, unload", login);
+                tmc.chat("Valid options are: list, load, unload, reload", login);
                 return;
             }
             const action = args[0];

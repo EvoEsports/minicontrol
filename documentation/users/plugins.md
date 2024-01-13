@@ -7,6 +7,8 @@
 | `//plugin list`  | displays all plugins currently loaded runtime |
 | `//plugin load <name>`  | loads plugin to runtime |
 | `//plugin unload <name>`  | unloads plugin from runtime |
+| `//plugin reload <name>`  | reloads plugin |
+| `//shutdown`  | closes controller |
 | `/serverlogin`    | shows server login |
 | `/version` | show version numbers for titlepack, server and controller |
 
