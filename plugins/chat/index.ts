@@ -29,9 +29,9 @@ export default class Chat extends Plugin {
         if (data[0] == 0) return;
         if (data[2].startsWith("/")) return;
         const player = await tmc.getPlayer(data[1]);
-        const nick = player.nickname;
+        const nick = player.nickname.replaceAll(/\$[iwozs]/i, "");
         const text = data[2];
-        const msg = `$fff${nick}$z$s$ff0 ${text}`;
+        const msg = `$fff${nick}$z$s$fff »$ff0 ${text}`;
         tmc.server.send("ChatSendServerMessage", msg);
         tmc.cli(msg);
     }

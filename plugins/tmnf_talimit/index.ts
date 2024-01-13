@@ -41,7 +41,7 @@ export default class TAlimitPlugin extends Plugin {
             const limit = await tmc.server.call("GetTimeAttackLimit");
             if (limit.CurrentValue > 0) {
                 await tmc.server.send("SetTimeAttackLimit", 0);
-                await tmc.chat("TALimit: TimeAttackLimit was set, disabling it.");
+                await tmc.chat("¤info¤TALimit: TimeAttackLimit was set, disabling it.");
                 tmc.server.send("NextMap");
             }
             this.active = true;
@@ -59,6 +59,8 @@ export default class TAlimitPlugin extends Plugin {
         tmc.server.removeListener("Trackmania.EndRound", this.onEndRound.bind(this));
         this.active = false;
         await this.hideWidget();
+        await tmc.server.send("SetTimeAttackLimit", this.timeLimit*1000);
+        await tmc.chat("$fffTALimit: Native TimeLimit restored, skip map required to apply.");        
     }
 
     async tick() {

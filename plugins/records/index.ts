@@ -54,7 +54,7 @@ export default class Records extends Plugin {
         }
         this.widget = new Widget(widgetFile);
         this.widget.title = "Records";
-        this.widget.pos = { x: 115, y: 60 };
+        this.widget.pos = { x: 115, y: 30 };
         this.widget.size = { width: 45, height: 45 };
         this.widget.setOpenAction(this.widgetClick.bind(this));
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
