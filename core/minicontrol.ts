@@ -8,6 +8,7 @@ import { processColorString } from './utils';
 import log from './log';
 import fs from 'fs';
 import Plugin from './plugins';
+import path from 'path';
 
 const controllerStr = "$n$o$eeeMINI$o$z$s$abccontrol$z$s$fff";
 
@@ -127,8 +128,10 @@ export default class MiniControl {
             const pluginPath = this.findPlugin(name);
             if (pluginPath == null) {
                 const msg = `¤gray¤Plugin $fd0${name}$fff does not exist.`;
-                this.cli(msg);
-                this.chat(msg);
+                if (this.startComplete) {
+                    this.cli(msg);
+                    this.chat(msg);
+                }
                 return;
             }
             const plugin = await import("../" + pluginPath);
@@ -204,15 +207,15 @@ export default class MiniControl {
                 this.chat(msg);
                 return;
             }
+
             // unload        
             await this.plugins[unloadName].onUnload();
             delete this.plugins[unloadName];
-            const path = process.cwd() + pluginPath + "/index.ts";
-            if (require.cache[path]) {
-                delete require.cache[path];
-                // eslint-disable-next-line drizzle/enforce-delete-with-where
-                const answer = Loader.registry.delete(path);
-                if (!answer) this.cli(`$fffFailed to remove Loader cache for $fd0${unloadName}$fff, hotreload will not work right.`);
+            const file = path.resolve(process.cwd() + "/" + pluginPath + "/index.ts");
+            if (require.cache[file]) {
+                // eslint-disable-next-line drizzle/enforce-delete-with-where                
+                const answer = Loader.registry.delete(file);
+                delete require.cache[file];
             } else {
                 this.cli(`$fffFailed to remove require cache for $fd0${unloadName}$fff, hotreload will not work right.`);
             }

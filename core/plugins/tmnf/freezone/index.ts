@@ -53,11 +53,9 @@ export default class Freezone extends Plugin {
         else {
             this.isConnected = true;
             tmc.cli("¤info¤Freezone: Authenticated.");
+            this.heartbeatInterval = setInterval(async (): Promise<void> => { await this.sendHeartbeat() }, 3600000)
         }
-
-        this.heartbeatInterval = setInterval(async (): Promise<void> => {
-            await this.sendHeartbeat()
-        }, 3600000)
+        
     }
 
     onUnload = async () => {
