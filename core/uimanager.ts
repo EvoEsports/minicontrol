@@ -203,7 +203,8 @@ export default class UiManager {
             this.playerManialinks[manialink.recipient][manialink.id.toString()] = manialink;
         }
         const render = await manialink.render();
-        const xml = `<manialinks>${this.convert(render)}</manialinks>`;
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+        <manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
             await tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false,);
         } else {
@@ -223,7 +224,8 @@ export default class UiManager {
      */
     async refreshManialink(manialink: Manialink) {
         const render = await manialink.render();
-        const xml = `<manialinks>${this.convert(render)}</manialinks>`;
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+        <manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
             tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false,);
         } else {
@@ -244,7 +246,8 @@ export default class UiManager {
     async hideManialink(manialink: Manialink) {
         try {
             tmc.debug("¤info¤hiding manialink: $fff" + manialink.id);
-            const xml = `<manialinks><manialink id="${manialink.id}"></manialink></manialinks>`;
+            const xml = `<?xml version="1.0" encoding="UTF-8"?>
+            <manialinks><manialink id="${manialink.id}"></manialink></manialinks>`;
             if (manialink.recipient !== undefined) {
                 await tmc.server.call('SendDisplayManialinkPageToLogin', manialink.recipient, xml, 0, false);
                 return;

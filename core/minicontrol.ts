@@ -314,7 +314,7 @@ export default class MiniControl {
         this.chatCmd.beforeInit();
 
         // load plugins
-        let plugins = fs.readdirSync("./core/plugins", { withFileTypes: true });
+        let plugins = fs.readdirSync("./core/plugins", { withFileTypes: true, recursive: true });
         plugins = plugins.concat(fs.readdirSync("./userdata/plugins", { withFileTypes: true, recursive: true }));
         const exclude = process.env.EXCLUDED_PLUGINS?.split(",") || [];
         let loadList = [];

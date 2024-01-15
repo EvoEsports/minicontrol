@@ -13,7 +13,7 @@ export default class Manialink {
     recipient: string | undefined = undefined;
     title: string = "";
     private _firstDisplay: boolean = true;
-    _data: string = "";    
+    _data: string = "";
 
     constructor(login: string | undefined = undefined) {
         this.recipient = login
