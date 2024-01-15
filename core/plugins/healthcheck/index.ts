@@ -15,7 +15,6 @@ export default class HealthCheck extends Plugin {
                 },
                 data(socket: Socket, data: Buffer) {
                     const message = data.toString("utf-8").trim();
-                    console.log(message);
                     if (message == "ping") {
                         // sends 0 if the service is healthy, 1 if it's not
                         socket.end(tmc.startComplete ? "0" : "1");
