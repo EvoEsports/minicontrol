@@ -4,9 +4,9 @@ export default class PlayerWindow extends ListWindow {
 
     onAction(login: string, action: string, item: any): void {
         if (action == "Kick") {
-            tmc.chatCmd.execute(login, "//kick " + item.Login);
+            tmc.chatCmd.execute(login, "//kick " + item.login);
         } else if (action == "Ban") {
-            tmc.chatCmd.execute(login, "//ban " + item.Login);
+            tmc.chatCmd.execute(login, "//ban " + item.login);
         }
     }
 }
