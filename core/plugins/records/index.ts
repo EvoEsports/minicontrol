@@ -71,7 +71,7 @@ export default class Records extends Plugin {
         tmc.chatCmd.removeCommand("/records");
     }
 
-    async onInit() {
+    async onStart() {
         tmc.debug("[Records] onInit");
         if (!this.db) return;
         if (!tmc.maps.currentMap?.UId) return;

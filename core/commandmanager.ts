@@ -14,7 +14,7 @@ export interface ChatCommand {
  */
 export default class CommandManager {
     private commands: { [key: string]: ChatCommand } = {};
-    
+
     /**
      * Initialize the command manager
      * @ignore
@@ -68,16 +68,12 @@ export default class CommandManager {
                         tmc.chat(`Plugin $fd0${args[0]}$fff already loaded.`, login);
                         return;
                     }
-                    if (fs.existsSync(`./plugins/${plugin}/index.ts`)) {
-                        try {
-                            await tmc.loadPlugin(plugin);
-                        } catch (e: any) {
-                            const msg = `Plugin $fd0${plugin}$fff failed to load: ${e.message}`;
-                            tmc.chat(msg, login);
-                            tmc.cli(msg);
-                        }
-                    } else {
-                        tmc.chat(`Plugin $fd0${plugin}$fff not found.`, login);
+                    try {
+                        await tmc.loadPlugin(plugin);
+                    } catch (e: any) {
+                        const msg = `Plugin $fd0${plugin}$fff failed to load: ${e.message}`;
+                        tmc.chat(msg, login);
+                        tmc.cli(msg);
                     }
                     break;
                 }

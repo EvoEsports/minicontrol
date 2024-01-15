@@ -32,10 +32,26 @@ export default class Maps extends Plugin {
         tmc.server.removeListener("Trackmania.EndRace", this.onEndRace.bind(this));
         tmc.removeCommand("//cjb");
         tmc.removeCommand("/jb");
-        tmc.removeCommand("/queue");
+        tmc.removeCommand("/addqueue");
         tmc.removeCommand("/drop");
         tmc.removeCommand("/maps");
         tmc.removeCommand("/list");
+        tmc.storage["menu"]?.removeItem("Maps");
+    }
+
+    async onStart() {
+        if (tmc.storage["menu"]) {
+            tmc.storage["menu"].addItem({
+                category: "Maps",
+                title: "Map list",
+                action: "/maps"
+            });
+            tmc.storage["menu"].addItem({
+                category: "Maps",
+                title: "Map Queue",
+                action: "/jb"
+            });
+        }
     }
 
     async cmdQueue(login: any, params: string[]) {
@@ -146,7 +162,7 @@ export default class Maps extends Plugin {
                 })
             );
         }
-        window.title = "Maps (" + maps.length + ")";
+        window.title = "Map Queue (" + maps.length + ")";
         window.size = { width: 205, height: 95 };
         window.setItems(maps);
         window.setColumns([

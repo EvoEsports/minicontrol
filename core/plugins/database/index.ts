@@ -10,7 +10,7 @@ import Plugin from 'core/plugins';
 
 class SqliteLogger implements Logger {
     logQuery(query: string, params: unknown[]): void {
-        tmc.debug(`$d7c${query}` );
+        tmc.debug(`$d7c${query}`);
     }
 }
 
@@ -44,7 +44,7 @@ export default class SqliteDb extends Plugin {
         tmc.server.removeListener("Trackmania.PlayerConnect", this.onPlayerConnect.bind(this));
     }
 
-    async onInit() {
+    async onStart() {
         await this.syncplayers();
     }
 

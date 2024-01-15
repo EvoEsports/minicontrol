@@ -1,14 +1,27 @@
 import Plugin from "core/plugins";
 import PlayerWindow from "./PlayerWindow";
+import type { Menu } from "../menu";
+
 
 export default class Players extends Plugin {
 
     async onLoad() {
-        tmc.addCommand("/players", this.cmdPlayers.bind(this), "Show players");
+        tmc.addCommand("/players", this.cmdPlayers.bind(this), "Show players");      
     }
 
     async onUnload() {
-        tmc.removeCommand("/players");
+        tmc.removeCommand("/players");        
+        tmc.storage["menu"]?.removeItem("Players");
+    }
+
+    async onStart() {
+        if (tmc.storage["menu"]) {
+            tmc.storage["menu"].addItem({
+                category: "Home",
+                title: "Players",
+                action: "/players"        
+            });
+        }
     }
 
     async cmdPlayers(login: any, args: string[]) {

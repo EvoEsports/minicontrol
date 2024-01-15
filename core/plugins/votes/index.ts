@@ -70,7 +70,7 @@ export default class VotesPlugin extends Plugin {
         tmc.removeCommand("/no");
     }
 
-    async onInit() {
+    async onStart() {
         tmc.debug("[Votes] onInit");
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginRound, this);
         tmc.addCommand("//vote", this.cmdVotes.bind(this), "Start custom vote");

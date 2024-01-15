@@ -73,7 +73,7 @@ export default class UiManager {
     uuid(): string {
         this.manialinkUUID += 1;
         const prefix = tmc.game.Name == "TmForever" ? "" : "tmc";
-        tmc.debug("¤info¤new manialink uuid: ¤white¤" + prefix + this.manialinkUUID.toString());       
+        tmc.debug("¤info¤new manialink uuid: ¤white¤" + prefix + this.manialinkUUID.toString());
         return prefix + this.manialinkUUID.toString();
     }
 
@@ -103,7 +103,7 @@ export default class UiManager {
         const getHash = (data: any) => {
             const salt = Math.random().toString(36).substring(2, 12);
             return this.hash(salt) // + JSON.stringify(data));
-        };        
+        };
         let hash = getHash(data);
         if (this.actions[hash.toString()]) {
             tmc.debug("¤error¤action already exists: ¤white¤" + hash + "$fff trying again...");
@@ -199,8 +199,10 @@ export default class UiManager {
             if (this.playerManialinks[manialink.recipient] == undefined) this.playerManialinks[manialink.recipient] = {};
             if (manialink instanceof Window) {
                 for (let id in this.playerManialinks[manialink.recipient]) {
-                    await (this.playerManialinks[manialink.recipient][id] as Window).destroy();
-                    delete this.playerManialinks[manialink.recipient][id];
+                    if (this.playerManialinks[manialink.recipient][id] instanceof Window) {
+                        await (this.playerManialinks[manialink.recipient][id] as Window).destroy();
+                        delete this.playerManialinks[manialink.recipient][id];
+                    }
                 }
             }
             this.playerManialinks[manialink.recipient][manialink.id.toString()] = manialink;

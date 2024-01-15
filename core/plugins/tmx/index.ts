@@ -20,11 +20,7 @@ export default class Tmx extends Plugin {
             tmc.removeCommand("//tmuxpack");
         }
     }
-
-    async onInit() {
-
-    }
-
+    
     async addMapPackTmu(login: string, params: string[]) {
         const player = await tmc.getPlayer(login);
         if (!params[0]) {

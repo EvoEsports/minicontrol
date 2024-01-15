@@ -24,7 +24,7 @@ export default class MiniControl {
     /**
      * The version of MiniControl.
      */
-    readonly version: string = "2024-01-11";
+    readonly version: string = "0.1.0";
     /**
      * The start time of MiniControl.
      */
@@ -178,7 +178,7 @@ export default class MiniControl {
             await cls.onLoad();
             if (this.startComplete) {
                 this.chat(msg);
-                await cls.onInit();
+                await cls.onStart();
             }
         } else {
             const msg = `¤gray¤Plugin $fd0${name}$fff already loaded.`;
@@ -361,7 +361,7 @@ export default class MiniControl {
         this.chat(`Welcome to ${controllerStr} ¤info¤version $fff$n${this.version}$m¤info¤!`);
         this.startComplete = true;
         for (const plugin of Object.values(this.plugins)) {
-            await plugin.onInit();
+            await plugin.onStart();
         }
     }
 }

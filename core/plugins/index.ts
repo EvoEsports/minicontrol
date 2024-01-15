@@ -4,10 +4,12 @@ export default abstract class Plugin {
     onLoad(): Promise<void> {
         return Promise.resolve();
     }
+    
     onUnload(): Promise<void> {
         return Promise.resolve();
     }
-    onInit(): Promise<void> {
+
+    onStart(): Promise<void> {
         return Promise.resolve();
     }
 }
