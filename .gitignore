@@ -131,5 +131,8 @@ dist
 
 .env1
 .env2
-minicontrol
-local.sqlite
+
+userdata/local.sqlite
+userdata/plugins/*
+userdata/drizzle/*
+!userdata/plugins/.gitkeep

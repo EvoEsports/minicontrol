@@ -12,7 +12,7 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
-
+    
     /* Linting */
     "skipLibCheck": true,
     "strict": true,
@@ -22,7 +22,7 @@
     "baseUrl": "./",
     "paths": {        
         "core/*": ["./core/*"], 
-        "schemas/*": ["./schemas/*"],
-    },
+        "schemas/*": ["./schemas/*"]
+    }
   }
 }

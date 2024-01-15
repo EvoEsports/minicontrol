@@ -16,7 +16,7 @@ export default class MapWidget extends Plugin {
 
     async onLoad() {
         this.id = tmc.ui.uuid();
-        this.widget = new Widget("plugins/mapwidget/widget.twig");
+        this.widget = new Widget("core/plugins/mapwidget/widget.twig");
        // this.widget.title ="Map Info";
         this.widget.pos = { x: 158, y: 88 };
         this.widget.size = { width: 45, height: 14 };

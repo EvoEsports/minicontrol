@@ -17,14 +17,14 @@ class SqliteLogger implements Logger {
 export default class SqliteDb extends Plugin {
 
     async onLoad() {
-        const sqlite = new Database(process.cwd() + '/local.sqlite');
+        const sqlite = new Database(process.cwd() + '/userdata/local.sqlite');
         const client = drizzle(sqlite, {
             logger: new SqliteLogger()
         });
         console.log("Running Migrates...");
         try {
             migrate(client, {
-                migrationsFolder: "./drizzle"
+                migrationsFolder: "./userdata/drizzle"
             });
         } catch (e: any) {
             tmc.cli("¤error¤Error running migrations: $fff" + e.message);

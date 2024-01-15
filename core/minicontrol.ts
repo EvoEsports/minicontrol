@@ -1,13 +1,13 @@
-import PlayerManager, { Player } from './core/playermanager';
-import Server from './core/server';
-import UiManager from './core/uimanager';
-import MapManager from './core/mapmanager';
-import CommandManager from './core/commandmanager';
-import { type GameStruct } from './core/types';
-import { processColorString } from './core/utils';
-import log from './core/log';
+import PlayerManager, { Player } from './playermanager';
+import Server from './server';
+import UiManager from './uimanager';
+import MapManager from './mapmanager';
+import CommandManager from './commandmanager';
+import { type GameStruct } from './types';
+import { processColorString } from './utils';
+import log from './log';
 import fs from 'fs';
-import Plugin from './core/plugins';
+import Plugin from './plugins';
 
 const controllerStr = "$n$o$eeeMINI$o$z$s$abccontrol$z$s$fff";
 
@@ -103,6 +103,20 @@ export default class MiniControl {
         this.chatCmd.removeCommand(command);
     }
 
+    /**  
+    * @param name name of the plugin folder in ./plugins
+    * @returns 
+    */
+    findPlugin(name: string): string | null {
+        const dirsToCheck = ["./core/plugins/", "./userdata/plugins/"];
+        for (const dir of dirsToCheck) {
+            if (fs.existsSync(dir + name + "/index.ts")) {
+                return dir + name;
+            }
+        }
+        return null;
+    }
+
     /**
      * Loads a plugin to runtime
      * @param name name of the plugin folder in ./plugins
@@ -110,13 +124,14 @@ export default class MiniControl {
      */
     async loadPlugin(name: string) {
         if (!this.plugins[name]) {
-            if (fs.existsSync("./plugins/" + name + "/index.ts") == false) {
+            const pluginPath = this.findPlugin(name);
+            if (pluginPath == null) {
                 const msg = `¤gray¤Plugin $fd0${name}$fff does not exist.`;
                 this.cli(msg);
                 this.chat(msg);
                 return;
             }
-            const plugin = await import("./plugins/" + name);
+            const plugin = await import("../" + pluginPath);
 
             if (plugin.default == undefined) {
                 const msg = `¤gray¤Plugin $fd0${name}¤error¤ failed to load. Plugin has no default export.`;
@@ -182,18 +197,22 @@ export default class MiniControl {
                 this.chat(msg);
                 return;
             }
-            // unload
+            const pluginPath = this.findPlugin(unloadName);
+            if (pluginPath == null) {
+                const msg = `¤gray¤Plugin $fd0${unloadName}$fff does not exist.`;
+                this.cli(msg);
+                this.chat(msg);
+                return;
+            }
+            // unload        
             await this.plugins[unloadName].onUnload();
             delete this.plugins[unloadName];
-            const path = process.cwd() + "/plugins/" + unloadName + "/index.ts";
+            const path = process.cwd() + pluginPath + "/index.ts";
             if (require.cache[path]) {
                 delete require.cache[path];
-                try {
-                    // eslint-disable-next-line drizzle/enforce-delete-with-where
-                    Loader.registry.delete(path);
-                } catch (e: any) {
-                    this.cli(`$fffFailed to remove Loader cache for $fd0${unloadName}$fff, hotreload will not work right.`);
-                }
+                // eslint-disable-next-line drizzle/enforce-delete-with-where
+                const answer = Loader.registry.delete(path);
+                if (!answer) this.cli(`$fffFailed to remove Loader cache for $fd0${unloadName}$fff, hotreload will not work right.`);
             } else {
                 this.cli(`$fffFailed to remove require cache for $fd0${unloadName}$fff, hotreload will not work right.`);
             }
@@ -251,6 +270,7 @@ export default class MiniControl {
      * @ignore Should not be called directly
      */
     async run() {
+        if (this.startComplete) return;
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
         this.cli("¤info¤Starting MiniControl...");
         this.cli("¤info¤Connecting to Trackmania Dedicated server at $fff" + (process.env.XMLRPC_HOST) + ":" + port);
@@ -292,8 +312,29 @@ export default class MiniControl {
      */
     async beforeInit() {
         this.chatCmd.beforeInit();
-        const plugins = JSON.parse(await fs.readFileSync("plugins.json").toString());
-        for (const plugin of plugins) {
+
+        // load plugins
+        let plugins = fs.readdirSync("./core/plugins", { withFileTypes: true });
+        plugins = plugins.concat(fs.readdirSync("./userdata/plugins", { withFileTypes: true, recursive: true }));
+        const exclude = process.env.EXCLUDED_PLUGINS?.split(",") || [];
+        let loadList = [];
+        for (const i in plugins) {
+            let include = false;
+            const plugin = plugins[i];
+            if (plugin && plugin.isDirectory()) include = true; else include = false;
+            for (const ex of exclude) {
+                if (ex == "") continue;
+                if (plugin.name.startsWith(ex.trim())) {
+                    include = false;
+                    break;
+                }
+            }
+            if (include) {
+                loadList.push(plugin.name);
+            }
+        }
+        loadList = loadList.sort((a, b) => a.localeCompare(b));
+        for (const plugin of loadList) {
             try {
                 await tmc.loadPlugin(plugin);
             } catch (e: any) {

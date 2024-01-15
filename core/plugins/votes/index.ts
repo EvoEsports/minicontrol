@@ -148,7 +148,7 @@ export default class VotesPlugin extends Plugin {
         this.currentVote = new Vote(login, type, question, Date.now() + this.timeout * 1000);
         this.currentVote.vote_ratio = this.ratio;
         this.vote(login, true);
-        this.widget = new Widget("plugins/votes/widget.twig");
+        this.widget = new Widget("core/plugins/votes/widget.twig");
         this.widget.pos = { x: 0, y: 60 };
         this.widget.actions['yes'] = tmc.ui.addAction(this.vote.bind(this), true);
         this.widget.actions['no'] = tmc.ui.addAction(this.vote.bind(this), false);

@@ -1,5 +1,5 @@
-import ListWindow from "../../core/ui/listwindow";
-import { castType } from "../../core/utils";
+import ListWindow from "../../ui/listwindow";
+import { castType } from "../../utils";
 
 export default class ModeSettingsWindow extends ListWindow {
 

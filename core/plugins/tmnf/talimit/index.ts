@@ -30,7 +30,7 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async onLoad() {
-        this.widget = new Widget("plugins/tmnf_talimit/widget.twig");
+        this.widget = new Widget("core/plugins/tmnf/talimit/widget.twig");
         this.widget.pos = { x: 139, y: -40 };
         this.timeLimit = Number.parseInt(process.env.TALIMIT || "300");
         this.startTime = Date.now();

@@ -7,7 +7,7 @@ export default class ToggleChat extends Plugin {
     widget: Widget | null = null;
 
     async onLoad() {
-        this.widget = new Widget("plugins/togglechat/widget.twig");
+        this.widget = new Widget("core/plugins/tmnf/togglechat/widget.twig");
         this.widget.pos = { x: -154, y: -40 };
         this.widget.size = { width: 12, height: 5 };
         this.widget.setOpenAction(this.manialinkToggle.bind(this));        

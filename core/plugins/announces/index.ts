@@ -1,5 +1,5 @@
 import Plugin from "core/plugins";
-import type { Record } from "plugins/records";
+import type { Record } from "core/plugins/records";
 import { formatTime } from 'core/utils';
 
 export default class Announces extends Plugin {

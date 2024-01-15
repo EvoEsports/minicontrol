@@ -9,7 +9,7 @@ export default class DebugTool extends Plugin {
     intervalId: NodeJS.Timeout | null = null;
 
     async onLoad() {
-        this.widget = new Widget("plugins/debugtool/widget.twig");
+        this.widget = new Widget("core/plugins/debugtool/widget.twig");
         this.widget.pos = { x: 159, y: -60 };
         if (process.env.DEBUG == "true") {
             tmc.addCommand("//heap", this.cmdHeap.bind(this), "Log heap memory usage");

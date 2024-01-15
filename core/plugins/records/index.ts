@@ -48,9 +48,9 @@ export default class Records extends Plugin {
     async onLoad() {
         if (!tmc.storage['sqlite']) return;
         this.db = tmc.storage['sqlite'];
-        let widgetFile = "plugins/records/widget.twig"
+        let widgetFile = "core/plugins/records/widget.twig"
         if (tmc.game.Name === "TmForever") {
-            widgetFile = "plugins/records/widget_tmnf.twig";
+            widgetFile = "core/plugins/records/widget_tmnf.twig";
         }
         this.widget = new Widget(widgetFile);
         this.widget.title = "Records";

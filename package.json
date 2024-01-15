@@ -1,32 +1,33 @@
 {
-  "scripts": {
-    "dev": "drizzle-kit generate:sqlite && env-cmd -f .env bun --smol --watch run app.ts",
-    "dev2": "drizzle-kit generate:sqlite && env-cmd -f .env2 bun --smol --watch run app.ts",
-    "start": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --smol app.ts",
-    "build": "bun build ./app.ts --compile --minify --outfile minicontrol",
-    "daemon": "drizzle-kit generate:sqlite --config=drizzle.config.ts && pm2 start --interpreter ~/.bun/bin/bun --smol app.ts"
-  },
-  "dependencies": {    
-    "drizzle-orm": "0.29.3",
-    "node-fetch": "2.6.7",
-    "tm-essentials": "^1.0.5",
-    "twig": "^1.17.1",
-    "xmlrpc": "1.3.2"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/node": "latest",
-    "@types/node-fetch": "^2.6.10",
-    "@types/twig": "^1.12.16",
-    "@types/xmlrpc": "^1.3.10",
-    "casual": "1.6.2",
-    "drizzle-kit": "^0.20.10",
-    "env-cmd": "^10.1.0",
-    "@typescript-eslint/eslint-plugin": "^6.17.0",
-    "@typescript-eslint/parser": "^6.17.0",
-    "eslint-plugin-drizzle": "^0.2.3"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  }
+    "scripts": {
+        "dev": "drizzle-kit generate:sqlite && env-cmd -f .env bun --smol --watch run core/minicontrol.ts",
+        "dev2": "drizzle-kit generate:sqlite && env-cmd -f .env2 bun --smol --watch run core/minicontrol.ts",
+        "start": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --smol core/minicontrol.ts",
+        "build": "bun build ./core/minicontrol.ts --compile --minify --outfile minicontrol",
+        "daemon": "drizzle-kit generate:sqlite --config=drizzle.config.ts && pm2 start --interpreter ~/.bun/bin/bun --smol core/minicontrol.ts"
+    },
+    "main": ".core/minicontrol.ts",
+    "dependencies": {
+        "drizzle-orm": "0.29.3",
+        "node-fetch": "2.6.7",
+        "tm-essentials": "^1.0.5",
+        "twig": "^1.17.1",
+        "xmlrpc": "1.3.2"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "@types/node": "latest",
+        "@types/node-fetch": "^2.6.10",
+        "@types/twig": "^1.12.16",
+        "@types/xmlrpc": "^1.3.10",
+        "casual": "1.6.2",
+        "drizzle-kit": "^0.20.10",
+        "env-cmd": "^10.1.0",
+        "@typescript-eslint/eslint-plugin": "^6.17.0",
+        "@typescript-eslint/parser": "^6.17.0",
+        "eslint-plugin-drizzle": "^0.2.3"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    }
 }
