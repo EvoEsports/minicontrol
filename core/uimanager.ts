@@ -72,8 +72,9 @@ export default class UiManager {
      */
     uuid(): string {
         this.manialinkUUID += 1;
-        tmc.debug("¤info¤new manialink uuid: ¤white¤" + this.manialinkUUID.toString());
-        return this.manialinkUUID.toString();
+        const prefix = tmc.game.Name == "TmForever" ? "" : "tmc";
+        tmc.debug("¤info¤new manialink uuid: ¤white¤" + prefix + this.manialinkUUID.toString());       
+        return prefix + this.manialinkUUID.toString();
     }
 
     /**
@@ -82,15 +83,15 @@ export default class UiManager {
      * @param str 
      * @returns 
      */
-    hash(str: string): number {
+    hash(str: string): string {
         let hash = 0;
-        if (str.length == 0) return hash;
+        if (str.length == 0) return hash.toString();
         for (let i = 0; i < str.length; i++) {
             let char = str.charCodeAt(i);
             hash = ((hash << 4) - hash) + char;
             hash |= 0;
         }
-        return hash;
+        return hash.toString();
     }
     /**
      * Add manialink action
@@ -102,15 +103,17 @@ export default class UiManager {
         const getHash = (data: any) => {
             const salt = Math.random().toString(36).substring(2, 12);
             return this.hash(salt) // + JSON.stringify(data));
-        };
+        };        
         let hash = getHash(data);
         if (this.actions[hash.toString()]) {
-            tmc.debug("¤error¤action already exists: ¤white¤" + hash.toString() + "$fff trying again...");
+            tmc.debug("¤error¤action already exists: ¤white¤" + hash + "$fff trying again...");
             hash = getHash(data);
         }
-        this.actions[hash.toString()] = { callback: callback, data: data };
-        tmc.debug("¤info¤Added action: ¤white¤" + hash.toString() + " ¤info¤total actions: ¤white¤" + Object.keys(this.actions).length.toString());
-        return hash.toString();
+        const prefix = tmc.game.Name == "TmForever" ? "" : "tmc";
+        hash = prefix + hash;
+        this.actions[hash] = { callback: callback, data: data };
+        tmc.debug("¤info¤Added action: ¤white¤" + hash + " ¤info¤total actions: ¤white¤" + Object.keys(this.actions).length.toString());
+        return hash;
     }
 
     /**

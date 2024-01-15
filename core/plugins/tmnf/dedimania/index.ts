@@ -30,7 +30,7 @@ export default class Dedimania extends Plugin {
     intervalId: NodeJS.Timeout | null = null;
 
     async onLoad() {
-        this.widget = new Widget("core/plugins/tmnf_dedimania/widget.twig");
+        this.widget = new Widget("core/plugins/tmnf/dedimania/widget.twig");
         this.widget.title = "Dedimania";
         this.widget.pos = { x: -160, y: 40 };
         this.widget.size = { width: 45, height: 45 };
