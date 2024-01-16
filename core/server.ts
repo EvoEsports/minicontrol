@@ -17,6 +17,7 @@ export default class Server {
      * method overrides
      */
     methodOverrides: { [key: string]: CallableFunction } = {};
+    scriptCalls: { [key: string]: Promise<any> } = {};
     login: any;
     name: any;
     path: any;
@@ -27,7 +28,7 @@ export default class Server {
     }
 
     onDisconnect(str: string) {
-        tmc.cli("¤error¤Disconnected from server.\n"  + str);
+        tmc.cli("¤error¤Disconnected from server.\n" + str);
         process.exit(1);
     }
 
@@ -54,7 +55,7 @@ export default class Server {
 
             // convert waypoints to checkpoints
             if (outmethod == "Trackmania.Event.WayPoint") {
-                if (params.isendrace) {        
+                if (params.isendrace) {
                     this.events.emit("TMC.PlayerFinish", [params.login, params.racetime, params]);
                     return;
                 } else {
@@ -159,7 +160,7 @@ export default class Server {
         if (tmc.game.Name == "TmForever") {
             method = method.replace("Map", "Challenge");
         }
-      //  tmc.debug("$4a2send $fff>> $89a" + method);
+        //  tmc.debug("$4a2send $fff>> $89a" + method);
         if (tmc.game.Name == "Trackmania") {
             if (method == "SetTimeAttackLimit") {
                 const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };
@@ -174,7 +175,7 @@ export default class Server {
     }
 
     /**
-     *  call script method
+     * call script method
      * @param method 
      * @param args 
      * @returns 
@@ -189,12 +190,12 @@ export default class Server {
      * @param port 
      * @returns {boolean} Returns true if connection was successful
      */
-    async connect(host: string, port: number) {       
+    async connect(host: string, port: number) {
         const status = await this.gbx.connect(host, port);
         if (status) {
-            const info = await this.gbx.call("GetMainServerPlayerInfo");            
+            const info = await this.gbx.call("GetMainServerPlayerInfo");
             this.login = info.Login;
-            this.name = info.NickName;     
+            this.name = info.NickName;
         }
         return status;
     }

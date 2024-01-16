@@ -1,8 +1,18 @@
 import Twig from 'twig';
 import type Manialink from './ui/manialink';
 import Window from './ui/window';
+import { clone } from './utils';
+import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript';
 
 Twig.cache(false);
+
+export interface uiModule {
+    id: string,
+    position: number[],
+    scale: number,
+    visible: boolean,
+}
+
 
 export default class UiManager {
     private actions: any = {};
@@ -10,6 +20,8 @@ export default class UiManager {
     private playerManialinks: any = {};
     private manialinkUUID: number = 2;
     private hiddenManialinks: string[] = [];
+    private uiProperties: uiModule[] = [];
+    private scriptCalls: string[] = [];
 
     /**
     * @ignore
@@ -18,6 +30,10 @@ export default class UiManager {
         tmc.server.addListener("Trackmania.PlayerManialinkPageAnswer", this.onManialinkAnswer, this);
         tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
         tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
+        tmc.server.addListener("Common.UIModules.Properties", this.onCallbackArray, this);
+        if (tmc.game.Name == "Trackmania") {
+            await this.getUiProperties();
+        }
     }
 
     /**
@@ -28,6 +44,43 @@ export default class UiManager {
             tmc.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
         }
         tmc.server.call('SendDisplayManialinkPage', this.convert(this.getGlobalManialink()), 0, false);
+    }
+
+    async getUiProperties() {
+        const uuid = this.uuid();
+        this.scriptCalls.push(uuid);
+        await tmc.server.callScript('Common.UIModules.GetProperties', uuid);
+    }
+
+    async setUiProperty(id: string, property: string, value: any) {
+        let uiModule: { [key: string]: any } = this.uiProperties.find((uiModule) => uiModule.id == id) ?? {};
+        if (uiModule.id == id) {
+            uiModule[property] = value;
+            uiModule[property + "_update"] = true;
+        } else {
+            tmc.debug("¤error¤ui module not found: ¤white¤" + id);
+        }
+    }
+    
+    async sendUiProperties() {            
+        await tmc.server.call("TriggerModeScriptEventArray", 'Common.UIModules.SetProperties', [`{"uimodules": ${JSON.stringify(this.uiProperties)}}`]);
+    }
+
+    private async onCallbackArray(data: any) {
+        if (data && this.scriptCalls.includes(data.responseid)) {
+            this.scriptCalls.splice(this.scriptCalls.indexOf(data.responseid), 1);
+            if (data.uimodules) {
+                this.uiProperties = data.uimodules as uiModule[];
+                let reset = [];
+                for (let uiModule of this.uiProperties) {
+                    reset.push(uiModule.id);
+                }
+                const json = {
+                    uimodules: reset
+                };
+                await tmc.server.callScript('Common.UIModules.ResetProperties', `${JSON.stringify(json)}`);
+            }
+        }
     }
 
     /**
