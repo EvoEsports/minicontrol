@@ -1,0 +1,39 @@
+# This is an example compose file. That spins up a trackmania forever server with minicontrol.
+# Just input your masterserver details and issue 'docker compose up'
+version: "3.8"
+services:
+  trackmania:
+    image: evoesports/trackmaniaforever:latest
+    restart: unless-stopped
+    ports:
+      - 2350:2350/udp
+      - 2350:2350/tcp
+      - 3450:3450/udp
+      - 3450:3450/tcp
+    environment:
+      TM_MASTERSERVER_LOGIN: ""
+      TM_MASTERSERVER_PASSWORD: ""
+      TM_SYSTEM_XMLRPC_ALLOWREMOTE: "True"
+    volumes:
+      - "trackmania_gamedata:/server/GameData"
+  minicontrol:
+    image: minicontrol:latest
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      trackmania:
+        condition: service_healthy
+        restart: true
+    environment:
+      XMLRPC_HOST: "trackmania"
+      XMLRPC_PORT: "5000"
+      XMLRPC_USER: "SuperAdmin"
+      XMLRPC_PASS: "SuperAdmin"
+      EXCLUDED_PLUGINS: "tmnf/freezone"
+    volumes:
+      - "minicontrol_userdata:/minicontrol/userdata"
+volumes:
+  minicontrol_userdata: null
+  trackmania_gamedata: null
