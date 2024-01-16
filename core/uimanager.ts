@@ -1,8 +1,6 @@
 import Twig from 'twig';
 import type Manialink from './ui/manialink';
 import Window from './ui/window';
-import { clone } from './utils';
-import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript';
 
 Twig.cache(false);
 
@@ -61,7 +59,7 @@ export default class UiManager {
             tmc.debug("¤error¤ui module not found: ¤white¤" + id);
         }
     }
-    
+
     async sendUiProperties() {            
         await tmc.server.call("TriggerModeScriptEventArray", 'Common.UIModules.SetProperties', [`{"uimodules": ${JSON.stringify(this.uiProperties)}}`]);
     }

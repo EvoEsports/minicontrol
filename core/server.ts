@@ -1,8 +1,5 @@
-
-// import { GbxClient } from "@evotm/gbxclient";
 import { GbxClient } from "./gbx";
 import EventEmitter from "events";
-
 
 /**
  * Server class
