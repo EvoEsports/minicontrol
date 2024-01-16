@@ -1,0 +1,8 @@
+.vscode
+docker
+documentation
+.env.example
+.eslintrc.yml
+.gitignore
+LICENSE
+README.md
