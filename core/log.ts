@@ -1,9 +1,10 @@
-import { rgb2hsl } from "./utils";
+import { rgb2hsl, removeColors } from "./utils";
 
-function Tm2Console(input: string, ansi256: boolean = false) {
+function Tm2Console(input: string, ansilevel: number = 0) {
+    if (ansilevel == 0) return removeColors(input);
+
     const chunks = input.split(/([$][0-9A-F]{3}|[$][zsowin])/gi);
     const ansi_esc = String.fromCharCode(0x1b);
-    //const ansi_esc = ``;
     const colorize = (str: string) => {
         const c = (str: string) => (parseInt(str, 16) * 17) / 255;
         if (!str.startsWith("$")) return str;
@@ -48,7 +49,7 @@ function Tm2Console(input: string, ansi256: boolean = false) {
             ansi = 7;
         }
         const cc = (str: string) => parseInt(str, 16) * 17;
-        return ansi256
+        return ansilevel > 1
             ? ansi_esc + `[38;2;${cc(r)};${cc(g)};${cc(b)}m`
             : ansi_esc + `[${prefix}${ansi}m`;
     };
@@ -65,24 +66,22 @@ function Tm2Console(input: string, ansi256: boolean = false) {
 }
 
 class log {
-    Level: number = 0;
+    ansiLevel: number = 0;
     constructor() {
-        this.Level = 1;
-        if (Boolean(process.env.ANSI256)) {
-            this.Level = 2;
-        }
+        this.ansiLevel = Number.parseInt(process.env.ANSILEVEL || "0")        
     }
+
     debug(str: string) {
-        console.log(Tm2Console(str, this.Level > 1));
+        console.log(Tm2Console(str, this.ansiLevel));
     }
     info(str: string) {
-        console.log(Tm2Console(str, this.Level > 1));
+        console.log(Tm2Console(str, this.ansiLevel));
     }
     warn(str: string) {
-        console.log(Tm2Console(str, this.Level > 1));
+        console.log(Tm2Console(str, this.ansiLevel));
     }
     error(str: string) {
-        console.log(Tm2Console(str, this.Level > 1));
+        console.log(Tm2Console(str, this.ansiLevel));
     }
 }
 

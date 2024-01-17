@@ -31,5 +31,4 @@ git clone https://github.com/reaby/minicontrol.git
 Afterwards go to the controller directory and say:
 1. `bun install`
 2. copy .env.example to .env and configure
-3. enable or disable needed plugins at `plugins.json` 
-4. run `bun start`
+3. run `bun start`

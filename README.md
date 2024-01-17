@@ -1,16 +1,15 @@
-# minicontrol
-Minicontrol for trackmania united forever, maniaplanet and trackmania 2020
+# MINIcontrol
+Very simple plugin host for trackmania united forever, maniaplanet and trackmania 2020 games.
 
 # QuickStart
 
-The core is set as simple as possible, so you should be able to just do plugins very easily.
-> [!NOTICE] 
-> I changed to use bun instead of node, easiest way to migrate is just  `npm i -g bun`
-> or `curl -fsSL https://bun.sh/install | bash`
+> Note: drizzle-ORM needs nodejs runtime, be sure to have it installed!
 
-1. bun install
-2. copy .env.example to .env and configure
-3. enable or disable needed plugins at `plugins.json` 
-4. bun start
+> Note: bun runs currenly only linux or mac systems, use docker image for windows hosts.
 
-See [documentation](./documentation/index.md) for more info
+1. `npm i -g bun`
+2. `bun install`
+3. copy .env.example to .env and configure
+4. `bun start`
+
+See [documentation](./documentation/index.md) for more info!
