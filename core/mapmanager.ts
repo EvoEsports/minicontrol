@@ -37,7 +37,7 @@ class MapManager {
     async init() {
         this.maps = {};
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        // tmc.server.addListener("Trackmania.MapListModified", this.onMapListModified, this);
+        tmc.server.addListener("Trackmania.MapListModified", this.onMapListModified, this);
         this.currentMap = await tmc.server.call("GetCurrentMapInfo");
         await this.syncMaplist();
     }
@@ -67,7 +67,9 @@ class MapManager {
      * @param map 
      */
     addMap(map: Map) {
-        this.maps[map.UId] = map;
+        if (!this.maps[map.UId]) {
+            this.maps[map.UId] = map;
+        }
     }
 
     /**
