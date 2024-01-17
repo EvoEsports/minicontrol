@@ -4,7 +4,7 @@ Let's get started with, due the controller is coded with [Bun](https://bun.sh), 
 
 ## Install Bun 
 
-Write at console:
+Type at console:
 ```bash
 curl -fsSL https://bun.sh/install | bash
 ```
