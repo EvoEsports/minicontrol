@@ -1,15 +1,15 @@
-export default abstract class Plugin {  
+export default abstract class Plugin {
     depends: string[] = [];
 
-    onLoad(): Promise<void> {
-        return Promise.resolve();
-    }
-    
-    onUnload(): Promise<void> {
-        return Promise.resolve();
+    async onLoad() {
+        return;
     }
 
-    onStart(): Promise<void> {
-        return Promise.resolve();
+    async onUnload() {
+        return;
+    }
+
+    async onStart() {
+        return;
     }
 }

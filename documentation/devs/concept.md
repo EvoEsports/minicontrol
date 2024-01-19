@@ -55,5 +55,3 @@ interface MiniControl {
     chat(text, receiver: undefined|string);
 }
 ```
-
-

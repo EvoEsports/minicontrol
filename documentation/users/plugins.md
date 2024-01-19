@@ -75,9 +75,8 @@ Adds bun:sqlite database for other plugins to use.
 
 Shows useful memory information ingame and console for developers.
 
-# Dedimania
-> [!INFO]
-> Only available with TmForever
+# Tmnf/Dedimania
+> ℹ️ Only available with TmForever
 
 Adds Dedimania records system for the server.
 | Command             | Description |
@@ -126,8 +125,7 @@ Provides a players listing for the server
 
 
 # Records
-> [!CAUTION]
-> Depends on database
+> ⚠️ Depends on database
 
 Provides local records for the server
 
@@ -135,15 +133,13 @@ Provides local records for the server
 |:---                 |:---         |
 |`/records` | show local records |
 
-# Tmnf_talimit
-> [!INFO]
-> Only available with TmForever
+# Tmnf/talimit
+> ℹ️ Only available with TmForever
 
 Provides custom ta timelimit functions for the server, like extends.
 
-# Tmnf_ui
-> [!INFO]
-> Only available with TmForever
+# Tmnf/ui
+> ℹ️ Only available with TmForever
 
 Removes some parts of the UI to make more clean HUD
 
@@ -183,3 +179,10 @@ Provides voting.
 |`//extend <seconds>` | force extend map in seconds, can be negative |
 |`//pass` | force pass vote |
 |`//cancel`| force cancel vote |
+
+## Environment
+
+| Config Var            | Description       |
+|:---                   |:---               |
+| VOTE_TIMEOUT          | defaults to 30    |
+| VOTE_RATIO            | defaults to 0.55  |
