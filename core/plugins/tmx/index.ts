@@ -60,7 +60,6 @@ export default class Tmx extends Plugin {
 
         if (params[0].includes(",")) {
             const ids = params[0].split(",");
-            tmc.debug(`Received command to download ${ids.length} maps.`);
             for (let id of ids) {
                 await this.parseAndDownloadMapId(id, login);
             }
@@ -89,17 +88,13 @@ export default class Tmx extends Plugin {
     }
 
     async parseAndDownloadMapId(mapId: string, login: string) {
-        tmc.debug(`Trying to parse id: ${mapId}`)
         if (tmc.game.Name === "TmForever") {
-            tmc.debug(`We're in TmForever`)
             if (mapId.includes(":")) {
-                tmc.debug(`Map has optional site parameter`)
                 let data = mapId.split(':');
                 if (isNaN(parseInt(data[0]))) {
                     await tmc.chat(`¤error¤The supplied ID ${mapId} is invalid.`, login);
                     return;
                 }
-                tmc.debug(`ID ${data[0]} seems valid.`)
                 let id = data[0];
                 let site = "TMNF";
                 let baseUrl;
@@ -107,7 +102,6 @@ export default class Tmx extends Plugin {
                     site = data[1].toUpperCase();
                 }
                 baseUrl = this.getBaseUrl(site);
-                tmc.debug(`Setting base url for ID ${data[0]} to ${baseUrl}.`)
                 const map: Map = { id, baseUrl, site }
                 await this.downloadMap(map, login);
             } else {
@@ -115,7 +109,6 @@ export default class Tmx extends Plugin {
                 let site = "TMNF";
                 let baseUrl;
                 baseUrl = this.getBaseUrl(site);
-                tmc.debug(`Setting base url for ID ${mapId} to ${baseUrl}.`)
                 const map: Map = { id, baseUrl, site }
                 await this.downloadMap(map, login);
             }
@@ -143,7 +136,6 @@ export default class Tmx extends Plugin {
         if (map.site) filePath += "_" + map.site;
         filePath += ext;
 
-        tmc.debug(`Downloading URL for ID ${map.id} set to ${fileUrl}`)
         let res = await fetch(fileUrl, { keepalive: false });
         if (!res) {
             await tmc.chat(`Invalid http response for ID ${map.id}`, login);
@@ -156,8 +148,6 @@ export default class Tmx extends Plugin {
         if (!fs.existsSync(`${tmc.mapsPath}`)) {
             try {
                 const abuffer = await (await res.blob()).arrayBuffer();
-                tmc.debug("Done downloading file")
-                tmc.debug(`Sending map file to server - should be saved as ${filePath}`)
                 const status = await tmc.server.call("WriteFile", filePath, Buffer.from(abuffer));
                 if (!status) {
                     await tmc.chat(`Map path "${tmc.mapsPath}" is unreachable.`, login);
@@ -182,17 +172,13 @@ export default class Tmx extends Plugin {
     }
 
     async parseAndDownloadTrackPack(packId: string, login: string) {
-        tmc.debug(`Trying to parse mappack id: ${packId}`)
         if (tmc.game.Name === "TmForever") {
-            tmc.debug(`We're in TmForever`)
             if (packId.includes(":")) {
-                tmc.debug(`Pack has optional site parameter`)
                 let data = packId.split(':');
                 if (isNaN(parseInt(data[0]))) {
                     await tmc.chat(`¤error¤The supplied Pack ID ${packId} is invalid.`, login);
                     return;
                 }
-                tmc.debug(`Pack ID ${data[0]} seems valid.`)
                 let id = data[0];
                 let site = "TMNF";
                 let baseUrl;
@@ -200,14 +186,12 @@ export default class Tmx extends Plugin {
                     site = data[1].toUpperCase();
                 }
                 baseUrl = this.getBaseUrl(site);
-                tmc.debug(`Setting base url for Pack ID ${data[0]} to ${baseUrl}.`)
                 await this.downloadMapPack(id, baseUrl, login, site);
             } else {
                 let id = packId;
                 let site = "TMNF";
                 let baseUrl;
                 baseUrl = this.getBaseUrl(site);
-                tmc.debug(`Setting base url for Pack ID ${id} to ${baseUrl}.`)
                 await this.downloadMapPack(id, baseUrl, login, site);
             }
         } else {
