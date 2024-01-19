@@ -362,7 +362,7 @@ export default class UiManager {
         return `<manialinks>
         <manialink id="1" version="3">
             <frame pos="-152.5 -36" z-index="1">           
-                <label pos="0 0" size="15 3" valign="center2" halign="center" textsize="0.5" textcolor="fff" text="Toggle UI - F7" focusareacolor1="0009" focusareacolor2="000a" actionkey="3" action="-2"/>
+                <label pos="0 0" size="0 0" valign="center2" halign="center" textsize="0.5" textcolor="fff" text=" " focusareacolor1="0000" focusareacolor2="0000" actionkey="3" action="-2"/>
             </frame>
         </manialink>
         </manialinks>`;

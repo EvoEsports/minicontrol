@@ -220,15 +220,14 @@ export default class Tmx extends Plugin {
         }
 
         const res = await fetch(url, { keepalive: false });
-        const json: any = await res.json();
-        console.log(Object.keys(json));
+        const json: any = await res.json();        
         await tmc.chat("Processing Map Pack " + packId);
         if (!json) {
             await tmc.chat(`Error while adding Pack ID ${packId}: ${res.statusText}`, login);
         }
         let results = json;
         if  (tmc.game.Name === "TmForever") results = json.Results;
-                
+
         for (let data of results) {
             try {
                 let mapName = tmc.game.Name === "TmForever" ? data.TrackName : data.GbxMapName;

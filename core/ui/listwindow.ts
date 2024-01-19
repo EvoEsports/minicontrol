@@ -64,8 +64,7 @@ export default class ListWindow extends Window {
      * const currentPage = 0;
      * const itemsPerPage = 15;
      *
-     * const result = paginate(myObjectList, currentPage, itemsPerPage);
-     * console.log(result);
+     * const result = paginate(myObjectList, currentPage, itemsPerPage);     
      */
     doPaginate<T>(items: T[], pageNb: number, pageSize: number): PaginationResult<T> {
         const startIndex = pageNb * pageSize;

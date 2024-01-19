@@ -5,7 +5,7 @@ import { Player } from "schemas/players";
 import { eq, asc, and } from "drizzle-orm";
 import { clone, escape, removeLinks } from "core/utils";
 import tm from 'tm-essentials';
-import Widget from 'core/ui/widget';
+
 import ListWindow from 'core/ui/listwindow';
 
 export class Record {
@@ -43,20 +43,11 @@ export default class Records extends Plugin {
     records: Record[] = [];
     currentMapUid: string = "";
     limit: number = 100;
-    widget: Widget | null = null;
+
 
     async onLoad() {
         if (!tmc.storage['sqlite']) return;
         this.db = tmc.storage['sqlite'];
-        let widgetFile = "core/plugins/records/widget.twig"
-        if (tmc.game.Name === "TmForever") {
-            widgetFile = "core/plugins/records/widget_tmnf.twig";
-        }
-        this.widget = new Widget(widgetFile);
-        this.widget.title = "Records";
-        this.widget.pos = { x: 115, y: 30 };
-        this.widget.size = { width: 45, height: 45 };
-        this.widget.setOpenAction(this.widgetClick.bind(this));
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
         tmc.chatCmd.addCommand("/records", this.cmdRecords.bind(this), "Display records");
@@ -64,15 +55,12 @@ export default class Records extends Plugin {
 
     async onUnload() {
         this.db = null;
-        this.widget?.destroy();
-        this.widget = null;
         tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
         tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish.bind(this));
         tmc.chatCmd.removeCommand("/records");
     }
 
     async onStart() {
-        tmc.debug("[Records] onInit");
         if (!this.db) return;
         if (!tmc.maps.currentMap?.UId) return;
         this.currentMapUid = tmc.maps.currentMap.UId;
@@ -84,7 +72,7 @@ export default class Records extends Plugin {
         this.currentMapUid = map.UId;
         this.syncRecords(map.UId);
     }
-   
+
     async cmdRecords(login: string, args: string[]) {
         let records = [];
         for (let record of this.records) {
@@ -106,7 +94,7 @@ export default class Records extends Plugin {
         ]);
         await window.display();
     }
-    
+
     async syncRecords(mapUuid: string) {
         if (!this.db) return;
         const scores: any = this.db.select().from(Score).leftJoin(Player, eq(Score.login, Player.login)).where(eq(Score.mapUuid, mapUuid)).orderBy(asc(Score.time), asc(Score.updated_at)).all();
@@ -128,7 +116,7 @@ export default class Records extends Plugin {
             }));
             rank += 1;
         }
-        await this.updateWidget();
+
         tmc.server.emit("Plugin.Records.onSync", {
             mapUid: mapUuid,
             records: clone(this.records)
@@ -178,9 +166,9 @@ export default class Records extends Plugin {
             });
             tmc.server.emit("Plugin.Records.onNewRecord", {
                 oldRecord: null,
-                record: newRecord
-            }, clone(this.records));
-            await this.updateWidget();
+                record: newRecord,
+                records: clone(this.records)
+            });
             return;
         }
 
@@ -255,46 +243,10 @@ export default class Records extends Plugin {
         }
         this.records = this.records.slice(0, this.limit);
         tmc.server.emit("Plugin.Records.onUpdateRecord", {
-            oldRecord: clone(oldRecord || {} ),
-            record: newRecord
-        }, clone(this.records));
-        await this.updateWidget();
+            oldRecord: clone(oldRecord || {}),
+            record: newRecord,
+            records: clone(this.records)
+        });
     }
 
-    async updateWidget() {
-        let outRecords = [];
-        let x = 0;
-        for (let record of this.records) {
-            if (x >= 10) break;
-            outRecords.push(
-                {
-                    rank: record.rank,
-                    nickname: escape(record.nickname),
-                    time: tm.Time.fromMilliseconds(record.time).toTmString().replace(/^0:/, ""),
-                });
-            x += 1;
-        }
-        const lastRecord: any = this.records[this.records.length - 1];
-        if (lastRecord != undefined && lastRecord.Rank > 10) {
-            outRecords.push(
-                {
-                    rank: lastRecord.Rank,
-                    nickname: escape(lastRecord.NickName),
-                    time: tm.Time.fromMilliseconds(lastRecord.Best).toTmString().replace(/^0:/, ""),
-                }
-            )
-        }
-
-        if (this.widget) {
-            this.widget.setData({
-                records: outRecords
-            });
-            this.widget.size = { width: 45, height: 4 * outRecords.length + 1 };
-            this.widget.display();
-        }
-    }
-
-    async widgetClick(login: string, data: any) {
-        tmc.chatCmd.execute(login, "/records");
-    }
 }

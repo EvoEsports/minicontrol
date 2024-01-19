@@ -17,8 +17,7 @@ export class Menu {
     }
 
     public removeItem(item: string) {
-        this.items = this.items.filter(i => i.title !== item);
-        console.log(this.items);
+        this.items = this.items.filter(i => i.title !== item);        
     }
 
     public removeCategory(category: string) {
@@ -49,7 +48,7 @@ export default class MenuPlugin extends Plugin {
             this.menuButton = null;
         }
 
-        this.menuButton = new Widget("core/plugins/menu/menuButton.twig");
+        this.menuButton = new Widget("core/plugins/widgets/menu/menuButton.twig");
         this.menuButton.pos = { x: 105, y: -55, z: 10 };
         this.menuButton.size = { width: 12, height: 12 };
         this.menuButton.setOpenAction(this.toggleMenu.bind(this));
@@ -67,7 +66,7 @@ export default class MenuPlugin extends Plugin {
 
     async toggleMenu(login: string) {
         if (!this.menuInstances[login]) {
-            const menu = new MenuWidget(login, "core/plugins/menu/menu.twig");       
+            const menu = new MenuWidget(login, "core/plugins/widgets/menu/menu.twig");       
             menu.pos = { x: 110, y: -60, z: 1 };
             menu.size = { width: 300, height: 400 };
             this.menuInstances[login] = menu;

@@ -9,15 +9,15 @@ export default class DebugTool extends Plugin {
     intervalId: NodeJS.Timeout | null = null;
 
     async onLoad() {
-        this.widget = new Widget("core/plugins/debugtool/widget.twig");
-        this.widget.pos = { x: 159, y: -60 };
         if (process.env.DEBUG == "true") {
+            this.widget = new Widget("core/plugins/debugtool/widget.twig");
+            this.widget.pos = { x: 159, y: -60 };
             tmc.addCommand("//heap", this.cmdHeap.bind(this), "Log heap memory usage");
-        }
-        this.displayMemInfo();
-        this.intervalId = setInterval(() => {
             this.displayMemInfo();
-        }, 5000);
+            this.intervalId = setInterval(() => {
+                this.displayMemInfo();
+            }, 5000);
+        }
     }
 
     async onUnload() {
