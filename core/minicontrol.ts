@@ -24,7 +24,7 @@ export default class MiniControl {
     /**
      * The version of MiniControl.
      */
-    readonly version: string = "0.1.0";
+    readonly version: string = "0.2.0";
     /**
      * The start time of MiniControl.
      */

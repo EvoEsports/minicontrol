@@ -12,13 +12,13 @@ export default class ModeSettingsWindow extends ListWindow {
         }
     }
 
-    uiPaginate(login: string, answer: any, entries: any): void {
+    uiPaginate(login: string, answer: any, entries: any) {
         this.parseEntries(entries);
         super.uiPaginate(login, answer, entries);
     }
 
 
-    onApply(login: string, data: any, entries: any): void {
+    async onApply(login: string, data: any, entries: any) {
         this.parseEntries(entries);
         let out: { [key: string]: any } = {};
         for (let item of this.items) {
@@ -26,6 +26,6 @@ export default class ModeSettingsWindow extends ListWindow {
         }
         tmc.server.call("SetModeScriptSettings", out);
         tmc.chat("Settings applied", login);
-        this.close(login, data);
+        await this.hide();
     }
 }

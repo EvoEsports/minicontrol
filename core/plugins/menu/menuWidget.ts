@@ -11,7 +11,7 @@ export default class MenuWidget extends Widget {
                 this.actions["cat_" + item] = tmc.ui.addAction(this.changeCategory.bind(this), item);
             }
         }
-        this.data['categories'] = categories || [];   
+        this.data['categories'] = categories || [];
         this.data['activeCategory'] = "Home";
         this.recipient = login;
     }
@@ -33,10 +33,10 @@ export default class MenuWidget extends Widget {
     }
 
     async doAction(login: string, item: Item) {
-        tmc.chatCmd.execute(login, item.action);        
+        await tmc.chatCmd.execute(login, item.action);
     }
 
-    async changeCategory(login: string, category: string) {       
+    async changeCategory(login: string, category: string) {
         this.data['activeCategory'] = category;
         await this.display();
     }
