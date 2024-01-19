@@ -146,14 +146,24 @@ Removes some parts of the UI to make more clean HUD
 
 # TMX
 
-Trackmania exchange integration plugin.
+Trackmania Exchange integration plugin.
+
+### TmForever
+
+> [!INFO]
+> Supported site parameters: TMO, TMS, TMN, TMNF, TMUF
 
 | Command             | Description |
 |:---                 |:---         |
-|`//tmx add <id>` | adds map or comma separated list of maps from tmx |
-|`//tmux add <id>` | adds map or comma separated list of maps from tm united exchange |
-|`//tmxpack add <id>` | adds mappack  |
-|`//tmuxpack add <id>` | adds mappack |
+|`//add <id:site>` | Adds map or comma separated list of maps from TMX. |
+|`//addpack <id:site>` | Adds mappack from TMX. |
+
+### ManiaPlanet / Trackmania
+
+| Command             | Description |
+|:---                 |:---         |
+|`//add <id>` | Adds map or comma separated list of maps from TMX. |
+|`//addpack <id>` | Adds mappack from TMX. |
 
 # Votes
 
