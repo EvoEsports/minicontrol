@@ -1,8 +1,9 @@
-await Bun.build({
-    entrypoints: ['./app.ts'],
-    root: './',
+await Bun.build({    
+    entrypoints: ['./core/minicontrol.ts'],
+    root: '.',
     outdir: './dist',
-    sourcemap: 'external',   
     target: 'bun',
+    external: ['core/plugins/*'],
+    format: "esm",
+    minify: true,    
 });
-

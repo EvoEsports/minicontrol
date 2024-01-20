@@ -7,7 +7,7 @@ import { type GameStruct } from './types';
 import { processColorString } from './utils';
 import log from './log';
 import fs from 'fs';
-import Plugin from './plugins';
+import Plugin from 'core/plugins';
 import path from 'path';
 
 const controllerStr = "$n$o$eeeMINI$o$z$s$abccontrol$z$s$fff";
@@ -20,7 +20,7 @@ if (!process.versions.bun) {
 /**
  * MiniControl class
  */
-export default class MiniControl {
+class MiniControl {
     /**
      * The version of MiniControl.
      */
@@ -109,7 +109,7 @@ export default class MiniControl {
     * @returns 
     */
     findPlugin(name: string): string | null {
-        const dirsToCheck = ["./core/plugins/", "./userdata/plugins/"];
+        const dirsToCheck = ["core/plugins/", "userdata/plugins/"];
         for (const dir of dirsToCheck) {
             if (fs.existsSync(dir + name + "/index.ts")) {
                 return dir + name;
@@ -134,7 +134,7 @@ export default class MiniControl {
                 }
                 return;
             }
-            const plugin = await import("../" + pluginPath);
+            const plugin = await import(process.cwd() + "/" + pluginPath);
 
             if (plugin.default == undefined) {
                 const msg = `¤gray¤Plugin $fd0${name}¤error¤ failed to load. Plugin has no default export.`;

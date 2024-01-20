@@ -2,13 +2,13 @@
   "compilerOptions": {
     "lib": ["ESNext"],
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "ESNext",    
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
     "preserveSymlinks": true,
     /* Bundler mode */
-    "moduleResolution": "bundler",
+    "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
@@ -18,11 +18,11 @@
     "strict": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
-    "rootDir": "./",
+    //"rootDir": ".",
     "baseUrl": "./",
-    "paths": {        
-        "core/*": ["./core/*"], 
-        "schemas/*": ["./schemas/*"]
-    }
+    "paths": {
+        "core/*": ["core/*"],        
+        "schemas/*": ["schemas/*"]
+    },
   }
 }

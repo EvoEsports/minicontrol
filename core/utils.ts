@@ -1,4 +1,3 @@
-import { isNumberObject } from "util/types";
 import tm from 'tm-essentials';
 
 export let colors: { [key: string]: string } = {
@@ -74,7 +73,7 @@ export function rgb2hsl(r: number, g: number, b: number) {
 }
 
 export function escape(str: string): string {
-    return str.replaceAll(/&/g, "&amp;").replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;").replaceAll(/"/g, "&quot;").replaceAll(/'/g, "&apos;")
+    return (str || "").replaceAll(/&/g, "&amp;").replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;").replaceAll(/"/g, "&quot;").replaceAll(/'/g, "&apos;")
         .replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "");
 }
 
@@ -115,9 +114,9 @@ export function castType(value: string, type: string | undefined = undefined): a
     if (value == "true") return true;
     else if (value == "false") return false;
     else if (value == "null") return null;
-    else if (isNumberObject(value)) {
-        if (value.indexOf(".") !== undefined) return Number.parseFloat(value);
-        else outValue = Number.parseInt(value);
+    else if (!isNaN(Number.parseFloat(value))) {
+        if (value.includes(".")) return Number.parseFloat(value)
+        else return Number.parseInt(value);
     }
     else if (typeof value == "string") return value;
     else {
