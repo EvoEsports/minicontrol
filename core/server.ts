@@ -1,3 +1,4 @@
+import { log } from "console";
 import { GbxClient } from "./gbx";
 import EventEmitter from "events";
 
@@ -191,8 +192,9 @@ export default class Server {
         const status = await this.gbx.connect(host, port);
         if (status) {
             const info = await this.gbx.call("GetMainServerPlayerInfo");
+            const info2 = await this.gbx.call("GetServerOptions");            
             this.login = info.Login;
-            this.name = info.NickName;
+            this.name = info2.Name;            
         }
         return status;
     }

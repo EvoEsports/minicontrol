@@ -139,7 +139,7 @@ export default class AdminPlugin extends Plugin {
                 }
                 if (map) {
                     await tmc.chat(`¤info¤Jumped to ¤white¤${map.Name}¤info¤ by ¤white¤${map.AuthorNickName ? map.AuthorNickName : map.Author}`);
-                    await tmc.server.call("ChooseNextChallenge", map.FileName);
+                    await tmc.server.call("ChooseNextMap", map.FileName);
                     tmc.server.send("NextMap");
                 } else {
                     tmc.chat("¤error¤Couldn't find map", login)
