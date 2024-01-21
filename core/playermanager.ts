@@ -1,5 +1,7 @@
+import { sleep } from "bun";
 import Server from "./server";
 import { clone } from "./utils";
+import { log } from "console";
 // import casual from 'casual';
 
 /**
@@ -73,7 +75,15 @@ export default class PlayerManager {
      * @ignore
      */
     afterInit() {
+        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
         tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
+    }
+
+    private async onPlayerConnect(data: any) {
+        await sleep(100);
+        const login = data[0];
+        const player = await this.getPlayer(login);
+        tmc.server.emit("TMC.PlayerConnect", player);
     }
 
     /**
@@ -83,8 +93,8 @@ export default class PlayerManager {
      */
     private async onPlayerDisconnect(data: any) {
         const login = data[0];
-        let index = 0;
         if (this.players[login]) {
+            tmc.server.emit("TMC.PlayerDisconnect", clone(this.players[login]));
             delete this.players[login];
         }
     }
@@ -102,7 +112,7 @@ export default class PlayerManager {
      * @param nickname 
      * @returns {Player | null} Returns the player object or null if not found
      */
-        getPlayerbyNick(nickname: string): Player|null {
+    getPlayerbyNick(nickname: string): Player | null {
         for (let player in this.players) {
             if (this.players[player].nick == nickname) return this.players[player];
         }
@@ -120,7 +130,7 @@ export default class PlayerManager {
 
         const data = await tmc.server.call("GetDetailedPlayerInfo", login);
         const player = new Player();
-        await player.syncFromDetailedPlayerInfo(data);
+        player.syncFromDetailedPlayerInfo(data);
         this.players[login] = player;
         return player;
     }

@@ -78,11 +78,11 @@ export function escape(str: string): string {
 }
 
 export function removeLinks(str: string): string {
-    return str.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")
+    return (str || "").replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")
 }
 
 export function removeColors(str: string): string {
-    return tm.TextFormatter.deformat(str);
+    return (tm || "" ).TextFormatter.deformat(str);
 }
 
 export function clone(obj: any): any {
@@ -94,7 +94,6 @@ export function formatTime(time: number): string {
 }
 
 export function castType(value: string, type: string | undefined = undefined): any {
-    let outValue: any = null;
     if (type !== undefined) {
         if (type == "string") return value;
         else if (type == "int") return Number.parseInt(value);

@@ -3,7 +3,6 @@ import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 import { Database } from 'bun:sqlite';
 import { eq } from "drizzle-orm";
 import type { Logger } from 'drizzle-orm/logger';
-import { sleep } from 'bun';
 import type { Player as PlayerType } from 'core/playermanager';
 import { Player } from 'schemas/players';
 import Plugin from 'core/plugins';
@@ -33,7 +32,7 @@ export default class SqliteDb extends Plugin {
 
         tmc.storage['sqlite'] = client;
         tmc.cli("¤success¤Database connected.");
-        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
     }
 
     async onUnload() {
@@ -41,17 +40,14 @@ export default class SqliteDb extends Plugin {
             await tmc.storage['sqlite'].close();
             delete (tmc.storage['sqlite']);
         }
-        tmc.server.removeListener("Trackmania.PlayerConnect", this.onPlayerConnect.bind(this));
+        tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect.bind(this));
     }
 
     async onStart() {
         await this.syncplayers();
     }
 
-    async onPlayerConnect(data: any) {
-        const login = data[0];
-        await sleep(50); // wait for player to be ready
-        const player = await tmc.getPlayer(login);
+    async onPlayerConnect(player: any) {
         await this.syncPlayer(player);
     }
 

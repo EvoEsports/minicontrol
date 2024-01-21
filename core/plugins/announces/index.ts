@@ -5,8 +5,8 @@ import { formatTime } from 'core/utils';
 export default class Announces extends Plugin {
     async onLoad() {
         //   tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
-        tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
+        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
         tmc.server.addListener("Plugin.Records.onNewRecord", this.onNewRecord, this);
         tmc.server.addListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord, this);
         tmc.server.addListener("Plugin.Records.onSync", this.onSyncRecord, this);
@@ -14,8 +14,8 @@ export default class Announces extends Plugin {
 
     async onUnload() {
         // tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
-        tmc.server.removeListener("Trackmania.PlayerConnect", this.onPlayerConnect);
-        tmc.server.removeListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect);
+        tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect);
+        tmc.server.removeListener("TMC.PlayerDisconnect", this.onPlayerDisconnect);
         tmc.server.removeListener("Plugin.Records.onNewRecord", this.onNewRecord);
         tmc.server.removeListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord);
         tmc.server.removeListener("Plugin.Records.onSync", this.onSyncRecord);
@@ -28,17 +28,13 @@ export default class Announces extends Plugin {
         tmc.cli(msg);
     }
 
-    async onPlayerConnect(data: any) {
-        const login = data[0];
-        const player = await tmc.getPlayer(login);
+    async onPlayerConnect(player: any) {       
         const msg = `$fff${player.nickname}¤info¤ has joined!`;
         tmc.chat(msg);
         tmc.cli(msg);
     }
 
-    async onPlayerDisconnect(data: any) {
-        const login = data[0];
-        const player = await tmc.getPlayer(login);
+    async onPlayerDisconnect(player: any) {        
         const msg = `$fff${player.nickname}¤info¤ has left!`;
         tmc.chat(msg);
         tmc.cli(msg);
