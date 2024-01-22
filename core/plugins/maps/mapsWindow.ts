@@ -19,6 +19,7 @@ export default class MapsWindow extends ListWindow {
         this.setItems(maps);
         super.uiPaginate(login, answer, entries);
     }
+    
     async onAction(login: string, action: string, item: any) {
         if (action == "Jump") {
             tmc.chatCmd.execute(login, "//jump " + item.Uid);

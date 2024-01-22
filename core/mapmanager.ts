@@ -21,6 +21,7 @@ export interface Map {
 class MapManager {
     private maps: { [key: string]: Map; };
     currentMap?: Map;
+    nextMap?: Map;
 
     /**
      * @ignore
@@ -39,11 +40,15 @@ class MapManager {
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         tmc.server.addListener("Trackmania.MapListModified", this.onMapListModified, this);
         this.currentMap = await tmc.server.call("GetCurrentMapInfo");
+        this.nextMap = await tmc.server.call("GetNextMapInfo");
         await this.syncMaplist();
     }
 
     private async onBeginMap(data: any) {
         this.currentMap = data[0];
+        const index = Object.keys(this.maps).indexOf(data[0].UId);
+        const indexNext = (index + 1) % Object.keys(this.maps).length;        
+        this.nextMap = Object.values(this.maps)[indexNext];
     }
 
     private async onMapListModified(data: any) {

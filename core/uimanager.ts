@@ -233,7 +233,7 @@ export default class UiManager {
             this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
         }
         for (const id in this.playerManialinks[login]) {
-            await this.playerManialinks[login.toString()][id.toString()].destroy();
+            await this.destroyManialink(this.playerManialinks[login.toString()][id.toString()], false);
         }
     }
 
@@ -283,7 +283,7 @@ export default class UiManager {
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
-            tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false,);
+            tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false);
         } else {
             if (this.hiddenManialinks.length > 0) {
                 const logins = tmc.players.get().map((player) => player.login);
@@ -314,9 +314,11 @@ export default class UiManager {
         }
     }
 
-    async destroyManialink(manialink: Manialink) {
+    async destroyManialink(manialink: Manialink, hide: boolean = true) {
         tmc.debug("¤info¤destroying manialink: $fff" + manialink.id);
-        await this.hideManialink(manialink);
+        if (hide) {
+            await this.hideManialink(manialink);
+        }
         for (let id in manialink.actions) {
             this.removeAction(manialink.actions[id]);
         }

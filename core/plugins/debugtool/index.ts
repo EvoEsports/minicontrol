@@ -13,6 +13,8 @@ export default class DebugTool extends Plugin {
             this.widget = new Widget("core/plugins/debugtool/widget.twig");
             this.widget.pos = { x: 159, y: -60 };
             tmc.addCommand("//heap", this.cmdHeap.bind(this), "Log heap memory usage");
+            tmc.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
+            tmc.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
             this.displayMemInfo();
             this.intervalId = setInterval(() => {
                 this.displayMemInfo();
@@ -27,6 +29,16 @@ export default class DebugTool extends Plugin {
         this.widget = null;
     }
 
+    async cmdRemoveFakeUsers(login: string, args: string[]) {
+        tmc.server.send("DisconnectFakePlayer", "*");
+    }
+
+    async cmdFakeUsers(login: string, args: string[]) {
+        const count = Number.parseInt(args[0]) || 50;     
+        for (let i = 0; i < count; i++) {
+            tmc.server.send("ConnectFakePlayer");
+        }
+    }
 
     async cmdHeap(login: string, args: string[]) {
         const snapshot = generateHeapSnapshot();

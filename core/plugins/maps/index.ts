@@ -56,6 +56,14 @@ export default class Maps extends Plugin {
 
     async cmdQueue(login: any, params: string[]) {
         let map: any = null;
+        if (process.env.DISABLE_MAP_QUEUE == "true") {
+            tmc.chat("¤info¤Map queue is disabled", login);
+            return;
+        }
+        if (params.length == 0) {
+            tmc.chat("¤info¤Usage: /addqueue <map index|map uid>", login);
+            return;
+        }        
         if (params[0].toString().length < 5) {
             let index = Number.parseInt(params[0]) - 1;
             map = tmc.maps.getMaplist()[index];
