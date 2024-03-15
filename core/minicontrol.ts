@@ -173,9 +173,9 @@ class MiniControl {
             if (this.pluginDependecies[name] == undefined) {
                 this.pluginDependecies[name] = [];
             }
-            const msg = `¤gray¤Plugin $fd0${name}$fff loaded.`;
-            this.cli(msg);
+            const msg = `¤gray¤Plugin $fd0${name}$fff loaded.`;            
             await cls.onLoad();
+            this.cli(msg);
             if (this.startComplete) {
                 this.chat(msg);
                 await cls.onStart();
@@ -263,7 +263,7 @@ class MiniControl {
             const msg = "$fff» " + text.toString();
             this.server.send("ChatSendServerMessageToLogin", processColorString(msg, "$z$s"), (typeof login == "string") ? login : login.join(","));
         } else {
-            const msg = controllerStr + " »¤info¤ " + text.toString();
+            const msg = "»¤info¤ " + text.toString();
             this.server.send("ChatSendServerMessage", processColorString(msg, "$z$s"));
         }
     }

@@ -13,7 +13,7 @@ export default class Manialink {
     recipient: string | undefined = undefined;
     title: string = "";
     private _firstDisplay: boolean = true;
-    _data: string = "";
+    _templateData: string = "";
 
     constructor(login: string | undefined = undefined) {
         this.recipient = login
@@ -42,14 +42,17 @@ export default class Manialink {
      * @returns 
      */
     render(): string {
-        if (this._data == "") {
-            this._data = fs.readFileSync(import.meta.dir + "/../../" + this.template, 'utf-8');
+        if (this._templateData == "") {
+            this._templateData = fs.readFileSync(import.meta.dir + "/../../" + this.template, 'utf-8');
         }
         const template = Twig.twig({
             base: import.meta.dir + "/../../",
             path: import.meta.dir + "/../../",
-            data: this._data,
-            async: false
+            data: this._templateData,
+            async: false,
+            options: {
+                autoescape: true
+            } 
         });
         return template.render({
             id: this.id,

@@ -1,6 +1,8 @@
-import { castType } from "core/utils";
+import { castType, escape } from "core/utils";
 import ModeSettingsWindow from "./ModeSettingsWindow";
 import Plugin from "core/plugins";
+import fs from "fs";
+import LocalMapsWindow from "./LocalMapsWindow";
 
 export default class AdminPlugin extends Plugin {
 
@@ -151,7 +153,7 @@ export default class AdminPlugin extends Plugin {
 
         tmc.addCommand("//wml", async (login: string, params: string[]) => {
             let file = "tracklist.txt";
-            if (params[0]) file = params[0];
+            if (params[0]) file = params[0].replace(".txt", "") + ".txt"
             try {
                 const answer = await tmc.server.call("SaveMatchSettings", "MatchSettings/" + file);
                 if (!answer) {
@@ -163,9 +165,10 @@ export default class AdminPlugin extends Plugin {
                 await tmc.chat(err.message, login);
             }
         }, "Saves matchsettings");
+
         tmc.addCommand("//rml", async (login: string, params: string[]) => {
-            let file = "tracklist.txt";
-            if (params[0]) file = params[0];
+            let file = "tracklist";
+            if (params[0]) file = params[0].replace(".txt", "") + ".txt";
             try {
                 const answer = await tmc.server.call("LoadMatchSettings", "MatchSettings/" + file);
                 if (!answer) {
@@ -237,6 +240,7 @@ export default class AdminPlugin extends Plugin {
                 await tmc.chat(err.message, login);
             }
         }, "Calls server method");
+        tmc.addCommand("//addlocal", this.cmdAddLocal.bind(this), "Adds local map to playlist");
     }
 
     async onUnload() {
@@ -264,9 +268,10 @@ export default class AdminPlugin extends Plugin {
             tmc.removeCommand("//modesettings");
             tmc.removeCommand("//set");
         }
+        tmc.removeCommand("//addlocal");
     }
 
-    async cmdModeSettings(login: any, args: string[]) {
+    async cmdModeSettings(login: string, args: string[]) {
         const window = new ModeSettingsWindow(login);
         window.size = { width: 160, height: 100 };
         window.title = "Mode Settings";
@@ -289,6 +294,35 @@ export default class AdminPlugin extends Plugin {
         await window.display();
     }
 
+    async cmdAddLocal(login: string, args: string[]) {
+        if (args.length < 1) {
+            const window = new LocalMapsWindow(login);
+            window.title = "Add Local Maps";
+            window.size = { width: 160, height: 100 };
+            let out = [];
+            for (let file of fs.readdirSync(tmc.mapsPath, { withFileTypes: true, recursive: true })) {
+                if (file.name.toLowerCase().endsWith(".gbx")) {
+                    out.push({ Name: escape(file.name) });
+                }
+            }
+            window.setItems(out);
+            window.setColumns([
+                { key: "Name", title: "Map File", width: 150 }
+            ]);
+            window.setActions(["Add"]);
+            await window.display();
+        }
+        else {
+            try {
+                await tmc.server.call("AddMapList", args);
+                await tmc.maps.syncMaplist();
+                tmc.chat(`Added ${args.length} maps to the playlist`, login);
+            }
+            catch (e: any) {
+                tmc.chat("Error: " + e.message, login);
+            }
+        }
+    }
 
     async cmdSetSetting(login: any, args: string[]) {
         if (args.length < 2) {

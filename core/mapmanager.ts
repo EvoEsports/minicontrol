@@ -4,7 +4,7 @@ export interface Map {
     UId: string;
     Name: string;
     Author: string;
-    AuthorNickName?: string;
+    AuthorNickname?: string;
     AuthorTime: number;
     GoldTime: number;
     FileName: string;

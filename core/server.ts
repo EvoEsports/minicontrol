@@ -1,7 +1,11 @@
-import { log } from "console";
 import { GbxClient } from "./gbx";
 import EventEmitter from "events";
 
+export interface DedicatedPaths {
+    gamedata: string,
+    maps: string,
+    skins: string
+}
 /**
  * Server class
  */
@@ -16,9 +20,8 @@ export default class Server {
      */
     methodOverrides: { [key: string]: CallableFunction } = {};
     scriptCalls: { [key: string]: Promise<any> } = {};
-    login: any;
-    name: any;
-    path: any;
+    login: string = "";
+    name: string = "";
 
     constructor() {
         this.events.setMaxListeners(50);
@@ -37,7 +40,6 @@ export default class Server {
                 tmc.cli("¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!");
                 process.exit(1);
             } else if (data[0] == "MiniControl" && data[1] == tmc.startTime) {
-                this.events.emit("TMC.Start");
                 await tmc.afterStart();
             }
         }
@@ -192,9 +194,9 @@ export default class Server {
         const status = await this.gbx.connect(host, port);
         if (status) {
             const info = await this.gbx.call("GetMainServerPlayerInfo");
-            const info2 = await this.gbx.call("GetServerOptions");            
+            const info2 = await this.gbx.call("GetServerOptions");
             this.login = info.Login;
-            this.name = info2.Name;            
+            this.name = info2.Name; 
         }
         return status;
     }

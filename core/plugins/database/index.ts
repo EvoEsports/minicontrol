@@ -4,7 +4,7 @@ import { Database } from 'bun:sqlite';
 import { eq } from "drizzle-orm";
 import type { Logger } from 'drizzle-orm/logger';
 import type { Player as PlayerType } from 'core/playermanager';
-import { Player } from 'schemas/players';
+import { Player } from 'core/schemas/players';
 import Plugin from 'core/plugins';
 
 class SqliteLogger implements Logger {

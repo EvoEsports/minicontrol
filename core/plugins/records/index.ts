@@ -1,7 +1,7 @@
 import { type BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 import Plugin from "core/plugins";
-import { Score } from "schemas/scores";
-import { Player } from "schemas/players";
+import { Score } from "core/schemas/scores";
+import { Player } from "core/schemas/players";
 import { eq, asc, and } from "drizzle-orm";
 import { clone, escape, removeLinks } from "core/utils";
 import tm from 'tm-essentials';

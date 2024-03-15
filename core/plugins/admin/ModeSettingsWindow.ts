@@ -24,7 +24,7 @@ export default class ModeSettingsWindow extends ListWindow {
         for (let item of this.items) {
             out[item.setting] = item.value;
         }
-        tmc.server.call("SetModeScriptSettings", out);
+        tmc.server.send("SetModeScriptSettings", out);
         tmc.chat("Settings applied", login);
         await this.hide();
     }

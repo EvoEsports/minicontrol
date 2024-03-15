@@ -25,11 +25,16 @@ export default class Maps extends Plugin {
         tmc.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");
         tmc.addCommand("/drop", this.cmdDrop.bind(this), "Drop Map from queue");
         tmc.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
-        tmc.server.addListener("Trackmania.EndRace", this.onEndRace, this);
+        if (tmc.game.Name === "TmForever") {        
+            tmc.server.addListener("Trackmania.EndRace", this.onEndRace, this);        
+        } else {
+            tmc.server.addListener("Trackmania.Podium_Start", this.onEndRace, this);        
+        }
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.EndRace", this.onEndRace.bind(this));
+        tmc.server.removeListener("Trackmania.EndMap", this.onEndRace);
+        tmc.server.removeListener("Trackmania.Podium_Start", this.onEndRace);
         tmc.removeCommand("//cjb");
         tmc.removeCommand("/jb");
         tmc.removeCommand("/addqueue");

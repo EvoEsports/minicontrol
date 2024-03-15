@@ -56,11 +56,11 @@ export default class UiManager {
             uiModule[property] = value;
             uiModule[property + "_update"] = true;
         } else {
-            tmc.debug("¤error¤ui module not found: ¤white¤" + id);
+            tmc.cli("¤error¤ui module not found: ¤white¤" + id);
         }
     }
 
-    async sendUiProperties() {            
+    async sendUiProperties() {
         await tmc.server.call("TriggerModeScriptEventArray", 'Common.UIModules.SetProperties', [`{"uimodules": ${JSON.stringify(this.uiProperties)}}`]);
     }
 
@@ -93,9 +93,13 @@ export default class UiManager {
             const x = (Number.parseFloat(match[2]) / 160) * 64;
             const y = (Number.parseFloat(match[3]) / 90) * 48;
             let z = 0;
-            const zindex = line.match(/z-index="(\d+)"/) || ["0", "0"];
+            const zindex = line.match(/z-index="([-\d]+)"/) || ["0", "0"];
             z = Number.parseInt(zindex[1]) ?? 0;
-            out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="\d+"/, "");
+            if (match[1] == "pos") {
+                out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="\d+"/, "");
+            } else if (match[1] == "size") {
+                out = out.replaceAll(match[0], `${match[1]}n="${x} ${y}"`);
+            }
         }
         return out;
     }
@@ -283,7 +287,9 @@ export default class UiManager {
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
-            tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false);
+            if (!this.hiddenManialinks.includes(manialink.recipient)) {
+                tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false);
+            }
         } else {
             if (this.hiddenManialinks.length > 0) {
                 const logins = tmc.players.get().map((player) => player.login);
@@ -357,7 +363,7 @@ export default class UiManager {
             <speed_and_distance visible="false"/>
             <player_ranking visible="false"/>
             <global visible="true"/>
-        </custom_ui></manialinks>`.replaceAll("\n", "");
+        </custom_ui></manialinks>`;
     }
 
     getGlobalManialink() {

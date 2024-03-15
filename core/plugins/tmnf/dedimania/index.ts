@@ -27,7 +27,7 @@ export default class Dedimania extends Plugin {
     records: any = [];
     widget: Widget | null = null;
     sendRecords: boolean = false;
-    intervalId: NodeJS.Timeout | null = null;
+    intervalId: Timer | null = null;
 
     async onLoad() {
         this.widget = new Widget("core/plugins/tmnf/dedimania/widget.twig");
@@ -145,7 +145,7 @@ export default class Dedimania extends Plugin {
         }
         );
 
-        this.enabled = res ?? false;
+        this.enabled = res[0] ?? false;
         return this.enabled;
     }
 
