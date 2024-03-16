@@ -173,7 +173,7 @@ class MiniControl {
             if (this.pluginDependecies[name] == undefined) {
                 this.pluginDependecies[name] = [];
             }
-            const msg = `¤gray¤Plugin $fd0${name}$fff loaded.`;            
+            const msg = `¤gray¤Plugin $fd0${name}$fff loaded.`;
             await cls.onLoad();
             this.cli(msg);
             if (this.startComplete) {

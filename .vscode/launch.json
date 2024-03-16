@@ -8,7 +8,6 @@
   
         // The path to a JavaScript or TypeScript file to run.
         "program": "core/minicontrol.ts",
-  
         // The arguments to pass to the program, if any.
         "args": [],
   

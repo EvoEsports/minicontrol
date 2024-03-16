@@ -46,7 +46,7 @@ export default class Dedimania extends Plugin {
             this.enabled = false;
             return;
         }
-        
+
         try {
             const res = await this.authenticate();
             if (res == true) {
@@ -140,8 +140,9 @@ export default class Dedimania extends Plugin {
             Version: tmc.version,
             Nation: this.server.Path,
             Packmask: packmask,
-            ServerVersion: tmc.game.Version,
-            ServerBuild: tmc.game.Build
+            //            ServerVersion: tmc.game.Version,
+            //            ServerBuild: tmc.game.Build,
+            PlayersGame: true
         }
         );
 

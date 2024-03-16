@@ -33,11 +33,11 @@ export default class DedimaniaClient {
                 const deserializer = new Deserializer();
                 deserializer.deserializeMethodResponse(Readable.from(data), (err: any, res: any) => {
                     if (err) {
-                        return reject(err);                        
+                        return reject(err);
                     } else {
                         for (let method of res[1][0].methods) {
-                            if (method.errors !== "") {                                
-                                return reject(method.errors);                                
+                            if (method.errors !== "") {
+                                return reject(method.errors);
                             }
                         }
                         return resolve(res[0]);

@@ -157,7 +157,7 @@ export default class UiManager {
     addAction(callback: CallableFunction, data: any): string {
         const getHash = (data: any) => {
             const salt = Math.random().toString(36).substring(2, 12);
-            return this.hash(salt) // + JSON.stringify(data));
+            return this.hash(salt);
         };
         let hash = getHash(data);
         if (this.actions[hash.toString()]) {
@@ -180,7 +180,7 @@ export default class UiManager {
             delete this.actions[actionId];
             tmc.debug("¤info¤deleted action: ¤white¤" + actionId + " ¤info¤total actions: ¤white¤" + Object.keys(this.actions).length.toString());
         } else {
-            //    tmc.debug("¤error¤action not found: " + actionId);
+            // tmc.debug("¤error¤action not found: " + actionId);
         }
     }
 
@@ -351,6 +351,7 @@ export default class UiManager {
      */
     getTmufCustomUi() {
         return `
+        <?xml version="1.0" encoding="UTF-8"?>        
         <manialinks><custom_ui>
             <notice visible="false"/>            
             <challenge_info visible="false"/>
@@ -367,7 +368,9 @@ export default class UiManager {
     }
 
     getGlobalManialink() {
-        return `<manialinks>
+        return `
+        <?xml version="1.0" encoding="UTF-8"?>
+        <manialinks>
         <manialink id="1" version="3">
             <frame pos="-152.5 -36" z-index="1">           
                 <label pos="0 0" size="0 0" valign="center2" halign="center" textsize="0.5" textcolor="fff" text=" " focusareacolor1="0000" focusareacolor2="0000" actionkey="3" action="-2"/>
