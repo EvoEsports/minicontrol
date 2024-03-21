@@ -15,19 +15,19 @@ export default class AdminPlugin extends Plugin {
         tmc.addCommand("//res", async () => await tmc.server.call("RestartMap"), "Restarts Map");
         tmc.addCommand("//kick", async (login: string, params: string[]) => {
             if (!params[0]) {
-                return await tmc.chat("¤cmd¤//kick ¤info¤needs a login", login);
+                return tmc.chat("¤cmd¤//kick ¤info¤needs a login", login);
             }
             await tmc.server.call("Kick", params[0]);
         }, "Kicks player");
         tmc.addCommand("//ban", async (login: string, params: string[]) => {
             if (!params[0]) {
-                return await tmc.chat("¤cmd¤//ban ¤info¤needs a login", login);
+                return tmc.chat("¤cmd¤//ban ¤info¤needs a login", login);
             }
             await tmc.server.call("Ban", params[0]);
         }, "Bans player");
         tmc.addCommand("//unban", async (login: string, params: string[]) => {
             if (!params[0]) {
-                return await tmc.chat("¤cmd¤//unban ¤info¤needs a login", login);
+                return tmc.chat("¤cmd¤//unban ¤info¤needs a login", login);
             }
             await tmc.server.call("Unban", params[0]);
         }, "Unbans player");
@@ -35,16 +35,16 @@ export default class AdminPlugin extends Plugin {
         tmc.addCommand("//er", () => tmc.server.call("ForceEndRound"), "Ends round");
         tmc.addCommand("//mode", async (login: string, params: string[]) => {
             if (!params[0]) {
-                return await tmc.chat("¤cmd¤//mode ¤info¤needs a mode", login);
+                return tmc.chat("¤cmd¤//mode ¤info¤needs a mode", login);
             }
             if (tmc.game.Name == "TmForever") {
                 const modes: { [key: string]: number } = {
                     "rounds": 0, "ta": 1, "team": 2, "laps": 3, "stunts": 4, "cup": 5
                 }
                 if (modes[params[0]] === undefined) {
-                    return await tmc.chat("¤cmd¤//mode ¤info¤needs a valid mode", login);
+                    return tmc.chat("¤cmd¤//mode ¤info¤needs a valid mode", login);
                 }
-                await tmc.chat(`Gamemode set to ${params[0]}`);
+                tmc.chat(`Gamemode set to ${params[0]}`);
                 await tmc.server.call("SetGameMode", modes[params[0]]);
             }
 
@@ -57,9 +57,9 @@ export default class AdminPlugin extends Plugin {
                     "cup": "Trackmania/TM_Cup_Online.Script.txt"
                 };
                 if (scripts[params[0]] === undefined) {
-                    return await tmc.chat("¤cmd¤//mode ¤info¤needs a valid mode", login);
+                    return tmc.chat("¤cmd¤//mode ¤info¤needs a valid mode", login);
                 }
-                await tmc.chat(`¤info¤Gamemode set to ¤white¤${params[0]}`);
+                tmc.chat(`¤info¤Gamemode set to ¤white¤${params[0]}`);
                 await tmc.server.call("SetScriptName", scripts[params[0]]);
             }
         }, "Sets gamemode");
@@ -85,41 +85,41 @@ export default class AdminPlugin extends Plugin {
 
         tmc.addCommand("//warmup", async (login: string, params: string[]) => {
             if (!params[0] && isNaN(Number.parseInt(params[0]))) {
-                return await tmc.chat("¤cmd¤//warmup ¤info¤needs numeric value");
+                return tmc.chat("¤cmd¤//warmup ¤info¤needs numeric value");
             }
-            await tmc.chat(`¤info¤Warmup set to ¤white¤${params[0]}`, login);
+            tmc.chat(`¤info¤Warmup set to ¤white¤${params[0]}`, login);
             await tmc.server.call("SetWarmUpDuration", Number.parseInt(params[0]));
         }, "Sets warmup duration");
 
         tmc.addCommand("//ignore", async (login: string, params: string[]) => {
             if (!params[0]) {
-                return await tmc.chat("¤cmd¤//ignore ¤info¤needs a login", login);
+                return tmc.chat("¤cmd¤//ignore ¤info¤needs a login", login);
             }
             await tmc.server.call("Ignore", params[0]);
-            await tmc.chat(`¤info¤Ignoring ¤white¤${params[0]}`, login);
+            tmc.chat(`¤info¤Ignoring ¤white¤${params[0]}`, login);
         }, "Ignores player");
 
         tmc.addCommand("//unignore", async (login: string, params: string[]) => {
             if (!params[0]) {
-                return await tmc.chat("¤cmd¤//unignore ¤info¤needs a login", login);
+                return tmc.chat("¤cmd¤//unignore ¤info¤needs a login", login);
             }
             await tmc.server.call("UnIgnore", params[0]);
-            await tmc.chat(`¤info¤Unignored ¤white¤${params[0]}`, login);
+            tmc.chat(`¤info¤Unignored ¤white¤${params[0]}`, login);
         }, "Unignores player");
 
         tmc.addCommand("//talimit", async (login: string, params: string[]) => {
             if (tmc.game.Name == "TmForever") {
                 if (!params[0]) {
-                    return await tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
+                    return tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
                 }
-                await tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`, login);
+                tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`, login);
                 tmc.server.send("SetTimeAttackLimit", Number.parseInt(params[0]) * 1000);
                 return;
             }
 
             if (tmc.game.Name == "Trackmania") {
                 if (!params[0]) {
-                    return await tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
+                    return tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
                 }
                 const settings = { "S_TimeLimit": Number.parseInt(params[0]) };
                 tmc.server.send("SetModeScriptSettings", settings);
@@ -129,10 +129,10 @@ export default class AdminPlugin extends Plugin {
 
         tmc.addCommand("//jump", async (login: string, params: string[]) => {
             if (!params[0] && isNaN(Number.parseInt(params[0]))) {
-                return await tmc.chat("¤cmd¤//jump ¤info¤needs numeric value");
+                return tmc.chat("¤cmd¤//jump ¤info¤needs numeric value");
             }
             try {
-                let map: any = tmc.maps.currentMap;
+                let map: any;
                 if (params[0].toString().length < 5) {
                     let index = Number.parseInt(params[0]) - 1;
                     map = tmc.maps.getMaplist()[index];
@@ -140,14 +140,14 @@ export default class AdminPlugin extends Plugin {
                     map = tmc.maps.getMaplist().find((m: any) => m.UId == params[0]);
                 }
                 if (map) {
-                    await tmc.chat(`¤info¤Jumped to ¤white¤${map.Name}¤info¤ by ¤white¤${map.AuthorNickName ? map.AuthorNickName : map.Author}`);
+                    tmc.chat(`¤info¤Jumped to ¤white¤${map.Name}¤info¤ by ¤white¤${map.AuthorNickName ? map.AuthorNickName : map.Author}`);
                     await tmc.server.call("ChooseNextMap", map.FileName);
                     tmc.server.send("NextMap");
                 } else {
                     tmc.chat("¤error¤Couldn't find map", login)
                 }
             } catch (err: any) {
-                await tmc.chat(err.message, login);
+                tmc.chat(err.message, login);
             }
         }, "Jumps to map in playlist");
 
@@ -157,12 +157,12 @@ export default class AdminPlugin extends Plugin {
             try {
                 const answer = await tmc.server.call("SaveMatchSettings", "MatchSettings/" + file);
                 if (!answer) {
-                    await tmc.chat(`¤error¤Couldn't save matchsettings to ¤white¤${file}`, login);
+                    tmc.chat(`¤error¤Couldn't save matchsettings to ¤white¤${file}`, login);
                     return;
                 }
-                await tmc.chat(`¤info¤Saved matchsettings to ¤white¤${file}`, login);
+                tmc.chat(`¤info¤Saved matchsettings to ¤white¤${file}`, login);
             } catch (err: any) {
-                await tmc.chat(err.message, login);
+                tmc.chat(err.message, login);
             }
         }, "Saves matchsettings");
 
@@ -172,13 +172,13 @@ export default class AdminPlugin extends Plugin {
             try {
                 const answer = await tmc.server.call("LoadMatchSettings", "MatchSettings/" + file);
                 if (!answer) {
-                    await tmc.chat(`¤error¤Couldn't read matchsettings from ¤white¤${file}`, login);
+                    tmc.chat(`¤error¤Couldn't read matchsettings from ¤white¤${file}`, login);
                     return;
                 }
                 await tmc.maps.syncMaplist();
-                await tmc.chat(`¤info¤Matchsettings read from ¤white¤${file}`, login);
+                tmc.chat(`¤info¤Matchsettings read from ¤white¤${file}`, login);
             } catch (err: any) {
-                await tmc.chat(err.message, login);
+                tmc.chat(err.message, login);
             }
         }, "Reads matchsettings");
         tmc.addCommand("//shuffle", async (login: string, params: string[]) => {
@@ -192,9 +192,9 @@ export default class AdminPlugin extends Plugin {
                 await tmc.server.call("RemoveMapList", toserver);
                 tmc.server.send("AddMapList", toserver);
                 await tmc.maps.syncMaplist();
-                await tmc.chat(`¤info¤Maplist Shuffled.`);
+                tmc.chat(`¤info¤Maplist Shuffled.`);
             } catch (err: any) {
-                await tmc.chat("¤error¤" + err.message, login);
+                tmc.chat("¤error¤" + err.message, login);
             }
         }, "Shuffles maplist");
         tmc.addCommand("//remove", async (login: string, params: string[]) => {
@@ -210,21 +210,21 @@ export default class AdminPlugin extends Plugin {
 
             try {
                 if (!map) {
-                    await tmc.chat(`¤error¤Couldn't find map`, login);
+                    tmc.chat(`¤error¤Couldn't find map`, login);
                     return;
                 }
                 await tmc.server.call("RemoveMap", map.FileName);
                 tmc.maps.removeMap(map.UId);
-                await tmc.chat(`¤info¤Removed map ¤white¤${map.Name} ¤info¤from the playlist.`, login);
+                tmc.chat(`¤info¤Removed map ¤white¤${map.Name} ¤info¤from the playlist.`, login);
             } catch (err: any) {
-                await tmc.chat(err.message, login);
+                tmc.chat(err.message, login);
             }
         }, "Removes map from playlist");
 
         tmc.addCommand("//call", async (login: string, params: string[]) => {
             const method = params.shift();
             if (method === undefined) {
-                return await tmc.chat("¤cmd¤//call ¤info¤needs a method", login);
+                return tmc.chat("¤cmd¤//call ¤info¤needs a method", login);
             }
             try {
                 let out: any = [];
@@ -235,9 +235,9 @@ export default class AdminPlugin extends Plugin {
                     else out[i] = params[i];
                 }
                 const answer = await tmc.server.call(method, ...out);
-                await tmc.chat(answer.toString(), login);
+                tmc.chat(answer.toString(), login);
             } catch (err: any) {
-                await tmc.chat(err.message, login);
+                tmc.chat(err.message, login);
             }
         }, "Calls server method");
         tmc.addCommand("//addlocal", this.cmdAddLocal.bind(this), "Adds local map to playlist");

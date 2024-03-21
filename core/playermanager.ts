@@ -1,7 +1,6 @@
 import { sleep } from "bun";
-import Server from "./server";
 import { clone } from "./utils";
-import { log } from "console";
+
 // import casual from 'casual';
 
 /**
@@ -20,7 +19,7 @@ export class Player {
             let k = key[0].toLowerCase() + key.slice(1);
             if (k == "nickName") {
                 k = "nickname";
-                data[key] = data[key].replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "");
+                data[key] = data[key].replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "");
             }
             this[k] = data[key];
         }
@@ -52,7 +51,7 @@ export default class PlayerManager {
      * @returns {Promise<void>}
      * @ignore
      */
-    async init() {
+    async init(): Promise<void> {
         tmc.server.addListener("Trackmania.PlayerInfoChanged", this.onPlayerInfoChanged, this);
         const players = await tmc.server.call('GetPlayerList', -1, 0);
         for (const data of players) {
@@ -130,7 +129,7 @@ export default class PlayerManager {
 
         const data = await tmc.server.call("GetDetailedPlayerInfo", login);
         const player = new Player();
-        player.syncFromDetailedPlayerInfo(data);
+        await player.syncFromDetailedPlayerInfo(data);
         this.players[login] = player;
         return player;
     }

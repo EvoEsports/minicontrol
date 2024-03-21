@@ -1,6 +1,5 @@
 import Plugin from "core/plugins";
 import PlayerWindow from "./PlayerWindow";
-import type { Menu } from "../menu";
 
 
 export default class Players extends Plugin {

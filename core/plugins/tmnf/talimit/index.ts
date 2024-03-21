@@ -9,15 +9,13 @@ export default class TAlimitPlugin extends Plugin {
     active: boolean = false;
     extend: boolean = false;
     widget: Widget | null = null;
-    intervalId: NodeJS.Timeout | null = null;
+    intervalId: Timer | null = null;
 
     async onBeginRound() {
         this.startTime = Date.now();
         const gamemode = await tmc.server.call("GetGameMode"); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
-        this.active = false;
-        if (gamemode === 1) {
-            this.active = true;
-        }
+
+        this.active = gamemode === 1;
         if (this.extend) {
             this.extend = false;
             this.timeLimit = Number.parseInt(process.env.TALIMIT || "300");
@@ -41,7 +39,7 @@ export default class TAlimitPlugin extends Plugin {
             const limit = await tmc.server.call("GetTimeAttackLimit");
             if (limit.CurrentValue > 0) {
                 await tmc.server.send("SetTimeAttackLimit", 0);
-                await tmc.chat("¤info¤TALimit: TimeAttackLimit was set, disabling it.");
+                tmc.chat("¤info¤TALimit: TimeAttackLimit was set, disabling it.");
                 tmc.server.send("NextMap");
             }
             this.active = true;
@@ -60,7 +58,7 @@ export default class TAlimitPlugin extends Plugin {
         this.active = false;
         await this.hideWidget();
         await tmc.server.send("SetTimeAttackLimit", this.timeLimit*1000);
-        await tmc.chat("$fffTALimit: Native TimeLimit restored, skip map required to apply.");        
+        tmc.chat("$fffTALimit: Native TimeLimit restored, skip map required to apply.");
     }
 
     async tick() {
@@ -72,7 +70,7 @@ export default class TAlimitPlugin extends Plugin {
             this.active = false;
             tmc.server.send("NextMap");
         } else if (this.active) {
-            this.showWidget();
+            await this.showWidget();
         }
     }
 
@@ -80,7 +78,7 @@ export default class TAlimitPlugin extends Plugin {
         const newlimit = Number.parseInt(args) / 1000;
         process.env["TALIMIT"] = newlimit.toString();
         this.timeLimit = newlimit;
-        this.hideWidget();
+        await this.hideWidget();
     }
 
     async showWidget() {

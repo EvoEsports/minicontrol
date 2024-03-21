@@ -38,8 +38,7 @@ export default class Manialink {
 
     /**
      * render manialink template
-     * @param options 
-     * @returns 
+     * @returns
      */
     render(): string {
         if (this._templateData == "") {

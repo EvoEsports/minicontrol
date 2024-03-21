@@ -8,7 +8,7 @@ interface Column {
     key: string;
     width: number;
     type?: string;
-};
+}
 
 interface PaginationResult<T> {
     currentPage: number;
@@ -51,7 +51,7 @@ export default class ListWindow extends Window {
     async hide(): Promise<void> {
         this.template = "";
         this.items = [];
-        super.hide();
+        await super.hide();
     }
     /**
      * @param items
@@ -80,7 +80,7 @@ export default class ListWindow extends Window {
         };
     }
 
-    uiPaginate(login: string, answer: any, entries: any): void {
+    async uiPaginate(login: string, answer: any, entries: any): Promise<void> {
         if (answer == "start") {
             this.currentPage = 0;
         } else if (answer == 'prev') {
@@ -96,12 +96,12 @@ export default class ListWindow extends Window {
         const itemsArray = [];
         let x = 1;
         for (let item of this.items) {
-            Object.assign(item, { index: x });
+            Object.assign(item, {index: x});
             itemsArray.push(item);
             x++;
         }
 
-        for(let id in this.actions) {
+        for (let id in this.actions) {
             if (id.startsWith("item_")) {
                 tmc.ui.removeAction(this.actions[id]);
                 delete this.actions[id];
@@ -117,12 +117,12 @@ export default class ListWindow extends Window {
             }
         }
         this.data['items'] = items;
-        super.display();
+        await super.display();
     }
 
     async display() {
-        this.uiPaginate("", "start", []);
-        super.display();
+        await this.uiPaginate("", "start", []);
+        await super.display();
     }
 
     addApplyButtons(): void {
@@ -142,7 +142,7 @@ export default class ListWindow extends Window {
      * @param action 
      * @param item 
      */
-    onAction(login: string, action: string, item: any): void {
+    async onAction(login: string, action: string, item: any): Promise<void> {
         // Override this
     }
 
@@ -152,7 +152,7 @@ export default class ListWindow extends Window {
      * @param answer 
      * @param entries 
      */
-    onApply(login: string, answer: any, entries: any): void {
+    async onApply(login: string, answer: any, entries: any): Promise<void> {
         // override this
     }
 

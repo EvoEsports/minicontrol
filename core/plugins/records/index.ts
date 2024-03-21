@@ -64,13 +64,13 @@ export default class Records extends Plugin {
         if (!this.db) return;
         if (!tmc.maps.currentMap?.UId) return;
         this.currentMapUid = tmc.maps.currentMap.UId;
-        this.syncRecords(tmc.maps.currentMap.UId);
+        await this.syncRecords(tmc.maps.currentMap.UId);
     }
 
     async onBeginMap(data: any) {
         const map = data[0];
         this.currentMapUid = map.UId;
-        this.syncRecords(map.UId);
+        await this.syncRecords(map.UId);
     }
 
     async cmdRecords(login: string, args: string[]) {

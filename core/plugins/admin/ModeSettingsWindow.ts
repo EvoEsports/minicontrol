@@ -12,9 +12,9 @@ export default class ModeSettingsWindow extends ListWindow {
         }
     }
 
-    uiPaginate(login: string, answer: any, entries: any) {
+    async uiPaginate(login: string, answer: any, entries: any) {
         this.parseEntries(entries);
-        super.uiPaginate(login, answer, entries);
+        await super.uiPaginate(login, answer, entries);
     }
 
 

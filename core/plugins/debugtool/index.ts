@@ -16,7 +16,7 @@ export default class DebugTool extends Plugin {
             tmc.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
             tmc.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");         
         }
-        this.displayMemInfo();     
+        await this.displayMemInfo();     
         this.intervalId = setInterval(() => {
             this.displayMemInfo();
         }, 60000) as NodeJS.Timer;

@@ -1,11 +1,5 @@
 import { GbxClient } from "./gbx";
 import EventEmitter from "events";
-
-export interface DedicatedPaths {
-    gamedata: string,
-    maps: string,
-    skins: string
-}
 /**
  * Server class
  */
@@ -124,7 +118,7 @@ export default class Server {
      * @param method method to override
      * @param callback callback function
      */
-    async addOverride(method: string, callback: Function) {
+    addOverride(method: string, callback: Function) {
         this.methodOverrides[method] = callback;
     }
 
@@ -132,7 +126,7 @@ export default class Server {
      * removes override for a method
      * @param method method to remove override
      */
-    async removeOverride(method: string) {
+    removeOverride(method: string) {
         delete this.methodOverrides[method];
     }
 
@@ -187,10 +181,9 @@ export default class Server {
     /**
      * connect to server
      * @param host 
-     * @param port 
-     * @returns {boolean} Returns true if connection was successful
+     * @param port
      */
-    async connect(host: string, port: number) {
+    async connect(host: string, port: number): Promise<boolean> {
         const status = await this.gbx.connect(host, port);
         if (status) {
             const info = await this.gbx.call("GetMainServerPlayerInfo");

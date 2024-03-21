@@ -1,10 +1,11 @@
-import { Buffer } from "buffer";
+import {Buffer} from "buffer";
 import type Server from "core/server";
-// import * as net from "net";
-const { Readable } = require('stream');
-const Serializer = require("xmlrpc/lib/serializer");
-const Deserializer = require("xmlrpc/lib/deserializer");
-//Buffer.poolSize = 1024;
+import {Readable} from 'stream';
+// @ts-ignore
+import Serializer from "xmlrpc/lib/serializer";
+// @ts-ignore
+import Deserializer from "xmlrpc/lib/deserializer";
+
 
 export class GbxClient {
     isConnected: boolean;
@@ -23,9 +24,9 @@ export class GbxClient {
     promiseCallbacks: { [key: string]: any } = {};
 
     /**
-    * Creates an instance of GbxClient.
-    * @memberof GbxClient
-    */
+     * Creates an instance of GbxClient.
+     * @memberof GbxClient
+     */
     public constructor(server: Server) {
         this.isConnected = false;
         this.reqHandle = 0x80000000;
@@ -39,15 +40,15 @@ export class GbxClient {
     }
 
     /**
-    * Connects to trackmania server
-    * Supports currently Trackmanias with GBXRemote 2 protocol:
-    * Trackmania Nations Forever / Maniaplanet / Trackmania 2020
-    *
-    * @param {string} [host]
-    * @param {number} [port]
-    * @returns {Promise<boolean>}
-    * @memberof GbxClient
-    */
+     * Connects to trackmania server
+     * Supports currently Trackmanias with GBXRemote 2 protocol:
+     * Trackmania Nations Forever / Maniaplanet / Trackmania 2020
+     *
+     * @param {string} [host]
+     * @param {number} [port]
+     * @returns {Promise<boolean>}
+     * @memberof GbxClient
+     */
     async connect(host?: string, port?: number): Promise<boolean> {
         host = host || "127.0.0.1";
         port = port || 5000;
@@ -71,7 +72,7 @@ export class GbxClient {
             }
         });
         const res: boolean = await new Promise((resolve, reject) => {
-            this.promiseCallbacks['onConnect'] = { resolve, reject };
+            this.promiseCallbacks['onConnect'] = {resolve, reject};
         });
 
         delete this.promiseCallbacks['onConnect'];
@@ -142,15 +143,17 @@ export class GbxClient {
     }
 
     /**
-    * execute a xmlrpc method call on a server
-    *
-    * @param {string} method
-    * @param {...any} params
-    * @returns any
-    * @memberof GbxClient
-    */
+     * execute a xmlrpc method call on a server
+     *
+     * @param {string} method
+     * @param {...any} params
+     * @returns any
+     * @memberof GbxClient
+     */
     async call(method: string, ...params: any) {
-        if (!this.isConnected) { return undefined }
+        if (!this.isConnected) {
+            return undefined
+        }
         try {
             const xml = Serializer.serializeMethodCall(method, params);
             return await this.query(xml, true);
@@ -166,15 +169,17 @@ export class GbxClient {
     }
 
     /**
-    * execute a xmlrpc method call on a server
-    *
-    * @param {string} method
-    * @param {...any} params
-    * @returns any
-    * @memberof GbxClient
-    */
+     * execute a xmlrpc method call on a server
+     *
+     * @param {string} method
+     * @param {...any} params
+     * @returns any
+     * @memberof GbxClient
+     */
     send(method: string, ...params: any) {
-        if (!this.isConnected) { return undefined }
+        if (!this.isConnected) {
+            return undefined
+        }
         try {
             // tmc.debug(`$080send $fff>> $888${method}`);
             const xml = Serializer.serializeMethodCall(method, params);
@@ -192,36 +197,40 @@ export class GbxClient {
 
 
     /**
-    * execute a script method call
-    *
-    * @param {string} method
-    * @param {...any} params
-    * @returns any
-    * @memberof GbxClient
-    */
+     * execute a script method call
+     *
+     * @param {string} method
+     * @param {...any} params
+     * @returns any
+     * @memberof GbxClient
+     */
     async callScript(method: string, ...params: any) {
-        if (!this.isConnected) { return undefined }
+        if (!this.isConnected) {
+            return undefined
+        }
         return await this.call("TriggerModeScriptEventArray", method, params);
     }
 
     /**
-    * perform a multicall
-    *
-    * @example await gbx.multicall([
-    *                              ["Method1", param1, param2, ...],
-    *                              ["Method2", param1, param2, ...],
-    *                              ...
-    *                              ])
-    *
-    * @param {Array<any>} methods
-    * @returns Array<any>
-    * @memberof GbxClient
-    */
+     * perform a multicall
+     *
+     * @example await gbx.multicall([
+     *                              ["Method1", param1, param2, ...],
+     *                              ["Method2", param1, param2, ...],
+     *                              ...
+     *                              ])
+     *
+     * @param {Array<any>} methods
+     * @returns Array<any>
+     * @memberof GbxClient
+     */
     async multicall(methods: Array<any>) {
-        if (!this.isConnected) { return undefined }
+        if (!this.isConnected) {
+            return undefined
+        }
         const params: any = [];
         for (let method of methods) {
-            params.push({ methodName: method.shift(), params: method });
+            params.push({methodName: method.shift(), params: method});
         }
 
         const xml = Serializer.serializeMethodCall("system.multicall", [params]);
@@ -251,7 +260,7 @@ export class GbxClient {
         this.socket?.write(buf);
         if (wait) {
             const response = await new Promise<any>((resolve, reject) => {
-                this.promiseCallbacks[handle] = { resolve, reject };
+                this.promiseCallbacks[handle] = {resolve, reject};
             })
             delete this.promiseCallbacks[handle];
 
@@ -270,11 +279,11 @@ export class GbxClient {
     }
 
     /**
-    * Disconnect
-    *
-    * @returns Promise<true>
-    * @memberof GbxClient
-    */
+     * Disconnect
+     *
+     * @returns Promise<true>
+     * @memberof GbxClient
+     */
     async disconnect(): Promise<true> {
         this.socket?.destroy();
         this.isConnected = false;

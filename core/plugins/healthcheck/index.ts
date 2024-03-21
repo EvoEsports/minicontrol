@@ -21,7 +21,7 @@ export default class HealthCheck extends Plugin {
                         tmc.debug("¤info¤HealthCheck: Ping received.");
                     }
                 },
-                open(socket: Socket) {
+                open() {
                     tmc.debug("¤info¤HealthCheck: Connection opened.");
                 }
             }

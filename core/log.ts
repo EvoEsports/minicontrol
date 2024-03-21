@@ -17,7 +17,7 @@ function Tm2Console(input: string, ansilevel: number = 0) {
 
         const [r, g, b] = str.replace("$", "").split("");
         const [h, s, l] = rgb2hsl(c(r), c(g), c(b));
-        let ansi = 0;
+        let ansi: number;
         switch (Math.round(((h - 10) % 360) / 60)) {
             case 0:
                 ansi = 1;

@@ -41,7 +41,7 @@ export default class UiManager {
         if (tmc.game.Name == "TmForever") {
             tmc.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
         }
-        tmc.server.call('SendDisplayManialinkPage', this.convert(this.getGlobalManialink()), 0, false);
+        tmc.server.send('SendDisplayManialinkPage', this.convert(this.getGlobalManialink()), 0, false);
     }
 
     async getUiProperties() {
@@ -122,7 +122,6 @@ export default class UiManager {
 
     /**
      * generate new uuid for manialink
-     * @param nb 
      * @returns 
      */
     uuid(): string {
@@ -152,17 +151,16 @@ export default class UiManager {
      * Add manialink action
      * @param callback 
      * @param data
-     * @returns {str}
      */
     addAction(callback: CallableFunction, data: any): string {
-        const getHash = (data: any) => {
+        const getHash = () => {
             const salt = Math.random().toString(36).substring(2, 12);
             return this.hash(salt);
         };
-        let hash = getHash(data);
+        let hash = getHash();
         if (this.actions[hash.toString()]) {
             tmc.debug("¤error¤action already exists: ¤white¤" + hash + "$fff trying again...");
-            hash = getHash(data);
+            hash = getHash();
         }
         const prefix = tmc.game.Name == "TmForever" ? "" : "tmc";
         hash = prefix + hash;
@@ -202,7 +200,7 @@ export default class UiManager {
 
             } else {
                 this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
-                this.onPlayerConnect([login]);
+                await this.onPlayerConnect([login]);
             }
             return;
         }
@@ -223,7 +221,7 @@ export default class UiManager {
             const xml = `<manialinks>${this.convert(render)}</manialinks>`;
             multi.push(['SendDisplayManialinkPageToLogin', login, xml, 0, false]);
         }
-        tmc.server.gbx.multicall(multi);
+        await tmc.server.gbx.multicall(multi);
 
         if (tmc.game.Name == "TmForever") {
             tmc.server.send('SendDisplayManialinkPageToLogin', login, this.getTmufCustomUi(), 0, false);
@@ -262,7 +260,7 @@ export default class UiManager {
             }
             this.playerManialinks[manialink.recipient][manialink.id.toString()] = manialink;
         }
-        const render = await manialink.render();
+        const render = manialink.render();
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
@@ -283,7 +281,7 @@ export default class UiManager {
      * @param manialink 
      */
     async refreshManialink(manialink: Manialink) {
-        const render = await manialink.render();
+        const render = manialink.render();
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
@@ -347,9 +345,8 @@ export default class UiManager {
 
     /**      
      * @ignore
-     * @returns {string} Returns the default ui for tmuf
      */
-    getTmufCustomUi() {
+    getTmufCustomUi(): string {
         return `
         <?xml version="1.0" encoding="UTF-8"?>        
         <manialinks><custom_ui>

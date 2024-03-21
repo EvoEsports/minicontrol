@@ -25,7 +25,6 @@ class MapManager {
 
     /**
      * @ignore
-     * @param server server instance
      */
     constructor() {
         this.maps = {};
@@ -91,7 +90,7 @@ class MapManager {
      * get maps
      * @returns {Map[]} Returns the current maplist
      */
-    get() {
+    get(): Map[] {
         return clone(Object.values(this.maps));
     }
 
@@ -99,7 +98,7 @@ class MapManager {
      * get mapslist
      * @returns {Map[]} Returns the current maplist
      */
-    getMaplist() {
+    getMaplist(): Map[] {
         return this.get();
     }
 
@@ -107,14 +106,14 @@ class MapManager {
      * get map uids
      * @returns {string[]} Returns the current map uids
      */
-    getUids() {
+    getUids(): string[] {
         return Object.keys(this.maps);
     }
 
     /**
      * @returns {number} Returns the total number of maps present at server
      */
-    getMapCount() {
+    getMapCount(): number {
         return Object.values(this.maps).length;
     }
 }

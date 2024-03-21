@@ -44,7 +44,7 @@ export default class MenuPlugin extends Plugin {
         }
         setTimeout(() => { tmc.server.emit("Plugin.Menu.onReady", tmc.storage["menu"]) }, 200);
         if (this.menuButton) {
-            this.menuButton.destroy();
+            await this.menuButton.destroy();
             this.menuButton = null;
         }
 
@@ -77,7 +77,7 @@ export default class MenuPlugin extends Plugin {
     }
 
     async hideMenu(login: string) {
-        this.menuInstances[login].destroy();
+        await this.menuInstances[login].destroy();
         delete this.menuInstances[login];
     }
 

@@ -1,8 +1,10 @@
 import * as http from "http";
 import { Readable } from "stream";
 import fetch from 'node-fetch';
-const Serializer = require("xmlrpc/lib/serializer");
-const Deserializer = require("xmlrpc/lib/deserializer");
+// @ts-ignore
+import Serializer from "xmlrpc/lib/serializer";
+// @ts-ignore
+import Deserializer from "xmlrpc/lib/deserializer";
 
 export default class DedimaniaClient {
 

@@ -24,7 +24,7 @@ class MiniControl {
     /**
      * The version of MiniControl.
      */
-    readonly version: string = "0.3.0";
+    readonly version: string = "0.3.1";
     /**
      * The start time of MiniControl.
      */
@@ -214,7 +214,7 @@ class MiniControl {
             const file = path.resolve(process.cwd() + "/" + pluginPath + "/index.ts");
             if (require.cache[file]) {
                 // eslint-disable-next-line drizzle/enforce-delete-with-where                
-                const answer = Loader.registry.delete(file);
+                Loader.registry.delete(file);
                 delete require.cache[file];
             } else {
                 this.cli(`$fffFailed to remove require cache for $fd0${unloadName}$fff, hotreload will not work right.`);
@@ -314,7 +314,7 @@ class MiniControl {
      * @ignore Shouldn't be called directly
      */
     async beforeInit() {
-        this.chatCmd.beforeInit();
+        await this.chatCmd.beforeInit();
 
         // load plugins
         let plugins = fs.readdirSync("./core/plugins", { withFileTypes: true, recursive: true });
@@ -324,7 +324,7 @@ class MiniControl {
         for (const i in plugins) {
             let include = false;
             const plugin = plugins[i];
-            if (plugin && plugin.isDirectory()) include = true; else include = false;
+            include = plugin && plugin.isDirectory();
             for (const ex of exclude) {
                 if (ex == "") continue;
                 if (plugin.name.startsWith(ex.trim())) {
@@ -355,8 +355,8 @@ class MiniControl {
     async afterStart() {
         tmc.cli("¤success¤MiniControl started successfully.");
         this.players.afterInit();
-        this.chatCmd.afterInit();
-        this.ui.afterInit();
+        await this.chatCmd.afterInit();
+        await this.ui.afterInit();
         this.cli(`¤white¤Welcome to ${controllerStr} v${this.version}!`);
         this.chat(`Welcome to ${controllerStr} ¤info¤version $fff$n${this.version}$m¤info¤!`);
         this.startComplete = true;
