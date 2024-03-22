@@ -1,6 +1,7 @@
 import * as http from "http";
-import { Readable } from "stream";
+import {Readable} from "stream";
 import fetch from 'node-fetch';
+import zlib from 'zlib';
 // @ts-ignore
 import Serializer from "xmlrpc/lib/serializer";
 // @ts-ignore
@@ -13,18 +14,31 @@ export default class DedimaniaClient {
         maxSockets: 1,
     });
 
+    compress(body: string): Promise<Buffer> {
+        return new Promise(function (resolve, reject) {
+            zlib.gzip(body, (err, buffer) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(buffer);
+            });
+        });
+    }
+
     async call(method: string, ...params: any[]) {
         const url = "http://dedimania.net:8002/Dedimania";
         const body = await Serializer.serializeMethodCall("system.multicall", [
-            { methodName: method, params: params },
-            { methodName: "dedimania.WarningsAndTTR", params: null }
+            {methodName: method, params: params},
+            {methodName: "dedimania.WarningsAndTTR", params: null}
         ]);
+
         const response = await fetch(url, {
             method: "POST",
-            body: body,
+            body: await this.compress(body),
             compress: true,
             headers: {
                 "Content-Type": "text/xml",
+                "Content-Encoding": "gzip"
             },
             agent: this.keepAliveAgent
         });
@@ -42,7 +56,7 @@ export default class DedimaniaClient {
                                 return reject(method.errors);
                             }
                         }
-                        return resolve(res[0]);
+                        return resolve(res[0][0]);
                     }
                 });
             } catch (err) {

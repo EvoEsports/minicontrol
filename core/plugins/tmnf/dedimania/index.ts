@@ -26,7 +26,6 @@ export default class Dedimania extends Plugin {
     serverInfo: any = {};
     records: any = [];
     widget: Widget | null = null;
-    sendRecords: boolean = false;
     intervalId: Timer | null = null;
 
     async onLoad() {
@@ -49,6 +48,7 @@ export default class Dedimania extends Plugin {
 
         try {
             const res = await this.authenticate();
+            tmc.debug(res);
             if (res) {
                 tmc.cli("¤info¤Dedimania: Authenticated.");
                 await this.updatePlayers();
@@ -143,13 +143,11 @@ export default class Dedimania extends Plugin {
                 Version: tmc.version,
                 Nation: this.server.Path,
                 Packmask: packmask,
-                //            ServerVersion: tmc.game.Version,
-                //            ServerBuild: tmc.game.Build,
                 PlayersGame: true
             }
         );
 
-        this.enabled = res[0] ?? false;
+        this.enabled = res ?? false;
         return this.enabled;
     }
 
@@ -179,10 +177,11 @@ export default class Dedimania extends Plugin {
     getDedimaniaScores(scores: any) {
         const out = [];
         for (let score of scores) {
+            if (score.BestCheckpoints.length < 1) continue;
             out.push({
                 Login: score.Login,
                 Best: score.BestTime,
-                Checks: [score.BestCheckpoints].join(",")
+                Checks: score.BestCheckpoints.join(",")
             });
         }
         return out;
@@ -219,7 +218,6 @@ export default class Dedimania extends Plugin {
             this.maxRank,
             this.getDedimaniaPlayers()
         );
-
         this.records = res.Records ?? [];
         tmc.debug("Dedimania: Got records.");
         tmc.server.emit("Plugin.Dedimania.onSync", this.records);
@@ -257,8 +255,9 @@ export default class Dedimania extends Plugin {
     async updateWidget() {
         let outRecords = [];
         let x = 0;
-        for (let record of this.records) {
+        for (const record of this.records) {
             if (x >= 10) break;
+
             outRecords.push(
                 {
                     rank: record.Rank,
