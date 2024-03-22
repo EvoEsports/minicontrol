@@ -3,7 +3,6 @@ import Server from './server';
 import UiManager from './uimanager';
 import MapManager from './mapmanager';
 import CommandManager from './commandmanager';
-import { type GameStruct } from './types';
 import { processColorString } from './utils';
 import log from './log';
 import fs from 'fs';
@@ -15,6 +14,12 @@ const controllerStr = "$n$o$eeeMINI$o$z$s$abccontrol$z$s$fff";
 if (!process.versions.bun) {
     log.info(`Please install bun using "npm install -g bun"`);
     process.exit();
+}
+
+export interface GameStruct {
+    Name: string;
+    Version?: string;
+    Build?: string;
 }
 
 /**

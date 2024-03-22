@@ -82,7 +82,7 @@ export function removeLinks(str: string): string {
 }
 
 export function removeColors(str: string): string {
-    return (tm || "" ).TextFormatter.deformat(str);
+    return tm.TextFormatter.deformat(str || "");
 }
 
 export function clone(obj: any): any {

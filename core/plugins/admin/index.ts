@@ -32,7 +32,13 @@ export default class AdminPlugin extends Plugin {
             await tmc.server.call("Unban", params[0]);
         }, "Unbans player");
         tmc.addCommand("//cancel", async () => await tmc.server.call("CancelVote"), "Cancels vote");
-        tmc.addCommand("//er", () => tmc.server.call("ForceEndRound"), "Ends round");
+        tmc.addCommand("//er", () => {
+            try {
+                tmc.server.send("ForceEndRound");
+            } catch (err: any) {
+                tmc.chat("¤error¤"+err.message);
+            }
+        }, "Ends round");
         tmc.addCommand("//mode", async (login: string, params: string[]) => {
             if (!params[0]) {
                 return tmc.chat("¤cmd¤//mode ¤info¤needs a mode", login);
@@ -121,7 +127,7 @@ export default class AdminPlugin extends Plugin {
                 if (!params[0]) {
                     return tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
                 }
-                const settings = { "S_TimeLimit": Number.parseInt(params[0]) };
+                const settings = {"S_TimeLimit": Number.parseInt(params[0])};
                 tmc.server.send("SetModeScriptSettings", settings);
                 return;
             }
@@ -240,6 +246,13 @@ export default class AdminPlugin extends Plugin {
                 tmc.chat(err.message, login);
             }
         }, "Calls server method");
+        tmc.addCommand("//wu", async (login: string, params: string[]) => {
+            tmc.server.send("SetWarmUp", true);
+        }, "Starts warmup");
+        tmc.addCommand("//endwu", async (login: string, params: string[]) => {
+            tmc.server.send("SetWarmUp", false);
+        }, "end warmup");
+
         tmc.addCommand("//addlocal", this.cmdAddLocal.bind(this), "Adds local map to playlist");
     }
 
@@ -264,6 +277,8 @@ export default class AdminPlugin extends Plugin {
         tmc.removeCommand("//shuffle");
         tmc.removeCommand("//remove");
         tmc.removeCommand("//call");
+        tmc.removeCommand("//wu");
+        tmc.removeCommand("//endwu");
         if (tmc.game.Name != "TmForever") {
             tmc.removeCommand("//modesettings");
             tmc.removeCommand("//set");
