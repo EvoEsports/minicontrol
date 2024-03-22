@@ -162,7 +162,7 @@ export default class Tmx extends Plugin {
         if (!fs.existsSync(`${tmc.mapsPath}tmx/`)) fs.mkdirSync(`${tmc.mapsPath}tmx/`);
         const abuffer = await (await res.blob()).arrayBuffer();
 
-        fs.writeFileSync(`${tmc.mapsPath}filePath`, Buffer.from(abuffer));
+        fs.writeFileSync(`${tmc.mapsPath}${filePath}`, Buffer.from(abuffer));
         await tmc.server.call("AddMap", filePath);
         await tmc.maps.syncMaplist();
         tmc.chat(`Added MapId ¤white¤${map.id} ¤info¤from ¤white¤${map.baseUrl}!`);

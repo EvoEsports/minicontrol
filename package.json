@@ -2,6 +2,7 @@
   "scripts": {
     "dev": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --env-file=.env --smol --watch run core/minicontrol.ts",
     "dev2": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --env-file=.env2 --smol --watch run core/minicontrol.ts",
+    "debug": "bun --inspect=9229 --smol core/minicontrol.ts",
     "start": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --smol core/minicontrol.ts",
     "start2": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --env-file=.env2 --smol core/minicontrol.ts",
     "build": "bun build ./core/minicontrol.ts --compile --minify --outfile ../test/minicontrol",
