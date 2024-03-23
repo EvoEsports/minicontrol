@@ -61,10 +61,20 @@ export default class Records extends Plugin {
     }
 
     async onStart() {
+        const menu = tmc.storage["menu"];
+        if (menu) {
+            menu.addItem({
+                category: "Map",
+                title: "Show: Records",
+                action: "/records"
+            });
+        }
         if (!this.db) return;
         if (!tmc.maps.currentMap?.UId) return;
         this.currentMapUid = tmc.maps.currentMap.UId;
         await this.syncRecords(tmc.maps.currentMap.UId);
+
+
     }
 
     async onBeginMap(data: any) {
@@ -84,7 +94,7 @@ export default class Records extends Plugin {
                 });
         }
         const window = new ListWindow(login);
-        window.size = { width: 90, height: 100 };
+        window.size = { width: 90, height: 105 };
         window.title = "records";
         window.setItems(records);
         window.setColumns([

@@ -75,6 +75,17 @@ export default class Dedimania extends Plugin {
         tmc.server.removeListener("Trackmania.EndMap", this.onEndMap.bind(this));
     }
 
+    async onStart() {
+        const menu = tmc.storage["menu"];
+        if (menu) {
+            menu.addItem({
+                category: "Map",
+                title: "Show: Dedimania",
+                action: "/dedirecords"
+            });
+        }
+    }
+
     async cmdDediRecords(login: string, args: string[]) {
         let records = [];
         for (let record of this.records) {
@@ -86,7 +97,7 @@ export default class Dedimania extends Plugin {
                 });
         }
         const window = new ListWindow(login);
-        window.size = {width: 90, height: 100};
+        window.size = {width: 90, height: 105};
         window.title = "Dedimania records";
         window.setItems(records);
         window.setColumns([

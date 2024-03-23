@@ -72,6 +72,39 @@ export default class VotesPlugin extends Plugin {
         tmc.addCommand("//extend", this.cmdAdmExtend.bind(this), "Extend timelimit");
         tmc.addCommand("/yes", this.cmdYes.bind(this), "Vote yes");
         tmc.addCommand("/no", this.cmdNo.bind(this), "Vote no");
+
+        const menu = tmc.storage["menu"];
+        if (menu) {
+            menu.addItem({
+                category: "Votes",
+                title: "Adm: Cancel",
+                action: "//cancel",
+                admin: true
+            });
+
+            menu.addItem({
+                category: "Votes",
+                title: "Adm: Pass",
+                action: "//pass",
+                admin: true
+            });
+
+            menu.addItem({
+                category: "Votes",
+                title: "Skip",
+                action: "/skip"
+            });
+            menu.addItem({
+                category: "Votes",
+                title: "Extend",
+                action: "/extend"
+            });
+
+        }
+
+
+
+
     }
 
     async onBeginRound() {

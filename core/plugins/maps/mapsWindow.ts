@@ -11,7 +11,7 @@ export default class MapsWindow extends ListWindow {
                 Object.assign(map, {
                     Index: i++,
                     Name: escape(map.Name),
-                    Author: map.AuthorNickname ? map.AuthorNickname : map.Author,
+                    Author: map.AuthorNickname || map.Author,
                     GoldTime: formatTime(map.GoldTime)
                 })
             );
@@ -26,7 +26,7 @@ export default class MapsWindow extends ListWindow {
         } else if (action == "Trash") {                     
             await tmc.chatCmd.execute(login, "//remove " + item.UId);
             await this.uiPaginate(login, "", []);
-        } else if (action == "Juke") {
+        } else if (action == "Queue") {
             await tmc.chatCmd.execute(login, "/addqueue " + item.UId);
         }
     }

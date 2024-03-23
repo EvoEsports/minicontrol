@@ -41,19 +41,20 @@ export default class Maps extends Plugin {
         tmc.removeCommand("/drop");
         tmc.removeCommand("/maps");
         tmc.removeCommand("/list");
-        tmc.storage["menu"]?.removeItem("Maps");
+        tmc.storage["menu"]?.removeItem("Map List");
+        tmc.storage["menu"]?.removeItem("Map Queue");
     }
 
-    async onStart() {
+    async onStart(): Promise<void> {
         if (tmc.storage["menu"]) {
             tmc.storage["menu"].addItem({
-                category: "Maps",
-                title: "Map list",
+                category: "Map",
+                title: "Show: List",
                 action: "/maps"
             });
             tmc.storage["menu"].addItem({
-                category: "Maps",
-                title: "Map Queue",
+                category: "Map",
+                title: "Show: Queue",
                 action: "/jb"
             });
         }
@@ -93,7 +94,7 @@ export default class Maps extends Plugin {
             UId: map.UId,
             File: map.FileName,
             Name: map.Name,
-            Author: map.AuthorNickname ? map.AuthorNickname : map.Author,
+            Author: map.AuthorNickname || map.Author,
             AuthorTime: map.AuthorTime,
             Environment: map.Environnement,
             QueueBy: login,
@@ -144,18 +145,18 @@ export default class Maps extends Plugin {
 
     async cmdMaps(login: any, args: string[]) {
         const window = new MapsWindow(login);       
-        window.size = { width: 180, height: 95 };
+        window.size = { width: 180, height: 105 };
         window.setColumns([
             { key: "Index", title: "#", width: 4 },
-            { key: "Name", title: "Name", width: 50 },
+            { key: "Name", title: "Name", width: 50, action: "Queue" },
             { key: "Author", title: "Author", width: 30 },
             { key: "Environnement", title: "Environment", width: 25 },
             { key: "GoldTime", title: "Gold Time", width: 25 }
         ]);
-        window.title = "Maps (" + tmc.maps.getMapCount() + ")";
-        window.setActions(["Juke"]);
+        window.title = "Maps [" + tmc.maps.getMapCount() + "]";
+        window.setActions(["Queue"]);
         if (tmc.admins.includes(login)) {
-            window.setActions(["Juke", "Trash"]);
+            window.setActions(["Queue", "Trash"]);
         }
 
         await window.display()

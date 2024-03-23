@@ -8,6 +8,7 @@ interface Column {
     key: string;
     width: number;
     type?: string;
+    action?: string;
 }
 
 interface PaginationResult<T> {
@@ -22,7 +23,7 @@ interface PaginationResult<T> {
 export default class ListWindow extends Window {
     items: any = [];
     template = "core/templates/list.twig";
-    private pageSize: number = 20;
+    private pageSize: number = 15;
     private currentPage: number;
     listActions: string[] = [];
 
