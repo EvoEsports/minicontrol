@@ -67,7 +67,7 @@ export default class Maps extends Plugin {
             return;
         }
         if (params.length == 0) {
-            tmc.chat("¤info¤Usage: /addqueue <map index|map uid>", login);
+            tmc.chat(`¤info¤Usage: /addqueue < map index or map uid >`, login);
             return;
         }        
         if (params[0].toString().length < 5) {
