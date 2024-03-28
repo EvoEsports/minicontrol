@@ -110,10 +110,17 @@ export default class ListWindow extends Window {
         }
 
         const items = this.doPaginate(itemsArray, this.currentPage, this.pageSize);
-        for (let item of items.items) {
-            for (let action of this.listActions || []) {
+        for (const item of items.items) {
+            for (const action of this.listActions || []) {
                 if (!this.actions["item_" + action + "_" + item.index]) {
                     this.actions["item_" + action + "_" + item.index] = tmc.ui.addAction(this.uiAction.bind(this), [action, item]);
+                }
+            }
+            for (const column of this.data['columns']) {
+                if (column.action) {
+                    if (!this.actions["item_" + column.action + "_" + item.index]) {
+                        this.actions["item_" + column.action + "_" + item.index] = tmc.ui.addAction(this.uiAction.bind(this), [column.action, item]);
+                    }
                 }
             }
         }

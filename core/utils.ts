@@ -8,6 +8,7 @@ export let colors: { [key: string]: string } = {
     bg: "334",
     cmd: "fd0",
     info: "5bf",
+    rec: "2e0",
     success: "0f0",
     warning: "fa0",
     error: "f00",

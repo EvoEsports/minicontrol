@@ -334,7 +334,7 @@ export default class AdminPlugin extends Plugin {
 
     async cmdModeSettings(login: string, args: string[]) {
         const window = new ModeSettingsWindow(login);
-        window.size = {width: 160, height: 100};
+        window.size = {width: 160, height: 105};
         window.title = "Mode Settings";
         const settings = await tmc.server.call("GetModeScriptSettings");
         let out = [];

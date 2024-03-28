@@ -1,12 +1,11 @@
-import { type BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
+import {type BunSQLiteDatabase} from 'drizzle-orm/bun-sqlite';
 import Plugin from "core/plugins";
-import { Score } from "core/schemas/scores";
-import { Player } from "core/schemas/players";
-import { eq, asc, and } from "drizzle-orm";
-import { clone, escape, removeLinks } from "core/utils";
+import {Score} from "core/schemas/scores";
+import {Player} from "core/schemas/players";
+import {eq, asc, and} from "drizzle-orm";
+import {clone, escape, removeLinks} from "core/utils";
 import tm from 'tm-essentials';
-
-import ListWindow from 'core/ui/listwindow';
+import RecordsWindow from "core/plugins/records/recordsWindow.ts";
 
 export class Record {
     login: string = "";
@@ -16,8 +15,8 @@ export class Record {
     avgTime: number = 0;
     totalFinishes: number = 0;
     checkpoints: string = "";
-    created_at: string = "";
-    updated_at: string = "";
+    createdAt: string = "";
+    updatedAt: string = "";
 
     fromScore(score: any) {
         if (score.rank) {
@@ -31,8 +30,8 @@ export class Record {
         this.avgTime = score.avgTime;
         this.totalFinishes = score.totalFinishes;
         this.checkpoints = score.checkpoints;
-        this.created_at = score.created_at;
-        this.updated_at = score.updated_at;
+        this.createdAt = score.createdAt;
+        this.updatedAt = score.updatedAt;
         return this;
     }
 }
@@ -90,24 +89,29 @@ export default class Records extends Plugin {
                 {
                     rank: record.rank,
                     nickname: escape(record.nickname),
+                    login: record.login,
                     time: "$o" + tm.Time.fromMilliseconds(record.time).toTmString().replace(/^0:/, ""),
                 });
         }
-        const window = new ListWindow(login);
-        window.size = { width: 90, height: 105 };
-        window.title = "records";
+        const window = new RecordsWindow(login, this);
+        window.size = {width: 90, height: 105};
+        window.title = `Server Records [${this.records.length}]`;
         window.setItems(records);
         window.setColumns([
-            { key: "rank", title: "Rank", width: 10 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "time", title: "Time", width: 20 },
+            {key: "rank", title: "Rank", width: 10},
+            {key: "nickname", title: "Nickname", width: 50},
+            {key: "time", title: "Time", width: 20},
         ]);
+        if (tmc.admins.includes(login)) {
+            window.size.width = 105;
+            window.setActions(["Delete"]);
+        }
         await window.display();
     }
 
     async syncRecords(mapUuid: string) {
         if (!this.db) return;
-        const scores: any = this.db.select().from(Score).leftJoin(Player, eq(Score.login, Player.login)).where(eq(Score.mapUuid, mapUuid)).orderBy(asc(Score.time), asc(Score.updated_at)).all();
+        const scores: any = this.db.select().from(Score).leftJoin(Player, eq(Score.login, Player.login)).where(eq(Score.mapUuid, mapUuid)).orderBy(asc(Score.time), asc(Score.updatedAt)).all();
         this.records = [];
         let rank = 1;
         for (const data of scores) {
@@ -121,8 +125,8 @@ export default class Records extends Plugin {
                 avgTime: score.avgTime,
                 totalFinishes: score.totalFinishes,
                 checkpoints: score.checkpoints,
-                created_at: score.created_at,
-                updated_at: score.updated_at,
+                createdAt: score.createdAt,
+                updatedAt: score.updatedAt,
             }));
             rank += 1;
         }
@@ -131,6 +135,26 @@ export default class Records extends Plugin {
             mapUid: mapUuid,
             records: clone(this.records)
         });
+    }
+
+    async deleteRecord(login: string, data: any) {
+        if (!this.db) return;
+        if (!tmc.admins.includes(login)) return;
+        const msg = (`¤info¤Deleting map record for $fff${data.nickname} ¤info¤($fff${data.login}¤info¤)`);
+        tmc.cli(msg);
+        tmc.chat(msg, login);
+        try {
+            await this.db?.delete(Score).where(and(eq(Score.login, data.login), eq(Score.mapUuid, this.currentMapUid)));
+            this.records = this.records.filter(r => r.login !== data.login);
+            tmc.server.emit("Plugin.Records.onRefresh", {
+                records: clone(this.records),
+            });
+            await this.cmdRecords(login, []);
+        } catch (err: any) {
+            const msg = (`Error deleting record: ${err.message}`);
+            tmc.cli(msg);
+            tmc.chat(msg, login);
+        }
     }
 
     async getRankingsForLogin(data: any) {
@@ -159,8 +183,8 @@ export default class Records extends Plugin {
                 avgTime: ranking.BestTime,
                 totalFinishes: 1,
                 checkpoints: ranking.BestCheckpoints.join(","),
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
             });
             newRecord.rank = 1;
             this.records.push(newRecord);
@@ -170,8 +194,8 @@ export default class Records extends Plugin {
                 avgTime: newRecord.avgTime,
                 totalFinishes: newRecord.totalFinishes,
                 checkpoints: newRecord.checkpoints,
-                created_at: newRecord.created_at,
-                updated_at: newRecord.updated_at,
+                createdAt: newRecord.createdAt,
+                updatedAt: newRecord.updatedAt,
                 mapUuid: this.currentMapUid
             });
             tmc.server.emit("Plugin.Records.onNewRecord", {
@@ -199,13 +223,13 @@ export default class Records extends Plugin {
                 newRecord.time = ranking.BestTime;
                 newRecord.checkpoints = ranking.BestCheckpoints.join(",");
                 newRecord.totalFinishes++;
-                newRecord.updated_at = new Date().toISOString();
+                newRecord.updatedAt = new Date().toISOString();
                 await this.db?.update(Score).set({
                     time: newRecord.time,
                     avgTime: newRecord.avgTime,
                     checkpoints: newRecord.checkpoints,
                     totalFinishes: newRecord.totalFinishes,
-                    updated_at: newRecord.updated_at
+                    updatedAt: newRecord.updatedAt
                 }).where(and(eq(Score.login, login), eq(Score.mapUuid, this.currentMapUid)));
                 this.records[this.records.findIndex(r => r.login === login)] = newRecord;
             }
@@ -227,15 +251,15 @@ export default class Records extends Plugin {
                 avgTime: newRecord.avgTime,
                 totalFinishes: newRecord.totalFinishes,
                 checkpoints: newRecord.checkpoints,
-                created_at: newRecord.created_at,
-                updated_at: newRecord.updated_at,
+                createdAt: newRecord.createdAt,
+                updatedAt: newRecord.updatedAt,
                 mapUuid: this.currentMapUid
             });
         }
         // Sort records
         this.records.sort((a, b) => {
             if (a.time === b.time) {
-                return a.updated_at.localeCompare(b.updated_at);
+                return a.updatedAt.localeCompare(b.updatedAt);
             }
             return a.time - b.time;
         });

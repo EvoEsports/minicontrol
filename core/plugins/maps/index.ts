@@ -67,7 +67,7 @@ export default class Maps extends Plugin {
             return;
         }
         if (params.length == 0) {
-            tmc.chat("¤info¤Usage: /addqueue <map index|map uid>", login);
+            tmc.chat(`¤info¤Usage: /addqueue < map index or map uid >`, login);
             return;
         }        
         if (params[0].toString().length < 5) {
@@ -154,9 +154,8 @@ export default class Maps extends Plugin {
             { key: "GoldTime", title: "Gold Time", width: 25 }
         ]);
         window.title = "Maps [" + tmc.maps.getMapCount() + "]";
-        window.setActions(["Queue"]);
         if (tmc.admins.includes(login)) {
-            window.setActions(["Queue", "Trash"]);
+            window.setActions(["Delete"]);
         }
 
         await window.display()
@@ -176,7 +175,7 @@ export default class Maps extends Plugin {
                 })
             );
         }
-        window.title = "Map Queue (" + maps.length + ")";
+        window.title = "Map Queue [" + maps.length + "]";
         window.size = { width: 205, height: 95 };
         window.setItems(maps);
         window.setColumns([

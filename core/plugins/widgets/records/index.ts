@@ -9,6 +9,7 @@ export default class RecordsWidget extends Plugin {
 
     async onLoad() {
         tmc.server.addListener("Plugin.Records.onSync", this.onSync, this);
+        tmc.server.addListener("Plugin.Records.onRefresh", this.onSync, this);
         tmc.server.addListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord, this);
         tmc.server.addListener("Plugin.Records.onNewRecord", this.onNewRecord, this);
 

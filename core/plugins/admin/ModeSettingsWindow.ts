@@ -1,8 +1,7 @@
-import ListWindow from "../../ui/listwindow";
-import { castType } from "../../utils";
+import ListWindow from "core/ui/listwindow";
+import {castType} from "core/utils";
 
 export default class ModeSettingsWindow extends ListWindow {
-
 
     parseEntries(entries: any): void {
         for (let entry of entries) {
