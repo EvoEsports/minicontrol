@@ -46,8 +46,10 @@ export default class MapLikesWidget extends Plugin {
                 }
                 total++;
             }
+            let percentage = ((positive / total * 100).toFixed(0) || 0) + "%";
+            if (total < 1) percentage = "No Votes";
             this.widget.setData({
-                percentage: ((positive / total * 100).toFixed(0) || 0) + "%",
+                percentage: percentage,
                 width: (positive / total * 30).toFixed(0)
             });
             this.widget.size = { width: 45, height: 6 };

@@ -46,24 +46,13 @@ export default class MapLikes extends Plugin {
         const login = data[1];
         const text = data[2];
 
-        if (text === "+") {
-            await this.updateVote(login, 0.5);
-        }
         if (text === "++") {
             await this.updateVote(login, 1);
         }
-        if (text === "+++") {
-            await this.updateVote(login, 1);
-        }
-        if (text === "-") {
-            await this.updateVote(login, -0.5);
-        }
+        
         if (text === "--") {
             await this.updateVote(login, -1);
-        }
-        if (text === "---") {
-            await this.updateVote(login, -1);
-        }
+        }        
     }
 
     async onLike(login: string) {

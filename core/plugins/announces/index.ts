@@ -63,7 +63,7 @@ export default class Announces extends Plugin {
         const mapUid = data.mapUid;
         const records: Record[] = data.records;
         if (records.length === 0) {
-            tmc.chat(`No server records for this map yet!`);
+            tmc.chat(`¤rec¤No server records for this map yet!`);
             return;
         }
         const msg = `$fff${records[0].nickname}¤rec¤ holds the $fff1. ¤rec¤server record ¤white¤${formatTime(records[0].time)}¤rec¤!`;
