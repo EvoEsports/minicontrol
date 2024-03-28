@@ -15,8 +15,8 @@ export class Record {
     avgTime: number = 0;
     totalFinishes: number = 0;
     checkpoints: string = "";
-    created_at: string = "";
-    updated_at: string = "";
+    createdAt: string = "";
+    updatedAt: string = "";
 
     fromScore(score: any) {
         if (score.rank) {
@@ -30,8 +30,8 @@ export class Record {
         this.avgTime = score.avgTime;
         this.totalFinishes = score.totalFinishes;
         this.checkpoints = score.checkpoints;
-        this.created_at = score.created_at;
-        this.updated_at = score.updated_at;
+        this.createdAt = score.createdAt;
+        this.updatedAt = score.updatedAt;
         return this;
     }
 }
@@ -111,7 +111,7 @@ export default class Records extends Plugin {
 
     async syncRecords(mapUuid: string) {
         if (!this.db) return;
-        const scores: any = this.db.select().from(Score).leftJoin(Player, eq(Score.login, Player.login)).where(eq(Score.mapUuid, mapUuid)).orderBy(asc(Score.time), asc(Score.updated_at)).all();
+        const scores: any = this.db.select().from(Score).leftJoin(Player, eq(Score.login, Player.login)).where(eq(Score.mapUuid, mapUuid)).orderBy(asc(Score.time), asc(Score.updatedAt)).all();
         this.records = [];
         let rank = 1;
         for (const data of scores) {
@@ -125,8 +125,8 @@ export default class Records extends Plugin {
                 avgTime: score.avgTime,
                 totalFinishes: score.totalFinishes,
                 checkpoints: score.checkpoints,
-                created_at: score.created_at,
-                updated_at: score.updated_at,
+                createdAt: score.createdAt,
+                updatedAt: score.updatedAt,
             }));
             rank += 1;
         }
@@ -183,8 +183,8 @@ export default class Records extends Plugin {
                 avgTime: ranking.BestTime,
                 totalFinishes: 1,
                 checkpoints: ranking.BestCheckpoints.join(","),
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
             });
             newRecord.rank = 1;
             this.records.push(newRecord);
@@ -194,8 +194,8 @@ export default class Records extends Plugin {
                 avgTime: newRecord.avgTime,
                 totalFinishes: newRecord.totalFinishes,
                 checkpoints: newRecord.checkpoints,
-                created_at: newRecord.created_at,
-                updated_at: newRecord.updated_at,
+                createdAt: newRecord.createdAt,
+                updatedAt: newRecord.updatedAt,
                 mapUuid: this.currentMapUid
             });
             tmc.server.emit("Plugin.Records.onNewRecord", {
@@ -223,13 +223,13 @@ export default class Records extends Plugin {
                 newRecord.time = ranking.BestTime;
                 newRecord.checkpoints = ranking.BestCheckpoints.join(",");
                 newRecord.totalFinishes++;
-                newRecord.updated_at = new Date().toISOString();
+                newRecord.updatedAt = new Date().toISOString();
                 await this.db?.update(Score).set({
                     time: newRecord.time,
                     avgTime: newRecord.avgTime,
                     checkpoints: newRecord.checkpoints,
                     totalFinishes: newRecord.totalFinishes,
-                    updated_at: newRecord.updated_at
+                    updatedAt: newRecord.updatedAt
                 }).where(and(eq(Score.login, login), eq(Score.mapUuid, this.currentMapUid)));
                 this.records[this.records.findIndex(r => r.login === login)] = newRecord;
             }
@@ -251,15 +251,15 @@ export default class Records extends Plugin {
                 avgTime: newRecord.avgTime,
                 totalFinishes: newRecord.totalFinishes,
                 checkpoints: newRecord.checkpoints,
-                created_at: newRecord.created_at,
-                updated_at: newRecord.updated_at,
+                createdAt: newRecord.createdAt,
+                updatedAt: newRecord.updatedAt,
                 mapUuid: this.currentMapUid
             });
         }
         // Sort records
         this.records.sort((a, b) => {
             if (a.time === b.time) {
-                return a.updated_at.localeCompare(b.updated_at);
+                return a.updatedAt.localeCompare(b.updatedAt);
             }
             return a.time - b.time;
         });

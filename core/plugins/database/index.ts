@@ -44,7 +44,7 @@ export default class SqliteDb extends Plugin {
     }
 
     async onStart() {
-        await this.syncplayers();
+        await this.syncPlayers();
     }
 
     async onPlayerConnect(player: any) {
@@ -72,8 +72,7 @@ export default class SqliteDb extends Plugin {
         }
     }
 
-
-    async syncplayers() {
+    async syncPlayers() {
         const players = tmc.players.get();
         for (const player of players) {
             await this.syncPlayer(await tmc.players.getPlayer(player.login));

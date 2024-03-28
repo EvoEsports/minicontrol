@@ -29,7 +29,7 @@ class MiniControl {
     /**
      * The version of MiniControl.
      */
-    readonly version: string = "0.3.1";
+    readonly version: string = "0.3.2";
     /**
      * The start time of MiniControl.
      */

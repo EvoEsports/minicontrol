@@ -11,8 +11,8 @@ export const Score = sqliteTable("records", {
     checkpoints: text("checkpoints").notNull(),    
     avgTime: integer("avg_time").default(0),
     totalFinishes: integer("finishes").default(1),
-    created_at: text("created_at").default(sql`CURRENT_TIMESTAMP`),
-    updated_at: text("updated_at").default(sql`CURRENT_TIMESTAMP`)
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`)
 }, (table) => {
     return {
         uuidIdx: index("uuid_idx").on(table.mapUuid),

@@ -23,7 +23,7 @@ export default class TmnfUiPlugin extends Plugin {
         for (const env of environments) {
             mods.push({
                 Env: env,
-                Url: "http://download.dashmap.live/11d6f37c-b5cc-4bf6-88fc-f8d90956b281/tmnf_mod.zip"
+                Url: "http://reaby.kapsi.fi/trackmania/tmnf_mod.zip"
             });
         }
         tmc.server.send("SetForcedMods", true, mods);
