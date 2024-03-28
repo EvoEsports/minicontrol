@@ -7,7 +7,7 @@ export default class TmnfUiPlugin extends Plugin {
 
     async onLoad() {
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        this.sendMod();
+        await this.sendMod();
     }
 
     async onUnload() {
@@ -15,7 +15,7 @@ export default class TmnfUiPlugin extends Plugin {
     }
 
     async onBeginMap() {
-        this.sendMod();
+        await this.sendMod();
     }
 
     async sendMod() {

@@ -1,12 +1,11 @@
-import { type BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
+import {type BunSQLiteDatabase} from 'drizzle-orm/bun-sqlite';
 import Plugin from "core/plugins";
-import { Score } from "core/schemas/scores";
-import { Player } from "core/schemas/players";
-import { eq, asc, and } from "drizzle-orm";
-import { clone, escape, removeLinks } from "core/utils";
+import {Score} from "core/schemas/scores";
+import {Player} from "core/schemas/players";
+import {eq, asc, and} from "drizzle-orm";
+import {clone, escape, removeLinks} from "core/utils";
 import tm from 'tm-essentials';
-
-import ListWindow from 'core/ui/listwindow';
+import RecordsWindow from "core/plugins/records/recordsWindow.ts";
 
 export class Record {
     login: string = "";
@@ -90,18 +89,23 @@ export default class Records extends Plugin {
                 {
                     rank: record.rank,
                     nickname: escape(record.nickname),
+                    login: record.login,
                     time: "$o" + tm.Time.fromMilliseconds(record.time).toTmString().replace(/^0:/, ""),
                 });
         }
-        const window = new ListWindow(login);
-        window.size = { width: 90, height: 105 };
-        window.title = "records";
+        const window = new RecordsWindow(login, this);
+        window.size = {width: 90, height: 105};
+        window.title = `Server Records [${this.records.length}]`;
         window.setItems(records);
         window.setColumns([
-            { key: "rank", title: "Rank", width: 10 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "time", title: "Time", width: 20 },
+            {key: "rank", title: "Rank", width: 10},
+            {key: "nickname", title: "Nickname", width: 50},
+            {key: "time", title: "Time", width: 20},
         ]);
+        if (tmc.admins.includes(login)) {
+            window.size.width = 105;
+            window.setActions(["Delete"]);
+        }
         await window.display();
     }
 
@@ -131,6 +135,26 @@ export default class Records extends Plugin {
             mapUid: mapUuid,
             records: clone(this.records)
         });
+    }
+
+    async deleteRecord(login: string, data: any) {
+        if (!this.db) return;
+        if (!tmc.admins.includes(login)) return;
+        const msg = (`¤info¤Deleting map record for $fff${data.nickname} ¤info¤($fff${data.login}¤info¤)`);
+        tmc.cli(msg);
+        tmc.chat(msg, login);
+        try {
+            await this.db?.delete(Score).where(and(eq(Score.login, data.login), eq(Score.mapUuid, this.currentMapUid)));
+            this.records = this.records.filter(r => r.login !== data.login);
+            tmc.server.emit("Plugin.Records.onRefresh", {
+                records: clone(this.records),
+            });
+            await this.cmdRecords(login, []);
+        } catch (err: any) {
+            const msg = (`Error deleting record: ${err.message}`);
+            tmc.cli(msg);
+            tmc.chat(msg, login);
+        }
     }
 
     async getRankingsForLogin(data: any) {
