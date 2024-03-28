@@ -28,9 +28,8 @@ export interface VoteStruct {
 }
 
 export default class VotesPlugin extends Plugin {
-    pluginName: string = "votes";
     depends: string[] = [];
-    timeout: number = 30;
+    timeout: number = process.env.VOTE_TIMEOUT ? parseInt(process.env.VOTE_TIMEOUT) : 30;
     ratio: number = process.env.VOTE_RATIO ? parseFloat(process.env.VOTE_RATIO) : 0.55;
     currentVote: Vote | null = null;
     widget: Widget | null = null;
@@ -38,13 +37,7 @@ export default class VotesPlugin extends Plugin {
     newLimit = this.origTimeLimit;
     extendCounter = 1;
 
-    constructor() {
-        super();
-        this.timeout = process.env.VOTE_TIMEOUT ? parseInt(process.env.VOTE_TIMEOUT) : 30;
-    }
-
     async onLoad() {
-        tmc.debug("[Votes] onLoad");
         tmc.server.addOverride("CancelVote", this.overrideCancel.bind(this));
         tmc.server.addListener("TMC.Vote.Cancel", this.onVoteCancel, this);
         tmc.server.addListener("TMC.Vote.Deny", this.onVoteDeny, this);
@@ -71,7 +64,6 @@ export default class VotesPlugin extends Plugin {
     }
 
     async onStart() {
-        tmc.debug("[Votes] onInit");
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginRound, this);
         tmc.addCommand("//vote", this.cmdVotes.bind(this), "Start custom vote");
         tmc.addCommand("//pass", this.cmdPassVote.bind(this), "Pass vote");
@@ -80,6 +72,39 @@ export default class VotesPlugin extends Plugin {
         tmc.addCommand("//extend", this.cmdAdmExtend.bind(this), "Extend timelimit");
         tmc.addCommand("/yes", this.cmdYes.bind(this), "Vote yes");
         tmc.addCommand("/no", this.cmdNo.bind(this), "Vote no");
+
+        const menu = tmc.storage["menu"];
+        if (menu) {
+            menu.addItem({
+                category: "Votes",
+                title: "Adm: Cancel",
+                action: "//cancel",
+                admin: true
+            });
+
+            menu.addItem({
+                category: "Votes",
+                title: "Adm: Pass",
+                action: "//pass",
+                admin: true
+            });
+
+            menu.addItem({
+                category: "Votes",
+                title: "Skip",
+                action: "/skip"
+            });
+            menu.addItem({
+                category: "Votes",
+                title: "Extend",
+                action: "/extend"
+            });
+
+        }
+
+
+
+
     }
 
     async onBeginRound() {
@@ -91,12 +116,12 @@ export default class VotesPlugin extends Plugin {
         }
     }
 
-    passVote(login: string, args: string[]) {
+    async passVote(login: string, args: string[]) {
         if (!this.currentVote) {
             tmc.chat("There is no vote in progress.");
             return;
         }
-        this.endVote(true);
+        await this.endVote(true);
     }
 
     overrideCancel(login: string, args: string[]) {
@@ -121,15 +146,15 @@ export default class VotesPlugin extends Plugin {
         }
         const type = args.shift() || "";
         const question = args.join(" ");
-        this.startVote(login, type, question);
+        await this.startVote(login, type, question);
     }
 
     async cmdSkip(login: string, args: string[]) {
-        this.startVote(login, "Skip", "Skip map?");
+        await this.startVote(login, "Skip", "Skip map?");
     }
 
     async cmdExtend(login: string, args: string[]) {
-        this.startVote(login, "Extend", "Extend map?");
+        await this.startVote(login, "Extend", "Extend map?");
     }
 
     async startVote(login: string, type: string, question: string) {
@@ -147,24 +172,24 @@ export default class VotesPlugin extends Plugin {
         }
         this.currentVote = new Vote(login, type, question, Date.now() + this.timeout * 1000);
         this.currentVote.vote_ratio = this.ratio;
-        this.vote(login, true);
+        await this.vote(login, true);
         this.widget = new Widget("core/plugins/votes/widget.twig");
         this.widget.pos = { x: 0, y: 60 };
         this.widget.actions['yes'] = tmc.ui.addAction(this.vote.bind(this), true);
         this.widget.actions['no'] = tmc.ui.addAction(this.vote.bind(this), false);
-        this.checkVote();
+        await this.checkVote();
     }
 
     async cmdYes(login: string, args: string[]) {
-        this.vote(login, true);
+        await this.vote(login, true);
     }
 
     async cmdNo(login: string, args: string[]) {
-        this.vote(login, false);
+        await this.vote(login, false);
     }
 
     async cmdPassVote(login: string, args: string[]) {
-        this.endVote(true);
+        await this.endVote(true);
     }
 
     async vote(login: string, vote: boolean) {
@@ -182,7 +207,7 @@ export default class VotesPlugin extends Plugin {
             return;
         }
         if (this.currentVote.timeout < Date.now()) {
-            this.endVote(false);
+            await this.endVote(false);
             return;
         } else {
             setTimeout(this.checkVote.bind(this), 1000);
@@ -196,8 +221,8 @@ export default class VotesPlugin extends Plugin {
             return;
         }
         const votes = Array.from(this.currentVote.votes.values());
-        const yes = votes.filter((vote) => vote === true).length;
-        const no = votes.filter((vote) => vote === false).length;
+        const yes = votes.filter((vote) => vote).length;
+        const no = votes.filter((vote) => !vote).length;
         const total = yes + no;
         const percent = Math.round((yes / total) * 100);
 
@@ -223,10 +248,10 @@ export default class VotesPlugin extends Plugin {
         if (!this.currentVote) {
             this.hideWidget();
             return;
-        };
+        }
         if (!this.widget) return;
-        const yes = Array.from(this.currentVote.votes.values()).filter((vote) => vote === true).length;
-        const no = Array.from(this.currentVote.votes.values()).filter((vote) => vote === false).length;
+        const yes = Array.from(this.currentVote.votes.values()).filter((vote) => vote).length;
+        const no = Array.from(this.currentVote.votes.values()).filter((vote) => !vote).length;
         const total = yes + no;
         const percent = yes / total;
 
@@ -239,7 +264,7 @@ export default class VotesPlugin extends Plugin {
             time_percent: (this.currentVote.timeout - Date.now()) / (this.timeout * 1000),
             timer: formatTime(Math.abs(Date.now() - this.currentVote.timeout)).replace(/\.\d\d\d/, "")
         });
-        this.widget.display();
+        await this.widget.display();
     }
 
     hideWidget() {
@@ -247,7 +272,7 @@ export default class VotesPlugin extends Plugin {
         this.widget = null;
     }
 
-    cmdAdmExtend(login: string, params: string[]) {
+    cmdAdmExtend(_login: string, params: string[]) {
         this.extendCounter += 1;
         const seconds = params[0] ? parseInt(params[0]) : this.origTimeLimit;
         this.newLimit += seconds;
@@ -257,7 +282,7 @@ export default class VotesPlugin extends Plugin {
 
     onVotePass(data: VoteStruct) {
         if (data.vote.type === "Skip") {
-            tmc.server.call("NextMap");
+            tmc.server.send("NextMap");
             return;
         }
         if (data.vote.type === "Extend") {

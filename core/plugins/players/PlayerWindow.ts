@@ -2,11 +2,11 @@ import ListWindow from 'core/ui/listwindow';
 
 export default class PlayerWindow extends ListWindow {
 
-    onAction(login: string, action: string, item: any): void {
+    async onAction(login: string, action: string, item: any): Promise<void> {
         if (action == "Kick") {
-            tmc.chatCmd.execute(login, "//kick " + item.login);
+            await tmc.chatCmd.execute(login, "//kick " + item.login);
         } else if (action == "Ban") {
-            tmc.chatCmd.execute(login, "//ban " + item.login);
+            await tmc.chatCmd.execute(login, "//ban " + item.login);
         }
     }
 }

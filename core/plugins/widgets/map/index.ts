@@ -35,7 +35,7 @@ export default class MapWidget extends Plugin {
     }
 
     async beginMap(data: any) {
-        this.display(data);
+        await this.display(data);
     }
 
     async display(data: any) {
@@ -49,6 +49,6 @@ export default class MapWidget extends Plugin {
     }
 
     async buttonClick(login: string, data: any) {
-        tmc.chatCmd.execute(login, "/maps");
+        await tmc.chatCmd.execute(login, "/maps");
     }
 }

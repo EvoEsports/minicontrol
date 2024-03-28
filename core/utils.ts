@@ -74,15 +74,15 @@ export function rgb2hsl(r: number, g: number, b: number) {
 
 export function escape(str: string): string {
     return (str || "").replaceAll(/&/g, "&amp;").replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;").replaceAll(/"/g, "&quot;").replaceAll(/'/g, "&apos;")
-        .replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "");
+        .replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "").replaceAll("--", "—-").replaceAll("]]>", "]>");
 }
 
 export function removeLinks(str: string): string {
-    return (str || "").replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")
+    return (str || "").replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "")
 }
 
 export function removeColors(str: string): string {
-    return (tm || "" ).TextFormatter.deformat(str);
+    return tm.TextFormatter.deformat(str || "");
 }
 
 export function clone(obj: any): any {
@@ -117,10 +117,8 @@ export function castType(value: string, type: string | undefined = undefined): a
         if (value.includes(".")) return Number.parseFloat(value)
         else return Number.parseInt(value);
     }
-    else if (typeof value == "string") return value;
     else {
-        console.log("Unknown type: " + value);
-        return;
+        return value;
     }
 }
 

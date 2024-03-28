@@ -3,7 +3,6 @@ import Server from './server';
 import UiManager from './uimanager';
 import MapManager from './mapmanager';
 import CommandManager from './commandmanager';
-import { type GameStruct } from './types';
 import { processColorString } from './utils';
 import log from './log';
 import fs from 'fs';
@@ -17,6 +16,12 @@ if (!process.versions.bun) {
     process.exit();
 }
 
+export interface GameStruct {
+    Name: string;
+    Version?: string;
+    Build?: string;
+}
+
 /**
  * MiniControl class
  */
@@ -24,7 +29,7 @@ class MiniControl {
     /**
      * The version of MiniControl.
      */
-    readonly version: string = "0.3.0";
+    readonly version: string = "0.3.1";
     /**
      * The start time of MiniControl.
      */
@@ -174,8 +179,8 @@ class MiniControl {
                 this.pluginDependecies[name] = [];
             }
             const msg = `¤gray¤Plugin $fd0${name}$fff loaded.`;
-            this.cli(msg);
             await cls.onLoad();
+            this.cli(msg);
             if (this.startComplete) {
                 this.chat(msg);
                 await cls.onStart();
@@ -214,7 +219,7 @@ class MiniControl {
             const file = path.resolve(process.cwd() + "/" + pluginPath + "/index.ts");
             if (require.cache[file]) {
                 // eslint-disable-next-line drizzle/enforce-delete-with-where                
-                const answer = Loader.registry.delete(file);
+                Loader.registry.delete(file);
                 delete require.cache[file];
             } else {
                 this.cli(`$fffFailed to remove require cache for $fd0${unloadName}$fff, hotreload will not work right.`);
@@ -263,7 +268,7 @@ class MiniControl {
             const msg = "$fff» " + text.toString();
             this.server.send("ChatSendServerMessageToLogin", processColorString(msg, "$z$s"), (typeof login == "string") ? login : login.join(","));
         } else {
-            const msg = controllerStr + " »¤info¤ " + text.toString();
+            const msg = "»¤info¤ " + text.toString();
             this.server.send("ChatSendServerMessage", processColorString(msg, "$z$s"));
         }
     }
@@ -314,7 +319,7 @@ class MiniControl {
      * @ignore Shouldn't be called directly
      */
     async beforeInit() {
-        this.chatCmd.beforeInit();
+        await this.chatCmd.beforeInit();
 
         // load plugins
         let plugins = fs.readdirSync("./core/plugins", { withFileTypes: true, recursive: true });
@@ -324,7 +329,7 @@ class MiniControl {
         for (const i in plugins) {
             let include = false;
             const plugin = plugins[i];
-            if (plugin && plugin.isDirectory()) include = true; else include = false;
+            include = plugin && plugin.isDirectory();
             for (const ex of exclude) {
                 if (ex == "") continue;
                 if (plugin.name.startsWith(ex.trim())) {
@@ -355,8 +360,8 @@ class MiniControl {
     async afterStart() {
         tmc.cli("¤success¤MiniControl started successfully.");
         this.players.afterInit();
-        this.chatCmd.afterInit();
-        this.ui.afterInit();
+        await this.chatCmd.afterInit();
+        await this.ui.afterInit();
         this.cli(`¤white¤Welcome to ${controllerStr} v${this.version}!`);
         this.chat(`Welcome to ${controllerStr} ¤info¤version $fff$n${this.version}$m¤info¤!`);
         this.startComplete = true;

@@ -70,14 +70,12 @@ export default class RecordsWidget extends Plugin {
                 records: outRecords
             });
             this.widget.size = { width: 45, height: 4 * outRecords.length + 1 };
-            this.widget.display();
+            await this.widget.display();
         }
     }
 
     async widgetClick(login: string, data: any) {
-        tmc.chatCmd.execute(login, "/records");
+        await tmc.chatCmd.execute(login, "/records");
     }
-
-
-
+    
 }

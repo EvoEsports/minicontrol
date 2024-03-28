@@ -1,5 +1,4 @@
 import Manialink from './manialink';
-import fs from 'fs';
 
 export default class Window extends Manialink {
 
@@ -12,7 +11,7 @@ export default class Window extends Manialink {
      * closes the window     
      */
     async hide() {        
-        super.destroy();
+        await super.destroy();
     }
 }
 

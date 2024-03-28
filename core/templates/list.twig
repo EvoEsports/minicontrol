@@ -5,31 +5,39 @@
         {% set totalWidth = 0 %}
         {% set posx = 0 %}
         {% for column in data.columns %}
-            <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 4" text="{{ data.columns[loop.index0].title }}" halign="left" textsize="1.5" valign="center2"/>
+            <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" text="$t ${{ colors.title_fg }}{{ data.columns[loop.index0].title }}" halign="left" textsize="1" valign="center2" />
+            <quad pos="{{ posx }} -2" z-index="0" size="{{ column.width }} 5" bgcolor="{{ colors.title_bg }}" valign="center2"/>
             {% set posx = (posx + column.width + 1) %}
             {% set totalWidth = totalWidth + data.columns[loop.index0].width + 1 %}
         {% endfor %}
         {% if data.listActions %}
-            <label pos="{{ posx }} -2" z-index="1" size="{{ 14 * data.listActions|length }} 4" text="Actions" halign="left" textsize="1.5" valign="center2"/>                          
+            <label pos="{{ posx }} -2" z-index="1" size="{{ 14 * data.listActions|length }} 5" text="$t Actions" halign="left" textsize="1" valign="center2" focusareacolor1="{{ colors.title_bg}}" />
+            <quad pos="{{ posx }} -2" z-index="0" size="{{ 14 * data.listActions|length }} 5" bgcolor="{{ colors.title_bg }}" valign="center2"/>
             {% set totalWidth = totalWidth + 14 * data.listActions|length %}
         {% endif %}
-        <quad pos="-2 -4" z-index="0" size="{{ totalWidth }} 0.2" bgcolor="eee" valign="center2"/>       
+        <!-- <quad pos="-2 -4" z-index="0" size="{{ totalWidth }} 0.2" bgcolor="eee" valign="center2"/> -->
     </frame>
     {% for item in data.items.items %}
-        <frame pos="0 -{{ loop.index * 4}}" z-index="1">
+        <frame pos="0 -{{ loop.index * 6 }}" z-index="1">
                 {% set posx = 0 %}
                     {% for column in data.columns %}
                         {% if column.type == "entry" %}
-                            <entry pos="{{ posx }} -2" z-index="1" size="{{column.width}} 4" default="{{ item[column.key] }}" name="{{column.key}}_{{item.index}}" halign="left" textsize="1.5" valign="center2"/>
+                            <entry pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" default="{{ item[column.key] }}" name="{{column.key}}_{{item.index}}" halign="left" textsize="1.5" valign="center2"/>
                         {% else %}
-                            <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 4" text="{{ item[column.key] }}" halign="left" textsize="1.5" valign="center2"/>
+                            {%  if true %}
+                                {% set key = "item_" ~ column.action ~ "_" ~ item.index %}
+                                <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" text=" {{ item[column.key] }}" halign="left" textsize="1.5" valign="center2" focusareacolor2="fff3" action="{{ actions[key] }}"/>
+                            {% else %}
+                                <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" text=" {{ item[column.key] }}" halign="left" textsize="1.5" valign="center2"/>
+                            {% endif %}
                         {% endif %}
+                        <quad pos="{{ posx }} -2" z-index="0" size="{{ column.width }} 5" bgcolor="{{ colors.title_bg }}2" valign="center2"/>
                         {% set posx = (posx + column.width + 1) %}
                 {% endfor %}
 
                 {% for action in data.listActions %}
                         {% set key = "item_" ~ action ~ "_" ~ item.index %}
-                        <label pos="{{ posx + 6.5 }} -2" z-index="1" size="12 3" 
+                        <label pos="{{ posx + 6.5 }} -2" z-index="1" size="12 4"
                         text="{{action}}" textsize="1" 
                         valign="center2" halign="center"
                         focusareacolor1="{{colors.button}}" focusareacolor2="{{colors.button_hover}}" 
@@ -37,13 +45,6 @@
                         {% set posx = (posx + 13) %}                    
                 {% endfor %}
 
-                {% if (loop.index0 % 2) == 0 %}
-                <quad pos="-2 -2" z-index="0" size="{{ totalWidth }} 4" bgcolor="fff1" valign="center2"/>       
-                {% endif %}
-
-                {% if loop.last %}
-                <quad pos="-2 -4" z-index="0" size="{{ totalWidth }} 0.2" bgcolor="eee" valign="center2"/>
-                {% endif %}
         </frame>
     {% endfor %}
 

@@ -1,7 +1,7 @@
 import { type BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 import Plugin from "core/plugins";
-import { Score } from "schemas/scores";
-import { Player } from "schemas/players";
+import { Score } from "core/schemas/scores";
+import { Player } from "core/schemas/players";
 import { eq, asc, and } from "drizzle-orm";
 import { clone, escape, removeLinks } from "core/utils";
 import tm from 'tm-essentials';
@@ -61,16 +61,26 @@ export default class Records extends Plugin {
     }
 
     async onStart() {
+        const menu = tmc.storage["menu"];
+        if (menu) {
+            menu.addItem({
+                category: "Map",
+                title: "Show: Records",
+                action: "/records"
+            });
+        }
         if (!this.db) return;
         if (!tmc.maps.currentMap?.UId) return;
         this.currentMapUid = tmc.maps.currentMap.UId;
-        this.syncRecords(tmc.maps.currentMap.UId);
+        await this.syncRecords(tmc.maps.currentMap.UId);
+
+
     }
 
     async onBeginMap(data: any) {
         const map = data[0];
         this.currentMapUid = map.UId;
-        this.syncRecords(map.UId);
+        await this.syncRecords(map.UId);
     }
 
     async cmdRecords(login: string, args: string[]) {
@@ -84,7 +94,7 @@ export default class Records extends Plugin {
                 });
         }
         const window = new ListWindow(login);
-        window.size = { width: 90, height: 100 };
+        window.size = { width: 90, height: 105 };
         window.title = "records";
         window.setItems(records);
         window.setColumns([

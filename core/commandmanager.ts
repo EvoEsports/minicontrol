@@ -1,5 +1,3 @@
-import Server from "./server";
-import fs from 'fs';
 import { sleep } from "./utils";
 
 export interface ChatCommand {
@@ -87,7 +85,7 @@ export default class CommandManager {
                         tmc.chat(`Plugin $fd0${plugin}$fff not loaded.`, login);
                         return;
                     }
-                    tmc.unloadPlugin(plugin);
+                    await tmc.unloadPlugin(plugin);
                     break;
                 }
                 case "reload": {
@@ -101,7 +99,7 @@ export default class CommandManager {
                         return;
                     }
                     await tmc.unloadPlugin(plugin);
-                    sleep(50);
+                    await sleep(50);
                     await tmc.loadPlugin(plugin);
                     break;
                 }
@@ -130,7 +128,7 @@ export default class CommandManager {
      */
     addCommand(command: string, callback: CallableFunction, help: string = "", admin: boolean | undefined = undefined) {
         if (admin === undefined) {
-            admin = command.startsWith("//") ? true : false;
+            admin = command.startsWith("//");
         }
         if (!this.commands[command]) {
             this.commands[command] = {
@@ -166,10 +164,10 @@ export default class CommandManager {
                     tmc.chat("¤error¤Not allowed.", login);
                     return;
                 }
-                const cmd = text.match(/[/]{1,2}\w+/)?.[0];
+                const cmd = text.match(/\/{1,2}\w+/)?.[0];
                 if (cmd == command.trigger) {
                     const words = text.replace(command.trigger, "").trim();
-                    let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s\"]+/gi) || []).map((word) => word.replace(/^"(.+(?="$))"$/, '$1').replaceAll("\\", ""));
+                    let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s"]+/gi) || []).map((word) => word.replace(/^"(.+(?="$))"$/, '$1').replaceAll("\\", ""));
                     await command.callback(login, params);
                     return;
                 }
@@ -183,11 +181,11 @@ export default class CommandManager {
      * @param data data from the server
      * @returns 
      */
-    private onPlayerChat(data: any) {
+    private async onPlayerChat(data: any) {
         if (data[0] == 0) return;
         const login: string = data[1];
         let text: string = data[2];
-        this.execute(login, text);
+        await this.execute(login, text);
     }
 
 }

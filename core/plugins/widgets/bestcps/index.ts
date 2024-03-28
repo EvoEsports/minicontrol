@@ -49,7 +49,7 @@ export default class BestCps extends Plugin {
         if (nb >= this.maxCp) return;
         if (this.bestTimes[nb] && time < this.bestTimes[nb].time) {
             this.bestTimes[nb] = { nickname: (await tmc.getPlayer(login)).nickname, time: time, prettyTime: tm.Time.fromMilliseconds(time).toTmString() };
-            this.display();
+            await this.display();
         }
 
     }
@@ -57,7 +57,7 @@ export default class BestCps extends Plugin {
     async beginMap(data: any) {
         this.nbCheckpoints = Number.parseInt(data[0].NbCheckpoints);
         this.reset();
-        this.display();
+        await this.display();
     }
 
     async display() {

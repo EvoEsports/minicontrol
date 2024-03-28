@@ -6,7 +6,7 @@ import Widget from 'core/ui/widget';
 
 export default class DebugTool extends Plugin {
     widget: Widget | null = null;
-    intervalId: NodeJS.Timeout | null = null;
+    intervalId: NodeJS.Timer | null = null;
 
     async onLoad() {
         if (process.env.DEBUG == "true") {
@@ -16,10 +16,10 @@ export default class DebugTool extends Plugin {
             tmc.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
             tmc.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");         
         }
-        this.displayMemInfo();     
+        await this.displayMemInfo();     
         this.intervalId = setInterval(() => {
             this.displayMemInfo();
-        }, 60000);
+        }, 60000) as NodeJS.Timer;
     }
 
     async onUnload() {

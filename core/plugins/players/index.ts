@@ -1,6 +1,5 @@
 import Plugin from "core/plugins";
 import PlayerWindow from "./PlayerWindow";
-import type { Menu } from "../menu";
 
 
 export default class Players extends Plugin {
@@ -17,8 +16,8 @@ export default class Players extends Plugin {
     async onStart() {
         if (tmc.storage["menu"]) {
             tmc.storage["menu"].addItem({
-                category: "Home",
-                title: "Players",
+                category: "Players",
+                title: "Players List",
                 action: "/players"        
             });
         }
@@ -26,7 +25,7 @@ export default class Players extends Plugin {
 
     async cmdPlayers(login: any, args: string[]) {
         const window = new PlayerWindow(login);
-        window.size = { width: 135, height: 100 };
+        window.size = { width: 135, height: 105 };
         window.title = "Players";
         window.setItems(tmc.players.get());
         window.setColumns([

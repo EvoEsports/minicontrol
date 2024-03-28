@@ -41,7 +41,7 @@ export default class UiManager {
         if (tmc.game.Name == "TmForever") {
             tmc.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
         }
-        tmc.server.call('SendDisplayManialinkPage', this.convert(this.getGlobalManialink()), 0, false);
+        tmc.server.send('SendDisplayManialinkPage', this.convert(this.getGlobalManialink()), 0, false);
     }
 
     async getUiProperties() {
@@ -56,11 +56,11 @@ export default class UiManager {
             uiModule[property] = value;
             uiModule[property + "_update"] = true;
         } else {
-            tmc.debug("¤error¤ui module not found: ¤white¤" + id);
+            tmc.cli("¤error¤ui module not found: ¤white¤" + id);
         }
     }
 
-    async sendUiProperties() {            
+    async sendUiProperties() {
         await tmc.server.call("TriggerModeScriptEventArray", 'Common.UIModules.SetProperties', [`{"uimodules": ${JSON.stringify(this.uiProperties)}}`]);
     }
 
@@ -93,9 +93,13 @@ export default class UiManager {
             const x = (Number.parseFloat(match[2]) / 160) * 64;
             const y = (Number.parseFloat(match[3]) / 90) * 48;
             let z = 0;
-            const zindex = line.match(/z-index="(\d+)"/) || ["0", "0"];
+            const zindex = line.match(/z-index="([-\d]+)"/) || ["0", "0"];
             z = Number.parseInt(zindex[1]) ?? 0;
-            out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="\d+"/, "");
+            if (match[1] == "pos") {
+                out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="\d+"/, "");
+            } else if (match[1] == "size") {
+                out = out.replaceAll(match[0], `${match[1]}n="${x} ${y}"`);
+            }
         }
         return out;
     }
@@ -118,7 +122,6 @@ export default class UiManager {
 
     /**
      * generate new uuid for manialink
-     * @param nb 
      * @returns 
      */
     uuid(): string {
@@ -148,17 +151,16 @@ export default class UiManager {
      * Add manialink action
      * @param callback 
      * @param data
-     * @returns {str}
      */
     addAction(callback: CallableFunction, data: any): string {
-        const getHash = (data: any) => {
+        const getHash = () => {
             const salt = Math.random().toString(36).substring(2, 12);
-            return this.hash(salt) // + JSON.stringify(data));
+            return this.hash(salt);
         };
-        let hash = getHash(data);
+        let hash = getHash();
         if (this.actions[hash.toString()]) {
             tmc.debug("¤error¤action already exists: ¤white¤" + hash + "$fff trying again...");
-            hash = getHash(data);
+            hash = getHash();
         }
         const prefix = tmc.game.Name == "TmForever" ? "" : "tmc";
         hash = prefix + hash;
@@ -176,7 +178,7 @@ export default class UiManager {
             delete this.actions[actionId];
             tmc.debug("¤info¤deleted action: ¤white¤" + actionId + " ¤info¤total actions: ¤white¤" + Object.keys(this.actions).length.toString());
         } else {
-            //    tmc.debug("¤error¤action not found: " + actionId);
+            // tmc.debug("¤error¤action not found: " + actionId);
         }
     }
 
@@ -198,7 +200,7 @@ export default class UiManager {
 
             } else {
                 this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
-                this.onPlayerConnect([login]);
+                await this.onPlayerConnect([login]);
             }
             return;
         }
@@ -219,7 +221,7 @@ export default class UiManager {
             const xml = `<manialinks>${this.convert(render)}</manialinks>`;
             multi.push(['SendDisplayManialinkPageToLogin', login, xml, 0, false]);
         }
-        tmc.server.gbx.multicall(multi);
+        await tmc.server.gbx.multicall(multi);
 
         if (tmc.game.Name == "TmForever") {
             tmc.server.send('SendDisplayManialinkPageToLogin', login, this.getTmufCustomUi(), 0, false);
@@ -258,7 +260,7 @@ export default class UiManager {
             }
             this.playerManialinks[manialink.recipient][manialink.id.toString()] = manialink;
         }
-        const render = await manialink.render();
+        const render = manialink.render();
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
@@ -279,11 +281,13 @@ export default class UiManager {
      * @param manialink 
      */
     async refreshManialink(manialink: Manialink) {
-        const render = await manialink.render();
+        const render = manialink.render();
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
-            tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false);
+            if (!this.hiddenManialinks.includes(manialink.recipient)) {
+                tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false);
+            }
         } else {
             if (this.hiddenManialinks.length > 0) {
                 const logins = tmc.players.get().map((player) => player.login);
@@ -341,10 +345,10 @@ export default class UiManager {
 
     /**      
      * @ignore
-     * @returns {string} Returns the default ui for tmuf
      */
-    getTmufCustomUi() {
+    getTmufCustomUi(): string {
         return `
+        <?xml version="1.0" encoding="UTF-8"?>        
         <manialinks><custom_ui>
             <notice visible="false"/>            
             <challenge_info visible="false"/>
@@ -357,11 +361,13 @@ export default class UiManager {
             <speed_and_distance visible="false"/>
             <player_ranking visible="false"/>
             <global visible="true"/>
-        </custom_ui></manialinks>`.replaceAll("\n", "");
+        </custom_ui></manialinks>`;
     }
 
     getGlobalManialink() {
-        return `<manialinks>
+        return `
+        <?xml version="1.0" encoding="UTF-8"?>
+        <manialinks>
         <manialink id="1" version="3">
             <frame pos="-152.5 -36" z-index="1">           
                 <label pos="0 0" size="0 0" valign="center2" halign="center" textsize="0.5" textcolor="fff" text=" " focusareacolor1="0000" focusareacolor2="0000" actionkey="3" action="-2"/>
