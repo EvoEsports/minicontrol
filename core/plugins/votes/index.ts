@@ -1,20 +1,22 @@
 import Plugin from 'core/plugins';
 import Widget from 'core/ui/widget';
-import { formatTime } from 'core/utils';
+import { formatTime, processColorString, escape } from 'core/utils';
 
 export class Vote {
     type: string;
     question: string;
+    value: number;
     timeout: number;
     votes: Map<string, boolean>;
     starter: string;
     vote_ratio: number = 0.5;
 
-    constructor(login: string, type: string, question: string, timeout: number) {
+    constructor(login: string, type: string, question: string, timeout: number, value: number) {
         this.starter = login;
         this.type = type;
         this.question = question;
         this.timeout = timeout;
+        this.value = value;
         this.votes = new Map<string, boolean>();
     }
 }
@@ -33,7 +35,7 @@ export default class VotesPlugin extends Plugin {
     ratio: number = process.env.VOTE_RATIO ? parseFloat(process.env.VOTE_RATIO) : 0.55;
     currentVote: Vote | null = null;
     widget: Widget | null = null;
-    origTimeLimit = Number.parseInt(process.env.TALIMIT || "300");
+    readonly origTimeLimit = Number.parseInt(process.env.TALIMIT || "300");
     newLimit = this.origTimeLimit;
     extendCounter = 1;
 
@@ -42,15 +44,22 @@ export default class VotesPlugin extends Plugin {
         tmc.server.addListener("TMC.Vote.Cancel", this.onVoteCancel, this);
         tmc.server.addListener("TMC.Vote.Deny", this.onVoteDeny, this);
         tmc.server.addListener("TMC.Vote.Pass", this.onVotePass, this);
-        tmc.server.addListener("Trackmania.EndMatch", this.cancelVote, this);
+        tmc.server.addListener("Trackmania.BeginMap", this.onBeginRound, this);
+        if (tmc.game.Name == "TmForever") {
+            tmc.server.addListener("Trackmania.EndRace", this.onEndMatch, this);
+        } else {
+            tmc.server.addListener("Trackmania.Podium_Start", this.onEndMatch, this);
+        }
     }
 
     async onUnload() {
         tmc.server.removeOverride("CancelVote");
-        tmc.server.removeListener("TMC.Vote.Cancel", this.onVoteCancel.bind(this));
-        tmc.server.removeListener("TMC.Vote.Deny", this.onVoteDeny.bind(this));
-        tmc.server.removeListener("TMC.Vote.Pass", this.onVotePass.bind(this));
-        tmc.server.removeListener("Trackmania.EndMatch", this.cancelVote.bind(this));
+        tmc.server.removeListener("TMC.Vote.Cancel", this.onVoteCancel);
+        tmc.server.removeListener("TMC.Vote.Deny", this.onVoteDeny);
+        tmc.server.removeListener("TMC.Vote.Pass", this.onVotePass);
+        tmc.server.removeListener("Trackmania.EndRace", this.onEndMatch);
+        tmc.server.removeListener("Trackmania.Podium_Start", this.onEndMatch);
+        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginRound);
         this.widget?.destroy();
         this.widget = null;
         this.currentVote = null;
@@ -63,8 +72,7 @@ export default class VotesPlugin extends Plugin {
         tmc.removeCommand("/no");
     }
 
-    async onStart() {
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginRound, this);
+    async onStart() {        
         tmc.addCommand("//vote", this.cmdVotes.bind(this), "Start custom vote");
         tmc.addCommand("//pass", this.cmdPassVote.bind(this), "Pass vote");
         tmc.addCommand("/skip", this.cmdSkip.bind(this), "Start vote to Skip map");
@@ -101,19 +109,24 @@ export default class VotesPlugin extends Plugin {
             });
 
         }
-
-
-
-
     }
+
+    async onEndMatch() {
+        this.newLimit = this.origTimeLimit;
+        this.currentVote = null;
+        this.hideWidget();
+        tmc.server.emit("TMC.Vote.Cancel", { vote: this.currentVote });
+    }
+
 
     async onBeginRound() {
         this.currentVote = null;
-        this.hideWidget();
+        this.newLimit = this.origTimeLimit;        
+        this.hideWidget();        
         if (this.extendCounter > 1) {
-            tmc.server.send("SetTimeAttackLimit", this.origTimeLimit * 1000);
-            this.extendCounter = 1;
+            tmc.server.send("SetTimeAttackLimit", this.origTimeLimit * 1000);            
         }
+        this.extendCounter = 1;
     }
 
     async passVote(login: string, args: string[]) {
@@ -134,7 +147,7 @@ export default class VotesPlugin extends Plugin {
     }
 
     cancelVote(login: string) {
-        tmc.server.emit("TMC.Vote.Cancel", login, { vote: this.currentVote });
+        tmc.server.emit("TMC.Vote.Cancel", { vote: this.currentVote });
         this.currentVote = null;
         this.hideWidget();
     }
@@ -150,14 +163,19 @@ export default class VotesPlugin extends Plugin {
     }
 
     async cmdSkip(login: string, args: string[]) {
-        await this.startVote(login, "Skip", "Skip map?");
+        await this.startVote(login, "Skip", "¤info¤Skip map?");
     }
 
     async cmdExtend(login: string, args: string[]) {
-        await this.startVote(login, "Extend", "Extend map?");
+        let minutes = Number.parseInt(args[0]) || 5;     
+        if (minutes < 1) minutes = 1;
+        if (minutes > 10) minutes = 10;
+
+        let message = `¤info¤Extend map by $fff${minutes} ¤info¤min?`;
+        await this.startVote(login, "Extend", message, minutes);
     }
 
-    async startVote(login: string, type: string, question: string) {
+    async startVote(login: string, type: string, question: string, value: number = -1) {
         if (!tmc.admins.includes(login)) {
             const allowedVotes = ["Skip", "Extend"];
             if (!allowedVotes.includes(type)) {
@@ -170,7 +188,7 @@ export default class VotesPlugin extends Plugin {
             tmc.chat("There is already a vote in progress.", login);
             return;
         }
-        this.currentVote = new Vote(login, type, question, Date.now() + this.timeout * 1000);
+        this.currentVote = new Vote(login, type, question, Date.now() + this.timeout * 1000, value);
         this.currentVote.vote_ratio = this.ratio;
         await this.vote(login, true);
         this.widget = new Widget("core/plugins/votes/widget.twig");
@@ -231,11 +249,11 @@ export default class VotesPlugin extends Plugin {
             tmc.server.emit("TMC.Vote.Pass", { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
         } else if (percent >= this.ratio * 100) {
             tmc.chat(`¤info¤Vote: $fff${this.currentVote.question}`);
-            tmc.chat(`¤info¤Did pass: ¤white¤${yes} / ${no} (${percent}%)`);
+            tmc.chat(`¤info¤Vote passed: ¤white¤${yes} / ${no} (${percent}%)`);
             tmc.server.emit("TMC.Vote.Pass", { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
         } else {
             tmc.chat(`¤info¤Vote: $fff${this.currentVote.question}`);
-            tmc.chat(`¤info¤Did not pass: ¤white¤${yes} / ${no} (${percent}%)`);
+            tmc.chat(`¤info¤Vote did not pass: ¤white¤${yes} / ${no} (${percent}%)`);
             tmc.server.emit("TMC.Vote.Deny", { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
         }
 
@@ -261,8 +279,9 @@ export default class VotesPlugin extends Plugin {
             vote: this.currentVote,
             total: total,
             yes_ratio: percent,
+            voteText: processColorString(escape(this.currentVote.question)),
             time_percent: (this.currentVote.timeout - Date.now()) / (this.timeout * 1000),
-            timer: formatTime(Math.abs(Date.now() - this.currentVote.timeout)).replace(/\.\d\d\d/, "")
+            timer: formatTime(Math.floor(Math.abs(Date.now() - this.currentVote.timeout))).replace(/\.\d\d\d/, "")
         });
         await this.widget.display();
     }
@@ -287,7 +306,7 @@ export default class VotesPlugin extends Plugin {
         }
         if (data.vote.type === "Extend") {
             this.extendCounter += 1;
-            this.newLimit += this.origTimeLimit;
+            this.newLimit += data.vote.value * 60;
             tmc.server.send("SetTimeAttackLimit", this.newLimit * 1000);
             return;
         }

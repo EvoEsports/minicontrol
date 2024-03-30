@@ -3,7 +3,7 @@ import Widget from 'core/ui/widget';
 import type { Like } from "core/plugins/maplikes";
 
 export default class MapLikesWidget extends Plugin {
-    depends: string[] = ["records"];
+    depends: string[] = ["records", 'maplikes'];
     widget: Widget | null = null;
     records: any[] = [];
 
