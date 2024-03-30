@@ -91,7 +91,10 @@ export function clone(obj: any): any {
 }
 
 export function formatTime(time: number): string {
-    return tm.Time.fromMilliseconds(time).toTmString().replace(/^0:/, "");
+    let parsedTime = tm.Time.fromMilliseconds(time).toTmString().replace(/^0:/, "");
+    if (tmc.game.Name == "TmForever")
+        return parsedTime.replace(/0$/, "");
+    return parsedTime;
 }
 
 export function castType(value: string, type: string | undefined = undefined): any {

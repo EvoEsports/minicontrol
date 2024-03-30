@@ -1,6 +1,6 @@
 import tm from 'tm-essentials';
 import MapsWindow from './mapsWindow';
-import { clone, escape } from 'core/utils';
+import { clone, escape, formatTime } from 'core/utils';
 import Plugin from 'core/plugins';
 import QueueWindow from './queueWIndow';
 
@@ -171,7 +171,7 @@ export default class Maps extends Plugin {
                     Index: i++,
                     Name: escape(map.Name),
                     Author: escape(map.Author),
-                    AuthorTime: tm.Time.fromMilliseconds(map.AuthorTime).toTmString()
+                    AuthorTime: formatTime(map.AuthorTime),
                 })
             );
         }

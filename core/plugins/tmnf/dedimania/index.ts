@@ -1,6 +1,6 @@
 import {Player} from 'core/playermanager';
 import Api from './api';
-import {escape} from 'core/utils';
+import {escape, formatTime} from 'core/utils';
 import tm from 'tm-essentials';
 import ListWindow from 'core/ui/listwindow';
 import Plugin from 'core/plugins';
@@ -93,7 +93,7 @@ export default class Dedimania extends Plugin {
                 {
                     rank: record.Rank,
                     nickname: escape(record.NickName),
-                    time: "$o" + tm.Time.fromMilliseconds(record.Best).toTmString().replace(/^0:/, ""),
+                    time: "$o" + formatTime(record.Best),
                 });
         }
         const window = new ListWindow(login);
@@ -273,7 +273,7 @@ export default class Dedimania extends Plugin {
                 {
                     rank: record.Rank,
                     nickname: escape(record.NickName),
-                    time: tm.Time.fromMilliseconds(record.Best).toTmString().replace(/^0:/, ""),
+                    time: formatTime(record.Best),
                 });
             x += 1;
         }
@@ -283,7 +283,7 @@ export default class Dedimania extends Plugin {
                 {
                     rank: lastRecord.Rank,
                     nickname: escape(lastRecord.NickName),
-                    time: tm.Time.fromMilliseconds(lastRecord.Best).toTmString().replace(/^0:/, ""),
+                    time: formatTime(lastRecord.Best),
                 }
             )
         }
