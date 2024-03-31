@@ -57,6 +57,12 @@ export default class Announces extends Plugin {
         if (newRecord.rank > 15) {
             recipient = newRecord.login;
         }
+
+        if (oldRecord.time == newRecord.time) {
+            tmc.chat(`¤white¤${newRecord.nickname}¤rec¤ equalled their ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`, newRecord.login);        
+            return;
+        }
+        
         tmc.chat(`¤white¤${newRecord.nickname}¤rec¤ improved ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤ ${extrainfo}!`, recipient);
     }
 

@@ -25,12 +25,13 @@ export default class Players extends Plugin {
 
     async cmdPlayers(login: any, args: string[]) {
         const window = new PlayerWindow(login);
-        window.size = { width: 135, height: 105 };
+        window.size = { width: 185, height: 105 };
         window.title = "Players";
         window.setItems(tmc.players.get());
         window.setColumns([
             { key: "nickname", title: "Nickname", width: 50 },
-            { key: "login", title: "Login", width: 50, type:"entry" }
+            { key: "login", title: "Login", width: 50, type:"entry" },
+            { key: "path", title: "Path", width: 50 }
         ]);
 
         if (tmc.admins.includes(login)) {
