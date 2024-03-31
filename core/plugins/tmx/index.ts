@@ -18,6 +18,7 @@ export default class Tmx extends Plugin {
     readonly BASE_URL_FOREVER_UNITED = "https://tmuf.exchange/";
     readonly BASE_URL_TM2 = "https://tm.mania.exchange/";
     readonly BASE_URL_TM2020 = "https://trackmania.exchange/";
+    private cancelToken: boolean = false;
 
     getBaseUrl(site?: string) {
         if (tmc.game.Name === "ManiaPlanet") return this.BASE_URL_TM2;
@@ -64,7 +65,6 @@ export default class Tmx extends Plugin {
             return;
         }
 
-
         await this.parseAndDownloadMapId(params[0], login);
         return;
 
@@ -74,11 +74,17 @@ export default class Tmx extends Plugin {
         if (!params[0]) {
             if (tmc.game.Name === "TmForever") {
                 tmc.chat("¤info¤Usage: ¤cmd¤//addpack ¤white¤<ID:SITE>¤info¤ - e.g. ¤cmd¤//addpack ¤white¤12345:tmnf", login);
-                return;
             } else {
                 tmc.chat("¤info¤Usage: ¤cmd¤//addpack ¤white¤<ID>", login);
-                return;
             }
+            tmc.chat("¤info¤To cancel: ¤cmd¤//addpack cancel", login);
+            return;
+        }
+        
+        if (params[0].toLowerCase() === "cancel") {
+            this.cancelToken = true;
+            tmc.chat("Map Pack download cancelled.", login);
+            return;
         }
 
         await this.parseAndDownloadTrackPack(params[0], login);
@@ -169,6 +175,7 @@ export default class Tmx extends Plugin {
     }
 
     async parseAndDownloadTrackPack(packId: string, login: string) {
+        this.cancelToken = false;
         if (tmc.game.Name === "TmForever") {
             if (packId.includes(":")) {
                 let data = packId.split(':');
@@ -223,9 +230,9 @@ export default class Tmx extends Plugin {
             tmc.chat(`Error while adding Pack ID ${packId}: ${res.statusText}`, login);
         }
         let results = json;
-        if  (tmc.game.Name === "TmForever") results = json.Results;
-
+        if (tmc.game.Name === "TmForever") results = json.Results;
         for (let data of results) {
+            if (this.cancelToken === true) return;
             try {
                 let mapName = tmc.game.Name === "TmForever" ? data.TrackName : data.GbxMapName;
                 let id = tmc.game.Name === "TmForever" ? data.TrackId : data.TrackID;
@@ -233,7 +240,7 @@ export default class Tmx extends Plugin {
                 const map: Map = { id, baseUrl, site }
                 await this.downloadMap(map, login);
             } catch (err: any) {
-                tmc.chat(`$f00Error: ${err.message}`);
+                tmc.chat(`¤error¤Error: ${err.message}`);
             }
         }
         tmc.chat("All Done!");
