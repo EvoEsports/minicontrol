@@ -258,20 +258,11 @@ export default class AdminPlugin extends Plugin {
             if (!params[0]) {
                 return tmc.chat("¤cmd¤//modecommand ¤info¤needs a command", login);
             }
-            let command = params.shift();
-            if (!command) return;
-
-
-            let outParams = [];
-            for (const param of params) {
-                outParams.push(castType(param));
-            }
-            if (outParams.length == 1) {
-                outParams = outParams[0];
-            }
-            let outCommand: any = {};            
-            command = "Command_" + command;
-            outCommand[command] = outParams;
+            if (!params[1]) {
+                return tmc.chat("¤cmd¤//modecommand ¤info¤needs a parameter", login);
+            }            
+            const outCommand: any = {};                        
+            outCommand["Command_"+params[0]] = castType(params[1]);
 
             try {
                 await tmc.server.call("SendModeScriptCommands", outCommand);
