@@ -1,33 +1,5 @@
 import tm from 'tm-essentials';
 
-export let colors: { [key: string]: string } = {
-    white: "fff",
-    black: "000",
-    title_fg: "eef",
-    title_bg: "112", //27f
-    bg: "334",
-    cmd: "fd0",
-    info: "5bf",
-    rec: "2e0",
-    success: "0f0",
-    warning: "fa0",
-    error: "f00",
-    gray: "abc",
-    button: "778",
-    button_hover: "27f",
-};
-
-/** load colors from environment variables */
-for (let color in colors) {
-    const vari = "COLOR_" + color.toString().toUpperCase();
-    colors[color] = process.env[vari] || colors[color];
-}
-
-colors['button_light'] = modLightness(colors['button'], 15);
-colors['button_dark'] = modLightness(colors['button'], -15);
-colors['bg_light'] = modLightness(colors['bg'], 5);
-colors['bg_dark'] = modLightness(colors['bg'], -5);
-
 export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -40,8 +12,8 @@ export function processColorString(str: string, prefix: string = ""): string {
     const matches = str.matchAll(/¤(\w+)¤/g);
     for (let match of matches) {
         const code = match[1].toString().toLowerCase();
-        if (colors[code]) {
-            str = str.replaceAll(match[0], `${prefix}$${colors[code]}`);
+        if (tmc.colors[code]) {
+            str = str.replaceAll(match[0], `${prefix}$${tmc.colors[code]}`);
         }
     }
     return str;
@@ -136,7 +108,7 @@ export function memInfo(section = "") {
         prefix = "$0f0 -";
     }
     section = (section != "") ? `¤info¤${section} ` : "";
-    const out = section + "$fff" + memMB.toFixed(1) + "Mb " + prefix + Math.abs(memMB - prevValueMem).toFixed(1) + 'Mb $fff(' + (memMB - startValueMem).toFixed(1) + "Mb)";
+    const out = section + "¤white¤" + memMB.toFixed(1) + "Mb " + prefix + Math.abs(memMB - prevValueMem).toFixed(1) + 'Mb ¤white¤(' + (memMB - startValueMem).toFixed(1) + "Mb)";
     prevValueMem = memMB;
     return out;
 }

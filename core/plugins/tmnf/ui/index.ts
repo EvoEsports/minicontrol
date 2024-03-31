@@ -1,6 +1,6 @@
 import Plugin from "core/plugins";
 
-const environments = ['', 'Stadium', 'Speed', 'Alpine', 'Bay', 'Coast', 'Island', 'Rally'];
+const environments = ['Stadium', 'Speed', 'Alpine', 'Bay', 'Coast', 'Island', 'Rally'];
 
 export default class TmnfUiPlugin extends Plugin {
     depends: string[] = ["game:TmForever"];
@@ -26,6 +26,6 @@ export default class TmnfUiPlugin extends Plugin {
                 Url: "http://reaby.kapsi.fi/trackmania/tmnf_mod.zip"
             });
         }
-        tmc.server.send("SetForcedMods", true, mods);
+        await tmc.server.call("SetForcedMods", true, mods);
     }
 }

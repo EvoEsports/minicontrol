@@ -159,7 +159,7 @@ export default class UiManager {
         };
         let hash = getHash();
         if (this.actions[hash.toString()]) {
-            tmc.debug("¤error¤action already exists: ¤white¤" + hash + "$fff trying again...");
+            tmc.debug("¤error¤action already exists: ¤white¤" + hash + "¤white¤ trying again...");
             hash = getHash();
         }
         const prefix = tmc.game.Name == "TmForever" ? "" : "tmc";
@@ -305,7 +305,7 @@ export default class UiManager {
      */
     async hideManialink(manialink: Manialink) {
         try {
-            tmc.debug("¤info¤hiding manialink: $fff" + manialink.id);
+            tmc.debug("¤info¤hiding manialink: ¤white¤" + manialink.id);
             const xml = `<?xml version="1.0" encoding="UTF-8"?>
             <manialinks><manialink id="${manialink.id}"></manialink></manialinks>`;
             if (manialink.recipient !== undefined) {
@@ -319,7 +319,7 @@ export default class UiManager {
     }
 
     async destroyManialink(manialink: Manialink, hide: boolean = true) {
-        tmc.debug("¤info¤destroying manialink: $fff" + manialink.id);
+        tmc.debug("¤info¤destroying manialink: ¤white¤" + manialink.id);
         if (hide) {
             await this.hideManialink(manialink);
         }

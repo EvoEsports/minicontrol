@@ -129,10 +129,12 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-.env1
-.env2
+.env*
+!.env.example
 
-userdata/local.sqlite
+userdata/*.sqlite
+userdata/*.log
+userdata/*.json
 userdata/plugins/*
 userdata/drizzle/*
 !userdata/plugins/.gitkeep

@@ -100,7 +100,7 @@ export default class Server {
         if (tmc.game.Name == "TmForever") {
             method = method.replace("Map", "Challenge");
         }
-        tmc.debug("$27fcall $fff<> $89a" + method);
+        tmc.debug("$27fcall ¤white¤<> $89a" + method);
         if (tmc.game.Name == "Trackmania") {
             if (method == "SetTimeAttackLimit") {
                 const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };
@@ -154,7 +154,7 @@ export default class Server {
         if (tmc.game.Name == "TmForever") {
             method = method.replace("Map", "Challenge");
         }
-        //  tmc.debug("$4a2send $fff>> $89a" + method);
+        //  tmc.debug("$4a2send ¤white¤>> $89a" + method);
         if (tmc.game.Name == "Trackmania") {
             if (method == "SetTimeAttackLimit") {
                 const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };

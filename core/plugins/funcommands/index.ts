@@ -43,7 +43,7 @@ export default class FunCommands extends Plugin {
 
     async command_bootme(login: string, data: any) {
         const player = await tmc.getPlayer(login);
-        tmc.chat(`${player.nickname}$z$s$fff chooses to boot back to real life!`);
+        tmc.chat(`${player.nickname}$z$s¤white¤ chooses to boot back to real life!`);
         await tmc.server.call(`Kick`, login, `chooses to boot to real life`);;
     }
     async command_rq(login: string, data: any) {
@@ -56,34 +56,34 @@ export default class FunCommands extends Plugin {
     }
     async command_gg(login: string, data: any) {
         const player = await tmc.getPlayer(login);
-        tmc.chat(`${player.nickname}$z$s$fff: $f90G$fa0o$fb0o$fb0d$fc0 $fd0G$fe0a$ff0m$ff0e $ff0e$fe0v$fd0e$fc0r$fb0y$f90o$f80n$f70e $fff`);
+        tmc.chat(`${player.nickname}$z$s¤white¤: $f90G$fa0o$fb0o$fb0d$fc0 $fd0G$fe0a$ff0m$ff0e $ff0e$fe0v$fd0e$fc0r$fb0y$f90o$f80n$f70e ¤white¤`);
     }
     async command_ty(login: string, data: any) {
         const player = await tmc.getPlayer(login);
-        tmc.chat(`${player.nickname}$z$s$fff: $f30T$f20h$f20a$f20n$f11k$f11 $f11y$f02o$f02u$f02!`);
+        tmc.chat(`${player.nickname}$z$s¤white¤: $f30T$f20h$f20a$f20n$f11k$f11 $f11y$f02o$f02u$f02!`);
     }
     async command_gn(login: string, data: any) {
         const player = await tmc.getPlayer(login);
-        tmc.chat(`${player.nickname}$z$s$fff: $037G$038o$039o$049d$04a $04bn$04ci$05cg$05dh$05et$06f $d90`);
+        tmc.chat(`${player.nickname}$z$s¤white¤: $037G$038o$039o$049d$04a $04bn$04ci$05cg$05dh$05et$06f $d90`);
     }
     async command_bb(login: string, data: any) {
         const player = await tmc.getPlayer(login);
-        tmc.chat(`${player.nickname}$z$s$fff: See you later, bye!`);
+        tmc.chat(`${player.nickname}$z$s¤white¤: See you later, bye!`);
     }
     async command_go(login: string, data: any) {
         const player = await tmc.getPlayer(login);
-        tmc.chat(`${player.nickname}$z$s$fff: $o$ff03$fff-$fe02$fff-$fc01$fb0 $fb0g$fa0o$f90g$f80o$f80g$e70o!`);
+        tmc.chat(`${player.nickname}$z$s¤white¤: $o$ff03¤white¤-$fe02¤white¤-$fc01$fb0 $fb0g$fa0o$f90g$f80o$f80g$e70o!`);
     }
     async command_n1(login: string, data: any) {
         const player = await tmc.getPlayer(login);
-        tmc.chat(`${player.nickname}$z$s$fff: Nice one `);
+        tmc.chat(`${player.nickname}$z$s¤white¤: Nice one `);
     }
     async command_nt(login: string, data: any) {
         const player = await tmc.getPlayer(login);
-        tmc.chat(`$fff${player.nickname}$z$s$fff: $0dcN$0ddi$0ddc$0dde$0ce $0cet$0cfi$0bfm$0bfe $fff`);
+        tmc.chat(`¤white¤${player.nickname}$z$s¤white¤: $0dcN$0ddi$0ddc$0dde$0ce $0cet$0cfi$0bfm$0bfe ¤white¤`);
     }
     async command_posture(login: string, data: any) {
-        tmc.chat(`$o$fff $0f9P$0faO$0faS$0fbT$0ecU$0ecR$0edE$0ed $0deC$0deH$0dfE$0dfC$0cfK $fff`);
+        tmc.chat(`$o¤white¤ $0f9P$0faO$0faS$0fbT$0ecU$0ecR$0edE$0ed $0deC$0deH$0dfE$0dfC$0cfK ¤white¤`);
     }
     async command_hydrate(login: string, data: any) {
         tmc.chat(`$o$1df $18fH$09fY$09fD$0afR$0bfA$0bfT$0cfI$0dfO$1dfN  $1dfC$0cfH$0bfE$09fC$18fK $1df`);

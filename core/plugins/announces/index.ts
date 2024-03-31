@@ -24,26 +24,26 @@ export default class Announces extends Plugin {
 
     async onBeginMap(data: any) {
         const info = data[0];
-        const msg = `¤info¤Now Playing: $fff${info.Name}¤info¤ by $fff${info.AuthorNickname ? info.AuthorNickname : info.Author}`;
+        const msg = `¤info¤Now Playing: ¤white¤${info.Name}¤info¤ by ¤white¤${info.AuthorNickname ? info.AuthorNickname : info.Author}`;
         tmc.chat(msg);
         tmc.cli(msg);
     }
 
     async onPlayerConnect(player: Player) {       
-        const msg = `$fff${player.nickname}¤info¤ from $fff${player.path.replace("World|", ", ")} ¤info¤joined the server!`;
+        const msg = `¤white¤${player.nickname}¤info¤ from ¤white¤${player.path.replace("World|", ", ")} ¤info¤joined the server!`;
         tmc.chat(msg);
         tmc.cli(msg);
     }
 
     async onPlayerDisconnect(player: any) {        
-        const msg = `$fff${player.nickname}¤info¤ has left the server!`;
+        const msg = `¤white¤${player.nickname}¤info¤ has left the server!`;
         tmc.chat(msg);
         tmc.cli(msg);
     }
 
     async onNewRecord(data: any, records: Record[]) {
         const newRecord = data.record;
-        tmc.chat(`$fff${newRecord.nickname}¤rec¤ has set a new $fff1. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`);
+        tmc.chat(`¤white¤${newRecord.nickname}¤rec¤ has set a new $fff1. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`);
     }
 
     async onUpdateRecord(data: any, records: Record[]) {
@@ -57,7 +57,7 @@ export default class Announces extends Plugin {
         if (newRecord.rank > 15) {
             recipient = newRecord.login;
         }
-        tmc.chat(`$fff${newRecord.nickname}¤rec¤ improved $fff${newRecord.rank}. ¤rec¤server record $fff${formatTime(newRecord.time)}¤rec¤ ${extrainfo}!`, recipient);
+        tmc.chat(`¤white¤${newRecord.nickname}¤rec¤ improved ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤ ${extrainfo}!`, recipient);
     }
 
     async onSyncRecord(data: any) {
@@ -67,7 +67,7 @@ export default class Announces extends Plugin {
             tmc.chat(`¤rec¤No server records for this map yet!`);
             return;
         }
-        const msg = `$fff${records[0].nickname}¤rec¤ holds the $fff1. ¤rec¤server record ¤white¤${formatTime(records[0].time)}¤rec¤!`;
+        const msg = `¤white¤${records[0].nickname}¤rec¤ holds the $fff1. ¤rec¤server record ¤white¤${formatTime(records[0].time)}¤rec¤!`;
         tmc.chat(msg);
     }
 }

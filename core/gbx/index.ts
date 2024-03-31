@@ -181,7 +181,7 @@ export class GbxClient {
             return undefined
         }
         try {
-            // tmc.debug(`$080send $fff>> $888${method}`);
+            // tmc.debug(`$080send ¤white¤>> $888${method}`);
             const xml = Serializer.serializeMethodCall(method, params);
             return this.query(xml, false);
         } catch (err: any) {

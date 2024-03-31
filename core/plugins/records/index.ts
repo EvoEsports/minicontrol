@@ -3,8 +3,8 @@ import Plugin from "core/plugins";
 import {Score} from "core/schemas/scores";
 import {Player} from "core/schemas/players";
 import {eq, asc, and} from "drizzle-orm";
-import {clone, escape, removeLinks} from "core/utils";
-import tm from 'tm-essentials';
+import {clone, escape, removeLinks, formatTime} from "core/utils";
+
 import RecordsWindow from "core/plugins/records/recordsWindow.ts";
 
 export class Record {
@@ -90,7 +90,7 @@ export default class Records extends Plugin {
                     rank: record.rank,
                     nickname: escape(record.nickname),
                     login: record.login,
-                    time: "$o" + tm.Time.fromMilliseconds(record.time).toTmString().replace(/^0:/, ""),
+                    time: "$o" + formatTime(record.time),
                 });
         }
         const window = new RecordsWindow(login, this);
@@ -140,7 +140,7 @@ export default class Records extends Plugin {
     async deleteRecord(login: string, data: any) {
         if (!this.db) return;
         if (!tmc.admins.includes(login)) return;
-        const msg = (`¤info¤Deleting map record for $fff${data.nickname} ¤info¤($fff${data.login}¤info¤)`);
+        const msg = (`¤info¤Deleting map record for ¤white¤${data.nickname} ¤info¤(¤white¤${data.login}¤info¤)`);
         tmc.cli(msg);
         tmc.chat(msg, login);
         try {

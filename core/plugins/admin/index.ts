@@ -8,8 +8,7 @@ export default class AdminPlugin extends Plugin {
 
     async onLoad() {
         if (tmc.game.Name != "TmForever") {
-            tmc.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");
-            tmc.addCommand("//set", this.cmdSetSetting.bind(this), "Set mode setting");
+            tmc.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");          
         }
         tmc.addCommand("//skip", async () => await tmc.server.call("NextMap"), "Skips Map");
         tmc.addCommand("//res", async () => await tmc.server.call("RestartMap"), "Restarts Map");
@@ -259,7 +258,7 @@ export default class AdminPlugin extends Plugin {
                 return tmc.chat("¤cmd¤//modecommand ¤info¤needs a command", login);
             }
             if (!params[1]) {
-                return tmc.chat("¤cmd¤//modecommand ¤info¤needs a parameter", login);
+                return tmc.chat(`¤cmd¤//modecommand ${params[0]} ¤info¤needs a parameter`, login);
             }            
             const outCommand: any = {};                        
             outCommand["Command_"+params[0]] = castType(params[1]);

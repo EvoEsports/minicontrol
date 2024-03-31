@@ -171,7 +171,7 @@ export default class VotesPlugin extends Plugin {
         if (minutes < 1) minutes = 1;
         if (minutes > 10) minutes = 10;
 
-        let message = `¤info¤Extend map by $fff${minutes} ¤info¤min?`;
+        let message = `¤info¤Extend map by ¤white¤${minutes} ¤info¤min?`;
         await this.startVote(login, "Extend", message, minutes);
     }
 
@@ -248,11 +248,11 @@ export default class VotesPlugin extends Plugin {
             tmc.chat('¤info¤Admin passed the vote');
             tmc.server.emit("TMC.Vote.Pass", { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
         } else if (percent >= this.ratio * 100) {
-            tmc.chat(`¤info¤Vote: $fff${this.currentVote.question}`);
+            tmc.chat(`¤info¤Vote: ¤white¤${this.currentVote.question}`);
             tmc.chat(`¤info¤Vote passed: ¤white¤${yes} / ${no} (${percent}%)`);
             tmc.server.emit("TMC.Vote.Pass", { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
         } else {
-            tmc.chat(`¤info¤Vote: $fff${this.currentVote.question}`);
+            tmc.chat(`¤info¤Vote: ¤white¤${this.currentVote.question}`);
             tmc.chat(`¤info¤Vote did not pass: ¤white¤${yes} / ${no} (${percent}%)`);
             tmc.server.emit("TMC.Vote.Deny", { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
         }

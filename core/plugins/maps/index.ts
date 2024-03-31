@@ -25,10 +25,10 @@ export default class Maps extends Plugin {
         tmc.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");
         tmc.addCommand("/drop", this.cmdDrop.bind(this), "Drop Map from queue");
         tmc.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
-        if (tmc.game.Name === "TmForever") {        
-            tmc.server.addListener("Trackmania.EndRace", this.onEndRace, this);        
+        if (tmc.game.Name === "TmForever") {
+            tmc.server.addListener("Trackmania.EndRace", this.onEndRace, this);
         } else {
-            tmc.server.addListener("Trackmania.Podium_Start", this.onEndRace, this);        
+            tmc.server.addListener("Trackmania.Podium_Start", this.onEndRace, this);
         }
     }
 
@@ -69,7 +69,7 @@ export default class Maps extends Plugin {
         if (params.length == 0) {
             tmc.chat(`¤info¤Usage: /addqueue < map index or map uid >`, login);
             return;
-        }        
+        }
         if (params[0].toString().length < 5) {
             let index = Number.parseInt(params[0]) - 1;
             map = tmc.maps.getMaplist()[index];
@@ -82,14 +82,14 @@ export default class Maps extends Plugin {
         }
         const player = await tmc.players.getPlayer(login);
         const previous = this.queue.find(m => m.QueueBy === login);
-        if (previous && !player.isAdmin) {
+        if (previous && !tmc.admins.includes(login)) {
             tmc.chat("¤info¤You already have a map in queue", login);
             return;
         }
         if (this.queue.find(m => m.UId === map.UId)) {
             tmc.chat("¤info¤Map already in queue", login);
             return;
-        }   
+        }
         this.queue.push({
             UId: map.UId,
             File: map.FileName,
@@ -100,14 +100,14 @@ export default class Maps extends Plugin {
             QueueBy: login,
             QueueNickName: escape(player.nickname),
         });
-        tmc.chat(`¤info¤Map $fff${map.Name} ¤info¤added to the queue by $fff${player.nickname}`);
+        tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤added to the queue by ¤white¤${player.nickname}`);
     }
 
     async cmdDrop(login: any, args: string[]) {
         const player = await tmc.players.getPlayer(login);
         let index = 0;
         let map: any = null;
-        if (player.isAdmin && args.length > 0) {
+        if (tmc.admins.includes(login) && args.length > 0) {
             index = parseInt(args[0]) - 1;
             map = this.queue[index];
         } else {
@@ -121,7 +121,7 @@ export default class Maps extends Plugin {
 
         if (map) {
             this.queue.splice(index, 1);
-            tmc.chat(`¤info¤Map $fff${map.Name} ¤info¤dropped from the queue by $fff${map.QueueNickName}`);
+            tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤dropped from the queue by ¤white¤${map.QueueNickName}`);
         } else {
             tmc.chat(`¤info¤You don't have any map in queue`, login);
         }
@@ -137,14 +137,14 @@ export default class Maps extends Plugin {
             const map = this.queue.shift();
             if (map) {
                 await tmc.server.call("ChooseNextMap", map.File);
-                tmc.chat(`¤info¤Map $fff${map.Name} ¤info¤chosen by $fff${map.QueueNickName}`);
+                tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤chosen by ¤white¤${map.QueueNickName}`);
             }
         }
     }
 
 
     async cmdMaps(login: any, args: string[]) {
-        const window = new MapsWindow(login);       
+        const window = new MapsWindow(login);
         window.size = { width: 180, height: 105 };
         window.setColumns([
             { key: "Index", title: "#", width: 4 },

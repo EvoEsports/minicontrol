@@ -63,13 +63,13 @@ export default class CommandManager {
                     }
                     const plugin = args[1];
                     if (tmc.plugins[plugin]) {
-                        tmc.chat(`Plugin $fd0${args[0]}$fff already loaded.`, login);
+                        tmc.chat(`Plugin $fd0${args[0]}¤white¤ already loaded.`, login);
                         return;
                     }
                     try {
                         await tmc.loadPlugin(plugin);
                     } catch (e: any) {
-                        const msg = `Plugin $fd0${plugin}$fff failed to load: ${e.message}`;
+                        const msg = `Plugin $fd0${plugin}¤white¤ failed to load: ${e.message}`;
                         tmc.chat(msg, login);
                         tmc.cli(msg);
                     }
@@ -82,7 +82,7 @@ export default class CommandManager {
                     }
                     const plugin = args[1];
                     if (!tmc.plugins[plugin]) {
-                        tmc.chat(`Plugin $fd0${plugin}$fff not loaded.`, login);
+                        tmc.chat(`Plugin $fd0${plugin}¤white¤ not loaded.`, login);
                         return;
                     }
                     await tmc.unloadPlugin(plugin);
@@ -95,7 +95,7 @@ export default class CommandManager {
                     }
                     const plugin = args[1];
                     if (!tmc.plugins[plugin]) {
-                        tmc.chat(`Plugin $fd0${plugin}$fff not loaded.`, login);
+                        tmc.chat(`Plugin $fd0${plugin}¤white¤ not loaded.`, login);
                         return;
                     }
                     await tmc.unloadPlugin(plugin);
@@ -108,7 +108,54 @@ export default class CommandManager {
                 }
             }
         }, "Manage plugins");
-
+        tmc.addCommand("//admin", async (login: string, args: string[]) => {
+            if (args.length < 1) {
+                tmc.chat("¤white¤Valid options are: ¤cmd¤list¤white¤, ¤cmd¤add¤white¤, ¤cmd¤remove", login);
+                return;
+            }
+            const action = args[0];
+            switch (action) {
+                case "list": {
+                    let admins = "Admins: ";
+                    for (let admin of tmc.admins) {
+                        admins += `¤cmd¤${admin}¤white¤, `;
+                    }
+                    tmc.chat(admins, login);
+                    break;
+                }
+                case "add": {
+                    if (args.length < 2) {
+                        tmc.chat("¤info¤Please specify a login.", login);
+                        return;
+                    }
+                    const admin = args[1];
+                    if (tmc.admins.includes(admin)) {
+                        tmc.chat(`¤info¤Admin ¤white¤${admin}¤info¤ already exists.`, login);
+                        return;
+                    }
+                    tmc.settingsMgr.addAdmin(admin);
+                    tmc.chat(`¤info¤Admin ¤white¤${admin}¤info¤ added.`, login);
+                    break;
+                }
+                case "remove": {
+                    if (args.length < 2) {
+                        tmc.chat("¤info¤Please specify a login.", login);
+                        return;
+                    }
+                    const admin = args[1];
+                    if (!tmc.admins.includes(admin)) {
+                        tmc.chat(`¤info¤Admin ¤white¤${admin} ¤info¤does not exist.`, login);
+                        return;
+                    }
+                    tmc.settingsMgr.removeAdmin(admin);
+                    tmc.chat(`¤info¤Admin ¤white¤${admin} ¤info¤removed.`, login);
+                    break;
+                }
+                default: {
+                    tmc.chat("¤white¤Valid options are: ¤cmd¤list¤white¤, ¤cmd¤add¤white¤, ¤cmd¤remove", login);
+                }
+            }
+        }, "Manage admins");
     }
 
     /**
