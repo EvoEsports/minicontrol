@@ -1,3 +1,4 @@
+import type { Player } from "core/playermanager";
 import Plugin from "core/plugins";
 import type { Record } from "core/plugins/records";
 import { formatTime } from 'core/utils';
@@ -28,14 +29,14 @@ export default class Announces extends Plugin {
         tmc.cli(msg);
     }
 
-    async onPlayerConnect(player: any) {       
-        const msg = `$fff${player.nickname}¤info¤ has joined!`;
+    async onPlayerConnect(player: Player) {       
+        const msg = `$fff${player.nickname}¤info¤ from $fff${player.path.replace("World|", ", ")} ¤info¤joined the server!`;
         tmc.chat(msg);
         tmc.cli(msg);
     }
 
     async onPlayerDisconnect(player: any) {        
-        const msg = `$fff${player.nickname}¤info¤ has left!`;
+        const msg = `$fff${player.nickname}¤info¤ has left the server!`;
         tmc.chat(msg);
         tmc.cli(msg);
     }
