@@ -50,7 +50,7 @@ export default class DebugTool extends Plugin {
         const mem = memInfo();
 
         let start = Date.now() - Number.parseInt(tmc.startTime);
-        tmc.cli("¤info¤Memory usage: " + mem + " ¤info¤uptime: $fff" + tm.Time.fromMilliseconds(start).toTmString().replace(/[.]\d{3}/, ""));
+        tmc.cli("¤info¤Memory usage: " + mem + " ¤info¤uptime: ¤white¤" + tm.Time.fromMilliseconds(start).toTmString().replace(/[.]\d{3}/, ""));
         if (this.widget) {
             this.widget.setData({ mem: mem });
             await this.widget.display();

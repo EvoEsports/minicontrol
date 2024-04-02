@@ -1,5 +1,4 @@
-import tm from 'tm-essentials';
-import { escape } from 'core/utils';
+import { escape, formatTime } from 'core/utils';
 import Plugin from 'core/plugins';
 import Widget from 'core/ui/widget';
 
@@ -43,7 +42,7 @@ export default class MapWidget extends Plugin {
         this.widget?.setData({
             author: data.AuthorNickname ? data.AuthorNickname : data.Author,
             mapname: escape(data.Name),
-            authortime: tm.Time.fromMilliseconds(data.AuthorTime).toTmString()
+            authortime: formatTime(data.AuthorTime),
         });
         this.widget?.display();
     }

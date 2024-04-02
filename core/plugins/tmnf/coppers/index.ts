@@ -48,10 +48,10 @@ export default class tmnf_coppers extends Plugin {
                     if (StateName == "error") {
                         // do nothing
                     } else if (StateName == "Issued") {
-                        tmc.chat(`¤info¤${player.nickname}¤info¤ issued a bill of $fff${bill.amount} ¤info¤coppers to $fff${recipient.nickname}¤info¤.`)
+                        tmc.chat(`¤info¤${player.nickname}¤info¤ issued a bill of ¤white¤${bill.amount} ¤info¤coppers to ¤white¤${recipient.nickname}¤info¤.`)
                     } else if (StateName == "Payed") {
                         delete this.billStates[BillId];
-                        tmc.chat(`¤info¤${recipient.nickname}¤info¤ paid bill of $fff${bill.amount} ¤info¤coppers`);
+                        tmc.chat(`¤info¤${recipient.nickname}¤info¤ paid bill of ¤white¤${bill.amount} ¤info¤coppers`);
                     }
                     else if (StateName == "Refused") {
                         delete this.billStates[BillId];
@@ -60,7 +60,7 @@ export default class tmnf_coppers extends Plugin {
                     else if (StateName == "ValidatingPayement") {
                         // do nothing
                     } else {
-                        tmc.chat(`Unknown StateName: $fff${StateName}`);
+                        tmc.chat(`Unknown StateName: ¤white¤${StateName}`);
                     }
                     break;
                 case "pay":
@@ -72,7 +72,7 @@ export default class tmnf_coppers extends Plugin {
                         // do nothing
                     } else if (StateName == "Payed") {
                         delete this.billStates[BillId];
-                        tmc.chat(`¤info¤${recipient.nickname}¤info¤ was paid out $fff${bill.amount} ¤info¤coppers by ${player.nickname}¤info¤.`);
+                        tmc.chat(`¤info¤${recipient.nickname}¤info¤ was paid out ¤white¤${bill.amount} ¤info¤coppers by ${player.nickname}¤info¤.`);
                     }
                     else if (StateName == "Refused") {
                         delete this.billStates[BillId];
@@ -80,7 +80,7 @@ export default class tmnf_coppers extends Plugin {
                     else if (StateName == "ValidatingPayement") {
                         // do nothing
                     } else {
-                        tmc.chat(`Unknown StateName: $fff${StateName}`);
+                        tmc.chat(`Unknown StateName: ¤white¤${StateName}`);
                     }
                     break;
                 case "donate":
@@ -91,7 +91,7 @@ export default class tmnf_coppers extends Plugin {
                         // do nothing
                     } else if (StateName == "Payed") {
                         delete this.billStates[BillId];
-                        tmc.chat(`¤info¤${player.nickname}¤info¤ donated $fff${bill.amount} ¤info¤coppers - thanks!`);
+                        tmc.chat(`¤info¤${player.nickname}¤info¤ donated ¤white¤${bill.amount} ¤info¤coppers - thanks!`);
                     }
                     else if (StateName == "Refused") {
                         delete this.billStates[BillId];
@@ -99,21 +99,21 @@ export default class tmnf_coppers extends Plugin {
                     else if (StateName == "ValidatingPayement") {
                         // do nothing
                     } else {
-                        tmc.chat(`Unknown StateName: $fff${StateName}`);
+                        tmc.chat(`Unknown StateName: ¤white¤${StateName}`);
                     }
                     break;
                 default:
                     break;
             }
         } else {
-            tmc.cli(`¤info¤Bill $fff${BillId} ¤info¤updated to $fff${StateName} ¤info¤with transaction id $fff${TransactionId}`);
+            tmc.cli(`¤info¤Bill ¤white¤${BillId} ¤info¤updated to ¤white¤${StateName} ¤info¤with transaction id ¤white¤${TransactionId}`);
         }
     }
 
     async bill(login: string, params: string[]) {
         const player = await tmc.getPlayer(login);
         if (params.length < 2) {
-            tmc.chat("¤info¤Usage: ¤cmd¤//bill $fff<login> <amount>", login);
+            tmc.chat("¤info¤Usage: ¤cmd¤//bill ¤white¤<login> <amount>", login);
             return;
         }
         if (!params[0]) {
@@ -142,7 +142,7 @@ export default class tmnf_coppers extends Plugin {
 
     async donate(login: string, params: string[]) {
         if(params.length < 1 || params.length > 1) {
-            tmc.chat("¤info¤Usage: ¤cmd¤/donate $fff<amount>", login);
+            tmc.chat("¤info¤Usage: ¤cmd¤/donate ¤white¤<amount>", login);
             return;
         }
         if(isNaN(Number.parseInt(params[0]))) {
@@ -163,7 +163,7 @@ export default class tmnf_coppers extends Plugin {
 
     async pay(login: string, params: string[]) {
         if(params.length < 2 || params.length > 3) {
-            tmc.chat("¤info¤Usage: ¤cmd¤//pay $fff<login> <amount> <optional:label>", login);
+            tmc.chat("¤info¤Usage: ¤cmd¤//pay ¤white¤<login> <amount> <optional:label>", login);
             return;
         }
 

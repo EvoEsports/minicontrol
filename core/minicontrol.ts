@@ -3,13 +3,14 @@ import Server from './server';
 import UiManager from './uimanager';
 import MapManager from './mapmanager';
 import CommandManager from './commandmanager';
+import SettingsManager from './settingsmanager';
 import { processColorString } from './utils';
 import log from './log';
 import fs from 'fs';
 import Plugin from 'core/plugins';
 import path from 'path';
 
-const controllerStr = "$n$o$eeeMINI$o$z$s$abccontrol$z$s$fff";
+const controllerStr = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
 
 if (!process.versions.bun) {
     log.info(`Please install bun using "npm install -g bun"`);
@@ -29,7 +30,7 @@ class MiniControl {
     /**
      * The version of MiniControl.
      */
-    readonly version: string = "0.3.2";
+    readonly version: string = "0.3.3";
     /**
      * The start time of MiniControl.
      */
@@ -37,7 +38,7 @@ class MiniControl {
     /**
      * The admins of MiniControl.
      */
-    admins: string[];
+    admins: string[] = [];
     /**
      * The server object.
      */
@@ -59,6 +60,18 @@ class MiniControl {
      */
     ui: UiManager;
     /**
+     * The settings
+     */
+    settings: any = {};
+    /**
+     * The settings manager.
+     */    
+    settingsMgr: SettingsManager;
+    /**
+     * The colors
+     */
+    colors: { [key: string]: string } = {};
+    /**
     * The plugins.
     */
     plugins: { [key: string]: Plugin } = {};
@@ -78,7 +91,11 @@ class MiniControl {
         this.players = new PlayerManager();
         this.ui = new UiManager();
         this.chatCmd = new CommandManager();
-        this.admins = (process.env.ADMINS || "").split(",");
+        this.settingsMgr = new SettingsManager();
+        this.settingsMgr.load();
+        this.settings = this.settingsMgr.settings;
+        this.colors = this.settingsMgr.colors;        
+        this.admins = this.settingsMgr.admins;                
         this.game = { Name: "" };
     }
 
@@ -117,7 +134,7 @@ class MiniControl {
         const dirsToCheck = ["core/plugins/", "userdata/plugins/"];
         for (const dir of dirsToCheck) {
             if (fs.existsSync(dir + name + "/index.ts")) {
-                return dir + name;
+                return (dir + name).replaceAll("\\", "/");
             }
         }
         return null;
@@ -132,7 +149,7 @@ class MiniControl {
         if (!this.plugins[name]) {
             const pluginPath = this.findPlugin(name);
             if (pluginPath == null) {
-                const msg = `¤gray¤Plugin $fd0${name}$fff does not exist.`;
+                const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ does not exist.`;
                 if (this.startComplete) {
                     this.cli(msg);
                     this.chat(msg);
@@ -142,13 +159,13 @@ class MiniControl {
             const plugin = await import(process.cwd() + "/" + pluginPath);
 
             if (plugin.default == undefined) {
-                const msg = `¤gray¤Plugin $fd0${name}¤error¤ failed to load. Plugin has no default export.`;
+                const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
                 this.cli(msg);
                 this.chat(msg);
                 return;
             }
             if (!(plugin.default.prototype instanceof Plugin)) {
-                const msg = `¤gray¤Plugin $fd0${name}$fff is not a valid plugin.`;
+                const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ is not a valid plugin.`;
                 this.cli(msg);
                 this.chat(msg);
                 return;
@@ -158,14 +175,14 @@ class MiniControl {
                 if (depend.startsWith("game:")) {
                     const game = depend.split(":")[1];
                     if (game != this.game.Name) {
-                        const msg = `¤gray¤Plugin $fd0${name}$fff not loaded. Game is not $fd0${game}$fff.`;
+                        const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Game is not ¤cmd¤${game}¤white¤.`;
                         this.cli(msg);
                         return;
                     }
                     continue;
                 }
                 if (this.plugins[depend] == undefined) {
-                    const msg = `¤gray¤Plugin $fd0${name}$fff failed to load. Missing dependency $fd0${depend}$fff.`;
+                    const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ failed to load. Missing dependency ¤cmd¤${depend}¤white¤.`;
                     this.cli(msg);
                     this.chat(msg);
                     Bun.gc(true);
@@ -178,7 +195,7 @@ class MiniControl {
             if (this.pluginDependecies[name] == undefined) {
                 this.pluginDependecies[name] = [];
             }
-            const msg = `¤gray¤Plugin $fd0${name}$fff loaded.`;
+            const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ loaded.`;
             await cls.onLoad();
             this.cli(msg);
             if (this.startComplete) {
@@ -186,7 +203,7 @@ class MiniControl {
                 await cls.onStart();
             }
         } else {
-            const msg = `¤gray¤Plugin $fd0${name}$fff already loaded.`;
+            const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ already loaded.`;
             this.chat(msg)
             this.cli(msg);
         }
@@ -200,14 +217,14 @@ class MiniControl {
     async unloadPlugin(unloadName: string) {
         if (this.plugins[unloadName]) {
             if (this.pluginDependecies[unloadName].length > 0) {
-                const msg = `¤gray¤Plugin $fd0${unloadName}$fff cannot be unloaded. It is a dependency of $fd0${this.pluginDependecies[unloadName].join(", ")}$fff.`;
+                const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ cannot be unloaded. It is a dependency of ¤cmd¤${this.pluginDependecies[unloadName].join(", ")}¤white¤.`;
                 this.cli(msg);
                 this.chat(msg);
                 return;
             }
             const pluginPath = this.findPlugin(unloadName);
             if (pluginPath == null) {
-                const msg = `¤gray¤Plugin $fd0${unloadName}$fff does not exist.`;
+                const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ does not exist.`;
                 this.cli(msg);
                 this.chat(msg);
                 return;
@@ -222,7 +239,7 @@ class MiniControl {
                 Loader.registry.delete(file);
                 delete require.cache[file];
             } else {
-                this.cli(`$fffFailed to remove require cache for $fd0${unloadName}$fff, hotreload will not work right.`);
+                this.cli(`$fffFailed to remove require cache for ¤cmd¤${unloadName}¤white¤, hotreload will not work right.`);
             }
             // remove from dependecies
             for (const key in this.pluginDependecies) {
@@ -232,11 +249,11 @@ class MiniControl {
                 }
             }
             Bun.gc(true);
-            const msg = `¤gray¤Plugin $fd0${unloadName}$fff unloaded.`;
+            const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ unloaded.`;
             this.cli(msg);
             this.chat(msg);
         } else {
-            const msg = `¤gray¤Plugin $fd0${unloadName}$fff not loaded.`
+            const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ not loaded.`
             this.cli(msg);
             this.chat(msg);
         }
@@ -265,10 +282,10 @@ class MiniControl {
      */
     chat(text: string, login: undefined | string | string[] = undefined) {
         if (login !== undefined) {
-            const msg = "$fff» " + text.toString();
+            const msg = "$9ab$n>$z$s " + text.toString();
             this.server.send("ChatSendServerMessageToLogin", processColorString(msg, "$z$s"), (typeof login == "string") ? login : login.join(","));
         } else {
-            const msg = "»¤info¤ " + text.toString();
+            const msg = "$9ab» ¤info¤" + text.toString();
             this.server.send("ChatSendServerMessage", processColorString(msg, "$z$s"));
         }
     }
@@ -277,11 +294,11 @@ class MiniControl {
      * Runs MiniControl.
      * @ignore Should not be called directly
      */
-    async run() {
-        if (this.startComplete) return;
+    async run() {    
+        if (this.startComplete) return;        
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
         this.cli("¤info¤Starting MiniControl...");
-        this.cli("¤info¤Connecting to Trackmania Dedicated server at $fff" + (process.env.XMLRPC_HOST) + ":" + port);
+        this.cli("¤info¤Connecting to Trackmania Dedicated server at ¤white¤" + (process.env.XMLRPC_HOST ?? "127.0.0.1") + ":" + port);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
         if (!status) {
             this.cli("¤error¤Couldn't connect to server.");
@@ -310,7 +327,7 @@ class MiniControl {
         await this.maps.init();
         await this.players.init();
         await this.ui.init();
-        await this.beforeInit();
+        await this.beforeInit();             
         console.timeEnd("Startup");
     }
 
@@ -320,7 +337,6 @@ class MiniControl {
      */
     async beforeInit() {
         await this.chatCmd.beforeInit();
-
         // load plugins
         let plugins = fs.readdirSync("./core/plugins", { withFileTypes: true, recursive: true });
         plugins = plugins.concat(fs.readdirSync("./userdata/plugins", { withFileTypes: true, recursive: true }));
@@ -332,13 +348,13 @@ class MiniControl {
             include = plugin && plugin.isDirectory();
             for (const ex of exclude) {
                 if (ex == "") continue;
-                if (plugin.name.startsWith(ex.trim())) {
+                if (plugin.name.replaceAll("\\", "/").startsWith(ex.trim())) {
                     include = false;
                     break;
                 }
             }
             if (include) {
-                loadList.push(plugin.name);
+                loadList.push(plugin.name.replaceAll("\\", "/"));
             }
         }
         loadList = loadList.sort((a, b) => a.localeCompare(b));
@@ -349,7 +365,7 @@ class MiniControl {
                 console.log(e.message);
             }
         }
-        this.server.send("Echo", this.startTime, "MiniControl",);
+        this.server.send("Echo", this.startTime, "MiniControl");
     }
 
     /**
@@ -363,7 +379,7 @@ class MiniControl {
         await this.chatCmd.afterInit();
         await this.ui.afterInit();
         this.cli(`¤white¤Welcome to ${controllerStr} v${this.version}!`);
-        this.chat(`Welcome to ${controllerStr} ¤info¤version $fff$n${this.version}$m¤info¤!`);
+        this.chat(`Welcome to ${controllerStr} ¤info¤version ¤white¤$n${this.version}$m¤info¤!`);
         this.startComplete = true;
         for (const plugin of Object.values(this.plugins)) {
             await plugin.onStart();
@@ -372,13 +388,16 @@ class MiniControl {
 }
 
 export const tmc = new MiniControl();
-(async () => await tmc.run())();
 
 declare global {
     const tmc: MiniControl
 }
+(global as any).tmc = tmc;
 
-(global as any).tmc = tmc
+(async () => {
+    (global as any).tmc = tmc;
+    await tmc.run()
+})();
 
 process.on('SIGINT', function () {
     tmc.server.send("SendHideManialinkPage", 0, false);

@@ -1,6 +1,4 @@
-import * as http from "http";
-import {Readable} from "stream";
-import fetch from 'node-fetch';
+import { Readable } from "stream";
 import zlib from 'zlib';
 // @ts-ignore
 import Serializer from "xmlrpc/lib/serializer";
@@ -8,11 +6,7 @@ import Serializer from "xmlrpc/lib/serializer";
 import Deserializer from "xmlrpc/lib/deserializer";
 
 export default class DedimaniaClient {
-
-    keepAliveAgent = new http.Agent({
-        keepAlive: true,
-        maxSockets: 1,
-    });
+    sessionID = "";
 
     compress(body: string): Promise<Buffer> {
         return new Promise(function (resolve, reject) {
@@ -28,20 +22,39 @@ export default class DedimaniaClient {
     async call(method: string, ...params: any[]) {
         const url = "http://dedimania.net:8002/Dedimania";
         const body = await Serializer.serializeMethodCall("system.multicall", [
-            {methodName: method, params: params},
-            {methodName: "dedimania.WarningsAndTTR", params: null}
+            { methodName: method, params: params },
+            { methodName: "dedimania.WarningsAndTTR", params: null }
         ]);
 
-        const response = await fetch(url, {
-            method: "POST",
+        let headers: any = {
+            "Content-Type": "text/xml",
+            "Content-Encoding": "gzip",
+            "Connection": "Keep-Alive",
+        };
+
+        if (this.sessionID !== "") {
+            headers["Cookie"] = this.sessionID;
+        }
+
+        const response = await fetch(url,{   
             body: await this.compress(body),
-            compress: true,
-            headers: {
-                "Content-Type": "text/xml",
-                "Content-Encoding": "gzip"
-            },
-            agent: this.keepAliveAgent
+            method: 'POST',        
+            headers: headers,      
+            keepalive: true,               
         });
+        
+        if (method === "dedimania.Authenticate") {
+            if (response.headers.get('set-cookie')) {
+                const header = response.headers.get('set-cookie')?.split(";").map((x: string) => x.trim());
+                if (header) {
+                    for (let cookie of header) {
+                        if (cookie.startsWith("PHPSESSID")) {
+                            this.sessionID = cookie;
+                        }
+                    }
+                }
+            }
+        }
 
         const data = (await response.text()).replaceAll("<int></int>", "<int>-1</int>");
         const answer: any = await new Promise((resolve, reject) => {

@@ -58,7 +58,7 @@ export default class TAlimitPlugin extends Plugin {
         this.active = false;
         await this.hideWidget();
         await tmc.server.send("SetTimeAttackLimit", this.timeLimit*1000);
-        tmc.chat("$fffTALimit: Native TimeLimit restored, skip map required to apply.");
+        tmc.chat("¤white¤ALimit: Native TimeLimit restored, skip map required to apply.");
     }
 
     async tick() {
@@ -82,15 +82,15 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async showWidget() {
-        let color = "$fff";
+        let color = "fff";
         const timeLeft = 3 + this.timeLimit - (Date.now() - this.startTime) / 1000;
-        if (timeLeft < 60) color = "$ff0";
-        if (timeLeft < 30) color = "$f00";
+        if (timeLeft < 60) color = "ff0";
+        if (timeLeft < 30) color = "f00";
         let time = tm.Time.fromSeconds(timeLeft).toTmString(true).replace(/\.\d\d/, "");
 
         if (this.widget) {
             this.widget.setData({
-                time: `${color}$s${time}`,
+                time: `$${color}$s${time}`,
             });
             await this.widget.display();
         }

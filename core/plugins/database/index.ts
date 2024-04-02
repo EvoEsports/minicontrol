@@ -26,7 +26,7 @@ export default class SqliteDb extends Plugin {
                 migrationsFolder: "./userdata/drizzle"
             });
         } catch (e: any) {
-            tmc.cli("¤error¤Error running migrations: $fff" + e.message);
+            tmc.cli("¤error¤Error running migrations: ¤white¤" + e.message);
             process.exit(1);
         }
 

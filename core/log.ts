@@ -68,7 +68,7 @@ function Tm2Console(input: string, ansilevel: number = 0) {
 class log {
     ansiLevel: number = 0;
     constructor() {
-        this.ansiLevel = Number.parseInt(process.env.ANSILEVEL || "0")        
+        this.ansiLevel = Number.parseInt(process.env.ANSILEVEL || "0");
     }
 
     debug(str: string) {

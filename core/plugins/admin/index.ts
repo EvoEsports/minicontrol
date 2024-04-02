@@ -1,4 +1,4 @@
-import {castType, escape} from "core/utils";
+import { castType, escape } from "core/utils";
 import ModeSettingsWindow from "./ModeSettingsWindow";
 import Plugin from "core/plugins";
 import fs from "fs";
@@ -8,8 +8,7 @@ export default class AdminPlugin extends Plugin {
 
     async onLoad() {
         if (tmc.game.Name != "TmForever") {
-            tmc.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");
-            tmc.addCommand("//set", this.cmdSetSetting.bind(this), "Set mode setting");
+            tmc.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");          
         }
         tmc.addCommand("//skip", async () => await tmc.server.call("NextMap"), "Skips Map");
         tmc.addCommand("//res", async () => await tmc.server.call("RestartMap"), "Restarts Map");
@@ -127,7 +126,7 @@ export default class AdminPlugin extends Plugin {
                 if (!params[0]) {
                     return tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
                 }
-                const settings = {"S_TimeLimit": Number.parseInt(params[0])};
+                const settings = { "S_TimeLimit": Number.parseInt(params[0]) };
                 tmc.server.send("SetModeScriptSettings", settings);
                 return;
             }
@@ -254,6 +253,23 @@ export default class AdminPlugin extends Plugin {
         }, "end warmup");
 
         tmc.addCommand("//addlocal", this.cmdAddLocal.bind(this), "Adds local map to playlist");
+        tmc.addCommand("//modecommand", async (login: string, params: string[]) => {
+            if (!params[0]) {
+                return tmc.chat("¤cmd¤//modecommand ¤info¤needs a command", login);
+            }
+            if (!params[1]) {
+                return tmc.chat(`¤cmd¤//modecommand ${params[0]} ¤info¤needs a parameter`, login);
+            }            
+            const outCommand: any = {};                        
+            outCommand["Command_"+params[0]] = castType(params[1]);
+
+            try {
+                await tmc.server.call("SendModeScriptCommands", outCommand);
+            } catch (err: any) {
+                tmc.chat("¤error¤" + err.message, login);
+            }
+        }, "Send mode command");
+
     }
 
     async onUnload() {
@@ -284,6 +300,7 @@ export default class AdminPlugin extends Plugin {
             tmc.removeCommand("//set");
         }
         tmc.removeCommand("//addlocal");
+        tmc.removeCommand("//modecommand");
     }
 
     async onStart(): Promise<void> {
@@ -334,7 +351,7 @@ export default class AdminPlugin extends Plugin {
 
     async cmdModeSettings(login: string, args: string[]) {
         const window = new ModeSettingsWindow(login);
-        window.size = {width: 160, height: 105};
+        window.size = { width: 160, height: 105 };
         window.title = "Mode Settings";
         const settings = await tmc.server.call("GetModeScriptSettings");
         let out = [];
@@ -347,9 +364,9 @@ export default class AdminPlugin extends Plugin {
         }
         window.setItems(out);
         window.setColumns([
-            {key: "setting", title: "Setting", width: 75},
-            {key: "value", title: "Value", width: 50, type: "entry"},
-            {key: "type", title: "Type", width: 25}
+            { key: "setting", title: "Setting", width: 75 },
+            { key: "value", title: "Value", width: 50, type: "entry" },
+            { key: "type", title: "Type", width: 25 }
         ]);
         window.addApplyButtons();
         await window.display();
@@ -359,9 +376,9 @@ export default class AdminPlugin extends Plugin {
         if (args.length < 1) {
             const window = new LocalMapsWindow(login);
             window.title = "Add Local Maps";
-            window.size = {width: 175, height: 105};
+            window.size = { width: 175, height: 105 };
             let out = [];
-            for (let file of fs.readdirSync(tmc.mapsPath, {withFileTypes: true, recursive: true, encoding: "utf8"})) {
+            for (let file of fs.readdirSync(tmc.mapsPath, { withFileTypes: true, recursive: true, encoding: "utf8" })) {
                 if (file.name.toLowerCase().endsWith(".gbx")) {
                     const split = escape(file.name.replaceAll(/[.](Map|Challenge)[.]Gbx/gi, "")).split(/[\\/]/);
                     let name = split[split.length - 1];
@@ -377,8 +394,8 @@ export default class AdminPlugin extends Plugin {
             }
             window.setItems(out);
             window.setColumns([
-                {key: "Path", title: "Path", width: 70},
-                {key: "Name", title: "Map File", width: 70, action: "Add"},
+                { key: "Path", title: "Path", width: 70 },
+                { key: "Name", title: "Map File", width: 70, action: "Add" },
             ]);
             window.setActions(["Add"]);
             await window.display();
@@ -402,7 +419,7 @@ export default class AdminPlugin extends Plugin {
         const value: string = args[1];
 
         try {
-            await tmc.server.call("SetModeScriptSettings", {[setting]: castType(value)});
+            await tmc.server.call("SetModeScriptSettings", { [setting]: castType(value) });
         } catch (e: any) {
             tmc.chat("Error: " + e.message, login);
             return;

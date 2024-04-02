@@ -1,5 +1,4 @@
 import Twig from 'twig';
-import { colors } from '../utils';
 import fs from 'fs';
 Twig.cache(false);
 
@@ -58,7 +57,7 @@ export default class Manialink {
             size: this.size,
             pos: this.pos,
             actions: this.actions,
-            colors: colors,
+            colors: tmc.colors,
             data: this.data,
             title: this.title
         });

@@ -1,34 +1,32 @@
 {
-  "scripts": {
-    "dev": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --env-file=.env --smol --watch run core/minicontrol.ts",
-    "dev2": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --env-file=.env2 --smol --watch run core/minicontrol.ts",
-    "debug": "bun --inspect=9229 --smol core/minicontrol.ts",
-    "start": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --smol core/minicontrol.ts",
-    "start2": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --env-file=.env2 --smol core/minicontrol.ts",
-    "build": "bun build ./core/minicontrol.ts --compile --minify --outfile ../test/minicontrol",
-    "daemon": "drizzle-kit generate:sqlite --config=drizzle.config.ts && pm2 start --interpreter ~/.bun/bin/bun --smol core/minicontrol.ts"
-  },
-  "main": "./core/minicontrol.ts",
-  "dependencies": {
-    "drizzle-orm": "0.29.4",
-    "node-fetch": "2.6.7",
-    "tm-essentials": "^1.0.5",
-    "twig": "^1.17.1",
-    "drizzle-kit": "^0.20.14",
-    "xmlrpc": "1.3.2"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",   
-    "@types/node-fetch": "^2.6.10",
-    "@types/twig": "^1.12.16",
-    "@types/xmlrpc": "^1.3.10",
-    "eslint": "8.57.0",
-    "casual": "1.6.2",    
-    "@typescript-eslint/eslint-plugin": "^6.17.0",
-    "@typescript-eslint/parser": "^6.17.0",
-    "eslint-plugin-drizzle": "^0.2.3"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  }
+    "scripts": {
+        "dev": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --env-file=.env --smol --watch run core/minicontrol.ts",
+        "dev2": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --env-file=.env2 --smol --watch run core/minicontrol.ts",
+        "debug": "bun --inspect=9229 --smol core/minicontrol.ts",
+        "start": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --smol core/minicontrol.ts",
+        "start2": "drizzle-kit generate:sqlite --config=drizzle.config.ts && bun --env-file=.env2 --smol core/minicontrol.ts",
+        "build": "bun build ./core/minicontrol.ts --compile --minify --outfile ../test/minicontrol",
+        "daemon": "drizzle-kit generate:sqlite --config=drizzle.config.ts && pm2 start --interpreter ~/.bun/bin/bun --smol core/minicontrol.ts"
+    },
+    "main": "./core/minicontrol.ts",
+    "dependencies": {
+        "drizzle-orm": "0.30.6",  
+        "tm-essentials": "^1.0.5",
+        "twig": "^1.17.1",
+        "drizzle-kit": "^0.20.14",
+        "xmlrpc": "1.3.2"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "@types/twig": "^1.12.16",
+        "@types/xmlrpc": "^1.3.10",
+        "eslint": "8.57.0",
+        "casual": "1.6.2",    
+        "@typescript-eslint/eslint-plugin": "^6.17.0",
+        "@typescript-eslint/parser": "^6.17.0",
+        "eslint-plugin-drizzle": "^0.2.3"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    }
 }

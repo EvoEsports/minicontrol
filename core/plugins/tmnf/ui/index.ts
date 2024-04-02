@@ -26,6 +26,6 @@ export default class TmnfUiPlugin extends Plugin {
                 Url: "http://reaby.kapsi.fi/trackmania/tmnf_mod.zip"
             });
         }
-        tmc.server.send("SetForcedMods", true, mods);
+        await tmc.server.call("SetForcedMods", true, mods);
     }
 }
