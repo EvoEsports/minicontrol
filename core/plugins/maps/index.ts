@@ -1,6 +1,6 @@
 import tm from 'tm-essentials';
 import MapsWindow from './mapsWindow';
-import { clone, escape, formatTime } from 'core/utils';
+import { clone, escape, formatTime, removeColors } from 'core/utils';
 import Plugin from 'core/plugins';
 import QueueWindow from './queueWIndow';
 
@@ -143,7 +143,7 @@ export default class Maps extends Plugin {
     }
 
 
-    async cmdMaps(login: any, args: string[]) {
+    async cmdMaps(login: any, params: string[]) {
         const window = new MapsWindow(login);
         window.size = { width: 180, height: 105 };
         window.setColumns([
@@ -158,6 +158,24 @@ export default class Maps extends Plugin {
             window.setActions(["Delete"]);
         }
 
+        let maps: any[] = [];
+        let i = 1;
+        for (const map of tmc.maps.get()) {
+            if (params[0] && (removeColors(map.Name).toLocaleLowerCase().indexOf(params[0].toLocaleLowerCase()) !== -1 ||
+                removeColors(map.Author).toLocaleLowerCase().indexOf(params[0].toLocaleLowerCase()) !== -1
+            )) {
+                maps.push(
+                    Object.assign(map, {
+                        Index: i++,
+                        Name: escape(map.Name),
+                        Author: map.AuthorNickname || map.Author,
+                        GoldTime: formatTime(map.GoldTime)
+                    })
+                );
+            }
+        }
+        window.setItems(maps);
+        
         await window.display()
     }
 

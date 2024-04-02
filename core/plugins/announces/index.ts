@@ -30,7 +30,7 @@ export default class Announces extends Plugin {
     }
 
     async onPlayerConnect(player: Player) {       
-        const msg = `¤white¤${player.nickname}¤info¤ from ¤white¤${player.path.replace("World|", "").replace("|", ", ")} ¤info¤joined the server!`;
+        const msg = `¤white¤${player.nickname}¤info¤ from ¤white¤${player.path.replace("World|", "").replaceAll("|", ", ")} ¤info¤joined the server!`;
         tmc.chat(msg);
         tmc.cli(msg);
     }
