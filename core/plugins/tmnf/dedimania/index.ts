@@ -1,10 +1,11 @@
-import {Player} from 'core/playermanager';
+import { Player } from 'core/playermanager';
 import Api from './api';
-import {escape, formatTime} from 'core/utils';
+import { escape, formatTime } from 'core/utils';
 import tm from 'tm-essentials';
 import ListWindow from 'core/ui/listwindow';
 import Plugin from 'core/plugins';
 import Widget from 'core/ui/widget';
+import { isReturnStatement } from 'typescript';
 
 export interface DediRecord {
     Login: string;
@@ -24,20 +25,20 @@ export default class Dedimania extends Plugin {
     sessionId: string = "";
     server: any = {};
     serverInfo: any = {};
-    records: any = [];
+    records: DediRecord[] = [];
     widget: Widget | null = null;
     intervalId: Timer | null = null;
 
     async onLoad() {
         this.widget = new Widget("core/plugins/tmnf/dedimania/widget.twig");
         this.widget.title = "Dedimania";
-        this.widget.pos = {x: -160, y: 40};
-        this.widget.size = {width: 45, height: 45};
+        this.widget.pos = { x: -160, y: 40 };
+        this.widget.size = { width: 45, height: 45 };
         this.widget.setOpenAction(this.widgetClick.bind(this));
 
-        tmc.debug("¤info¤Dedimania: TmForever detected, enabling plugin.");
+        tmc.cli("¤info¤Dedimania: TmForever detected, enabling plugin.");
         tmc.addCommand("/dedirecords", this.cmdDediRecords.bind(this), "Show dedimania records");
-
+        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
         this.serverInfo = await tmc.server.call("GetMainServerPlayerInfo");
         this.serverLogin = this.serverInfo.Login;
         const pass = process.env.DEDIMANIA_PASS || "";
@@ -73,6 +74,7 @@ export default class Dedimania extends Plugin {
         this.widget = null;
         tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
         tmc.server.removeListener("Trackmania.EndMap", this.onEndMap.bind(this));
+        tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish);
     }
 
     async onStart() {
@@ -97,13 +99,13 @@ export default class Dedimania extends Plugin {
                 });
         }
         const window = new ListWindow(login);
-        window.size = {width: 90, height: 105};
+        window.size = { width: 90, height: 105 };
         window.title = "Dedimania records";
         window.setItems(records);
         window.setColumns([
-            {key: "rank", title: "Rank", width: 10},
-            {key: "nickname", title: "Nickname", width: 50},
-            {key: "time", title: "Time", width: 20},
+            { key: "rank", title: "Rank", width: 10 },
+            { key: "nickname", title: "Nickname", width: 50 },
+            { key: "time", title: "Time", width: 20 },
         ]);
         await window.display();
     }
@@ -147,19 +149,63 @@ export default class Dedimania extends Plugin {
         const pass = process.env.DEDIMANIA_PASS || "";
 
         const res: any = await this.api.call("dedimania.Authenticate", {
-                Game: 'TMF',
-                Login: this.serverLogin,
-                Password: pass.toString(),
-                Tool: "MINIcontrol",
-                Version: tmc.version,
-                Nation: this.server.Path,
-                Packmask: packmask,
-                PlayersGame: true
-            }
+            Game: 'TMF',
+            Login: this.serverLogin,
+            Password: pass.toString(),
+            Tool: "MINIcontrol",
+            Version: tmc.version,
+            Nation: this.server.Path,
+            Packmask: packmask,
+            PlayersGame: true
+        }
         );
 
         this.enabled = res ?? false;
         return this.enabled;
+    }
+
+    async onPlayerFinish(data: any) {
+        if (!this.enabled) return;
+        const player: Player = await tmc.players.getPlayer(data[0]);
+        const time: number = data[1];
+
+        if (this.records.length < 1) {
+            this.records.push({
+                Login: player.login,
+                NickName: player.nickname,
+                Best: time,
+                Rank: 1,
+                Checks: [],
+                Vote: 0
+            });
+            await this.updateWidget();
+            return;
+        }
+
+        const lastIndex = this.records.length > this.maxRank ? this.maxRank : this.records.length;
+        const lastRecord = this.records[lastIndex - 1];
+        if (lastIndex >= this.maxRank && time >= lastRecord.Best) return;
+        const oldRecord = this.records.find(r => r.Login === player.login);
+        if (oldRecord) {
+            if (time < oldRecord.Best) {
+                oldRecord.Best = time;
+            }
+        } else {
+            this.records.push({
+                Login: player.login,
+                NickName: player.nickname,
+                Best: time,
+                Rank: 0,
+                Checks: [],
+                Vote: 0
+            });
+        }
+        this.records.sort((a: DediRecord, b: DediRecord) => a.Best - b.Best);
+        for (let i = 0; i < this.records.length; i++) {
+            this.records[i].Rank = i + 1;
+        }
+        this.records = this.records.slice(0, this.maxRank);
+        await this.updateWidget();
     }
 
     async onEndMap(data: any) {
@@ -291,7 +337,7 @@ export default class Dedimania extends Plugin {
             this.widget.setData({
                 records: outRecords
             });
-            this.widget.size = {width: 45, height: 4 * outRecords.length + 1};
+            this.widget.size = { width: 45, height: 4 * outRecords.length + 1 };
             await this.widget.display();
         }
 
