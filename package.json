@@ -10,7 +10,7 @@
     },
     "main": "./core/minicontrol.ts",
     "dependencies": {
-        "drizzle-orm": "0.29.4",  
+        "drizzle-orm": "0.30.6",  
         "tm-essentials": "^1.0.5",
         "twig": "^1.17.1",
         "drizzle-kit": "^0.20.14",
