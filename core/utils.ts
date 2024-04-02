@@ -54,8 +54,8 @@ export function removeLinks(str: string): string {
     return (str || "").replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "")
 }
 
-export function removeColors(str: string): string {
-    return tm.TextFormatter.deformat(str || "");
+export function removeColors(str: string|number): string {
+    return tm.TextFormatter.deformat(str.toString() || "");
 }
 
 export function clone(obj: any): any {
@@ -63,7 +63,7 @@ export function clone(obj: any): any {
 }
 
 export function formatTime(time: number): string {
-    let parsedTime = tm.Time.fromMilliseconds(time).toTmString().replace(/^0:/, "");
+    let parsedTime = tm.Time.fromMilliseconds(time).toTmString();
     if (tmc.game.Name == "TmForever")
         return parsedTime.replace(/0$/, "");
     return parsedTime;

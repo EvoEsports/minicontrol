@@ -169,7 +169,7 @@ export default class Maps extends Plugin {
                         Index: i++,
                         Name: escape(map.Name),
                         Author: map.AuthorNickname || map.Author,
-                        GoldTime: formatTime(map.GoldTime)
+                        GoldTime: formatTime(map.GoldTime),
                     })
                 );
             }

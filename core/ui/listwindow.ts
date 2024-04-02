@@ -1,3 +1,4 @@
+import { removeColors } from "core/utils";
 import Window from "./window";
 
 /**
@@ -25,6 +26,9 @@ export default class ListWindow extends Window {
     template = "core/templates/list.twig";
     private pageSize: number = 15;
     private currentPage: number;
+    private sortColumn: string = "";
+    private sortDirection: number = 1;
+
     listActions: string[] = [];
 
     constructor(login: string) {
@@ -38,6 +42,11 @@ export default class ListWindow extends Window {
 
     setColumns(columns: Column[]): void {
         this.data['columns'] = columns;
+        let x = 0;
+        for (const column of columns) {
+            this.actions["title_" + x] = tmc.ui.addAction(this.doSort.bind(this), "" + column.key);
+            x += 1;
+        }
     }
 
     setItems(items: any[]): void {
@@ -81,6 +90,23 @@ export default class ListWindow extends Window {
         };
     }
 
+    async doSort(login: string, answer: any, entries: any): Promise<void> {
+        if (this.sortColumn == answer) {
+            this.sortDirection = -this.sortDirection;
+        } else {
+            this.sortColumn = answer;
+            this.sortDirection = 1;
+        }
+
+        this.items.sort((a: any, b: any) => {
+            if (removeColors(a[this.sortColumn]).localeCompare(removeColors(b[this.sortColumn]), "en", { numeric: true }) > 0) {
+                return this.sortDirection;
+            }
+            return -this.sortDirection;
+        });
+        await this.uiPaginate(login, "start", []);
+    }
+
     async uiPaginate(login: string, answer: any, entries: any): Promise<void> {
         if (answer == "start") {
             this.currentPage = 0;
@@ -97,7 +123,7 @@ export default class ListWindow extends Window {
         const itemsArray = [];
         let x = 1;
         for (let item of this.items) {
-            Object.assign(item, {index: x});
+            Object.assign(item, { index: x });
             itemsArray.push(item);
             x++;
         }
