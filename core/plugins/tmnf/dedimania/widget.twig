@@ -16,14 +16,12 @@
             {% if loop.index > 3 %}
                 <quad pos="2.5 -2" z-index="1" size="5 3.5" bgcolor="000e" valign="center" halign="center"/>
             {% endif %}
-
+            
             <label pos="6.5 -2" z-index="1" size="28 3.5" text="{{ item.nickname }}" halign="left" textsize="1" valign="center2"/>
-            <quad pos="4 -2" z-index="0" size="41 3.5" style="Icons128x32_1" substyle="UrlBg" halign="left" valign="center" />
-            <quad pos="4 -2" z-index="-1" size="41 3.5" style="Icons128x32_1" substyle="UrlBg" halign="left" valign="center" />
-            <quad pos="4 -2" z-index="-2" size="41 3.5" style="Icons128x32_1" substyle="UrlBg" halign="left" valign="center" />
-            <quad pos="4 -2" z-index="-3" size="41 3.5" style="Icons128x32_1" substyle="UrlBg" halign="left" valign="center" />     
+            <quad pos="5.75 -2" z-index="0" size="28.5 3.5" bgcolor="0008" halign="left" valign="center" />
 
             <label pos="40 -2" z-index="1" size="9 3.5" text="$n$o{{ item.time }}" halign="center" textsize="1" valign="center2"/>
+            <quad pos="40 -2" z-index="0" size="10 3.5" bgcolor="000e" valign="center" halign="center"/>
 
 
             {% if loop.index == 11 %}
