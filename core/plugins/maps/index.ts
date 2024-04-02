@@ -161,7 +161,7 @@ export default class Maps extends Plugin {
         let maps: any[] = [];
         let i = 1;
         for (const map of tmc.maps.get()) {
-            if (params[0] && (removeColors(map.Name).toLocaleLowerCase().indexOf(params[0].toLocaleLowerCase()) !== -1 ||
+            if (!params[0] || (removeColors(map.Name).toLocaleLowerCase().indexOf(params[0].toLocaleLowerCase()) !== -1 ||
                 removeColors(map.Author).toLocaleLowerCase().indexOf(params[0].toLocaleLowerCase()) !== -1
             )) {
                 maps.push(
@@ -175,7 +175,7 @@ export default class Maps extends Plugin {
             }
         }
         window.setItems(maps);
-        
+
         await window.display()
     }
 

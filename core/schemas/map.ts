@@ -4,7 +4,7 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
 
 export const Map = sqliteTable("map", {
-    uuid: text("uuid").primaryKey(),
+    uuid: text("uuid").primaryKey().unique(),
     name: text("name").notNull(),
     author: text("author").notNull(),
     authorNickname: text("author_nickname"),
@@ -14,6 +14,6 @@ export const Map = sqliteTable("map", {
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 }, (table) => {
     return {
-        nameIdx: index("name_idx").on(table.name),        
+        nameIdx: index("name_idx").on(table.name),
     };
 });

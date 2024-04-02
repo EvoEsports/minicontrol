@@ -9,10 +9,8 @@ export default class MapLikesWidget extends Plugin {
 
     async onLoad() {
         tmc.server.addListener("Plugin.MapLikes.onSync", this.onSync, this);
-        this.widget = new Widget("core/plugins/widgets/maplikes/widget.twig");
-        this.widget.title = "Map Likes";
-        this.widget.pos = { x: 115, y: 60 };
-        this.widget.size = { width: 45, height: 15 };
+        this.widget = new Widget("core/plugins/widgets/maplikes/widget.twig");      
+        this.widget.pos = { x: 115, y: 60 };   
         this.widget.actions['like'] = tmc.ui.addAction(this.actionLike.bind(this), 1);
         this.widget.actions['dislike'] = tmc.ui.addAction(this.actionLike.bind(this), -1);
     };
@@ -52,6 +50,7 @@ export default class MapLikesWidget extends Plugin {
                 percentage: percentage,
                 width: (positive / total * 30).toFixed(0)
             });
+            this.widget.title = "Map Likes ["+data.length+"]";
             this.widget.size = { width: 45, height: 6 };
             await this.widget.display();
         }
