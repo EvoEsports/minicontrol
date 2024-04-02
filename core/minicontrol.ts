@@ -9,8 +9,6 @@ import log from './log';
 import fs from 'fs';
 import Plugin from 'core/plugins';
 import path from 'path';
-import { Time } from 'tm-essentials';
-import { time } from 'drizzle-orm/mysql-core';
 
 const controllerStr = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
 
@@ -136,7 +134,7 @@ class MiniControl {
         const dirsToCheck = ["core/plugins/", "userdata/plugins/"];
         for (const dir of dirsToCheck) {
             if (fs.existsSync(dir + name + "/index.ts")) {
-                return dir + name;
+                return (dir + name).replaceAll("\\", "/");
             }
         }
         return null;
@@ -300,7 +298,7 @@ class MiniControl {
         if (this.startComplete) return;        
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
         this.cli("¤info¤Starting MiniControl...");
-        this.cli("¤info¤Connecting to Trackmania Dedicated server at ¤white¤" + (process.env.XMLRPC_HOST) + ":" + port);
+        this.cli("¤info¤Connecting to Trackmania Dedicated server at ¤white¤" + (process.env.XMLRPC_HOST ?? "127.0.0.1") + ":" + port);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
         if (!status) {
             this.cli("¤error¤Couldn't connect to server.");
@@ -350,13 +348,13 @@ class MiniControl {
             include = plugin && plugin.isDirectory();
             for (const ex of exclude) {
                 if (ex == "") continue;
-                if (plugin.name.startsWith(ex.trim())) {
+                if (plugin.name.replaceAll("\\", "/").startsWith(ex.trim())) {
                     include = false;
                     break;
                 }
             }
             if (include) {
-                loadList.push(plugin.name);
+                loadList.push(plugin.name.replaceAll("\\", "/"));
             }
         }
         loadList = loadList.sort((a, b) => a.localeCompare(b));
