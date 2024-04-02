@@ -22,7 +22,7 @@ tmc.server.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
 // async onPlayerFinish(login:string, time:int) {}
 tmc.server.addListener("TMC.PlayerFinish", this.finish, this);
 
-// async onPlayerGiveup() {}
+// async onPlayerGiveup(login:string) {}
 tmc.server.addListener("TMC.PlayerGiveup", this.giveup, this);
 
 //  onVoteCancel(data: VoteStruct) {}

@@ -1,0 +1,5 @@
+{% extends "core/templates/widget.twig" %}
+
+{% block content %}
+    <label pos="0 0" z-index="1" size="50 4" text="$s{{ data.currentCheckpoint }} / {{data.totalCheckpoints}}" halign="center" valign="center2" textsize="3"/>   
+{% endblock %}

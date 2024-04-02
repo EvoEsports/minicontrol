@@ -110,5 +110,5 @@ export function memInfo(section = "") {
     section = (section != "") ? `¤info¤${section} ` : "";
     const out = section + "¤white¤" + memMB.toFixed(1) + "Mb " + prefix + Math.abs(memMB - prevValueMem).toFixed(1) + 'Mb ¤white¤(' + (memMB - startValueMem).toFixed(1) + "Mb)";
     prevValueMem = memMB;
-    return out;
+    return processColorString(out);
 }
