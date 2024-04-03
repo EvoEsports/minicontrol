@@ -10,8 +10,6 @@ import fs from 'fs';
 import Plugin from 'core/plugins';
 import path from 'path';
 
-const controllerStr = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
-
 if (!process.versions.bun) {
     log.info(`Please install bun using "npm install -g bun"`);
     process.exit();
@@ -30,6 +28,7 @@ class MiniControl {
     /**
      * The version of MiniControl.
      */
+    readonly brand: string = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
     readonly version: string = "0.3.3";
     /**
      * The start time of MiniControl.
@@ -378,8 +377,9 @@ class MiniControl {
         this.players.afterInit();
         await this.chatCmd.afterInit();
         await this.ui.afterInit();
-        this.cli(`¤white¤Welcome to ${controllerStr} v${this.version}!`);
-        this.chat(`Welcome to ${controllerStr} ¤info¤version ¤white¤$n${this.version}$m¤info¤!`);
+        const msg = `¤info¤Welcome to ${this.brand} ¤info¤version ¤white¤${this.version}¤info¤!`;
+        this.chat(msg);
+        this.cli(msg);  
         this.startComplete = true;
         for (const plugin of Object.values(this.plugins)) {
             await plugin.onStart();

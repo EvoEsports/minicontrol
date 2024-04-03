@@ -9,7 +9,7 @@ export default class Checkpoints extends Plugin {
 
     async onLoad() {
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
+        tmc.server.addListener("Trackmania.EndRace", this.onHideWidget, this);        tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
         tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
         tmc.server.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
         tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
@@ -22,6 +22,7 @@ export default class Checkpoints extends Plugin {
 
     async onUnload() {
         tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap);
+        tmc.server.removeListener("Trackmania.EndRace", this.onHideWidget);
         tmc.server.removeListener("TMC.PlayerDisconnect", this.onPlayerDisconnect);
         tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect);
         tmc.server.removeListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint);
@@ -51,6 +52,15 @@ export default class Checkpoints extends Plugin {
         const login = player.login;
         if (this.widgets[login]) {
             delete this.widgets[login];
+        }
+    }
+
+    async onHideWidget(data: any) {
+        const players = tmc.players.get();
+        for (const player of players) {
+            if (this.widgets[player.login]) {
+                await this.widgets[player.login].hide();
+            }
         }
     }
 

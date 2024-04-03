@@ -5,11 +5,13 @@ import ListWindow from 'core/ui/listwindow';
 import Plugin from 'core/plugins';
 
 export interface DediRecord {
+    Game?: string;
     Login: string;
     NickName: string;
     Best: number;
     Rank: number;
     Checks: number[];
+    MaxRank?: number;
     Vote: number;
 }
 
@@ -35,7 +37,7 @@ export default class Dedimania extends Plugin {
         if (pass == "") {
             this.enabled = false;
             return;
-        }       
+        }
     }
 
     async onUnload() {
@@ -72,7 +74,7 @@ export default class Dedimania extends Plugin {
             }
         } catch (e: any) {
             tmc.cli(e);
-        }        
+        }
     }
 
     async cmdDediRecords(login: string, args: string[]) {
@@ -87,7 +89,7 @@ export default class Dedimania extends Plugin {
         }
         const window = new ListWindow(login);
         window.size = { width: 90, height: 105 };
-        window.title = "Dedimania records";
+        window.title = "Dedimania Records [" + this.records.length + "]";
         window.setItems(records);
         window.setColumns([
             { key: "rank", title: "Rank", width: 10 },
@@ -279,8 +281,8 @@ export default class Dedimania extends Plugin {
             this.getDedimaniaPlayers()
         );
         this.records = res.Records ?? [];
-        tmc.debug("Dedimania: Got records.");
-        tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));        
+        tmc.debug("Dedimania: Got records.");        
+        tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
     }
 
     async getDedimaniaPlayers() {
