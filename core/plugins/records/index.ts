@@ -1,9 +1,9 @@
-import {type BunSQLiteDatabase} from 'drizzle-orm/bun-sqlite';
+import { type BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 import Plugin from "core/plugins";
-import {Score} from "core/schemas/scores";
-import {Player} from "core/schemas/players";
-import {eq, asc, and} from "drizzle-orm";
-import {clone, escape, removeLinks, formatTime} from "core/utils";
+import { Score } from "core/schemas/scores";
+import { Player } from "core/schemas/players";
+import { eq, asc, and } from "drizzle-orm";
+import { clone, escape, removeLinks, formatTime } from "core/utils";
 
 import RecordsWindow from "core/plugins/records/recordsWindow.ts";
 
@@ -94,13 +94,13 @@ export default class Records extends Plugin {
                 });
         }
         const window = new RecordsWindow(login, this);
-        window.size = {width: 90, height: 105};
+        window.size = { width: 90, height: 105 };
         window.title = `Server Records [${this.records.length}]`;
         window.setItems(records);
         window.setColumns([
-            {key: "rank", title: "Rank", width: 10},
-            {key: "nickname", title: "Nickname", width: 50},
-            {key: "time", title: "Time", width: 20},
+            { key: "rank", title: "Rank", width: 10 },
+            { key: "nickname", title: "Nickname", width: 50 },
+            { key: "time", title: "Time", width: 20 },
         ]);
         if (tmc.admins.includes(login)) {
             window.size.width = 105;
@@ -200,7 +200,7 @@ export default class Records extends Plugin {
             });
             tmc.server.emit("Plugin.Records.onNewRecord", {
                 oldRecord: null,
-                record: newRecord,
+                record: clone(newRecord || {}),
                 records: clone(this.records)
             });
             return;
@@ -278,7 +278,7 @@ export default class Records extends Plugin {
         this.records = this.records.slice(0, this.limit);
         tmc.server.emit("Plugin.Records.onUpdateRecord", {
             oldRecord: clone(oldRecord || {}),
-            record: newRecord,
+            record: clone(newRecord),
             records: clone(this.records)
         });
     }
