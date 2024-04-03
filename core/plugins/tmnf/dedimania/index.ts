@@ -184,7 +184,7 @@ export default class Dedimania extends Plugin {
         let newRecord = clone(oldRecord);
         if (oldRecord) {
             if (time < oldRecord.Best) {
-                newRecord.Best = time;
+                oldRecord.Best = time;
             }
         } else {
             newRecord = {
@@ -198,13 +198,14 @@ export default class Dedimania extends Plugin {
             this.records.push(newRecord);
         }
         this.records.sort((a: DediRecord, b: DediRecord) => a.Best - b.Best);
+        this.records = this.records.slice(0, this.maxRank);
         for (let i = 0; i < this.records.length; i++) {
             this.records[i].Rank = i + 1;
             if (this.records[i].Login === player.login) {
                 newRecord = this.records[i];
             }
         }
-        this.records = this.records.slice(0, this.maxRank);
+     
         tmc.server.emit("Plugin.Dedimania.onNewRecord",
             {
                 oldRecord: clone(oldRecord),
