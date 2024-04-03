@@ -97,13 +97,6 @@ export default class ListWindow extends Window {
             this.sortColumn = answer;
             this.sortDirection = 1;
         }
-
-        this.items.sort((a: any, b: any) => {
-            if (removeColors(a[this.sortColumn]).localeCompare(removeColors(b[this.sortColumn]), "en", { numeric: true }) > 0) {
-                return this.sortDirection;
-            }
-            return -this.sortDirection;
-        });
         await this.uiPaginate(login, "start", []);
     }
 
@@ -120,6 +113,15 @@ export default class ListWindow extends Window {
 
         if (this.currentPage < 0) this.currentPage = 0;
         if (this.currentPage > Math.floor((this.items.length - 1) / this.pageSize)) this.currentPage = Math.floor((this.items.length - 1) / this.pageSize);
+        if (this.sortColumn != "") {
+            this.items.sort((a: any, b: any) => {
+                if (removeColors(a[this.sortColumn]).localeCompare(removeColors(b[this.sortColumn]), "en", { numeric: true }) > 0) {
+                    return this.sortDirection;
+                }
+                return -this.sortDirection;
+            });
+        }
+
         const itemsArray = [];
         let x = 1;
         for (let item of this.items) {
@@ -156,7 +158,6 @@ export default class ListWindow extends Window {
 
     async display() {
         await this.uiPaginate("", "start", []);
-        await super.display();
     }
 
     addApplyButtons(): void {

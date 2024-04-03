@@ -54,8 +54,10 @@ export function removeLinks(str: string): string {
     return (str || "").replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "")
 }
 
-export function removeColors(str: string|number): string {
-    return tm.TextFormatter.deformat(str.toString() || "");
+export function removeColors(str: any): string {
+    if (typeof str == "string")
+        return tm.TextFormatter.deformat(str ?? "");
+    return (str ?? "").toString();
 }
 
 export function clone(obj: any): any {
