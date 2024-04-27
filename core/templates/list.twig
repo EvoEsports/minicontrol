@@ -4,9 +4,11 @@
     <frame pos="0 0" z-index="1">
         {% set totalWidth = 0 %}
         {% set posx = 0 %}
+        {% set keyy = "" %}
         {% for column in data.columns %}
-            <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" text="$t ${{ colors.title_fg }}{{ data.columns[loop.index0].title }}" halign="left" textsize="1" valign="center2" />
-            <quad pos="{{ posx }} -2" z-index="0" size="{{ column.width }} 5" bgcolor="{{ colors.title_bg }}" valign="center2"/>
+            {% set keyy = "title_" ~ loop.index0 %}
+            <label pos="{{ posx }} -2" z-index="2" size="{{column.width}} 5" text="$t ${{ colors.title_fg }}{{ column.title }}" halign="left" textsize="1" valign="center2" focusareacolor1="{{colors.title_bg}}" focusareacolor2="{{colors.title_fg}}a" action="{{actions[keyy]}}"/>
+            <!-- <quad pos="{{ posx }} -2" z-index="0" size="{{ column.width }} 5" bgcolor="{{ colors.title_bg }}" valign="center2" action="{{actions[keey]}}"/>  -->
             {% set posx = (posx + column.width + 1) %}
             {% set totalWidth = totalWidth + data.columns[loop.index0].width + 1 %}
         {% endfor %}
@@ -24,7 +26,7 @@
                         {% if column.type == "entry" %}
                             <entry pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" default="{{ item[column.key] }}" name="{{column.key}}_{{item.index}}" halign="left" textsize="1.5" valign="center2"/>
                         {% else %}
-                            {%  if true %}
+                            {%  if column.action is defined %}
                                 {% set key = "item_" ~ column.action ~ "_" ~ item.index %}
                                 <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" text=" {{ item[column.key] }}" halign="left" textsize="1.5" valign="center2" focusareacolor2="fff3" action="{{ actions[key] }}"/>
                             {% else %}

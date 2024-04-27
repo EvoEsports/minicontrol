@@ -18,7 +18,7 @@ export default class SqliteDb extends Plugin {
     async onLoad() {
         const sqlite = new Database(process.cwd() + '/userdata/local.sqlite');
         const client = drizzle(sqlite, {
-            logger: new SqliteLogger()
+            logger: new SqliteLogger()         
         });
         console.log("Running Migrates...");
         try {

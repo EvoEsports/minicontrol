@@ -144,7 +144,7 @@ export default class Maps extends Plugin {
 
 
     async cmdMaps(login: any, params: string[]) {
-        const window = new MapsWindow(login);
+        const window = new MapsWindow(login, params);
         window.size = { width: 180, height: 105 };
         window.setColumns([
             { key: "Index", title: "#", width: 4 },
@@ -157,24 +157,6 @@ export default class Maps extends Plugin {
         if (tmc.admins.includes(login)) {
             window.setActions(["Delete"]);
         }
-
-        let maps: any[] = [];
-        let i = 1;
-        for (const map of tmc.maps.get()) {
-            if (!params[0] || (removeColors(map.Name).toLocaleLowerCase().indexOf(params[0].toLocaleLowerCase()) !== -1 ||
-                removeColors(map.Author).toLocaleLowerCase().indexOf(params[0].toLocaleLowerCase()) !== -1
-            )) {
-                maps.push(
-                    Object.assign(map, {
-                        Index: i++,
-                        Name: escape(map.Name),
-                        Author: map.AuthorNickname || map.Author,
-                        GoldTime: formatTime(map.GoldTime)
-                    })
-                );
-            }
-        }
-        window.setItems(maps);
 
         await window.display()
     }

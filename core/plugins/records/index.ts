@@ -1,9 +1,9 @@
-import {type BunSQLiteDatabase} from 'drizzle-orm/bun-sqlite';
+import { type BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 import Plugin from "core/plugins";
-import {Score} from "core/schemas/scores";
-import {Player} from "core/schemas/players";
-import {eq, asc, and} from "drizzle-orm";
-import {clone, escape, removeLinks, formatTime} from "core/utils";
+import { Score } from "core/schemas/scores";
+import { Player } from "core/schemas/players";
+import { eq, asc, and } from "drizzle-orm";
+import { clone, escape, removeLinks, formatTime } from "core/utils";
 
 import RecordsWindow from "core/plugins/records/recordsWindow.ts";
 
@@ -94,13 +94,13 @@ export default class Records extends Plugin {
                 });
         }
         const window = new RecordsWindow(login, this);
-        window.size = {width: 90, height: 105};
+        window.size = { width: 90, height: 105 };
         window.title = `Server Records [${this.records.length}]`;
         window.setItems(records);
         window.setColumns([
-            {key: "rank", title: "Rank", width: 10},
-            {key: "nickname", title: "Nickname", width: 50},
-            {key: "time", title: "Time", width: 20},
+            { key: "rank", title: "Rank", width: 10 },
+            { key: "nickname", title: "Nickname", width: 50 },
+            { key: "time", title: "Time", width: 20 },
         ]);
         if (tmc.admins.includes(login)) {
             window.size.width = 105;
@@ -111,23 +111,22 @@ export default class Records extends Plugin {
 
     async syncRecords(mapUuid: string) {
         if (!this.db) return;
-        const scores: any = this.db.select().from(Score).leftJoin(Player, eq(Score.login, Player.login)).where(eq(Score.mapUuid, mapUuid)).orderBy(asc(Score.time), asc(Score.updatedAt)).all();
+        const scores: any = this.db.select({
+            login: Score.login,
+            nickname: Player.nickname,
+            time: Score.time,
+            avgTime: Score.avgTime,
+            totalFinishes: Score.totalFinishes,
+            checkpoints: Score.checkpoints,
+            createdAt: Score.createdAt,
+            updatedAt: Score.updatedAt,
+        }).from(Score).leftJoin(Player, eq(Score.login, Player.login)).where(eq(Score.mapUuid, mapUuid)).orderBy(asc(Score.time), asc(Score.updatedAt)).all();
+        
         this.records = [];
         let rank = 1;
-        for (const data of scores) {
-            const score: any = data.records;
-            const player: any = data.player;
-            this.records.push(new Record().fromScore({
-                rank: rank,
-                login: score.login,
-                nickname: player.nickname,
-                time: score.time,
-                avgTime: score.avgTime,
-                totalFinishes: score.totalFinishes,
-                checkpoints: score.checkpoints,
-                createdAt: score.createdAt,
-                updatedAt: score.updatedAt,
-            }));
+        for (const score of scores) {            
+            score.rank = rank;
+            this.records.push(new Record().fromScore(score));
             rank += 1;
         }
 
@@ -200,7 +199,7 @@ export default class Records extends Plugin {
             });
             tmc.server.emit("Plugin.Records.onNewRecord", {
                 oldRecord: null,
-                record: newRecord,
+                record: clone(newRecord || {}),
                 records: clone(this.records)
             });
             return;
@@ -278,7 +277,7 @@ export default class Records extends Plugin {
         this.records = this.records.slice(0, this.limit);
         tmc.server.emit("Plugin.Records.onUpdateRecord", {
             oldRecord: clone(oldRecord || {}),
-            record: newRecord,
+            record: clone(newRecord),
             records: clone(this.records)
         });
     }

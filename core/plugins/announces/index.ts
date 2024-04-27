@@ -29,14 +29,15 @@ export default class Announces extends Plugin {
         tmc.cli(msg);
     }
 
-    async onPlayerConnect(player: Player) {       
-        const msg = `¤white¤${player.nickname}¤info¤ from ¤white¤${player.path.replace("World|", "").replaceAll("|", ", ")} ¤info¤joined the server!`;
+    async onPlayerConnect(player: Player) {
+        tmc.chat(`¤info¤Welcome to ¤white¤${tmc.server.name} ¤info¤(${tmc.brand} ¤info¤version ¤white¤${tmc.version}¤info¤)`, player.login);
+        const msg = `¤white¤${player.nickname}¤info¤ from ¤white¤${player.path.replace("World|", "").replaceAll("|", ", ")} ¤info¤joins!`;
         tmc.chat(msg);
         tmc.cli(msg);
     }
 
-    async onPlayerDisconnect(player: any) {        
-        const msg = `¤white¤${player.nickname}¤info¤ has left the server!`;
+    async onPlayerDisconnect(player: any) {
+        const msg = `¤white¤${player.nickname}¤info¤ leaves!`;
         tmc.chat(msg);
         tmc.cli(msg);
     }
@@ -59,22 +60,23 @@ export default class Announces extends Plugin {
         }
 
         if (oldRecord.time == newRecord.time) {
-            tmc.chat(`¤white¤${newRecord.nickname}¤rec¤ equalled their ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`, newRecord.login);        
+            tmc.chat(`¤white¤${newRecord.nickname}¤rec¤ equalled their ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`, newRecord.login);
             return;
         }
-        
+
         tmc.chat(`¤white¤${newRecord.nickname}¤rec¤ improved ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤ ${extrainfo}!`, recipient);
     }
 
     async onSyncRecord(data: any) {
-        const mapUid = data.mapUid;
+        const map = tmc.maps.getMap(data.mapUid);
         const records: Record[] = data.records;
         if (records.length === 0) {
-            tmc.chat(`¤rec¤No server records for this map yet!`);
+            tmc.chat(`¤rec¤No server records for ¤white¤${map?.Name} ¤rec¤!`);
             return;
         }
-        const msg = `¤white¤${records[0].nickname}¤rec¤ holds the $fff1. ¤rec¤server record ¤white¤${formatTime(records[0].time)}¤rec¤!`;
+        const msg = `¤rec¤Server record for ¤white¤${map?.Name} ¤rec¤by ¤white¤${records[0].nickname}`; // ¤rec¤ time ¤white¤${formatTime(records[0].time)}
         tmc.chat(msg);
     }
 }
 
+ 

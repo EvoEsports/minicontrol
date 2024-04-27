@@ -1,17 +1,17 @@
-import {Player} from 'core/playermanager';
+import { Player } from 'core/playermanager';
 import Api from './api';
-import {escape, formatTime} from 'core/utils';
-import tm from 'tm-essentials';
+import { clone, escape, formatTime } from 'core/utils';
 import ListWindow from 'core/ui/listwindow';
 import Plugin from 'core/plugins';
-import Widget from 'core/ui/widget';
 
 export interface DediRecord {
+    Game?: string;
     Login: string;
     NickName: string;
     Best: number;
     Rank: number;
     Checks: number[];
+    MaxRank?: number;
     Vote: number;
 }
 
@@ -24,20 +24,13 @@ export default class Dedimania extends Plugin {
     sessionId: string = "";
     server: any = {};
     serverInfo: any = {};
-    records: any = [];
-    widget: Widget | null = null;
+    records: DediRecord[] = [];
     intervalId: Timer | null = null;
 
     async onLoad() {
-        this.widget = new Widget("core/plugins/tmnf/dedimania/widget.twig");
-        this.widget.title = "Dedimania";
-        this.widget.pos = {x: -160, y: 40};
-        this.widget.size = {width: 45, height: 45};
-        this.widget.setOpenAction(this.widgetClick.bind(this));
-
-        tmc.debug("¤info¤Dedimania: TmForever detected, enabling plugin.");
+        tmc.cli("¤info¤Dedimania: TmForever detected, enabling plugin.");
         tmc.addCommand("/dedirecords", this.cmdDediRecords.bind(this), "Show dedimania records");
-
+        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
         this.serverInfo = await tmc.server.call("GetMainServerPlayerInfo");
         this.serverLogin = this.serverInfo.Login;
         const pass = process.env.DEDIMANIA_PASS || "";
@@ -45,7 +38,25 @@ export default class Dedimania extends Plugin {
             this.enabled = false;
             return;
         }
+    }
 
+    async onUnload() {
+        clearInterval(this.intervalId!);
+        tmc.removeCommand("/dedirecords");
+        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
+        tmc.server.removeListener("Trackmania.EndMap", this.onEndMap.bind(this));
+        tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish);
+    }
+
+    async onStart() {
+        const menu = tmc.storage["menu"];
+        if (menu) {
+            menu.addItem({
+                category: "Map",
+                title: "Show: Dedimania",
+                action: "/dedirecords"
+            });
+        }
         try {
             const res = await this.authenticate();
             tmc.debug(res);
@@ -66,26 +77,6 @@ export default class Dedimania extends Plugin {
         }
     }
 
-    async onUnload() {
-        clearInterval(this.intervalId!);
-        tmc.removeCommand("/dedirecords");
-        this.widget?.destroy();
-        this.widget = null;
-        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
-        tmc.server.removeListener("Trackmania.EndMap", this.onEndMap.bind(this));
-    }
-
-    async onStart() {
-        const menu = tmc.storage["menu"];
-        if (menu) {
-            menu.addItem({
-                category: "Map",
-                title: "Show: Dedimania",
-                action: "/dedirecords"
-            });
-        }
-    }
-
     async cmdDediRecords(login: string, args: string[]) {
         let records = [];
         for (let record of this.records) {
@@ -97,13 +88,13 @@ export default class Dedimania extends Plugin {
                 });
         }
         const window = new ListWindow(login);
-        window.size = {width: 90, height: 105};
-        window.title = "Dedimania records";
+        window.size = { width: 90, height: 105 };
+        window.title = "Dedimania Records [" + this.records.length + "]";
         window.setItems(records);
         window.setColumns([
-            {key: "rank", title: "Rank", width: 10},
-            {key: "nickname", title: "Nickname", width: 50},
-            {key: "time", title: "Time", width: 20},
+            { key: "rank", title: "Rank", width: 10 },
+            { key: "nickname", title: "Nickname", width: 50 },
+            { key: "time", title: "Time", width: 20 },
         ]);
         await window.display();
     }
@@ -147,19 +138,80 @@ export default class Dedimania extends Plugin {
         const pass = process.env.DEDIMANIA_PASS || "";
 
         const res: any = await this.api.call("dedimania.Authenticate", {
-                Game: 'TMF',
-                Login: this.serverLogin,
-                Password: pass.toString(),
-                Tool: "MINIcontrol",
-                Version: tmc.version,
-                Nation: this.server.Path,
-                Packmask: packmask,
-                PlayersGame: true
-            }
+            Game: 'TMF',
+            Login: this.serverLogin,
+            Password: pass.toString(),
+            Tool: "MINIcontrol",
+            Version: tmc.version,
+            Nation: this.server.Path,
+            Packmask: packmask,
+            PlayersGame: true
+        }
         );
 
         this.enabled = res ?? false;
         return this.enabled;
+    }
+
+    async onPlayerFinish(data: any) {
+        if (!this.enabled) return;
+        const player: Player = await tmc.players.getPlayer(data[0]);
+        const time: number = data[1];
+
+        if (this.records.length < 1) {
+            const record = {
+                Login: player.login,
+                NickName: player.nickname,
+                Best: time,
+                Rank: 1,
+                Checks: [],
+                Vote: 0
+            };
+            this.records.push(record);
+            tmc.server.emit("Plugin.Dedimania.onNewRecord",
+                {
+                    oldRecord: null,
+                    record: clone(record || {}),
+                    records: clone(this.records)
+                });
+            return;
+        }
+
+        const lastIndex = this.records.length > this.maxRank ? this.maxRank : this.records.length;
+        const lastRecord = this.records[lastIndex - 1];
+        if (lastIndex >= this.maxRank && time >= lastRecord.Best) return;
+        const oldRecord = this.records.find(r => r.Login === player.login);
+        let newRecord = clone(oldRecord);
+        if (oldRecord) {
+            if (time < oldRecord.Best) {
+                oldRecord.Best = time;
+            }
+        } else {
+            newRecord = {
+                Login: player.login,
+                NickName: player.nickname,
+                Best: time,
+                Rank: 0,
+                Checks: [],
+                Vote: 0
+            };
+            this.records.push(newRecord);
+        }
+        this.records.sort((a: DediRecord, b: DediRecord) => a.Best - b.Best);
+        this.records = this.records.slice(0, this.maxRank);
+        for (let i = 0; i < this.records.length; i++) {
+            this.records[i].Rank = i + 1;
+            if (this.records[i].Login === player.login) {
+                newRecord = this.records[i];
+            }
+        }
+     
+        tmc.server.emit("Plugin.Dedimania.onNewRecord",
+            {
+                oldRecord: clone(oldRecord),
+                record: clone(newRecord),
+                records: clone(this.records)
+            });
     }
 
     async onEndMap(data: any) {
@@ -230,9 +282,8 @@ export default class Dedimania extends Plugin {
             this.getDedimaniaPlayers()
         );
         this.records = res.Records ?? [];
-        tmc.debug("Dedimania: Got records.");
-        tmc.server.emit("Plugin.Dedimania.onSync", this.records);
-        await this.updateWidget();
+        tmc.debug("Dedimania: Got records.");        
+        tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
     }
 
     async getDedimaniaPlayers() {
@@ -261,44 +312,6 @@ export default class Dedimania extends Plugin {
             await this.authenticate();
             await this.getRecords(map);
         }
-    }
-
-    async updateWidget() {
-        let outRecords = [];
-        let x = 0;
-        for (const record of this.records) {
-            if (x >= 10) break;
-
-            outRecords.push(
-                {
-                    rank: record.Rank,
-                    nickname: escape(record.NickName),
-                    time: formatTime(record.Best),
-                });
-            x += 1;
-        }
-        const lastRecord: any = this.records[this.records.length - 1];
-        if (lastRecord != undefined && lastRecord.Rank > 10) {
-            outRecords.push(
-                {
-                    rank: lastRecord.Rank,
-                    nickname: escape(lastRecord.NickName),
-                    time: formatTime(lastRecord.Best),
-                }
-            )
-        }
-        if (this.widget) {
-            this.widget.setData({
-                records: outRecords
-            });
-            this.widget.size = {width: 45, height: 4 * outRecords.length + 1};
-            await this.widget.display();
-        }
-
-    }
-
-    async widgetClick(login: string, data: any) {
-        await tmc.chatCmd.execute(login, "/dedirecords");
     }
 
 }

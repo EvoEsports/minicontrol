@@ -76,7 +76,7 @@ export default class Server {
             }
             case "Trackmania.PlayerFinish": {
                 if (data[2] < 1) {
-                    this.events.emit("TMC.PlayerGiveup");
+                    this.events.emit("TMC.PlayerGiveup", [data[1]]);
                     return;
                 }
                 this.events.emit("TMC.PlayerFinish", [data[1], data[2]]);

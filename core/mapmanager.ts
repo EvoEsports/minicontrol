@@ -46,7 +46,7 @@ class MapManager {
     private async onBeginMap(data: any) {
         this.currentMap = data[0];
         const index = Object.keys(this.maps).indexOf(data[0].UId);
-        const indexNext = (index + 1) % Object.keys(this.maps).length;        
+        const indexNext = (index + 1) % Object.keys(this.maps).length;
         this.nextMap = Object.values(this.maps)[indexNext];
     }
 
@@ -92,6 +92,10 @@ class MapManager {
      */
     get(): Map[] {
         return clone(Object.values(this.maps));
+    }
+
+    getMap(mapUid: string): Map | undefined {
+        return clone(this.maps[mapUid]);
     }
 
     /**

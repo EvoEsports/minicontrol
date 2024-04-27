@@ -54,16 +54,19 @@ export function removeLinks(str: string): string {
     return (str || "").replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "")
 }
 
-export function removeColors(str: string): string {
-    return tm.TextFormatter.deformat(str || "");
+export function removeColors(str: any): string {
+    if (typeof str == "string")
+        return tm.TextFormatter.deformat(str ?? "");
+    return (str ?? "").toString();
 }
 
 export function clone(obj: any): any {
+    if (obj === undefined || obj === null || typeof obj !== "object") return obj;
     return JSON.parse(JSON.stringify(obj));
 }
 
 export function formatTime(time: number): string {
-    let parsedTime = tm.Time.fromMilliseconds(time).toTmString().replace(/^0:/, "");
+    let parsedTime = tm.Time.fromMilliseconds(time).toTmString();
     if (tmc.game.Name == "TmForever")
         return parsedTime.replace(/0$/, "");
     return parsedTime;
@@ -110,5 +113,5 @@ export function memInfo(section = "") {
     section = (section != "") ? `¤info¤${section} ` : "";
     const out = section + "¤white¤" + memMB.toFixed(1) + "Mb " + prefix + Math.abs(memMB - prevValueMem).toFixed(1) + 'Mb ¤white¤(' + (memMB - startValueMem).toFixed(1) + "Mb)";
     prevValueMem = memMB;
-    return out;
+    return processColorString(out);
 }
