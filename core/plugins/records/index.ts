@@ -111,23 +111,22 @@ export default class Records extends Plugin {
 
     async syncRecords(mapUuid: string) {
         if (!this.db) return;
-        const scores: any = this.db.select().from(Score).leftJoin(Player, eq(Score.login, Player.login)).where(eq(Score.mapUuid, mapUuid)).orderBy(asc(Score.time), asc(Score.updatedAt)).all();
+        const scores: any = this.db.select({
+            login: Score.login,
+            nickname: Player.nickname,
+            time: Score.time,
+            avgTime: Score.avgTime,
+            totalFinishes: Score.totalFinishes,
+            checkpoints: Score.checkpoints,
+            createdAt: Score.createdAt,
+            updatedAt: Score.updatedAt,
+        }).from(Score).leftJoin(Player, eq(Score.login, Player.login)).where(eq(Score.mapUuid, mapUuid)).orderBy(asc(Score.time), asc(Score.updatedAt)).all();
+        
         this.records = [];
         let rank = 1;
-        for (const data of scores) {
-            const score: any = data.records;
-            const player: any = data.player;
-            this.records.push(new Record().fromScore({
-                rank: rank,
-                login: score.login,
-                nickname: player.nickname,
-                time: score.time,
-                avgTime: score.avgTime,
-                totalFinishes: score.totalFinishes,
-                checkpoints: score.checkpoints,
-                createdAt: score.createdAt,
-                updatedAt: score.updatedAt,
-            }));
+        for (const score of scores) {            
+            score.rank = rank;
+            this.records.push(new Record().fromScore(score));
             rank += 1;
         }
 

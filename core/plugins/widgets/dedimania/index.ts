@@ -9,7 +9,7 @@ export default class DedimaniaWidget extends Plugin {
     async onLoad() {
         this.widget = new Widget("core/plugins/widgets/dedimania/widget.twig");
         this.widget.title = "Dedimania";
-        this.widget.pos = { x: -160, y: 40 };
+        this.widget.pos = { x: -160, y: 30 };
         this.widget.size = { width: 45, height: 45 };
         this.widget.setOpenAction(this.widgetClick.bind(this));
         tmc.server.addListener('Plugin.Dedimania.onSync', this.onSync, this);

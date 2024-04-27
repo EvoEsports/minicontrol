@@ -46,7 +46,7 @@ export default class RecordsWidget extends Plugin {
         let outRecords = [];
         let x = 0;
         for (let record of this.records) {
-            if (x >= 10) break;
+            if (x >= 10) break;  
             outRecords.push(
                 {
                     rank: record.rank,

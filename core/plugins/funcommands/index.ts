@@ -18,7 +18,7 @@ export default class FunCommands extends Plugin {
         tmc.addCommand("/hydrate", this.command_hydrate.bind(this), "Hydrate check");
     }
     
-    async onUnload() {
+    async onUnload() {        
         tmc.removeCommand("/afk");
         tmc.removeCommand("/bootme");
         tmc.removeCommand("/ragequit");
@@ -39,11 +39,12 @@ export default class FunCommands extends Plugin {
         tmc.chat(`¤white¤${player.nickname} ¤info¤is now away from keyboard.`);        
         tmc.server.send(`ForceSpectator`, login, 1);
         tmc.server.send(`ForceSpectator`, login, 0);
+        
     }
     
     async command_bootme(login: string, data: any) {
         const player = await tmc.getPlayer(login);
-        tmc.chat(`#white#${player.nickname}$z$s¤white¤ chooses to boot back to real life!`);
+        tmc.chat(`¤white¤${player.nickname}$z$s¤white¤ chooses to boot back to real life!`);
         await tmc.server.call(`Kick`, login, `chooses to boot to real life`);;
     }
     async command_rq(login: string, data: any) {

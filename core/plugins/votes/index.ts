@@ -84,7 +84,7 @@ export default class VotesPlugin extends Plugin {
         const menu = tmc.storage["menu"];
         if (menu) {
             menu.addItem({
-                category: "Maps",
+                category: "Map",
                 title: "Adm: Extend",
                 action: "//extend",
                 admin: true
@@ -103,6 +103,7 @@ export default class VotesPlugin extends Plugin {
                 action: "//pass",
                 admin: true
             });
+            
 
             menu.addItem({
                 category: "Votes",

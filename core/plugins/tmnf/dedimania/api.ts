@@ -4,10 +4,20 @@ import zlib from 'zlib';
 import Serializer from "xmlrpc/lib/serializer";
 // @ts-ignore
 import Deserializer from "xmlrpc/lib/deserializer";
+import { ClientRequest, request, Agent } from 'http';
+import type { Socket } from "bun";
+
 
 export default class DedimaniaClient {
     sessionID = "";
-
+    req: ClientRequest | undefined = undefined;
+    agent = new Agent({
+        keepAlive: true,
+        maxSockets: 1,            
+        keepAliveMsecs: 3000,
+    });
+    sockets: Socket[] = [];
+    
     compress(body: string): Promise<Buffer> {
         return new Promise(function (resolve, reject) {
             zlib.gzip(body, (err, buffer) => {
@@ -18,34 +28,67 @@ export default class DedimaniaClient {
             });
         });
     }
-
+    
     async call(method: string, ...params: any[]) {
         const url = "http://dedimania.net:8002/Dedimania";
         const body = await Serializer.serializeMethodCall("system.multicall", [
             { methodName: method, params: params },
             { methodName: "dedimania.WarningsAndTTR", params: null }
         ]);
-
+        
+        const outData = await this.compress(body);
+        
         let headers: any = {
             "Content-Type": "text/xml",
             "Content-Encoding": "gzip",
             "Connection": "Keep-Alive",
+            'Content-Length': Buffer.byteLength(outData),
         };
-
+        
         if (this.sessionID !== "") {
             headers["Cookie"] = this.sessionID;
         }
-
-        const response = await fetch(url,{   
-            body: await this.compress(body),
-            method: 'POST',        
-            headers: headers,      
-            keepalive: true,               
+        
+        const res: any = await new Promise((resolve, reject) => {
+            const req = request({
+                hostname: 'dedimania.net',
+                port: 8002,
+                path: '/Dedimania',
+                method: 'POST',
+                headers: headers,                        
+                agent: this.agent
+            }, (response) => {
+                response.setEncoding('utf-8');
+                let recvData = '';
+                response.on('data', (chunk) => {
+                    recvData += chunk;
+                });
+                response.on('end', () => {
+                    resolve({ data: recvData, headers: response.headers });
+                });
+                
+            });            
+            req.on('error', function(e) {
+                console.log(e);
+                reject(e);
+            });
+            req.on("socket", (socket:any) => {
+                if (this.sockets.indexOf(socket) === -1) {
+                    console.log("new socket created");    
+                    this.sockets.push(socket);
+                    socket.on("close", function() {
+                        console.log("socket has been closed");
+                    });
+                }
+            });
+            
+            req.write(outData);
+            req.end();
         });
         
         if (method === "dedimania.Authenticate") {
-            if (response.headers.get('set-cookie')) {
-                const header = response.headers.get('set-cookie')?.split(";").map((x: string) => x.trim());
+            if (res.headers['set-cookie'][0]) {
+                const header = res.headers['set-cookie'][0]?.split(";").map((x: string) => x.trim());
                 if (header) {
                     for (let cookie of header) {
                         if (cookie.startsWith("PHPSESSID")) {
@@ -55,8 +98,8 @@ export default class DedimaniaClient {
                 }
             }
         }
-
-        const data = (await response.text()).replaceAll("<int></int>", "<int>-1</int>");
+        console.log(this.sessionID);
+        const data = res.data.replaceAll("<int></int>", "<int>-1</int>");
         const answer: any = await new Promise((resolve, reject) => {
             try {
                 const deserializer = new Deserializer();
