@@ -45,6 +45,7 @@ export default class TAlimitPlugin extends Plugin {
             this.active = true;
         }
         tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
+        tmc.server.addOverride("GetTimeAttackLimit", this.overrideGetLimit.bind(this));
         this.intervalId = setInterval(() => this.tick(), 1000);
     }
 
@@ -53,11 +54,12 @@ export default class TAlimitPlugin extends Plugin {
             clearInterval(this.intervalId);
         }
         tmc.server.removeOverride("SetTimeAttackLimit");
+        tmc.server.removeOverride("GetTimeAttackLimit");
         tmc.server.removeListener("Trackmania.BeginRound", this.onBeginRound.bind(this));
         tmc.server.removeListener("Trackmania.EndRound", this.onEndRound.bind(this));
         this.active = false;
         await this.hideWidget();
-        await tmc.server.send("SetTimeAttackLimit", this.timeLimit*1000);
+        await tmc.server.send("SetTimeAttackLimit", this.timeLimit * 1000);
         tmc.chat("¤white¤ALimit: Native TimeLimit restored, skip map required to apply.");
     }
 
@@ -79,6 +81,10 @@ export default class TAlimitPlugin extends Plugin {
         process.env["TALIMIT"] = newlimit.toString();
         this.timeLimit = newlimit;
         await this.hideWidget();
+    }
+
+    async overrideGetLimit(args: string) {
+        return { CurrentValue: this.timeLimit*1000, NextValue: this.timeLimit*1000 };
     }
 
     async showWidget() {
