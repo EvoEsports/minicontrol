@@ -75,7 +75,7 @@ class MiniControl {
     * The plugins.
     */
     plugins: { [key: string]: Plugin } = {};
-    private pluginDependecies: DepGraph<string> = new DepGraph();
+    pluginDependecies: DepGraph<string> = new DepGraph();
     /**
      * The game object.
      */
@@ -244,7 +244,6 @@ class MiniControl {
             await this.plugins[unloadName].onUnload();
             // remove from dependecies
             for (const dep of this.plugins[unloadName].getDepends()) {
-                console.log(dep);
                 this.pluginDependecies.removeDependency(unloadName, dep);
             }
             this.pluginDependecies.removeNode(unloadName);
@@ -384,7 +383,6 @@ class MiniControl {
                 continue;
             }
 
-            let register = true;
             this.pluginDependecies.addNode(name);
             if (Reflect.has(plugin, "depends")) {
                 for (const dependency of plugin.depends) {
@@ -393,17 +391,13 @@ class MiniControl {
                             this.pluginDependecies.removeNode(name);
                             break
                         }
-                    } else {
-                        if (!this.pluginDependecies.hasNode(dependency)) {
-                            this.pluginDependecies.addNode(dependency);
-                        }
-                        this.pluginDependecies.addDependency(name, dependency)
                     }
-
+                    if (!this.pluginDependecies.hasNode(dependency)) {
+                        this.pluginDependecies.addNode(dependency);
+                    }
+                    this.pluginDependecies.addDependency(name, dependency)
                 }
             }
-
-
         }
         for (const plugin of this.pluginDependecies.overallOrder()) {
             await this.loadPlugin(plugin)
