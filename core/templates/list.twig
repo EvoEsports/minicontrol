@@ -7,8 +7,8 @@
         {% set keyy = "" %}
         {% for column in data.columns %}
             {% set keyy = "title_" ~ loop.index0 %}
-            <label pos="{{ posx }} -2" z-index="2" size="{{column.width}} 5" text="$t ${{ colors.title_fg }}{{ column.title }}" halign="left" textsize="1" valign="center2" focusareacolor1="{{colors.title_bg}}" focusareacolor2="{{colors.title_fg}}a" action="{{actions[keyy]}}"/>
-            <!-- <quad pos="{{ posx }} -2" z-index="0" size="{{ column.width }} 5" bgcolor="{{ colors.title_bg }}" valign="center2" action="{{actions[keey]}}"/>  -->
+            <label pos="{{ posx }} -2" z-index="2" size="{{column.width}} 5" text="$t ${{ colors.title_fg }}{{ column.title }}" halign="left" textsize="1" valign="center2" focusareacolor1="{{colors.title_bg}}" focusareacolor2="{{colors.bg_light}}" action="{{actions[keyy]}}"/>
+         <!--   <quad pos="{{ posx }} -2" z-index="0" size="{{ column.width }} 5" bgcolor="{{ colors.title_bg }}" valign="center2" action="{{actions[keey]}}"/>  -->
             {% set posx = (posx + column.width + 1) %}
             {% set totalWidth = totalWidth + data.columns[loop.index0].width + 1 %}
         {% endfor %}

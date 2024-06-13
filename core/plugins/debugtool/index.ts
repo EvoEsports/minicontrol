@@ -16,6 +16,7 @@ export default class DebugTool extends Plugin {
             tmc.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
             tmc.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");         
         }
+        tmc.addCommand("//mem", this.cmdMeminfo.bind(this));
         await this.displayMemInfo();     
         this.intervalId = setInterval(() => {
             this.displayMemInfo();
@@ -34,10 +35,17 @@ export default class DebugTool extends Plugin {
     }
 
     async cmdFakeUsers(login: string, args: string[]) {
-        const count = Number.parseInt(args[0]) || 50;     
+        let count = Number.parseInt(args[0]) || 1;     
+        if (count > 100) count = 100;
+        if (count < 1) count = 1;
         for (let i = 0; i < count; i++) {
             tmc.server.send("ConnectFakePlayer");
         }
+    }
+
+    async cmdMeminfo(login:string, args: string[]) {
+        const mem = memInfo();
+        tmc.chat("¤info¤Memory usage: " + mem, login);
     }
 
     async cmdHeap(login: string, args: string[]) {

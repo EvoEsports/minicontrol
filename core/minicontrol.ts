@@ -75,7 +75,7 @@ class MiniControl {
     * The plugins.
     */
     plugins: { [key: string]: Plugin } = {};
-    private pluginDependecies: DepGraph<string> = new DepGraph({ circular: true });
+    private pluginDependecies: DepGraph<string> = new DepGraph();
     /**
      * The game object.
      */
@@ -188,13 +188,14 @@ class MiniControl {
                     if (game != this.game.Name) {
                         const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Game is not ¤cmd¤${game}¤white¤.`;
                         this.cli(msg);
+                        if (this.startComplete) this.chat(msg);
                         return;
                     }
                 }
                 if (!this.pluginDependecies.hasNode(depend)) {
                     const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ failed to load. Missing dependency ¤cmd¤${depend}¤white¤.`;
                     this.cli(msg);
-                    this.chat(msg);
+                    if (this.startComplete) this.chat(msg);
                     Bun.gc(true);
                     return;
                 }
