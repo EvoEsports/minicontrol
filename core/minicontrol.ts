@@ -9,6 +9,7 @@ import log from './log';
 import fs from 'fs';
 import Plugin from 'core/plugins';
 import path from 'path';
+import { DepGraph } from "dependency-graph";
 
 if (!process.versions.bun) {
     log.info(`Please install bun using "npm install -g bun"`);
@@ -29,7 +30,7 @@ class MiniControl {
      * The version of MiniControl.
      */
     readonly brand: string = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
-    readonly version: string = "0.3.4";
+    readonly version: string = "0.3.5-dev";
     /**
      * The start time of MiniControl.
      */
@@ -64,7 +65,7 @@ class MiniControl {
     settings: any = {};
     /**
      * The settings manager.
-     */    
+     */
     settingsMgr: SettingsManager;
     /**
      * The colors
@@ -74,7 +75,7 @@ class MiniControl {
     * The plugins.
     */
     plugins: { [key: string]: Plugin } = {};
-    private pluginDependecies: { [key: string]: string[] } = {};
+    private pluginDependecies: DepGraph<string> = new DepGraph({ circular: true });
     /**
      * The game object.
      */
@@ -93,8 +94,8 @@ class MiniControl {
         this.settingsMgr = new SettingsManager();
         this.settingsMgr.load();
         this.settings = this.settingsMgr.settings;
-        this.colors = this.settingsMgr.colors;        
-        this.admins = this.settingsMgr.admins;                
+        this.colors = this.settingsMgr.colors;
+        this.admins = this.settingsMgr.admins;
         this.game = { Name: "" };
     }
 
@@ -169,8 +170,19 @@ class MiniControl {
                 this.chat(msg);
                 return;
             }
-            const cls = new plugin.default();
-            for (const depend of cls.depends) {
+
+            if (!this.pluginDependecies.hasNode(name)) {
+                this.pluginDependecies.addNode(name);
+                if (Reflect.has(plugin.default, "depends")) {
+                    for (const dependency of plugin.default.depends) {
+                        if (!dependency.startsWith("game:")) {
+                            this.pluginDependecies.addDependency(name, dependency)
+                        }
+                    }
+                }
+            }
+
+            for (const depend of plugin.default.depends) {
                 if (depend.startsWith("game:")) {
                     const game = depend.split(":")[1];
                     if (game != this.game.Name) {
@@ -178,22 +190,19 @@ class MiniControl {
                         this.cli(msg);
                         return;
                     }
-                    continue;
                 }
-                if (this.plugins[depend] == undefined) {
+                if (!this.pluginDependecies.hasNode(depend)) {
                     const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ failed to load. Missing dependency ¤cmd¤${depend}¤white¤.`;
                     this.cli(msg);
                     this.chat(msg);
                     Bun.gc(true);
                     return;
                 }
-                this.pluginDependecies[depend].push(name);
             }
+
             // load and init the plugin
+            const cls = new plugin.default();
             this.plugins[name] = cls;
-            if (this.pluginDependecies[name] == undefined) {
-                this.pluginDependecies[name] = [];
-            }
             const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ loaded.`;
             await cls.onLoad();
             this.cli(msg);
@@ -215,8 +224,9 @@ class MiniControl {
      */
     async unloadPlugin(unloadName: string) {
         if (this.plugins[unloadName]) {
-            if (this.pluginDependecies[unloadName].length > 0) {
-                const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ cannot be unloaded. It is a dependency of ¤cmd¤${this.pluginDependecies[unloadName].join(", ")}¤white¤.`;
+            const deps = this.pluginDependecies.dependantsOf(unloadName);
+            if (deps.length > 0) {
+                const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ cannot be unloaded. It has a dependency of ¤cmd¤${deps.join(", ")}¤white¤.`;
                 this.cli(msg);
                 this.chat(msg);
                 return;
@@ -231,6 +241,13 @@ class MiniControl {
 
             // unload        
             await this.plugins[unloadName].onUnload();
+            // remove from dependecies
+            for (const dep of this.plugins[unloadName].getDepends()) {
+                console.log(dep);
+                this.pluginDependecies.removeDependency(unloadName, dep);
+            }
+            this.pluginDependecies.removeNode(unloadName);
+
             delete this.plugins[unloadName];
             const file = path.resolve(process.cwd() + "/" + pluginPath + "/index.ts");
             if (require.cache[file]) {
@@ -240,13 +257,7 @@ class MiniControl {
             } else {
                 this.cli(`$fffFailed to remove require cache for ¤cmd¤${unloadName}¤white¤, hotreload will not work right.`);
             }
-            // remove from dependecies
-            for (const key in this.pluginDependecies) {
-                const index = this.pluginDependecies[key].indexOf(unloadName);
-                if (index > -1) {
-                    this.pluginDependecies[key].splice(index, 1);
-                }
-            }
+
             Bun.gc(true);
             const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ unloaded.`;
             this.cli(msg);
@@ -293,8 +304,8 @@ class MiniControl {
      * Runs MiniControl.
      * @ignore Should not be called directly
      */
-    async run() {    
-        if (this.startComplete) return;        
+    async run() {
+        if (this.startComplete) return;
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
         this.cli("¤info¤Starting MiniControl...");
         this.cli("¤info¤Connecting to Trackmania Dedicated server at ¤white¤" + (process.env.XMLRPC_HOST ?? "127.0.0.1") + ":" + port);
@@ -326,7 +337,7 @@ class MiniControl {
         await this.maps.init();
         await this.players.init();
         await this.ui.init();
-        await this.beforeInit();             
+        await this.beforeInit();
         console.timeEnd("Startup");
     }
 
@@ -345,9 +356,9 @@ class MiniControl {
             let include = false;
             const plugin = plugins[i];
             include = plugin && plugin.isDirectory();
-            for (const ex of exclude) {
-                if (ex == "") continue;
-                if (plugin.name.replaceAll("\\", "/").startsWith(ex.trim())) {
+            for (const excludeName of exclude) {
+                if (excludeName == "") continue;
+                if (plugin.name.replaceAll("\\", "/").startsWith(excludeName.trim())) {
                     include = false;
                     break;
                 }
@@ -356,14 +367,47 @@ class MiniControl {
                 loadList.push(plugin.name.replaceAll("\\", "/"));
             }
         }
-        loadList = loadList.sort((a, b) => a.localeCompare(b));
-        for (const plugin of loadList) {
-            try {
-                await tmc.loadPlugin(plugin);
-            } catch (e: any) {
-                console.log(e.message);
+
+        // load metadata
+        for (const name of loadList) {
+            const cls = await import(process.cwd() + "/" + this.findPlugin(name));
+            const plugin = cls.default;
+            if (plugin == undefined) {
+                const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
+                this.cli(msg);
+                continue;
             }
+            if (!(plugin.prototype instanceof Plugin)) {
+                const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ is not a valid plugin.`;
+                this.cli(msg);
+                continue;
+            }
+
+            let register = true;
+            this.pluginDependecies.addNode(name);
+            if (Reflect.has(plugin, "depends")) {
+                for (const dependency of plugin.depends) {
+                    if (dependency.startsWith("game:")) {
+                        if (dependency != "game:" + this.game.Name) {
+                            this.pluginDependecies.removeNode(name);
+                            break
+                        }
+                    } else {
+                        if (!this.pluginDependecies.hasNode(dependency)) {
+                            this.pluginDependecies.addNode(dependency);
+                        }
+                        this.pluginDependecies.addDependency(name, dependency)
+                    }
+
+                }
+            }
+
+
         }
+        for (const plugin of this.pluginDependecies.overallOrder()) {
+            await this.loadPlugin(plugin)
+        }
+
         this.server.send("Echo", this.startTime, "MiniControl");
     }
 
@@ -379,7 +423,7 @@ class MiniControl {
         await this.ui.afterInit();
         const msg = `¤info¤Welcome to ${this.brand} ¤info¤version ¤white¤${this.version}¤info¤!`;
         this.chat(msg);
-        this.cli(msg);  
+        this.cli(msg);
         this.startComplete = true;
         for (const plugin of Object.values(this.plugins)) {
             await plugin.onStart();

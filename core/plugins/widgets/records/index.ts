@@ -3,7 +3,7 @@ import Widget from 'core/ui/widget';
 import { formatTime, escape } from "core/utils";
 
 export default class RecordsWidget extends Plugin {
-    depends: string[] = ["records"];
+    static depends: string[] = ["records"];
     widget: Widget | null = null;
     records: any[] = [];
 

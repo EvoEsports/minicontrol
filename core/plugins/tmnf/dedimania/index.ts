@@ -16,7 +16,7 @@ export interface DediRecord {
 }
 
 export default class Dedimania extends Plugin {
-    depends: string[] = ["game:TmForever"];
+    static depends: string[] = ["game:TmForever"];
     enabled: boolean = false;
     maxRank: number = 30;
     api: Api = new Api();

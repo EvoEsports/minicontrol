@@ -8,7 +8,7 @@ interface Time {
 }
 
 export default class MapWidget extends Plugin {
-    depends: string[] = ["maps"];
+    static depends: string[] = ["maps"];
     id: string = "";
     bestTimes: Time[] = [];
     nbCheckpoints: number = -1;

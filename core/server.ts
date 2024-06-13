@@ -58,7 +58,7 @@ export default class Server {
                 }
             }
             if (outmethod == "Trackmania.Event.GiveUp") {
-                this.events.emit("TMC.PlayerGiveup");
+                this.events.emit("TMC.PlayerGiveup", [params.login]);
                 return;
             }
             if (process.env.DEBUG == "true") {

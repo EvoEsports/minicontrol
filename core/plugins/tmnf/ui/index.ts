@@ -3,7 +3,7 @@ import Plugin from "core/plugins";
 const environments = ['Stadium', 'Speed', 'Alpine', 'Bay', 'Coast', 'Island', 'Rally'];
 
 export default class TmnfUiPlugin extends Plugin {
-    depends: string[] = ["game:TmForever"];
+    static depends: string[] = ["game:TmForever"];
 
     async onLoad() {
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);

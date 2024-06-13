@@ -1,6 +1,8 @@
+import Statistics from "userdata/plugins/kacky/stats";
+
 export default abstract class Plugin {
     /** "game:TmForever | game:ManiaPlanet | game:Trackmania or plugin name to depend" */
-    depends: string[] = [];
+    protected static depends: string[] = [];
 
     /**
      * called after plugin is loaded to runtime.
@@ -30,5 +32,9 @@ export default abstract class Plugin {
      */
     async onStart() {
         return;
+    }
+
+    getDepends(): string[] {
+        return Plugin.depends;
     }
 }

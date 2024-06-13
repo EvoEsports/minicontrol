@@ -10,7 +10,7 @@ export interface Like {
 }
 
 export default class MapLikes extends Plugin {
-    depends: string[] = ["database"];
+    static depends: string[] = ["database"];
     votes: Like[] = [];
 
     async onLoad() {
@@ -25,7 +25,11 @@ export default class MapLikes extends Plugin {
     }
 
     async onUnload() {
-        this.votes = [];
+        tmc.removeCommand("/++");
+        tmc.removeCommand("/--");
+        tmc.server.removeListener("Trackmania.BeginMap", this.syncVotes);
+        tmc.server.removeListener("Trackmania.PlayerChat", this.onPlayerChat);
+        this.votes = [];        
     }
 
     async syncVotes() {

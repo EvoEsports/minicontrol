@@ -2,7 +2,7 @@ import Plugin from 'core/plugins';
 import Widget from 'core/ui/widget';
 
 export default class ToggleChat extends Plugin {
-    depends: string[] = ["game:TmForever"];
+    static depends: string[] = ["game:TmForever"];
     enabled: { [key: string]: boolean } = {};
     widget: Widget | null = null;
 

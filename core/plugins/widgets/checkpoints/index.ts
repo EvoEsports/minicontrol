@@ -9,8 +9,9 @@ export default class Checkpoints extends Plugin {
 
     async onLoad() {
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("Trackmania.EndRace", this.onHideWidget, this);        tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
+        tmc.server.addListener("Trackmania.EndRace", this.onHideWidget, this);               
         tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
         tmc.server.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
         tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
         tmc.server.addListener("TMC.PlayerGiveup", this.onPlayerGiveup, this);
@@ -36,7 +37,7 @@ export default class Checkpoints extends Plugin {
         if (!this.widgets[login]) {
             const widget = new Widget("core/plugins/widgets/checkpoints/widget.twig");
             widget.recipient = login;
-            widget.pos = { x: 0, y: -78 };
+            widget.pos = { x: 0, y: -74 };
             widget.size = { width: 20, height: 5 };
             widget.data = {
                 totalCheckpoints: tmc.maps.currentMap?.NbCheckpoints || 0,
@@ -84,6 +85,7 @@ export default class Checkpoints extends Plugin {
     }
 
     async onPlayerGiveup(data: any) {
+        console.log(data);
         this.checkpointCounter[data[0]] = 0;
         await this.displayWidget(data[0]);
     }

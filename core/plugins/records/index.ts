@@ -37,7 +37,7 @@ export class Record {
 }
 
 export default class Records extends Plugin {
-    depends: string[] = ["database"];
+    static depends: string[] = ["database"];
     db: BunSQLiteDatabase | null = null;
     records: Record[] = [];
     currentMapUid: string = "";
