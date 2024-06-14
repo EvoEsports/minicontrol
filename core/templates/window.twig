@@ -1,12 +1,18 @@
 {% extends "manialink.twig" %}
 {% block body %}
 	<frame pos="-{{ size.width / 2 }} {{ size.height / 2 + pos.y }}" z-index="{{pos.z}}">
-        <label pos="3 -3.5" z-index="1" size="{{size.width}} 6" text="{{title}}" textcolor="{{colors.title_fg}}" halign="left" textfont="GameFontSemiBold" textsize="2" valign="center2"/>
-        <label pos="{{size.width -5}} -3" z-index="2" size="7 6" halign="center" valign="center2" action="{{actions.close}}" text="$n$ox" focusareacolor1="{{colors.title_bg}}" focusareacolor2="d00"/>
-        <quad pos="0 -3" size="{{size.width}} 6" valign="center" z-index="-1" bgcolor="{{colors.title_bg}}" opacity="1" />
-        <frame pos="4 -8" z-index="2">
-        {% block content %} {% endblock %}
+        <quad pos="0 0" z-index="1" size="{{size.width / 3.5}} 4" bgcolor="{{colors.title_bg}}" halign="left" valign="bottom"/>
+        <label pos="2 2" z-index="2" size="{{size.width / 3.5}} 4" text="{{title}}" textsize="1.5" valign="center2" textcolor="{{colors.title_fg}}" textfont="RobotoCondensedBold"/>
+        <label pos="{{size.width - 4.5}} 2" z-index="2" size="9 4" halign="center" valign="center2" action="{{actions.close}}" text="$n$ox" focusareacolor1="000" focusareacolor2="d00"/>
+        <quad pos="-0.5 2" z-index="1" size="0.2 6" bgcolor="fff" opacity="1" halign="left" valign="top"/>
+        <quad pos="-2.5 0" z-index="1" size="{{size.width / 4}} 0.2" bgcolor="fff" opacity="1" valign="center" halign="left"/>	
+        <quad pos="{{size.width}} -{{size.height + 2}}" z-index="1" size="0.2 6" bgcolor="fff" opacity="1" halign="left" valign="bottom"/>
+        <quad pos="{{size.width + 2}} -{{size.height}}" z-index="1" size="{{size.width / 4}} 0.2" bgcolor="fff" opacity="1" valign="center" halign="right"/>	
+
+        <frame pos="4 -4" z-index="2">
+            {% block content %} {% endblock %}
         </frame>
-        <quad pos="0 -6" z-index="0" size="{{size.width}} {{size.height}}" bgcolor="{{colors.bg}}"/>
+        <quad pos="0 0" z-index="0" size="{{size.width}} {{size.height}}" bgcolor="{{colors.bg}}" opacity="0.97" />
+        <quad />
     </frame>
 {% endblock %}

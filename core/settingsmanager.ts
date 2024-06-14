@@ -8,8 +8,8 @@ export default class SettingsManager {
         white: "fff",
         black: "000",
         title_fg: "eef",
-        title_bg: "112", //27f
-        bg: "334",
+        title_bg: "000", //27f
+        bg: "222",
         cmd: "fd0",
         info: "5bf",
         rec: "2e0",
@@ -18,7 +18,7 @@ export default class SettingsManager {
         error: "f00",
         gray: "abc",
         button: "778",
-        button_hover: "27f",
+        button_hover: "f90",
     };
     admins: string[] = [];
     masterAdmins: string[] = (process.env.ADMINS || "").split(",").map((a) => a.trim());
