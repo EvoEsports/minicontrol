@@ -142,16 +142,15 @@ export default class Maps extends Plugin {
         }
     }
 
-
     async cmdMaps(login: any, params: string[]) {
         const window = new MapsWindow(login, params);
-        window.size = { width: 160, height: 105 };
+        window.size = { width: 125, height: 95 };
         window.setColumns([
             { key: "Index", title: "#", width: 4 },
-            { key: "Name", title: "Name", width: 50, action: "Queue" },
-            { key: "Author", title: "Author", width: 30 },
-            { key: "Environnement", title: "Environment", width: 25 },
-            { key: "GoldTime", title: "Gold Time", width: 25 }
+            { key: "Name", title: "Name", width: 40, action: "Queue" },
+            { key: "Author", title: "Author", width: 40 },
+            // { key: "Environnement", title: "Environment", width: 25 },
+            { key: "AuthorTime", title: "Author Time", width: 20}
         ]);
         window.title = "Maps [" + tmc.maps.getMapCount() + "]";
         if (tmc.admins.includes(login)) {

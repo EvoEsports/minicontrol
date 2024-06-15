@@ -175,7 +175,12 @@ export default class Server {
      * @returns 
      */
     async callScript(method: string, ...args: any) {
-        return await this.gbx.callScript(method, ...args);
+        return this.gbx.callScript(method, ...args);
+    }
+ 
+    /** perform multicall */
+    async multicall(methods: any[]) {
+        return this.gbx.multicall(methods);
     }
 
     /**

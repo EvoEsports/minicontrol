@@ -1,4 +1,4 @@
-import { clone } from "./utils";
+import { chunkArray, clone } from "./utils";
 
 export interface Map {
     UId: string;
@@ -61,9 +61,21 @@ class MapManager {
      */
     async syncMaplist() {
         this.maps = {};
-        const serverMaps = await tmc.server.call("GetMapList", -1, 0);
-        for (const map of serverMaps) {
-            this.maps[map.UId] = map;
+        const chunckedMaps: any = chunkArray(await tmc.server.call("GetMapList", -1, 0), 100);
+
+        for (const infos of chunckedMaps) {
+            let out = [];
+            
+            for (const map of infos) {
+                out.push(["GetMapInfo", map.FileName]);
+            }
+
+            let res = await tmc.server.multicall(out) || [];
+            
+            for (const map of res) {
+                this.maps[map.UId] = map;
+            }
+
         }
     }
     /**

@@ -7,14 +7,14 @@
         {% set keyy = "" %}
         {% for column in data.columns %}
             {% set keyy = "title_" ~ loop.index0 %}
-            <label pos="{{ posx }} -2" z-index="2" size="{{column.width}} 5" textfont="RobotoCondensedBold" text=" ${{ colors.title_fg }}{{ column.title }}" halign="left" textsize="1.5" valign="center2" focusareacolor1="{{colors.title_bg}}" focusareacolor2="{{colors.bg_light}}" action="{{actions[keyy]}}"/>
-         <!--   <quad pos="{{ posx }} -2" z-index="0" size="{{ column.width }} 5" bgcolor="{{ colors.title_bg }}" valign="center2" action="{{actions[keey]}}"/>  -->
+            <label pos="{{ posx }} -2" z-index="2" size="{{column.width}} 5" textfont="RobotoCondensedBold" text=" ${{ colors.title_fg }}{{ column.title }}" halign="left" textsize="1.5" valign="center2" focusareacolor1="0000" focusareacolor2="{{colors.button_bg_hover}}" action="{{actions[keyy]}}"/>
+            <quad pos="{{ posx }} -4.5" z-index="3" size="{{ column.width }} .2" bgcolor="{{ colors.white }}" valign="bottom" /> 
             {% set posx = (posx + column.width ) %}
             {% set totalWidth = totalWidth + data.columns[loop.index0].width + 1 %}
         {% endfor %}
         {% if data.listActions %}
-            <label pos="{{ posx }} -2" z-index="1" size="{{ 14 * data.listActions|length }} 5" textfont="RobotoCondensedBold" text="  Actions" halign="left" textsize="1.5" valign="center2" focusareacolor1="{{ colors.title_bg}}" />
-            <quad pos="{{ posx }} -2" z-index="0" size="{{ 14 * data.listActions|length }} 5" bgcolor="{{ colors.title_bg }}" valign="center2"/>
+            <label pos="{{ posx }} -2" z-index="1" size="{{ 14 * data.listActions|length }} 5" textfont="RobotoCondensedBold" text="  Actions" halign="left" textsize="1.5" valign="center2" focusareacolor1="0000" />
+            <quad pos="{{ posx }} -4.5" z-index="0" size="{{ 14 * data.listActions|length }} 0.2" bgcolor="{{ colors.white }}" valign="bottom"/> -->
             {% set totalWidth = totalWidth + 14 * data.listActions|length %}
         {% endif %}
         <!-- <quad pos="-2 -4" z-index="0" size="{{ totalWidth }} 0.2" bgcolor="eee" valign="center2"/> -->
@@ -28,15 +28,15 @@
                         {% else %}
                             {%  if column.action is defined %}
                                 {% set key = "item_" ~ column.action ~ "_" ~ item.index %}
-                                <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" textfont="RobotoCondensed" text=" {{ item[column.key] }}" halign="left" textsize="1.5" valign="center2" focusareacolor1="0000" focusareacolor2="fff3" action="{{ actions[key] }}"/>
+                                <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" textfont="RobotoCondensed" text=" {{ item[column.key] }}" halign="left" textsize="1.5" valign="center2" focusareacolor1="0000" focusareacolor2="{{colors.button_bg_hover}}" action="{{ actions[key] }}"/>
                             {% else %}
                                 <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" textfont="RobotoCondensed" text=" {{ item[column.key] }}" halign="left" textsize="1.5" valign="center2"/>
                             {% endif %}
                         {% endif %}
                         {% if (item.index % 2) == 0 %}
-                            <quad pos="{{ posx }} -2" z-index="0" size="{{ column.width }} 5" bgcolor="3455" valign="center2"/>
+                            <quad pos="{{ posx }} -2" z-index="0" size="{{ column.width }} 5" bgcolor="{{colors.window_bg}}9" valign="center2"/>
                         {% else %}
-                            <quad pos="{{ posx }} -2" z-index="0" size="{{ column.width }} 5" bgcolor="0005" valign="center2"/>
+                            <quad pos="{{ posx }} -2" z-index="0" size="{{ column.width }} 5" bgcolor="{{colors.window_bg_dark}}9" valign="center2"/>
                         {% endif %}
                         {% set posx = (posx + column.width ) %}
                 {% endfor %}
@@ -47,7 +47,7 @@
                         text="{{action}}" textsize="1" 
                         valign="center2" halign="center"
                         textfont="RobotoCondensed"
-                        focusareacolor1="{{colors.button}}" focusareacolor2="{{colors.button_hover}}" 
+                        focusareacolor1="{{colors.button_bg}}" focusareacolor2="{{colors.button_bg_hover}}" textcolor="{{colors.button_text}}"
                         action="{{ actions[key] }}" />
                         {% set posx = (posx + 13) %}                    
                 {% endfor %}
@@ -65,8 +65,8 @@
     
     {% if actions.apply is defined %}
     <frame  pos="{{ (size.width) -6}} -{{ size.height - 7}}" z-index="2">
-        <label pos="-21 0" z-index="1" size="12 5" text="Apply" textsize="1.2" valign="center2" halign="center" focusareacolor1="{{colors.button}}" focusareacolor2="{{colors.button_hover}}" action="{{ actions.apply }}" />
-        <label pos="-7 0" z-index="1" size="12 5" text="Cancel" textsize="1.2" valign="center2" halign="center" focusareacolor1="{{colors.button}}" focusareacolor2="{{colors.button_hover}}" action="{{ actions.close }}" />
+        <label pos="-21 0" z-index="1" size="12 5" text="Apply" textsize="1.2" valign="center2" halign="center" focusareacolor1="{{colors.button_bg}}" focusareacolor2="{{colors.button_bg_hover}}" textcolor="{{colors.button_text}}" action="{{ actions.apply }}" />
+        <label pos="-7 0" z-index="1" size="12 5" text="Cancel" textsize="1.2" valign="center2" halign="center" focusareacolor1="{{colors.button_bg}}" focusareacolor2="{{colors.button_bg_hover}}" textcolor="{{colors.button_text}}" action="{{ actions.close }}" />
     </frame>
     {% endif %}
 {% endblock %}

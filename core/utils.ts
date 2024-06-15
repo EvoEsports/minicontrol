@@ -18,11 +18,24 @@ export function processColorString(str: string, prefix: string = ""): string {
     }
     return str;
 }
+export function chunkArray<T>(array: T[], chunkSize: number): T[][] {
+    const chunks = Array.from({ length: Math.ceil(array.length / chunkSize) }, (_, index) =>
+        array.slice(index * chunkSize, (index + 1) * chunkSize)
+    );
+    return chunks;
+}
 
 export function modLightness(color: string, percent: number) {
-    const c = (str: string) => (parseInt(str, 16) * 17) / 255;
-    const [r, g, b] = color.split("");
-    const [h, s, l] = rgb2hsl(c(r), c(g), c(b));
+    let [h, s, l] = [0, 0, 0];
+
+    if (color.length == 3) {
+        const c = (str: string) => (parseInt(str, 16) * 17) / 255;
+        let [r, g, b] = color.split("");
+        [h, s, l] = rgb2hsl(c(r), c(g), c(b));
+    } else {
+        let [r, g, b] = color.matchAll(/[0-9a-f]{2}/gi);
+        [h, s, l] = rgb2hsl(parseInt(r[0], 16) / 255, parseInt(g[0], 16) / 255, parseInt(b[0], 16) / 255);
+    }
     let newL = l + (percent / 100);
     if (newL > 1) newL = 1.;
     if (newL < 0) newL = 0.;
