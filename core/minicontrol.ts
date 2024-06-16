@@ -30,7 +30,7 @@ class MiniControl {
      * The version of MiniControl.
      */
     readonly brand: string = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
-    readonly version: string = "0.3.6";
+    readonly version: string = "0.3.7";
     /**
      * The start time of MiniControl.
      */
@@ -356,17 +356,25 @@ class MiniControl {
             let include = false;
             const plugin = plugins[i];
             include = plugin && plugin.isDirectory();
+            const path = plugin.path.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
+            let pluginName = plugin.name.replaceAll("\\", "/");
+            if (path != "") {
+                pluginName = (path.substring(1) +"/"+ plugin.name).replaceAll("\\", "/");
+            }
+         
             for (const excludeName of exclude) {
                 if (excludeName == "") continue;
-                if (plugin.name.replaceAll("\\", "/").startsWith(excludeName.trim())) {
+                if (pluginName.replaceAll("\\", "/").startsWith(excludeName.trim())) {
                     include = false;
                     break;
                 }
             }
+            
             if (include) {
-                loadList.push(plugin.name.replaceAll("\\", "/"));
+                loadList.push(pluginName);        
             }
         }
+
         // load metadata
         for (const name of loadList) {
             const pluginName = process.cwd() + "/" + this.findPlugin(name)
