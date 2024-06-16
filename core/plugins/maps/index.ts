@@ -19,7 +19,7 @@ export default class Maps extends Plugin {
     queue: Map[] = [];
 
     async onLoad() {
-        tmc.addCommand("/maps", this.cmdMaps.bind(this), "Display maps list");
+       // tmc.addCommand("/maps", this.cmdMaps.bind(this), "Display maps list");
         tmc.addCommand("/list", this.cmdMaps.bind(this), "Display maps list");
         tmc.addCommand("/addqueue", this.cmdQueue.bind(this), "Add Map to queue");
         tmc.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");

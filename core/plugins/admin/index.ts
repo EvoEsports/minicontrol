@@ -147,7 +147,7 @@ export default class AdminPlugin extends Plugin {
                     map = tmc.maps.getMaplist().find((m: any) => m.UId == params[0]);
                 }
                 if (map) {
-                    tmc.chat(`¤info¤Jumped to ¤white¤${map.Name}¤info¤ by ¤white¤${map.AuthorNickName ? map.AuthorNickName : map.Author}`);
+                    tmc.chat(`¤info¤Jumped to ¤white¤${map.Name}¤info¤ by ¤white¤${map.AuthorNickname ? map.AuthorNickname : map.Author}`);
                     await tmc.server.call("ChooseNextMap", map.FileName);
                     tmc.server.send("NextMap");
                 } else {
