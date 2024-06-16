@@ -1,4 +1,6 @@
+import ListWindow from "./ui/listwindow";
 import { sleep } from "./utils";
+import fs from 'fs';
 
 export interface ChatCommand {
     trigger: string;
@@ -41,6 +43,7 @@ export default class CommandManager {
             tmc.chat(`MiniController version: ${tmc.version}`, login);
         }, "Display server versions");
         this.addCommand("//shutdown", async () => { process.exit() }, "Close MINIcontroller");
+        this.addCommand("//plugins", this.cmdPluginManager.bind(this), "Open plugin manager");
         this.addCommand("//plugin", async (login: string, args: string[]) => {
             if (args.length < 1) {
                 tmc.chat("Valid options are: list, load, unload, reload", login);
@@ -158,13 +161,64 @@ export default class CommandManager {
         }, "Manage admins");
     }
 
+
+    async cmdPluginManager(login: string, args: string[]) {
+        const window = new PluginManagerWindow(login);
+        window.size = { width: 160, height: 95 };
+        window.title = "Plugins";
+        let out = [];
+        let all = [];
+        let diff = [];
+        let plugins = fs.readdirSync("./core/plugins", { withFileTypes: true, recursive: true });
+        plugins = plugins.concat(fs.readdirSync("./userdata/plugins", { withFileTypes: true, recursive: true }));
+
+        for (const i in plugins) {
+            const plugin = plugins[i];
+            if (plugin && plugin.isDirectory()) {
+                const name = plugin.name.replaceAll("\\", "/");
+                all.push(name);
+            }
+        }
+
+        for (const name of tmc.pluginDependecies.overallOrder()) {
+            diff.push(name);
+            const deps = tmc.pluginDependecies.dependenciesOf(name);
+            out.push({
+                pluginName: name,
+                depends: deps.join(", "),
+                active: tmc.plugins[name] ? "$0f0Yes" : "$f00No"
+            });
+        }
+
+        for (const name of all.filter((value) => !diff.includes(value))) {
+            out.push({
+                pluginName: name,
+                depends: "",
+                active: tmc.plugins[name] ? "$0f0Yes" : "$f00No"
+            });
+        }
+        out = out.sort((a: any, b: any) => {                        
+            return a.pluginName.localeCompare(b.pluginName);
+        });
+
+        window.setItems(out);
+        window.setColumns([
+            { key: "active", title: "Running", width: 25, action: "toggle" },
+            { key: "pluginName", title: "Plugin", width: 50 },
+            { key: "depends", title: "Dependencies", width: 50 }
+        ]);
+
+        await window.display();
+
+    }
+
+
     /**
      * @ignore
      */
     async afterInit() {
         tmc.server.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
     }
-
 
     /**
      * adds command to the command manager
@@ -234,5 +288,18 @@ export default class CommandManager {
         let text: string = data[2];
         await this.execute(login, text);
     }
+}
 
+class PluginManagerWindow extends ListWindow {
+    async onAction(login: string, action: string, item: any) {
+        if (action == "toggle") {
+            if (tmc.plugins[item.pluginName]) {
+                await tmc.chatCmd.execute(login, "//plugin unload " + item.pluginName);
+            } else {
+                await tmc.chatCmd.execute(login, "//plugin load " + item.pluginName);
+            }
+            await tmc.chatCmd.execute(login, "//plugins");
+            return;
+        }       
+    }
 }

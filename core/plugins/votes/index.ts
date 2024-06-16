@@ -30,7 +30,7 @@ export interface VoteStruct {
 }
 
 export default class VotesPlugin extends Plugin {
-    depends: string[] = [];
+    static depends: string[] = [];
     timeout: number = process.env.VOTE_TIMEOUT ? parseInt(process.env.VOTE_TIMEOUT) : 30;
     ratio: number = process.env.VOTE_RATIO ? parseFloat(process.env.VOTE_RATIO) : 0.55;
     currentVote: Vote | null = null;

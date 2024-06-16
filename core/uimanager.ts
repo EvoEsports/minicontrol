@@ -137,15 +137,15 @@ export default class UiManager {
      * @param str 
      * @returns 
      */
-    hash(str: string): string {
+    hash(str: string): number {
         let hash = 0;
-        if (str.length == 0) return hash.toString();
+        if (str.length == 0) return hash;
         for (let i = 0; i < str.length; i++) {
             let char = str.charCodeAt(i);
             hash = ((hash << 4) - hash) + char;
             hash |= 0;
         }
-        return hash.toString();
+        return hash;
     }
     /**
      * Add manialink action
@@ -157,13 +157,15 @@ export default class UiManager {
             const salt = Math.random().toString(36).substring(2, 12);
             return this.hash(salt);
         };
-        let hash = getHash();
-        if (this.actions[hash.toString()]) {
-            tmc.debug("¤error¤action already exists: ¤white¤" + hash + "¤white¤ trying again...");
-            hash = getHash();
-        }
-        const prefix = tmc.game.Name == "TmForever" ? "" : "tmc";
-        hash = prefix + hash;
+        let iHash = getHash();      
+        const prefix = tmc.game.Name == "TmForever" ? "" : "tmc"; 
+        if (this.actions[prefix + iHash.toString()]) {
+            while (this.actions[prefix + iHash.toString()]) {
+                tmc.debug("¤error¤action already exists: ¤white¤" + iHash + "¤white¤ increase and trying again...");            
+                iHash += 1;
+            }
+        }      
+        const hash = prefix + iHash.toString();
         this.actions[hash] = { callback: callback, data: data };
         tmc.debug("¤info¤Added action: ¤white¤" + hash + " ¤info¤total actions: ¤white¤" + Object.keys(this.actions).length.toString());
         return hash;

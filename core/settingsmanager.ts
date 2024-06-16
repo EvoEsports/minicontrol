@@ -6,19 +6,22 @@ export default class SettingsManager {
     settings: { [key: string]: any } = {};
     _defaultColors: { [key: string]: string } = {
         white: "fff",
+        gray: "abc",
         black: "000",
+        primary: "9f0",
+        secondary: "f90",
         title_fg: "eef",
-        title_bg: "112", //27f
-        bg: "334",
+        title_bg: "000",
+        button_text: "fff",
+        button_bg: "778",
+        button_bg_hover: "f90",        
+        window_bg: "2d2d31",
         cmd: "fd0",
         info: "5bf",
         rec: "2e0",
         success: "0f0",
         warning: "fa0",
         error: "f00",
-        gray: "abc",
-        button: "778",
-        button_hover: "27f",
     };
     admins: string[] = [];
     masterAdmins: string[] = (process.env.ADMINS || "").split(",").map((a) => a.trim());
@@ -32,10 +35,10 @@ export default class SettingsManager {
             const vari = "COLOR_" + color.toString().toUpperCase();
             this.colors[color] = process.env[vari] || this._defaultColors[color];
         }
-        this.colors['button_light'] = modLightness(this.colors['button'], 15);
-        this.colors['button_dark'] = modLightness(this.colors['button'], -15);
-        this.colors['bg_light'] = modLightness(this.colors['bg'], 5);
-        this.colors['bg_dark'] = modLightness(this.colors['bg'], -5);
+        this.colors['button_bg_light'] = modLightness(this.colors['button_bg'], 15);
+        this.colors['button_bg_dark'] = modLightness(this.colors['button_bg'], -15);
+        this.colors['window_bg_light'] = modLightness(this.colors['window_bg'], 5);
+        this.colors['window_bg_dark'] = modLightness(this.colors['window_bg'], -5);
 
         if (existsSync(import.meta.dir + "/../userdata/admins.json")) {
             try {

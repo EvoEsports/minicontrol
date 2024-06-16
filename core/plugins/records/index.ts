@@ -37,7 +37,7 @@ export class Record {
 }
 
 export default class Records extends Plugin {
-    depends: string[] = ["database"];
+    static depends: string[] = ["database"];
     db: BunSQLiteDatabase | null = null;
     records: Record[] = [];
     currentMapUid: string = "";
@@ -94,7 +94,7 @@ export default class Records extends Plugin {
                 });
         }
         const window = new RecordsWindow(login, this);
-        window.size = { width: 90, height: 105 };
+        window.size = { width: 90, height: 95 };
         window.title = `Server Records [${this.records.length}]`;
         window.setItems(records);
         window.setColumns([

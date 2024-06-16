@@ -3,7 +3,7 @@ import Widget from 'core/ui/widget';
 import { formatTime, escape } from 'core/utils';
 
 export default class DedimaniaWidget extends Plugin {
-    depends: string[] = ["tmnf/dedimania"];
+    static depends: string[] = ["tmnf/dedimania"];
     widget: Widget | null = null;
 
     async onLoad() {

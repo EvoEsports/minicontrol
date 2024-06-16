@@ -58,7 +58,7 @@ export default class Server {
                 }
             }
             if (outmethod == "Trackmania.Event.GiveUp") {
-                this.events.emit("TMC.PlayerGiveup");
+                this.events.emit("TMC.PlayerGiveup", [params.login]);
                 return;
             }
             if (process.env.DEBUG == "true") {
@@ -175,7 +175,12 @@ export default class Server {
      * @returns 
      */
     async callScript(method: string, ...args: any) {
-        return await this.gbx.callScript(method, ...args);
+        return this.gbx.callScript(method, ...args);
+    }
+ 
+    /** perform multicall */
+    async multicall(methods: any[]) {
+        return this.gbx.multicall(methods);
     }
 
     /**

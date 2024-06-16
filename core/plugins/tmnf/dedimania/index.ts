@@ -16,7 +16,7 @@ export interface DediRecord {
 }
 
 export default class Dedimania extends Plugin {
-    depends: string[] = ["game:TmForever"];
+    static depends: string[] = ["game:TmForever"];
     enabled: boolean = false;
     maxRank: number = 30;
     api: Api = new Api();
@@ -88,7 +88,7 @@ export default class Dedimania extends Plugin {
                 });
         }
         const window = new ListWindow(login);
-        window.size = { width: 90, height: 105 };
+        window.size = { width: 90, height: 95 };
         window.title = "Dedimania Records [" + this.records.length + "]";
         window.setItems(records);
         window.setColumns([

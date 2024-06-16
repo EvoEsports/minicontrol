@@ -53,7 +53,7 @@ export default class FunCommands extends Plugin {
         await tmc.server.call(`Kick`, login, `rage quit.`);;
     }
     async command_bwoah(login: string, data: any) {
-        tmc.chat(`$o$i$f00B$f30W$f50O$f70A$f80H$f90!$fa0!$`);
+        tmc.chat(`$o$i$f00B$f30W$f50O$f70A$f80H$f90!$fa0!`);
     }
     async command_gg(login: string, data: any) {
         const player = await tmc.getPlayer(login);

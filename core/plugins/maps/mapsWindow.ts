@@ -20,8 +20,8 @@ export default class MapsWindow extends ListWindow {
                     Object.assign(map, {
                         Index: i++,
                         Name: escape(map.Name),
-                        Author: map.AuthorNickname || map.Author,
-                        GoldTime: formatTime(map.GoldTime),
+                        Author: map.AuthorNickname || map.Author || "",
+                        AuthorTime: formatTime(map.AuthorTime || map.GoldTime),
                     })
                 );
             }

@@ -1,14 +1,16 @@
-import { castType, escape } from "core/utils";
+import { castType, escape, removeColors } from "core/utils";
 import ModeSettingsWindow from "./ModeSettingsWindow";
 import Plugin from "core/plugins";
 import fs from "fs";
 import LocalMapsWindow from "./LocalMapsWindow";
+import PlayerListsWindow from "./PlayerListsWindow";
+import Tmx from "../tmx";
 
 export default class AdminPlugin extends Plugin {
 
     async onLoad() {
         if (tmc.game.Name != "TmForever") {
-            tmc.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");          
+            tmc.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");
         }
         tmc.addCommand("//skip", async () => await tmc.server.call("NextMap"), "Skips Map");
         tmc.addCommand("//res", async () => await tmc.server.call("RestartMap"), "Restarts Map");
@@ -145,7 +147,7 @@ export default class AdminPlugin extends Plugin {
                     map = tmc.maps.getMaplist().find((m: any) => m.UId == params[0]);
                 }
                 if (map) {
-                    tmc.chat(`¤info¤Jumped to ¤white¤${map.Name}¤info¤ by ¤white¤${map.AuthorNickName ? map.AuthorNickName : map.Author}`);
+                    tmc.chat(`¤info¤Jumped to ¤white¤${map.Name}¤info¤ by ¤white¤${map.AuthorNickname ? map.AuthorNickname : map.Author}`);
                     await tmc.server.call("ChooseNextMap", map.FileName);
                     tmc.server.send("NextMap");
                 } else {
@@ -259,9 +261,9 @@ export default class AdminPlugin extends Plugin {
             }
             if (!params[1]) {
                 return tmc.chat(`¤cmd¤//modecommand ${params[0]} ¤info¤needs a parameter`, login);
-            }            
-            const outCommand: any = {};                        
-            outCommand["Command_"+params[0]] = castType(params[1]);
+            }
+            const outCommand: any = {};
+            outCommand["Command_" + params[0]] = castType(params[1]);
 
             try {
                 await tmc.server.call("SendModeScriptCommands", outCommand);
@@ -269,6 +271,8 @@ export default class AdminPlugin extends Plugin {
                 tmc.chat("¤error¤" + err.message, login);
             }
         }, "Send mode command");
+        tmc.addCommand("//guestlist", this.cmdGuestlist.bind(this), "Manage Guestlist");
+        tmc.addCommand("//blacklist", this.cmdBlacklist.bind(this), "Manage Blacklist");
 
     }
 
@@ -301,6 +305,8 @@ export default class AdminPlugin extends Plugin {
         }
         tmc.removeCommand("//addlocal");
         tmc.removeCommand("//modecommand");
+        tmc.removeCommand("//guestlist");
+        tmc.removeCommand("//blacklist");
     }
 
     async onStart(): Promise<void> {
@@ -351,7 +357,7 @@ export default class AdminPlugin extends Plugin {
 
     async cmdModeSettings(login: string, args: string[]) {
         const window = new ModeSettingsWindow(login);
-        window.size = { width: 160, height: 105 };
+        window.size = { width: 160, height: 95 };
         window.title = "Mode Settings";
         const settings = await tmc.server.call("GetModeScriptSettings");
         let out = [];
@@ -376,7 +382,7 @@ export default class AdminPlugin extends Plugin {
         if (args.length < 1) {
             const window = new LocalMapsWindow(login);
             window.title = "Add Local Maps";
-            window.size = { width: 175, height: 105 };
+            window.size = { width: 175, height: 95 };
             let out = [];
             for (let file of fs.readdirSync(tmc.mapsPath, { withFileTypes: true, recursive: true, encoding: "utf8" })) {
                 if (file.name.toLowerCase().endsWith(".gbx")) {
@@ -426,4 +432,121 @@ export default class AdminPlugin extends Plugin {
         }
         tmc.chat(`Set ${setting} to ${value}`, login);
     }
+
+    async cmdGuestlist(login: string, args: string[]) {
+        if (args.length < 1) {
+            tmc.chat("Usage: ¤cmd¤//guestlist ¤white¤add <login>,remove <login>, show, list", login);
+            return;
+        }
+        switch (args[0]) {
+            case "add":
+                {
+                    try {
+                        if (!args[1]) return tmc.chat("¤error¤Missing madatory argument: <login>", login);
+                        await tmc.server.call("LoadGuestList", "guestlist.txt");
+                        const res = await tmc.server.call("AddGuest", args[1]);
+                        if (!res) return tmc.chat(`¤error¤Unable to add ¤white¤${args[1]}¤error¤ as guest.`, login);
+                        tmc.server.send("SaveGuestList", "guestlist.txt");
+                        return tmc.chat(`¤info¤Guest added: ¤white¤${args[1]}`, login);
+                    }
+                    catch (e: any) {
+                        tmc.chat(`¤error¤${e.message}`, login);
+                        return;
+                    }
+                }
+            case "remove":
+                {
+                    try {
+                        if (!args[1]) return tmc.chat("¤error¤Missing madatory argument: <login>", login);
+                        await tmc.server.call("LoadGuestList", "guestlist.txt");
+                        const res = await tmc.server.call("RemoveGuest", args[1]);
+                        if (!res) return tmc.chat(`¤error¤Unable to remove ¤white¤${args[1]}¤error¤ as guest.`, login);
+                        tmc.server.send("SaveGuestList", "guestlist.txt");
+                        return tmc.chat(`¤info¤Guest removed: ¤white¤${args[1]}`, login);
+                    }
+                    catch (e: any) {
+                        tmc.chat(`¤error¤${e.message}`, login);
+                        return;
+                    }
+                }
+            case "show":
+            case "list":
+                {
+                    const window = new PlayerListsWindow(login);
+                    window.title = "Guestlist";
+                    window.size = { width: 175, height: 95 };
+                    window.setItems(await tmc.server.call("GetGuestList", -1, 0));
+                    window.setColumns([
+                        { key: "Login", title: "Login", width: 100 },
+
+                    ]);
+                    window.setActions(["RemoveGuest"]);
+                    await window.display();
+                    return;
+                }
+            default: {
+                tmc.chat("Usage: ¤cmd¤//guestlist ¤white¤add <login>,remove <login>, show, list", login);
+                return;
+            }
+        }
+    }
+
+    async cmdBlacklist(login: string, args: string[]) {
+        if (args.length < 1) {
+            tmc.chat("Usage: ¤cmd¤//blacklist ¤white¤add <login>,remove <login>, show, list", login);
+            return;
+        }
+        switch (args[0]) {
+            case "add":
+                {
+                    try {
+                        if (!args[1]) return tmc.chat("¤error¤Missing madatory argument: <login>", login);
+                        await tmc.server.call("LoadBlackList", "blacklist.txt");
+                        const res = await tmc.server.call("BlackList", args[1]);
+                        if (!res) return tmc.chat(`¤error¤Unable to add ¤white¤${args[1]}¤error¤ as guest.`, login);
+                        tmc.server.send("SaveBlackList", "blacklist.txt");
+                        return tmc.chat(`¤info¤Added to blacklist: ¤white¤${args[1]}`, login);
+                    }
+                    catch (e: any) {
+                        tmc.chat(`¤error¤${e.message}`, login);
+                        return;
+                    }
+                }
+            case "remove":
+                {
+                    try {
+                        if (!args[1]) return tmc.chat("¤error¤Missing madatory argument: <login>", login);
+                        await tmc.server.call("LoadBlackList", "blacklist.txt");
+                        const res = await tmc.server.call("UnBlackList", args[1]);
+                        if (!res) return tmc.chat(`¤error¤Unable to remove ¤white¤${args[1]}¤error¤ from blacklist`, login);
+                        tmc.server.send("SaveBlackList", "blacklist.txt");
+                        return tmc.chat(`¤info¤Blacklist removed: ¤white¤${args[1]}`, login);
+                    }
+                    catch (e: any) {
+                        tmc.chat(`¤error¤${e.message}`, login);
+                        return;
+                    }
+                }
+            case "show":
+            case "list":
+                {
+                    const window = new PlayerListsWindow(login);
+                    window.title = "Blacklist";
+                    window.size = { width: 175, height: 95 };
+                    window.setItems(await tmc.server.call("GetBlackList", -1, 0));
+                    window.setColumns([
+                        { key: "Login", title: "Login", width: 100 },
+
+                    ]);
+                    window.setActions(["RemoveBan"]);
+                    await window.display();
+                    return;
+                }
+            default: {
+                tmc.chat("Usage: ¤cmd¤//blacklist ¤white¤add <login>,remove <login>, show, list", login);
+                return;
+            }
+        }
+    }
+
 }

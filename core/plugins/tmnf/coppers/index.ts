@@ -9,7 +9,7 @@ interface BillState {
 }
 
 export default class tmnf_coppers extends Plugin {
-    depends: string[] = ["game:TmForever"];
+    static depends: string[] = ["game:TmForever"];
     billStates: { [key: number]: BillState } = {};
 
     async onLoad() {
