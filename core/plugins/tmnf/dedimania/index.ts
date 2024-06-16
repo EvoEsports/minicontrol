@@ -88,7 +88,7 @@ export default class Dedimania extends Plugin {
                 });
         }
         const window = new ListWindow(login);
-        window.size = { width: 90, height: 105 };
+        window.size = { width: 90, height: 95 };
         window.title = "Dedimania Records [" + this.records.length + "]";
         window.setItems(records);
         window.setColumns([

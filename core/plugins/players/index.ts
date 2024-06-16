@@ -25,7 +25,7 @@ export default class Players extends Plugin {
 
     async cmdPlayers(login: any, args: string[]) {
         const window = new PlayerWindow(login);
-        window.size = { width: 185, height: 105 };
+        window.size = { width: 185, height: 95 };
         window.title = "Players";
         window.setItems(tmc.players.get());
         window.setColumns([

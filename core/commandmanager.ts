@@ -164,7 +164,7 @@ export default class CommandManager {
 
     async cmdPluginManager(login: string, args: string[]) {
         const window = new PluginManagerWindow(login);
-        window.size = { width: 160, height: 105 };
+        window.size = { width: 160, height: 95 };
         window.title = "Plugins";
         let out = [];
         let all = [];

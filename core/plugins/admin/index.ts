@@ -357,7 +357,7 @@ export default class AdminPlugin extends Plugin {
 
     async cmdModeSettings(login: string, args: string[]) {
         const window = new ModeSettingsWindow(login);
-        window.size = { width: 160, height: 105 };
+        window.size = { width: 160, height: 95 };
         window.title = "Mode Settings";
         const settings = await tmc.server.call("GetModeScriptSettings");
         let out = [];
@@ -382,7 +382,7 @@ export default class AdminPlugin extends Plugin {
         if (args.length < 1) {
             const window = new LocalMapsWindow(login);
             window.title = "Add Local Maps";
-            window.size = { width: 175, height: 105 };
+            window.size = { width: 175, height: 95 };
             let out = [];
             for (let file of fs.readdirSync(tmc.mapsPath, { withFileTypes: true, recursive: true, encoding: "utf8" })) {
                 if (file.name.toLowerCase().endsWith(".gbx")) {
@@ -474,7 +474,7 @@ export default class AdminPlugin extends Plugin {
                 {
                     const window = new PlayerListsWindow(login);
                     window.title = "Guestlist";
-                    window.size = { width: 175, height: 105 };
+                    window.size = { width: 175, height: 95 };
                     window.setItems(await tmc.server.call("GetGuestList", -1, 0));
                     window.setColumns([
                         { key: "Login", title: "Login", width: 100 },
@@ -532,7 +532,7 @@ export default class AdminPlugin extends Plugin {
                 {
                     const window = new PlayerListsWindow(login);
                     window.title = "Blacklist";
-                    window.size = { width: 175, height: 105 };
+                    window.size = { width: 175, height: 95 };
                     window.setItems(await tmc.server.call("GetBlackList", -1, 0));
                     window.setColumns([
                         { key: "Login", title: "Login", width: 100 },
