@@ -157,12 +157,14 @@ export default class UiManager {
             const salt = Math.random().toString(36).substring(2, 12);
             return this.hash(salt);
         };
-        let iHash = getHash();        
-        while (this.actions[iHash.toString()]) {
-            tmc.debug("¤error¤action already exists: ¤white¤" + iHash + "¤white¤ increase and trying again...");            
-            iHash += 1;
-        }
-        const prefix = tmc.game.Name == "TmForever" ? "" : "tmc";
+        let iHash = getHash();      
+        const prefix = tmc.game.Name == "TmForever" ? "" : "tmc"; 
+        if (this.actions[prefix + iHash.toString()]) {
+            while (this.actions[prefix + iHash.toString()]) {
+                tmc.debug("¤error¤action already exists: ¤white¤" + iHash + "¤white¤ increase and trying again...");            
+                iHash += 1;
+            }
+        }      
         const hash = prefix + iHash.toString();
         this.actions[hash] = { callback: callback, data: data };
         tmc.debug("¤info¤Added action: ¤white¤" + hash + " ¤info¤total actions: ¤white¤" + Object.keys(this.actions).length.toString());
