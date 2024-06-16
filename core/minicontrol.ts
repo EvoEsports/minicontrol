@@ -348,8 +348,8 @@ class MiniControl {
     async beforeInit() {
         await this.chatCmd.beforeInit();
         // load plugins
-        let plugins = fs.readdirSync("./core/plugins", { withFileTypes: true, recursive: true });
-        plugins = plugins.concat(fs.readdirSync("./userdata/plugins", { withFileTypes: true, recursive: true }));
+        let plugins = fs.readdirSync(process.cwd() + "/core/plugins", { withFileTypes: true, recursive: true });
+        plugins = plugins.concat(fs.readdirSync(process.cwd() + "/userdata/plugins", { withFileTypes: true, recursive: true }));
         const exclude = process.env.EXCLUDED_PLUGINS?.split(",") || [];
         let loadList = [];
         for (const i in plugins) {
@@ -367,10 +367,15 @@ class MiniControl {
                 loadList.push(plugin.name.replaceAll("\\", "/"));
             }
         }
-
         // load metadata
         for (const name of loadList) {
-            const cls = await import(process.cwd() + "/" + this.findPlugin(name));
+            const pluginName = process.cwd() + "/" + this.findPlugin(name)
+            if (pluginName == null) {
+                const msg = `¤error¤Didn't find a plugin. resolved plugin name is null.`;
+                this.cli(msg);
+                continue;
+            }
+            const cls = await import(pluginName);
             const plugin = cls.default;
             if (plugin == undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;

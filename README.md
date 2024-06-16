@@ -17,3 +17,7 @@ See [documentation](./documentation/index.md) for more info!
 3. move `xaseco.sql` to `tools`
 5. run bun from Tools folder: `bun xaseco.ts xaseco.sql`
 6. start controller
+
+
+# Notes
+To build local docker image use: `docker build -t minicontrol:test -f docker/Dockerfile . `
