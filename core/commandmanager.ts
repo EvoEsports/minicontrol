@@ -169,14 +169,18 @@ export default class CommandManager {
         let out = [];
         let all = [];
         let diff = [];
-        let plugins = fs.readdirSync("./core/plugins", { withFileTypes: true, recursive: true });
-        plugins = plugins.concat(fs.readdirSync("./userdata/plugins", { withFileTypes: true, recursive: true }));
+        let plugins = fs.readdirSync(process.cwd() +"/core/plugins", { withFileTypes: true, recursive: true });
+        plugins = plugins.concat(fs.readdirSync(process.cwd() + "/userdata/plugins", { withFileTypes: true, recursive: true }));
 
         for (const i in plugins) {
             const plugin = plugins[i];
             if (plugin && plugin.isDirectory()) {
-                const name = plugin.name.replaceAll("\\", "/");
-                all.push(name);
+                const path = plugin.path.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
+                let pluginName = plugin.name.replaceAll("\\", "/");
+                if (path != "") {
+                    pluginName = (path.substring(1) +"/"+ plugin.name).replaceAll("\\", "/");
+                }
+                all.push(pluginName);
             }
         }
 
