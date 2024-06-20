@@ -1,4 +1,5 @@
 import Widget from './widget';
+import { escape } from 'core/utils';
 
 export default class Confirm extends Widget {
     template = "core/templates/confirm.twig";
@@ -12,7 +13,7 @@ export default class Confirm extends Widget {
         this.pos = { x: 0, y: 20, z: 10 };
         this.callback = callback;        
         this.params = params;        
-        this.data['question'] = question;
+        this.data['question'] = escape(question);
         this.actions['close'] = tmc.ui.addAction(this.hide.bind(this), "");
         this.actions['apply'] = tmc.ui.addAction(this.apply.bind(this), "");
     }

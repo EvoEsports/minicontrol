@@ -20,5 +20,5 @@ export default class RecordsWindow extends ListWindow {
     async applyCommand(login: string, item: any) {
         await this.app.deleteRecord(login, item);        
     }  
-    
+
 }
