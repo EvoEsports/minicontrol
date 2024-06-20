@@ -273,7 +273,7 @@ export default class AdminPlugin extends Plugin {
         }, "Send mode command");
         tmc.addCommand("//guestlist", this.cmdGuestlist.bind(this), "Manage Guestlist");
         tmc.addCommand("//blacklist", this.cmdBlacklist.bind(this), "Manage Blacklist");
-
+        tmc.addCommand("//togglemute", this.cmdToggleMute.bind(this), "Toggle Mute");
     }
 
     async onUnload() {
@@ -290,6 +290,7 @@ export default class AdminPlugin extends Plugin {
         tmc.removeCommand("//warmup");
         tmc.removeCommand("//ignore");
         tmc.removeCommand("//unignore");
+        tmc.removeCommand("//togglemute");
         tmc.removeCommand("//talimit");
         tmc.removeCommand("//jump");
         tmc.removeCommand("//wml");
@@ -413,6 +414,26 @@ export default class AdminPlugin extends Plugin {
             } catch (e: any) {
                 tmc.chat("Error: " + e.message, login);
             }
+        }
+    }
+    async cmdToggleMute(login: any, args: string[]) {
+        if (args.length < 1) {
+            tmc.chat("Usage: ¤cmd¤//togglemute ¤white¤<login>", login);
+            return;
+        }
+        try {
+            let ignores = await tmc.server.call("GetIgnoreList", 1000, 0);
+            for (const ignore of ignores) {
+                if (ignore.Login == args[0]) {
+                    tmc.server.send("UnIgnore", args[0]);
+                    tmc.chat(`¤info¤UnIgnoring ¤white¤${args[0]}`, login);
+                    return;
+                }
+            }
+            tmc.server.send("Ignore", args[0]);
+            tmc.chat(`¤info¤Ignoring ¤white¤${args[0]}`, login);
+        } catch (e: any) {
+            tmc.chat(e, login);
         }
     }
 
