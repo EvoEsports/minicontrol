@@ -352,38 +352,37 @@ class MiniControl {
         plugins = plugins.concat(fs.readdirSync(process.cwd() + "/userdata/plugins", { withFileTypes: true, recursive: true }));
         const exclude = process.env.EXCLUDED_PLUGINS?.split(",") || [];
         let loadList = [];
-        for (const i in plugins) {
-            let include = false;
-            const plugin = plugins[i];
-            include = plugin && plugin.isDirectory();
-            const path = plugin.path.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
-            let pluginName = plugin.name.replaceAll("\\", "/");
-            if (path != "") {
-                pluginName = (path.substring(1) +"/"+ plugin.name).replaceAll("\\", "/");
-            }
-         
-            for (const excludeName of exclude) {
-                if (excludeName == "") continue;
-                if (pluginName.replaceAll("\\", "/").startsWith(excludeName.trim())) {
-                    include = false;
-                    break;
+        for (const plugin of plugins) {
+            let include = plugin && plugin.isDirectory();
+                const path = plugin.path.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
+                if (include) {    
+                let pluginName = plugin.name.replaceAll("\\", "/");
+                if (path != "") {
+                    pluginName = (path.substring(1) + "/" + plugin.name).replaceAll("\\", "/");
+                }
+                for (const excludeName of exclude) {
+                    if (excludeName == "") continue;
+                    if (pluginName.replaceAll("\\", "/").startsWith(excludeName.trim())) {
+                        include = false;
+                        break;
+                    }
+                }
+                if (include) {
+                    loadList.push(pluginName);
                 }
             }
-            
-            if (include) {
-                loadList.push(pluginName);        
-            }
+
         }
 
         // load metadata
         for (const name of loadList) {
-            const pluginName = process.cwd() + "/" + this.findPlugin(name)
+            const pluginName = this.findPlugin(name);
             if (pluginName == null) {
                 const msg = `¤error¤Didn't find a plugin. resolved plugin name is null.`;
                 this.cli(msg);
                 continue;
             }
-            const cls = await import(pluginName);
+            const cls = await import(process.cwd() + "/" + pluginName);
             const plugin = cls.default;
             if (plugin == undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;

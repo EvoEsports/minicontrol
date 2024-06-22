@@ -205,7 +205,7 @@ export default class Dedimania extends Plugin {
                 newRecord = this.records[i];
             }
         }
-     
+
         tmc.server.emit("Plugin.Dedimania.onNewRecord",
             {
                 oldRecord: clone(oldRecord),
@@ -282,7 +282,7 @@ export default class Dedimania extends Plugin {
             this.getDedimaniaPlayers()
         );
         this.records = res.Records ?? [];
-        tmc.debug("Dedimania: Got records.");        
+        tmc.debug("Dedimania: Got records.");
         tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
     }
 
