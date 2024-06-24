@@ -4,18 +4,9 @@ import zlib from 'zlib';
 import Serializer from "xmlrpc/lib/serializer";
 // @ts-ignore
 import Deserializer from "xmlrpc/lib/deserializer";
-import { request, Agent } from 'http';
-import type { Socket } from "bun";
-
 
 export default class DedimaniaClient {
     sessionID = "";
-    agent = new Agent({
-        keepAlive: true,
-        maxSockets: 1,
-        keepAliveMsecs: 3000,
-    });
-    sockets: Socket[] = [];
 
     compress(body: string): Promise<Buffer> {
         return new Promise(function (resolve, reject) {
@@ -48,46 +39,7 @@ export default class DedimaniaClient {
             headers["Cookie"] = this.sessionID;
         }
 
-        const res: any = await new Promise((resolve, reject) => {
-            const req = request({
-                hostname: 'dedimania.net',
-                port: 8002,
-                path: '/Dedimania',
-                method: 'POST',
-                headers: headers,
-                agent: this.agent,
-            }, (response) => {
-                response.setEncoding('utf-8');
-                let recvData = '';
-                response.on('data', (chunk) => {
-                    recvData += chunk;
-                });
-                response.on('end', () => {
-                    resolve({ data: recvData, headers: response.headers });
-                });
-
-            });
-
-            req.on('error', function (e:any) {
-                console.log(e);
-                reject(e);
-            });
-
-            req.on("socket", (socket: any) => {
-                if (!this.sockets.includes(socket)) {
-                    console.log("new socket created");
-                    this.sockets.push(socket);
-                    socket.on("close", function () {
-                        console.log("socket has been closed");
-                    });
-                }
-            });
-
-            req.write(outData);
-            req.end();
-        });
-
-        /*const res = await fetch(url, {
+        const res = await fetch(url, {
             method: "POST",                       
             body: await this.compress(body),            
             headers: {
@@ -97,11 +49,11 @@ export default class DedimaniaClient {
             }, 
             keepalive: true,
             verbose: true
-        });*/
+        });
 
         if (method === "dedimania.Authenticate") {
-            if (res.headers['set-cookie'][0]) {
-                const header = res.headers['set-cookie'][0]?.split(";").map((x: string) => x.trim());
+            if (res.headers.getSetCookie()) {
+                const header = res.headers.getSetCookie()[0]?.split(";").map((x: string) => x.trim());
                 if (header) {
                     for (let cookie of header) {
                         if (cookie.startsWith("PHPSESSID")) {
@@ -111,7 +63,9 @@ export default class DedimaniaClient {
                 }
             }
         }
-        const data = res.data.replaceAll("<int></int>", "<int>-1</int>");
+
+        let data = await res.text();
+        data = data.replaceAll("<int></int>", "<int>-1</int>");
         const answer: any = await new Promise((resolve, reject) => {
             try {
                 const deserializer = new Deserializer();

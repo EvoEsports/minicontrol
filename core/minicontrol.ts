@@ -354,15 +354,16 @@ class MiniControl {
         let loadList = [];
         for (const plugin of plugins) {
             let include = plugin && plugin.isDirectory();
-                const path = plugin.path.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
-                if (include) {    
-                let pluginName = plugin.name.replaceAll("\\", "/");
-                if (path != "") {
-                    pluginName = (path.substring(1) + "/" + plugin.name).replaceAll("\\", "/");
+            const directory = plugin.path.replace(path.resolve("core", "plugins"), "").replace(path.resolve("userdata", "plugins"), "");
+            if (include) {
+                let pluginName = plugin.name;
+                if (directory != "") {
+                    pluginName = (directory + "/" + plugin.name).replaceAll("\\", "/");
+                    if (pluginName.startsWith("/")) pluginName = pluginName.substring(1);
                 }
                 for (const excludeName of exclude) {
                     if (excludeName == "") continue;
-                    if (pluginName.replaceAll("\\", "/").startsWith(excludeName.trim())) {
+                    if (pluginName.startsWith(excludeName.trim())) {
                         include = false;
                         break;
                     }
@@ -376,6 +377,7 @@ class MiniControl {
 
         // load metadata
         for (const name of loadList) {
+            console.log(name);
             const pluginName = this.findPlugin(name);
             if (pluginName == null) {
                 const msg = `¤error¤Didn't find a plugin. resolved plugin name is null.`;
