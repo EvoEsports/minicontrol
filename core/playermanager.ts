@@ -99,11 +99,11 @@ export default class PlayerManager {
     }
 
     /**
-     * get clone of players objects
+     * get players objects
      * @returns {Player[]} Returns clone of the current playerlist
      */
     get(): Player[] {
-        return clone(Object.values(this.players));
+        return Object.values(this.players);
     }
 
     /**
