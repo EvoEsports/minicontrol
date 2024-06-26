@@ -387,12 +387,8 @@ export default class AdminPlugin extends Plugin {
             let out = [];
             for (let file of fs.readdirSync(tmc.mapsPath, { withFileTypes: true, recursive: true, encoding: "utf8" })) {
                 if (file.name.toLowerCase().endsWith(".gbx")) {
-                    const split = escape(file.name.replaceAll(/[.](Map|Challenge)[.]Gbx/gi, "")).split(/[\\/]/);
-                    let name = split[split.length - 1];
-                    let path = "/";
-                    if (split.length > 1) {
-                        path = split.slice(0, split.length - 1).join("/") + "/";
-                    }
+                    let name = escape(file.name.replaceAll(/[.](Map|Challenge)[.]Gbx/gi, ""));
+                    let path = file.path.replace(tmc.mapsPath, "");
                     out.push({
                         Name: name,
                         Path: path
