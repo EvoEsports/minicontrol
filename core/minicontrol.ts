@@ -308,6 +308,7 @@ class MiniControl {
         if (this.startComplete) return;
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
         this.cli("¤info¤Starting MiniControl...");
+        this.cli(`¤info¤Using Bun ¤white¤${Bun.version}`);
         this.cli("¤info¤Connecting to Trackmania Dedicated server at ¤white¤" + (process.env.XMLRPC_HOST ?? "127.0.0.1") + ":" + port);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
         if (!status) {
@@ -377,7 +378,6 @@ class MiniControl {
 
         // load metadata
         for (const name of loadList) {
-            console.log(name);
             const pluginName = this.findPlugin(name);
             if (pluginName == null) {
                 const msg = `¤error¤Didn't find a plugin. resolved plugin name is null.`;
