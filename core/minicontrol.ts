@@ -366,14 +366,12 @@ class MiniControl {
                     if (excludeName == "") continue;
                     if (pluginName.startsWith(excludeName.trim())) {
                         include = false;
-                        break;
                     }
                 }
                 if (include) {
                     loadList.push(pluginName);
                 }
             }
-
         }
 
         // load metadata
@@ -413,8 +411,11 @@ class MiniControl {
                 }
             }
         }
+
         for (const plugin of this.pluginDependecies.overallOrder()) {
-            await this.loadPlugin(plugin)
+            if (loadList.includes(plugin)) {
+                await this.loadPlugin(plugin)
+            }
         }
 
         this.server.send("Echo", this.startTime, "MiniControl");

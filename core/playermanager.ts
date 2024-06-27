@@ -1,17 +1,48 @@
 import { sleep } from "bun";
 import { clone } from "./utils";
 
-// import casual from 'casual';
+interface PlayerRanking {
+    Path: string;
+    Score: number;
+    Ranking: number;
+    TotalCount: number;
+}
 
+interface Avatar {
+    FileName: string;
+    Checksum: string;
+}
+interface LadderStats {
+    LastMatchScore: number;
+    NbrMAtchWins: number;
+    NbrMatchDraws: number;
+    nbrMatchLosses: number;
+    TeamName: string;
+}
 /**
  * Player class
  */
 export class Player {
     login: string = "";
     nickname: string = "";
-    isSpectator: boolean = false;
+    playerId: number = -1;
     teamId: number = -1;
+    path = "";
+    language = "en";
+    clientVersion = "";
+    iPAddress = "";
+    downloadRate: number = -1;
+    uploadRate: number = -1;
+    isSpectator: boolean = false;
+    ladderRanking: number = 0;
+    ladderStats?: LadderStats;
+    avatar?: Avatar;
+    hoursSinceZoneInscription: number = -1;
+    /** 3 for united */
+    onlineRights = -1;
     isAdmin: boolean = false;
+    spectatorTarget: number = 0;
+    flags: number = 0;
     [key: string]: any; // Add index signature
 
     async syncFromDetailedPlayerInfo(data: any) {
@@ -20,6 +51,9 @@ export class Player {
             if (k == "nickName") {
                 k = "nickname";
                 data[key] = data[key].replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "");
+            }
+            if (k == "flags") {
+                this.spectatorTarget = Math.floor(data.Flags / 10000);
             }
             this[k] = data[key];
         }
@@ -58,15 +92,6 @@ export default class PlayerManager {
             if (data.PlayerId === 0) continue;
             await this.getPlayer(data.Login);
         }
-
-        // Generate mock players
-        /* for (let x = 0; x < 100; x++) {
-             const player = new Player();
-             player.login = "*Bot_"+casual.username;
-             player.nick = casual.full_name;
-             player.isSpectator = casual.coin_flip? true : false;
-             this.players.push(player);
-         } */
     }
 
     /**
@@ -81,8 +106,12 @@ export default class PlayerManager {
     private async onPlayerConnect(data: any) {
         await sleep(100);
         const login = data[0];
-        const player = await this.getPlayer(login);
-        tmc.server.emit("TMC.PlayerConnect", player);
+        if (login) {
+            const player = await this.getPlayer(login);
+            tmc.server.emit("TMC.PlayerConnect", player);
+        } else {
+            tmc.debug("¤error¤Unknown player tried to connect, ignored.");
+        }
     }
 
     /**
@@ -92,9 +121,11 @@ export default class PlayerManager {
      */
     private async onPlayerDisconnect(data: any) {
         const login = data[0];
-        if (this.players[login]) {
+        if (login && this.players[login]) {
             tmc.server.emit("TMC.PlayerDisconnect", clone(this.players[login]));
             delete this.players[login];
+        } else {
+            tmc.debug("¤Error¤Unknown player tried to disconnect or player not found at server. ignored.")
         }
     }
 
@@ -125,7 +156,7 @@ export default class PlayerManager {
      */
     async getPlayer(login: string): Promise<Player> {
         if (this.players[login]) return this.players[login];
-        tmc.debug(`$888 Player ${login} not found, fetching from server.`);
+        tmc.debug(`$888Player ${login} not found, fetching from server.`);
 
         const data = await tmc.server.call("GetDetailedPlayerInfo", login);
         const player = new Player();

@@ -7,6 +7,9 @@ export interface Map {
     AuthorNickname?: string;
     AuthorTime: number;
     GoldTime: number;
+    SilverTime: number;
+    BronzeTime: number;
+    CopperPrize: number;
     FileName: string;
     Environnement: string;
     Mood: string;
