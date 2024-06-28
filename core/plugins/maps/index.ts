@@ -45,12 +45,12 @@ export default class Maps extends Plugin {
         tmc.storage["menu"]?.removeItem("Map Queue");
     }
 
-    async onStart(): Promise<void> {
+    async onStart() {
         if (tmc.storage["menu"]) {
             tmc.storage["menu"].addItem({
                 category: "Map",
                 title: "Show: List",
-                action: "/maps"
+                action: "/list"
             });
             tmc.storage["menu"].addItem({
                 category: "Map",

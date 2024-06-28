@@ -25,7 +25,7 @@ export default class Players extends Plugin {
 
     async cmdPlayers(login: any, args: string[]) {
         const window = new PlayerWindow(login);
-        window.size = { width: 185, height: 95 };
+        window.size = { width: 195, height: 95 };
         window.title = "Players";
         window.setItems(tmc.players.get());
         window.setColumns([
@@ -35,7 +35,7 @@ export default class Players extends Plugin {
         ]);
 
         if (tmc.admins.includes(login)) {
-            window.setActions(["Kick", "Ban"]);
+            window.setActions(["Mute", "Kick", "Ban"]);
         }
 
         await window.display();

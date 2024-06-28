@@ -30,7 +30,7 @@ class MiniControl {
      * The version of MiniControl.
      */
     readonly brand: string = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
-    readonly version: string = "0.3.7";
+    readonly version: string = "0.3.8";
     /**
      * The start time of MiniControl.
      */
@@ -308,6 +308,7 @@ class MiniControl {
         if (this.startComplete) return;
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
         this.cli("¤info¤Starting MiniControl...");
+        this.cli(`¤info¤Using Bun ¤white¤${Bun.version}`);
         this.cli("¤info¤Connecting to Trackmania Dedicated server at ¤white¤" + (process.env.XMLRPC_HOST ?? "127.0.0.1") + ":" + port);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
         if (!status) {
@@ -352,38 +353,36 @@ class MiniControl {
         plugins = plugins.concat(fs.readdirSync(process.cwd() + "/userdata/plugins", { withFileTypes: true, recursive: true }));
         const exclude = process.env.EXCLUDED_PLUGINS?.split(",") || [];
         let loadList = [];
-        for (const i in plugins) {
-            let include = false;
-            const plugin = plugins[i];
-            include = plugin && plugin.isDirectory();
-            const path = plugin.path.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
-            let pluginName = plugin.name.replaceAll("\\", "/");
-            if (path != "") {
-                pluginName = (path.substring(1) +"/"+ plugin.name).replaceAll("\\", "/");
-            }
-         
-            for (const excludeName of exclude) {
-                if (excludeName == "") continue;
-                if (pluginName.replaceAll("\\", "/").startsWith(excludeName.trim())) {
-                    include = false;
-                    break;
-                }
-            }
-            
+        for (const plugin of plugins) {
+            let include = plugin && plugin.isDirectory();
+            const directory = plugin.path.replace(path.resolve("core", "plugins"), "").replace(path.resolve("userdata", "plugins"), "");
             if (include) {
-                loadList.push(pluginName);        
+                let pluginName = plugin.name;
+                if (directory != "") {
+                    pluginName = (directory + "/" + plugin.name).replaceAll("\\", "/");
+                    if (pluginName.startsWith("/")) pluginName = pluginName.substring(1);
+                }
+                for (const excludeName of exclude) {
+                    if (excludeName == "") continue;
+                    if (pluginName.startsWith(excludeName.trim())) {
+                        include = false;
+                    }
+                }
+                if (include) {
+                    loadList.push(pluginName);
+                }
             }
         }
 
         // load metadata
         for (const name of loadList) {
-            const pluginName = process.cwd() + "/" + this.findPlugin(name)
+            const pluginName = this.findPlugin(name);
             if (pluginName == null) {
                 const msg = `¤error¤Didn't find a plugin. resolved plugin name is null.`;
                 this.cli(msg);
                 continue;
             }
-            const cls = await import(pluginName);
+            const cls = await import(process.cwd() + "/" + pluginName);
             const plugin = cls.default;
             if (plugin == undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
@@ -412,8 +411,11 @@ class MiniControl {
                 }
             }
         }
+
         for (const plugin of this.pluginDependecies.overallOrder()) {
-            await this.loadPlugin(plugin)
+            if (loadList.includes(plugin)) {
+                await this.loadPlugin(plugin)
+            }
         }
 
         this.server.send("Echo", this.startTime, "MiniControl");

@@ -4,8 +4,8 @@ Twig.cache(false);
 
 export default class Manialink {
     id: string = tmc.ui.uuid();
-    size: any = { width: 160, height: 90 };
-    pos: any = { x: 0, y: 20, z: 1 };
+    size: { [key: string]: number } = { width: 160, height: 90 };
+    pos: { [key: string]: number } = { x: 0, y: 20, z: 1 };
     template: string = "core/templates/manialink.twig";
     actions: { [key: string]: string } = {};
     data: { [key: string]: any } = {};
@@ -50,7 +50,7 @@ export default class Manialink {
             async: false,
             options: {
                 autoescape: true
-            } 
+            }
         });
         return template.render({
             id: this.id,

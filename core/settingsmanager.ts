@@ -15,7 +15,7 @@ export default class SettingsManager {
         button_text: "fff",
         button_bg: "778",
         button_bg_hover: "f90",        
-        window_bg: "2d2d31",
+        window_bg: "223",
         cmd: "fd0",
         info: "5bf",
         rec: "2e0",

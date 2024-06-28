@@ -1,3 +1,4 @@
+import Confirm from 'core/ui/confirm';
 import ListWindow from 'core/ui/listwindow';
 import { formatTime, escape, removeColors } from 'core/utils';
 
@@ -34,10 +35,15 @@ export default class MapsWindow extends ListWindow {
         if (action == "Jump") {
             await tmc.chatCmd.execute(login, "//jump " + item.Uid);
         } else if (action == "Delete") {
-            await tmc.chatCmd.execute(login, "//remove " + item.UId);
-            await this.uiPaginate(login, "", []);
+            const confirm = new Confirm(login, "Confirm Delete", this.applyCommand.bind(this), [login, "//remove " + item.UId]);
+            await confirm.display();    
         } else if (action == "Queue") {
             await tmc.chatCmd.execute(login, "/addqueue " + item.UId);
         }
     }
+
+    async applyCommand(login: string, action: string) {
+        await tmc.chatCmd.execute(login, action);
+        await this.uiPaginate(login, "", []);
+    }   
 }

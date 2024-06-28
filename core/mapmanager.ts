@@ -7,6 +7,9 @@ export interface Map {
     AuthorNickname?: string;
     AuthorTime: number;
     GoldTime: number;
+    SilverTime: number;
+    BronzeTime: number;
+    CopperPrize: number;
     FileName: string;
     Environnement: string;
     Mood: string;
@@ -61,13 +64,16 @@ class MapManager {
      */
     async syncMaplist() {
         this.maps = {};
+        
         const chunckedMaps: any = chunkArray(await tmc.server.call("GetMapList", -1, 0), 100);
+        let method = "GetMapInfo";    
+        if (tmc.game.Name == "TmForever") method = "GetChallengeInfo";
 
         for (const infos of chunckedMaps) {
             let out = [];
             
             for (const map of infos) {
-                out.push(["GetMapInfo", map.FileName]);
+                out.push([method, map.FileName]);
             }
 
             let res = await tmc.server.multicall(out) || [];

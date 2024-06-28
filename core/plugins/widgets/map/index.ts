@@ -48,6 +48,6 @@ export default class MapWidget extends Plugin {
     }
 
     async buttonClick(login: string, data: any) {
-        await tmc.chatCmd.execute(login, "/maps");
+        await tmc.chatCmd.execute(login, "/list");
     }
 }

@@ -1,6 +1,6 @@
 import ListWindow from 'core/ui/listwindow';
 
-export default class LocalMapsWindow extends ListWindow {
+export default class PlayerListWindow extends ListWindow {
     
     async onAction(login: string, action: string, item: any) {
         if (action == "RemoveGuest") {
@@ -12,4 +12,5 @@ export default class LocalMapsWindow extends ListWindow {
             await tmc.chatCmd.execute(login, "//blacklist show");
         }        
     }
+    
 }

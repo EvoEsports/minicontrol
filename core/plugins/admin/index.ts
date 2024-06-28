@@ -273,7 +273,7 @@ export default class AdminPlugin extends Plugin {
         }, "Send mode command");
         tmc.addCommand("//guestlist", this.cmdGuestlist.bind(this), "Manage Guestlist");
         tmc.addCommand("//blacklist", this.cmdBlacklist.bind(this), "Manage Blacklist");
-
+        tmc.addCommand("//togglemute", this.cmdToggleMute.bind(this), "Toggle Mute");
     }
 
     async onUnload() {
@@ -290,6 +290,7 @@ export default class AdminPlugin extends Plugin {
         tmc.removeCommand("//warmup");
         tmc.removeCommand("//ignore");
         tmc.removeCommand("//unignore");
+        tmc.removeCommand("//togglemute");
         tmc.removeCommand("//talimit");
         tmc.removeCommand("//jump");
         tmc.removeCommand("//wml");
@@ -386,12 +387,8 @@ export default class AdminPlugin extends Plugin {
             let out = [];
             for (let file of fs.readdirSync(tmc.mapsPath, { withFileTypes: true, recursive: true, encoding: "utf8" })) {
                 if (file.name.toLowerCase().endsWith(".gbx")) {
-                    const split = escape(file.name.replaceAll(/[.](Map|Challenge)[.]Gbx/gi, "")).split(/[\\/]/);
-                    let name = split[split.length - 1];
-                    let path = "/";
-                    if (split.length > 1) {
-                        path = split.slice(0, split.length - 1).join("/") + "/";
-                    }
+                    let name = escape(file.name.replaceAll(/[.](Map|Challenge)[.]Gbx/gi, ""));
+                    let path = file.path.replace(tmc.mapsPath, "");
                     out.push({
                         Name: name,
                         Path: path
@@ -413,6 +410,26 @@ export default class AdminPlugin extends Plugin {
             } catch (e: any) {
                 tmc.chat("Error: " + e.message, login);
             }
+        }
+    }
+    async cmdToggleMute(login: any, args: string[]) {
+        if (args.length < 1) {
+            tmc.chat("Usage: ¤cmd¤//togglemute ¤white¤<login>", login);
+            return;
+        }
+        try {
+            let ignores = await tmc.server.call("GetIgnoreList", 1000, 0);
+            for (const ignore of ignores) {
+                if (ignore.Login == args[0]) {
+                    tmc.server.send("UnIgnore", args[0]);
+                    tmc.chat(`¤info¤UnIgnoring ¤white¤${args[0]}`, login);
+                    return;
+                }
+            }
+            tmc.server.send("Ignore", args[0]);
+            tmc.chat(`¤info¤Ignoring ¤white¤${args[0]}`, login);
+        } catch (e: any) {
+            tmc.chat(e, login);
         }
     }
 
