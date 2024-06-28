@@ -1,4 +1,4 @@
-import { type BetterSQLite3Database } from 'drizzle-orm/bun-sqlite';
+import { type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import Plugin from "core/plugins";
 import { Score } from "core/schemas/scores";
 import { Player } from "core/schemas/players";
@@ -121,10 +121,10 @@ export default class Records extends Plugin {
             createdAt: Score.createdAt,
             updatedAt: Score.updatedAt,
         }).from(Score).leftJoin(Player, eq(Score.login, Player.login)).where(eq(Score.mapUuid, mapUuid)).orderBy(asc(Score.time), asc(Score.updatedAt)).all();
-        
+
         this.records = [];
         let rank = 1;
-        for (const score of scores) {            
+        for (const score of scores) {
             score.rank = rank;
             this.records.push(new Record().fromScore(score));
             rank += 1;
@@ -172,114 +172,118 @@ export default class Records extends Plugin {
     }
 
     async onPlayerFinish(data: any) {
-        const login = data[0];
-        if (this.records.length == 0) {
-            let ranking = await this.getRankingsForLogin(data);
-            const newRecord = new Record().fromScore({
-                login: login,
-                nickname: removeLinks(ranking.NickName),
-                time: ranking.BestTime,
-                avgTime: ranking.BestTime,
-                totalFinishes: 1,
-                checkpoints: ranking.BestCheckpoints.join(","),
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            });
-            newRecord.rank = 1;
-            this.records.push(newRecord);
-            await this.db?.insert(Score).values({
-                login: newRecord.login,
-                time: newRecord.time,
-                avgTime: newRecord.avgTime,
-                totalFinishes: newRecord.totalFinishes,
-                checkpoints: newRecord.checkpoints,
-                createdAt: newRecord.createdAt,
-                updatedAt: newRecord.updatedAt,
-                mapUuid: this.currentMapUid
-            });
-            tmc.server.emit("Plugin.Records.onNewRecord", {
-                oldRecord: null,
-                record: clone(newRecord || {}),
-                records: clone(this.records)
-            });
-            return;
-        }
-
-        const lastIndex = this.records.length > this.limit ? this.limit : this.records.length;
-        const lastRecord = this.records[lastIndex - 1];
-
-        let ranking = await this.getRankingsForLogin(data);
-
-        if (lastIndex >= this.limit && ranking.BestTime >= lastRecord.time) return;
-        const time = ranking.BestTime;
-        const oldRecord = this.records.find(r => r.login === login);
-        if (oldRecord) {
-            if (ranking.BestTime >= oldRecord.time) return;
-            if (time < oldRecord.time) {
-                const newRecord = clone(oldRecord);
-                newRecord.nickname = removeLinks(ranking.NickName);
-                newRecord.avgTime = newRecord.avgTime + (time - newRecord.avgTime) / newRecord.totalFinishes;
-                newRecord.time = ranking.BestTime;
-                newRecord.checkpoints = ranking.BestCheckpoints.join(",");
-                newRecord.totalFinishes++;
-                newRecord.updatedAt = new Date().toISOString();
-                await this.db?.update(Score).set({
+        try {
+            const login = data[0];
+            if (this.records.length == 0) {
+                let ranking = await this.getRankingsForLogin(data);
+                const newRecord = new Record().fromScore({
+                    login: login,
+                    nickname: removeLinks(ranking.NickName),
+                    time: ranking.BestTime,
+                    avgTime: ranking.BestTime,
+                    totalFinishes: 1,
+                    checkpoints: ranking.BestCheckpoints.join(","),
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                });
+                newRecord.rank = 1;
+                this.records.push(newRecord);
+                await this.db?.insert(Score).values({
+                    login: newRecord.login,
                     time: newRecord.time,
                     avgTime: newRecord.avgTime,
-                    checkpoints: newRecord.checkpoints,
                     totalFinishes: newRecord.totalFinishes,
-                    updatedAt: newRecord.updatedAt
-                }).where(and(eq(Score.login, login), eq(Score.mapUuid, this.currentMapUid)));
-                this.records[this.records.findIndex(r => r.login === login)] = newRecord;
+                    checkpoints: newRecord.checkpoints,
+                    createdAt: newRecord.createdAt,
+                    updatedAt: newRecord.updatedAt,
+                    mapUuid: this.currentMapUid
+                });
+                tmc.server.emit("Plugin.Records.onNewRecord", {
+                    oldRecord: null,
+                    record: clone(newRecord || {}),
+                    records: clone(this.records)
+                });
+                return;
             }
-        } else {
-            const newRecord = new Record().fromScore({
-                login: login,
-                nickname: removeLinks(ranking.NickName),
-                time: ranking.BestTime,
-                avgTime: ranking.BestTime,
-                totalFinishes: 1,
-                checkpoints: ranking.BestCheckpoints.join(","),
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
+
+            const lastIndex = this.records.length > this.limit ? this.limit : this.records.length;
+            const lastRecord = this.records[lastIndex - 1];
+
+            let ranking = await this.getRankingsForLogin(data);
+
+            if (lastIndex >= this.limit && ranking.BestTime >= lastRecord.time) return;
+            const time = ranking.BestTime;
+            const oldRecord = this.records.find(r => r.login === login);
+            if (oldRecord) {
+                if (ranking.BestTime >= oldRecord.time) return;
+                if (time < oldRecord.time) {
+                    const newRecord = clone(oldRecord);
+                    newRecord.nickname = removeLinks(ranking.NickName);
+                    newRecord.avgTime = newRecord.avgTime + (time - newRecord.avgTime) / newRecord.totalFinishes;
+                    newRecord.time = ranking.BestTime;
+                    newRecord.checkpoints = ranking.BestCheckpoints.join(",");
+                    newRecord.totalFinishes++;
+                    newRecord.updatedAt = new Date().toISOString();
+                    await this.db?.update(Score).set({
+                        time: newRecord.time,
+                        avgTime: newRecord.avgTime,
+                        checkpoints: newRecord.checkpoints,
+                        totalFinishes: newRecord.totalFinishes,
+                        updatedAt: newRecord.updatedAt
+                    }).where(and(eq(Score.login, login), eq(Score.mapUuid, this.currentMapUid)));
+                    this.records[this.records.findIndex(r => r.login === login)] = newRecord;
+                }
+            } else {
+                const newRecord = new Record().fromScore({
+                    login: login,
+                    nickname: removeLinks(ranking.NickName),
+                    time: ranking.BestTime,
+                    avgTime: ranking.BestTime,
+                    totalFinishes: 1,
+                    checkpoints: ranking.BestCheckpoints.join(","),
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                });
+                this.records.push(newRecord);
+                await this.db?.insert(Score).values({
+                    login: newRecord.login,
+                    time: newRecord.time,
+                    avgTime: newRecord.avgTime,
+                    totalFinishes: newRecord.totalFinishes,
+                    checkpoints: newRecord.checkpoints,
+                    createdAt: newRecord.createdAt,
+                    updatedAt: newRecord.updatedAt,
+                    mapUuid: this.currentMapUid
+                });
+            }
+            // Sort records
+            this.records.sort((a, b) => {
+                if (a.time === b.time) {
+                    return a.updatedAt.localeCompare(b.updatedAt);
+                }
+                return a.time - b.time;
             });
-            this.records.push(newRecord);
-            await this.db?.insert(Score).values({
-                login: newRecord.login,
-                time: newRecord.time,
-                avgTime: newRecord.avgTime,
-                totalFinishes: newRecord.totalFinishes,
-                checkpoints: newRecord.checkpoints,
-                createdAt: newRecord.createdAt,
-                updatedAt: newRecord.updatedAt,
-                mapUuid: this.currentMapUid
+            // Update ranks
+            let newRecord = {};
+            for (let i = 0; i < this.records.length; i++) {
+                this.records[i].rank = i + 1;
+                if (this.records[i].login === login) {
+                    newRecord = this.records[i];
+                }
+                if (i >= this.limit) {
+                    tmc.cli(`Deleting record ${i} because it's out of limit.`);
+                    await this.db?.delete(Score).where(and(eq(Score.login, this.records[i].login), eq(Score.mapUuid, this.currentMapUid)));
+                }
+            }
+            this.records = this.records.slice(0, this.limit);
+            tmc.server.emit("Plugin.Records.onUpdateRecord", {
+                oldRecord: clone(oldRecord || {}),
+                record: clone(newRecord),
+                records: clone(this.records)
             });
+        } catch (e: any) {
+            console.log(e);
         }
-        // Sort records
-        this.records.sort((a, b) => {
-            if (a.time === b.time) {
-                return a.updatedAt.localeCompare(b.updatedAt);
-            }
-            return a.time - b.time;
-        });
-        // Update ranks
-        let newRecord = {};
-        for (let i = 0; i < this.records.length; i++) {
-            this.records[i].rank = i + 1;
-            if (this.records[i].login === login) {
-                newRecord = this.records[i];
-            }
-            if (i >= this.limit) {
-                tmc.cli(`Deleting record ${i} because it's out of limit.`);
-                await this.db?.delete(Score).where(and(eq(Score.login, this.records[i].login), eq(Score.mapUuid, this.currentMapUid)));
-            }
-        }
-        this.records = this.records.slice(0, this.limit);
-        tmc.server.emit("Plugin.Records.onUpdateRecord", {
-            oldRecord: clone(oldRecord || {}),
-            record: clone(newRecord),
-            records: clone(this.records)
-        });
     }
 
 }

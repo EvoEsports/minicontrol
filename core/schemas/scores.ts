@@ -6,7 +6,7 @@ import { Map } from "./map";
 
 export const Score = sqliteTable("records", {
     mapUuid: text("map_uuid").notNull().references(() => Map.uuid),
-    login: text("player").notNull().references(() => player.login),
+    login: text("login").notNull().references(() => player.login),
     time: integer("time").notNull(),    
     checkpoints: text("checkpoints").notNull(),    
     avgTime: integer("avg_time").default(0),

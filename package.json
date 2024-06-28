@@ -1,10 +1,10 @@
 {
   "scripts": {
-    "dev": "drizzle-kit generate:sqlite --config=drizzle.config.ts && tsx --env-file=.env --watch run core/minicontrol.ts",
-    "dev2": "drizzle-kit generate:sqlite --config=drizzle.config.ts && tsx --env-file=.env2 --watch run core/minicontrol.ts",
-    "start": "drizzle-kit generate:sqlite --config=drizzle.config.ts && tsx --env-file=.env core/minicontrol.ts",
-    "start2": "drizzle-kit generate:sqlite --config=drizzle.config.ts && tsx --env-file=.env2 core/minicontrol.ts",
-    "daemon": "drizzle-kit generate:sqlite --config=drizzle.config.ts && pm2 start --interpreter ~/.bun/bin/bun --smol core/minicontrol.ts"
+    "dev": "drizzle-kit generate:sqlite --config=drizzle.config.js && tsx --env-file=.env --watch run core/minicontrol.ts",
+    "dev2": "drizzle-kit generate:sqlite --config=drizzle.config.js && tsx --env-file=.env2 --watch run core/minicontrol.ts",
+    "start": "drizzle-kit generate:sqlite --config=drizzle.config.js && tsx --env-file=.env core/minicontrol.ts",
+    "start2": "drizzle-kit generate:sqlite --config=drizzle.config.js && tsx --env-file=.env2 core/minicontrol.ts",
+    "daemon": "drizzle-kit generate:sqlite --config=drizzle.config.js && pm2 start --interpreter ~/.bun/bin/bun --smol core/minicontrol.ts"
   },
   "type": "module",
   "dependencies": {
