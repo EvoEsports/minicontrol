@@ -116,9 +116,9 @@ export default class Dedimania extends Plugin {
                 SrvIP: "127.0.0.1",
                 SrvPort: "2350",
                 XmlRpcPort: "5000",
-                NumPlayers: tmc.players.get().filter((pl: Player) => !pl.isSpectator).length,
+                NumPlayers: tmc.players.getAll().filter((pl: Player) => !pl.isSpectator).length,
                 MaxPlayers: serverInfo.CurrentMaxPlayers,
-                NumSpectators: tmc.players.get().filter((pl: Player) => pl.isSpectator).length,
+                NumSpectators: tmc.players.getAll().filter((pl: Player) => pl.isSpectator).length,
                 MaxSpectators: serverInfo.CurrentMaxSpectators,
                 LadderMode: serverInfo.LadderMode,
                 NextFiveUID: "",
@@ -271,9 +271,9 @@ export default class Dedimania extends Plugin {
                 SrvIP: "127.0.0.1",
                 SrvPort: "2350",
                 XmlRpcPort: "5000",
-                NumPlayers: tmc.players.get().filter((pl: Player) => !pl.isSpectator).length,
+                NumPlayers: tmc.players.getAll().filter((pl: Player) => !pl.isSpectator).length,
                 MaxPlayers: serverInfo.CurrentMaxPlayers,
-                NumSpectators: tmc.players.get().filter((pl: Player) => pl.isSpectator).length,
+                NumSpectators: tmc.players.getAll().filter((pl: Player) => pl.isSpectator).length,
                 MaxSpectators: serverInfo.CurrentMaxSpectators,
                 LadderMode: serverInfo.LadderMode,
                 NextFiveUID: "",
@@ -288,7 +288,7 @@ export default class Dedimania extends Plugin {
 
     async getDedimaniaPlayers() {
         const out = [];
-        for (let player of tmc.players.get()) {
+        for (let player of tmc.players.getAll()) {
             out.push({
                 Login: player.login,
                 NickName: player.nickname,

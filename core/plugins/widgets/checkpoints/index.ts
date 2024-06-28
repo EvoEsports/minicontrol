@@ -57,7 +57,7 @@ export default class Checkpoints extends Plugin {
     }
 
     async onHideWidget(data: any) {
-        const players = tmc.players.get();
+        const players = tmc.players.getAll();
         for (const player of players) {
             if (this.widgets[player.login]) {
                 await this.widgets[player.login].hide();
@@ -67,7 +67,7 @@ export default class Checkpoints extends Plugin {
 
     async onBeginMap(data: any) {
         this.checkpointCounter = {};
-        const players = tmc.players.get();
+        const players = tmc.players.getAll();
         for (const player of players) {
             this.checkpointCounter[player.login] = 0;
             await this.onPlayerConnect(player);

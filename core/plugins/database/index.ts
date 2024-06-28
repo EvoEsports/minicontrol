@@ -1,6 +1,6 @@
-import { drizzle, type BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
-import { migrate } from "drizzle-orm/bun-sqlite/migrator";
-import { Database } from 'bun:sqlite';
+import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import Database from 'better-sqlite3';
 import { eq } from "drizzle-orm";
 import type { Logger } from 'drizzle-orm/logger';
 import type { Player as PlayerType } from 'core/playermanager';
@@ -53,7 +53,7 @@ export default class SqliteDb extends Plugin {
 
     async syncPlayer(player: PlayerType) {
         if (!tmc.storage['sqlite']) return;
-        const db: BunSQLiteDatabase = tmc.storage['sqlite'];
+        const db: BetterSQLite3Database = tmc.storage['sqlite'];
         const query = await db.select().from(Player).where(eq(Player.login, player.login));
         if (query.length == 0) {
             await db.insert(Player).values({
@@ -73,7 +73,7 @@ export default class SqliteDb extends Plugin {
     }
 
     async syncPlayers() {
-        const players = tmc.players.get();
+        const players = tmc.players.getAll();
         for (const player of players) {
             await this.syncPlayer(await tmc.players.getPlayer(player.login));
         }

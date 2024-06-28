@@ -1,9 +1,10 @@
 
-import Database from 'bun:sqlite';
+import Database from 'better-sqlite3';
 import { readFileSync } from 'fs';
 
 async function main() {
     const sqlite = new Database(__dirname + '/../userdata/local.sqlite');
+    sqlite.pragma('journal_mode = WAL');
     const xasecoDb = new Database(":memory:");
     if (process.argv.length < 3) {
         console.log("Usage: bun xaseco.ts <mysql_dump.sql>");
@@ -26,28 +27,28 @@ async function main() {
     console.log("Migrating XAseco database to MINIcontrol...");
     console.log("Please wait and do not interrupt the process...");
     console.log("Processing maps...")
-    const dbMaps: any = xasecoDb.query("SELECT * FROM challenges").all();
+    const dbMaps: any = xasecoDb.prepare("SELECT * FROM challenges").all();
     console.log("Total: " + dbMaps.length);
     for (const map of dbMaps) {
         maps[map.Id] = map.Uid;
         sqlite.exec(`INSERT OR IGNORE INTO map ("uuid", "name", "author", "author_time", "environment") VALUES ('${map.Uid}', '${map.Name}', '${map.Author}', -1, '${map.Environment}')`);
     }
     console.log("Processing players...");
-    const dbPlayers: any = xasecoDb.query("SELECT * FROM players").all();
+    const dbPlayers: any = xasecoDb.prepare("SELECT * FROM players").all();
     console.log("Total: " + dbPlayers.length);
     for (const player of dbPlayers) {
         players[player.Id] = player.Login;
         sqlite.exec(`INSERT OR IGNORE INTO player (login, nickname, custom_nick, nick_override, created_at, updated_at) VALUES ('${player.Login}', '${player.NickName}', '', 1, '${player.UpdatedAt}', '${player.UpdatedAt}')`);
     }
     console.log("Processing records...");
-    const dbRecords: any = xasecoDb.query("SELECT * FROM records").all();
+    const dbRecords: any = xasecoDb.prepare("SELECT * FROM records").all();
     console.log("Total: " + dbRecords.length);
     for (const record of dbRecords) {
         if (!players[record.PlayerId]) continue;
         sqlite.exec(`INSERT OR IGNORE INTO records (map_uuid, player, time, checkpoints, avg_time, finishes, created_at, updated_at) VALUES ('${maps[record.ChallengeId]}', '${players[record.PlayerId]}', ${record.Score}, '${record.Checkpoints}', 0, 1, '${record.CreatedAt}', '${record.UpdatedAt}')`);
     }
     console.log("Processing karma...");
-    const dbKarma: any = xasecoDb.query("SELECT * FROM rs_karma").all();
+    const dbKarma: any = xasecoDb.prepare("SELECT * FROM rs_karma").all();
     console.log("Total: " + dbKarma.length);
     for (const k of dbKarma) {
         if (!players[k.PlayerId]) continue;

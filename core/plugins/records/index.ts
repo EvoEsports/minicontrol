@@ -1,4 +1,4 @@
-import { type BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
+import { type BetterSQLite3Database } from 'drizzle-orm/bun-sqlite';
 import Plugin from "core/plugins";
 import { Score } from "core/schemas/scores";
 import { Player } from "core/schemas/players";
@@ -38,7 +38,7 @@ export class Record {
 
 export default class Records extends Plugin {
     static depends: string[] = ["database"];
-    db: BunSQLiteDatabase | null = null;
+    db: BetterSQLite3Database | null = null;
     records: Record[] = [];
     currentMapUid: string = "";
     limit: number = 100;

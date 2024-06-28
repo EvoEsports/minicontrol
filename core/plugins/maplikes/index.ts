@@ -1,5 +1,5 @@
 import Plugin from "core/plugins";
-import type {BunSQLiteDatabase} from "drizzle-orm/bun-sqlite";
+import type {BetterSQLite3Database} from "drizzle-orm/better-sqlite3";
 import {and, eq} from "drizzle-orm";
 import {MapLikes as Likes} from "core/schemas/maplikes";
 
@@ -35,7 +35,7 @@ export default class MapLikes extends Plugin {
     async syncVotes() {
         if (!tmc.storage['sqlite']) return;
         if (!tmc.maps.currentMap) return;
-        const db: BunSQLiteDatabase = tmc.storage['sqlite'];
+        const db: BetterSQLite3Database = tmc.storage['sqlite'];
         const votes = await db.select().from(Likes).where(eq(Likes.mapUuid, tmc.maps.currentMap.UId));
         this.votes = [];
         for (const vote of votes) {
@@ -70,7 +70,7 @@ export default class MapLikes extends Plugin {
     async updateVote(login: string, value: number = 0) {
         if (!tmc.storage['sqlite']) return;
         if (!tmc.maps.currentMap) return;
-        const db: BunSQLiteDatabase = tmc.storage['sqlite'];
+        const db: BetterSQLite3Database = tmc.storage['sqlite'];
         const query = await db.select().from(Likes).where(and(eq(Likes.mapUuid, tmc.maps.currentMap.UId), eq(Likes.login, login)));
         if (query.length == 0) {
             await db.insert(Likes).values({

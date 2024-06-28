@@ -270,7 +270,7 @@ export default class UiManager {
             await tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false,);
         } else {
             if (this.hiddenManialinks.length > 0) {
-                const logins = tmc.players.get().map((player) => player.login);
+                const logins = tmc.players.getAll().map((player) => player.login);
                 const recipients = logins.filter((login) => !this.hiddenManialinks.includes(login));
                 await tmc.server.send("SendDisplayManialinkPageToLogin", recipients.join(","), xml, 0, false,);
             } else {
@@ -293,7 +293,7 @@ export default class UiManager {
             }
         } else {
             if (this.hiddenManialinks.length > 0) {
-                const logins = tmc.players.get().map((player) => player.login);
+                const logins = tmc.players.getAll().map((player) => player.login);
                 const recipients = logins.filter((login) => !this.hiddenManialinks.includes(login));
                 await tmc.server.send("SendDisplayManialinkPageToLogin", recipients.join(","), xml, 0, false);
             } else {
@@ -343,7 +343,6 @@ export default class UiManager {
                 }
             }
         }
-        Bun.gc(true);
     }
 
     /**      

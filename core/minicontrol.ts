@@ -11,11 +11,6 @@ import Plugin from 'core/plugins';
 import path from 'path';
 import { DepGraph } from "dependency-graph";
 
-if (!process.versions.bun) {
-    log.info(`Please install bun using "npm install -g bun"`);
-    process.exit();
-}
-
 export interface GameStruct {
     Name: string;
     Version?: string;
@@ -30,7 +25,7 @@ class MiniControl {
      * The version of MiniControl.
      */
     readonly brand: string = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
-    readonly version: string = "0.3.8";
+    readonly version: string = "0.4.0";
     /**
      * The start time of MiniControl.
      */
@@ -196,7 +191,6 @@ class MiniControl {
                     const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ failed to load. Missing dependency ¤cmd¤${depend}¤white¤.`;
                     this.cli(msg);
                     if (this.startComplete) this.chat(msg);
-                    Bun.gc(true);
                     return;
                 }
             }
@@ -257,8 +251,6 @@ class MiniControl {
             } else {
                 this.cli(`$fffFailed to remove require cache for ¤cmd¤${unloadName}¤white¤, hotreload will not work right.`);
             }
-
-            Bun.gc(true);
             const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ unloaded.`;
             this.cli(msg);
             this.chat(msg);
@@ -308,7 +300,7 @@ class MiniControl {
         if (this.startComplete) return;
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
         this.cli("¤info¤Starting MiniControl...");
-        this.cli(`¤info¤Using Bun ¤white¤${Bun.version}`);
+        this.cli(`¤info¤Using Node ¤white¤${process.version}`);
         this.cli("¤info¤Connecting to Trackmania Dedicated server at ¤white¤" + (process.env.XMLRPC_HOST ?? "127.0.0.1") + ":" + port);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
         if (!status) {

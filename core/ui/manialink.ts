@@ -41,11 +41,11 @@ export default class Manialink {
      */
     render(): string {
         if (this._templateData == "") {
-            this._templateData = fs.readFileSync(import.meta.dir + "/../../" + this.template, 'utf-8');
+            this._templateData = fs.readFileSync(process.cwd() + "/" + this.template, 'utf-8');
         }
         const template = Twig.twig({
-            base: import.meta.dir + "/../../",
-            path: import.meta.dir + "/../../",
+            base: process.cwd() + "/",
+            path: process.cwd() + "/",
             data: this._templateData,
             async: false,
             options: {

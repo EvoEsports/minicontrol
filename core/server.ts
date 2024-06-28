@@ -1,5 +1,5 @@
 import { GbxClient } from "./gbx";
-import EventEmitter from "events";
+import EventEmitter from "node:events";
 /**
  * Server class
  */

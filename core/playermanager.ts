@@ -1,5 +1,4 @@
-import { sleep } from "bun";
-import { clone } from "./utils";
+import { clone, sleep } from "./utils";
 
 interface PlayerRanking {
     Path: string;
@@ -19,6 +18,7 @@ interface LadderStats {
     nbrMatchLosses: number;
     TeamName: string;
 }
+
 /**
  * Player class
  */
@@ -53,7 +53,7 @@ export class Player {
                 data[key] = data[key].replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "");
             }
             if (k == "flags") {
-                this.spectatorTarget = Math.floor(data.Flags / 10000);
+                this.spectatorTarget = Math.floor(data.SpecatorStatus / 10000);
             }
             this[k] = data[key];
         }
@@ -104,9 +104,9 @@ export default class PlayerManager {
     }
 
     private async onPlayerConnect(data: any) {
-        await sleep(100);
         const login = data[0];
-        if (login) {
+        if (login) { 
+            await sleep(100); // @TODO check if this is really needed
             const player = await this.getPlayer(login);
             tmc.server.emit("TMC.PlayerConnect", player);
         } else {
@@ -133,7 +133,7 @@ export default class PlayerManager {
      * get players objects
      * @returns {Player[]} Returns clone of the current playerlist
      */
-    get(): Player[] {
+    getAll(): Player[] {
         return Object.values(this.players);
     }
 
@@ -156,13 +156,17 @@ export default class PlayerManager {
      */
     async getPlayer(login: string): Promise<Player> {
         if (this.players[login]) return this.players[login];
-        tmc.debug(`$888Player ${login} not found, fetching from server.`);
-
-        const data = await tmc.server.call("GetDetailedPlayerInfo", login);
-        const player = new Player();
-        await player.syncFromDetailedPlayerInfo(data);
-        this.players[login] = player;
-        return player;
+       
+        try {
+            tmc.debug(`$888Player ${login} not found, fetching from server.`);
+            const data = await tmc.server.call("GetDetailedPlayerInfo", login);
+            const player = new Player();
+            await player.syncFromDetailedPlayerInfo(data);
+            this.players[login] = player;
+            return player;
+        } catch (e: any) {
+            return new Player();
+        }
     }
 
     /**

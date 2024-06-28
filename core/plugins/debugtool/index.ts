@@ -1,4 +1,3 @@
-import { generateHeapSnapshot } from "bun";
 import { memInfo } from "core/utils";
 import Plugin from "core/plugins";
 import tm from 'tm-essentials';
@@ -12,7 +11,6 @@ export default class DebugTool extends Plugin {
         if (process.env.DEBUG == "true") {
             this.widget = new Widget("core/plugins/debugtool/widget.twig");
             this.widget.pos = { x: 159, y: -60 };
-            tmc.addCommand("//heap", this.cmdHeap.bind(this), "Log heap memory usage");
             tmc.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
             tmc.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");         
         }
@@ -46,12 +44,6 @@ export default class DebugTool extends Plugin {
     async cmdMeminfo(login:string, args: string[]) {
         const mem = memInfo();
         tmc.chat("¤info¤Memory usage: " + mem, login);
-    }
-
-    async cmdHeap(login: string, args: string[]) {
-        const snapshot = generateHeapSnapshot();
-        await Bun.write("./heap.heapsnapshot", JSON.stringify(snapshot, null, 4));
-        tmc.chat("¤info¤Heap snapshot written to ¤white¤heap.heapsnapshot", login);
     }
 
     async displayMemInfo() {

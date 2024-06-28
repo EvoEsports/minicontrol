@@ -7,18 +7,15 @@
         "jsx": "react-jsx",
         "allowJs": true,
         "preserveSymlinks": true,
-        /* Bundler mode */
         "moduleResolution": "Bundler",
         "allowImportingTsExtensions": true,
         "verbatimModuleSyntax": true,
         "noEmit": true,
-        
-        /* Linting */
-        "skipLibCheck": true,
+        "skipLibCheck": false,
         "strict": true,
         "noFallthroughCasesInSwitch": true,
         "forceConsistentCasingInFileNames": true,
-        //"rootDir": ".",
+        "rootDir": ".",
         "baseUrl": "./",
         "paths": {
             "core/*": ["core/*"],        

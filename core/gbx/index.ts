@@ -1,4 +1,5 @@
-import {Buffer} from "buffer";
+import { Buffer } from "node:buffer";
+import { Socket } from 'net';
 import type Server from "core/server";
 import {Readable} from 'stream';
 // @ts-ignore
@@ -53,24 +54,31 @@ export class GbxClient {
         host = host || "127.0.0.1";
         port = port || 5000;
         const that = this;
-        this.socket = await Bun.connect({
-            hostname: host,
+        const socket = new Socket();
+        this.socket = socket;
+        socket.connect({
+            host: host,
             port: port,
-            socket: {
-                end() {
+            keepAlive: true,
+        }, () => {
+                socket.on("end", () => {
                     that.isConnected = false;
                     that.server.onDisconnect("end");
-                },
-                error(error: any) {
+                });
+                socket.on("error", (error: any) => {
                     that.isConnected = false;
                     that.server.onDisconnect(error.message);
-                },
-                data(socket: any, data: Buffer) {
+                });
+                socket.on("data", (data: Buffer) => {
                     that.handleData(data);
-                }
+                });
 
-            }
+                socket.on("timeout", () => {
+                    tmc.cli("¤error¤XMLRPC Connection timeout");
+                    process.exit(1);
+                });
         });
+
         const res: boolean = await new Promise((resolve, reject) => {
             this.promiseCallbacks['onConnect'] = {resolve, reject};
         });

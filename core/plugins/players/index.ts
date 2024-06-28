@@ -27,7 +27,7 @@ export default class Players extends Plugin {
         const window = new PlayerWindow(login);
         window.size = { width: 195, height: 95 };
         window.title = "Players";
-        window.setItems(tmc.players.get());
+        window.setItems(tmc.players.getAll());
         window.setColumns([
             { key: "nickname", title: "Nickname", width: 50 },
             { key: "login", title: "Login", width: 50, type:"entry" },
