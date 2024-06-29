@@ -64,7 +64,7 @@ export class GbxClient {
             keepAlive: true,
         }, () => {
                 socket.on("connect", () => {
-                    clearTimeout(this.timeoutHandler);
+                    clearTimeout(that.timeoutHandler);
                 });
                 socket.on("end", () => {
                     that.isConnected = false;
@@ -75,6 +75,7 @@ export class GbxClient {
                     that.server.onDisconnect(error.message);
                 });
                 socket.on("data", (data: Buffer) => {
+                    clearTimeout(that.timeoutHandler);
                     that.handleData(data);
                 });
                 socket.on("timeout", () => {

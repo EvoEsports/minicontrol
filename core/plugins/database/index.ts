@@ -7,6 +7,7 @@ import type { Player as PlayerType } from 'core/playermanager';
 import { Player } from 'core/schemas/players';
 import Plugin from 'core/plugins';
 import { Map as DbMap } from 'core/schemas/map';
+import { chunkArray } from 'core/utils';
 
 class SqliteLogger implements Logger {
     logQuery(query: string, params: unknown[]): void {
@@ -95,31 +96,31 @@ export default class SqliteDb extends Plugin {
         const serverUids = tmc.maps.getUids();
         const result = await db.select().from(DbMap).where(inArray(DbMap.uuid, serverUids)).all();
         const dbUids = result.map((value) => value.uuid);
-        const missingUids = serverUids.filter(item => dbUids.indexOf(item) < 0);
-        let missingMaps: any[] = [];
+        const missingUids = chunkArray(serverUids.filter(item => dbUids.indexOf(item) < 0), 50);
+        for (const groups of missingUids) {  
+            let missingMaps: any[] = [];
+            for (const uid of groups) {
+                const map = tmc.maps.getMap(uid);
+                if (!map) continue;
+                const outMap = {
+                    uuid: map.UId,
+                    name: map.Name,
+                    author: map.Author,
+                    authorNickname: map.AuthorNickname ?? "",
+                    authorTime: map.AuthorTime,
+                    environment: map.Environnement,
+                    created_at: sql`CURRENT_TIMESTAMP`,
+                    updated_at: sql`CURRENT_TIMESTAMP`,
+                };
+                missingMaps.push(outMap);
+            }
 
-        for (const uid of missingUids) {
-            const map = tmc.maps.getMap(uid);
-            if (!map) continue;
-            const outMap = {
-                uuid: map.UId,
-                name: map.Name,
-                author: map.Author,
-                authorNickname: map.AuthorNickname ?? "",
-                authorTime: map.AuthorTime,
-                environment: map.Environnement,
-                created_at: sql`CURRENT_TIMESTAMP`,
-                updated_at: sql`CURRENT_TIMESTAMP`,
-            };
-            missingMaps.push(outMap);
-        }
-        try {
-            if (missingMaps.length > 0)
-            await db.insert(DbMap).values(missingMaps);
-        } catch (e: any) {
-            tmc.cli(`¤error¤` + e.message);
+            try {
+                if (missingMaps.length > 0)
+                    await db.insert(DbMap).values(missingMaps);
+            } catch (e: any) {
+                tmc.cli(`¤error¤` + e.message);
+            }
         }
     }
-
-
 }
