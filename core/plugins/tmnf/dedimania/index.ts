@@ -1,8 +1,8 @@
-import { Player } from 'core/playermanager';
+import { Player } from '../../../playermanager';
 import Api from './api';
-import { clone, escape, formatTime } from 'core/utils';
-import ListWindow from 'core/ui/listwindow';
-import Plugin from 'core/plugins';
+import { clone, escape, formatTime } from '../../../utils';
+import ListWindow from '../../../ui/listwindow';
+import Plugin from '../../../plugins';
 
 export interface DediRecord {
     Game?: string;

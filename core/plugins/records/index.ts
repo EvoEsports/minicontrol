@@ -1,11 +1,11 @@
 import { type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
-import Plugin from "core/plugins";
-import { Score } from "core/schemas/scores";
-import { Player } from "core/schemas/players";
+import Plugin from "../../plugins";
+import { Score } from "../../schemas/scores";
+import { Player } from "../../schemas/players";
 import { eq, asc, and } from "drizzle-orm";
-import { clone, escape, removeLinks, formatTime } from "core/utils";
+import { clone, escape, removeLinks, formatTime } from "../../utils";
 
-import RecordsWindow from "core/plugins/records/recordsWindow.ts";
+import RecordsWindow from "./recordsWindow";
 
 export class Record {
     login: string = "";

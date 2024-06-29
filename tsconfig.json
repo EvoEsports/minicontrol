@@ -16,11 +16,7 @@
         "noFallthroughCasesInSwitch": true,
         "forceConsistentCasingInFileNames": true,
         "esModuleInterop": true,
+        "traceResolution": true,
         "rootDir": ".",
-        "baseUrl": "./",
-        "paths": {
-            "core/*": ["core/*"],        
-            "schemas/*": ["core/schemas/*"]
-        }
     }
 }

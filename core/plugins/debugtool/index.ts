@@ -1,7 +1,7 @@
-import { memInfo } from "core/utils";
-import Plugin from "core/plugins";
+import { memInfo } from "../../utils";
+import Plugin from "../../plugins";
 import tm from 'tm-essentials';
-import Widget from 'core/ui/widget';
+import Widget from '../../ui/widget';
 
 export default class DebugTool extends Plugin {
     widget: Widget | null = null;

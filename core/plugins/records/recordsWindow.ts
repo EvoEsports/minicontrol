@@ -1,6 +1,6 @@
-import ListWindow from "core/ui/listwindow.ts";
-import Records from "core/plugins/records/index.ts";
-import Confirm from "core/ui/confirm";
+import ListWindow from "../../ui/listwindow.ts";
+import Records from "../../plugins/records/index.ts";
+import Confirm from "../../ui/confirm";
 
 export default class RecordsWindow extends ListWindow {
     app: Records;

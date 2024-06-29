@@ -3,11 +3,11 @@ import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import Database from 'better-sqlite3';
 import { eq, inArray, sql } from "drizzle-orm";
 import type { Logger } from 'drizzle-orm/logger';
-import type { Player as PlayerType } from 'core/playermanager';
-import { Player } from 'core/schemas/players';
-import Plugin from 'core/plugins';
-import { Map as DbMap } from 'core/schemas/map';
-import { chunkArray } from 'core/utils';
+import type { Player as PlayerType } from '../../playermanager';
+import { Player } from '../../schemas/players';
+import Plugin from '../../plugins';
+import { Map as DbMap } from '../../schemas/map';
+import { chunkArray } from '../../utils';
 
 class SqliteLogger implements Logger {
     logQuery(query: string, params: unknown[]): void {

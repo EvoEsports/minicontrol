@@ -1,7 +1,7 @@
-import Plugin from "core/plugins";
+import Plugin from "../../plugins";
 import type {BetterSQLite3Database} from "drizzle-orm/better-sqlite3";
 import {and, eq} from "drizzle-orm";
-import {MapLikes as Likes} from "core/schemas/maplikes";
+import {MapLikes as Likes} from "../../schemas/maplikes";
 
 export interface Like {
     login: string;

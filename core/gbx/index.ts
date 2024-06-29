@@ -1,6 +1,6 @@
 import { Buffer } from "node:buffer";
 import { Socket } from 'net';
-import type Server from "core/server";
+import type Server from "../../core/server";
 import {Readable} from 'stream';
 // @ts-ignore
 import Serializer from "xmlrpc/lib/serializer";

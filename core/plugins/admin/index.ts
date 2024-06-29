@@ -1,6 +1,6 @@
-import { castType, escape, removeColors } from "core/utils";
+import { castType, escape, removeColors } from "../../utils";
 import ModeSettingsWindow from "./ModeSettingsWindow";
-import Plugin from "core/plugins";
+import Plugin from "../../plugins";
 import fs from "fs";
 import LocalMapsWindow from "./LocalMapsWindow";
 import PlayerListsWindow from "./PlayerListsWindow";

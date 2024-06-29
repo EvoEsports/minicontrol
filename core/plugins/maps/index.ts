@@ -1,7 +1,7 @@
 import tm from 'tm-essentials';
 import MapsWindow from './mapsWindow';
-import { clone, escape, formatTime, removeColors } from 'core/utils';
-import Plugin from 'core/plugins';
+import { clone, escape, formatTime, removeColors } from '../../utils';
+import Plugin from '../../plugins';
 import QueueWindow from './queueWIndow';
 
 export interface Map {

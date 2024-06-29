@@ -1,4 +1,4 @@
-import Plugin from "core/plugins";
+import Plugin from "../../plugins";
 import PlayerWindow from "./PlayerWindow";
 
 

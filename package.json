@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "dev": "drizzle-kit generate:sqlite --config=drizzle.config.js && tsx --env-file=.env --watch run core/minicontrol.ts",
+        "dev": "drizzle-kit generate:sqlite --config=drizzle.config.js && tsx --tsconfig ./tsconfig.json --env-file=.env --watch ./core/minicontrol.ts",
         "dev2": "drizzle-kit generate:sqlite --config=drizzle.config.js && tsx --env-file=.env2 --watch run core/minicontrol.ts",
         "start": "drizzle-kit generate:sqlite --config=drizzle.config.js && tsx --env-file=.env core/minicontrol.ts",
         "start2": "drizzle-kit generate:sqlite --config=drizzle.config.js && tsx --env-file=.env2 core/minicontrol.ts",
@@ -30,5 +30,9 @@
     },
     "peerDependencies": {
         "typescript": "^5.5.2"
+    },
+    "imports": {
+      "core": "./core/",
+      "schemas": "./core/schemas/"
     }
 }

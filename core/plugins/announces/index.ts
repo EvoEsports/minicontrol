@@ -1,7 +1,7 @@
-import type { Player } from "core/playermanager";
-import Plugin from "core/plugins";
-import type { Record } from "core/plugins/records";
-import { formatTime } from 'core/utils';
+import type { Player } from "../../playermanager";
+import Plugin from "../index";
+import type { Record } from "../records";
+import { formatTime } from '../../utils';
 
 export default class Announces extends Plugin {
     async onLoad() {

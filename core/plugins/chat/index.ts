@@ -1,4 +1,4 @@
-import Plugin from 'core/plugins';
+import Plugin from '../index';
 
 export default class Chat extends Plugin {
     enabled: boolean = false;

@@ -7,16 +7,16 @@ import SettingsManager from './settingsmanager';
 import { processColorString } from './utils';
 import log from './log';
 import fs from 'fs';
-import Plugin from 'core/plugins';
+import Plugin from './plugins';
 import path from 'path';
 import { DepGraph } from "dependency-graph";
 import os from 'node:os';
 const platform = os.platform();
-if (platform.startsWith("win")) {
+/*if (platform.startsWith("win")) {
     log.info("\n\nSorry, but MINIcontrol currently $f00not supported $zon Windows platforms.");
     log.info("Please use WSL or Docker to run MINIcontrol.")
     process.exit(1);
-}
+}*/
 
 export interface GameStruct {
     Name: string;
@@ -135,7 +135,7 @@ class MiniControl {
     * @returns 
     */
     findPlugin(name: string): string | null {
-        const dirsToCheck = ["core/plugins/", "userdata/plugins/"];
+        const dirsToCheck = ["./core/plugins/", "./userdata/plugins/"];
         for (const dir of dirsToCheck) {
             if (fs.existsSync(dir + name + "/index.ts")) {
                 return (dir + name).replaceAll("\\", "/");
@@ -160,7 +160,12 @@ class MiniControl {
                 }
                 return;
             }
-            const plugin = await import(process.cwd() + "/" + pluginPath);
+            let plugin = null;
+            if(process.platform === "win32") {
+                plugin = await import("file:///" + process.cwd() + "/" + pluginPath);
+            } else {
+                plugin = await import(process.cwd() + "/" + pluginPath);
+            }
 
             if (plugin.default == undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
@@ -350,13 +355,13 @@ class MiniControl {
     async beforeInit() {
         await this.chatCmd.beforeInit();
         // load plugins
-        let plugins = fs.readdirSync(process.cwd() + "/core/plugins", { withFileTypes: true, recursive: true });
-        plugins = plugins.concat(fs.readdirSync(process.cwd() + "/userdata/plugins", { withFileTypes: true, recursive: true }));
+        let plugins = fs.readdirSync(process.cwd().replaceAll("\\", "/") + "/core/plugins", { withFileTypes: true, recursive: true });
+        plugins = plugins.concat(fs.readdirSync(process.cwd().replaceAll("\\", "/") + "/userdata/plugins", { withFileTypes: true, recursive: true }));
         const exclude = process.env.EXCLUDED_PLUGINS?.split(",") || [];
         let loadList = [];
         for (const plugin of plugins) {
             let include = plugin && plugin.isDirectory();
-            const directory = plugin.path.replace(path.resolve("core", "plugins"), "").replace(path.resolve("userdata", "plugins"), "");
+            const directory = plugin.parentPath.replaceAll("\\", "/").replace(path.resolve("core", "plugins").replaceAll("\\", "/"), "").replace(path.resolve("userdata", "plugins").replaceAll("\\", "/"), "");
             if (include) {
                 let pluginName = plugin.name;
                 if (directory != "") {
@@ -383,7 +388,12 @@ class MiniControl {
                 this.cli(msg);
                 continue;
             }
-            const cls = await import(process.cwd() + "/" + pluginName);
+            let cls = null;
+            if(process.platform === "win32") {
+                cls = await import("file:///" + process.cwd() + "/" + pluginName);
+            } else {
+                cls = await import(process.cwd() + "/" + pluginName);
+            }
             const plugin = cls.default;
             if (plugin == undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;

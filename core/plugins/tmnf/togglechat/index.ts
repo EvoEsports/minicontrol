@@ -1,5 +1,5 @@
-import Plugin from 'core/plugins';
-import Widget from 'core/ui/widget';
+import Plugin from '../../../plugins';
+import Widget from '../../../ui/widget';
 
 export default class ToggleChat extends Plugin {
     static depends: string[] = ["game:TmForever"];

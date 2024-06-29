@@ -1,6 +1,6 @@
-import Plugin from 'core/plugins';
-import Widget from 'core/ui/widget';
-import { formatTime, escape } from 'core/utils';
+import Plugin from '../../../plugins';
+import Widget from '../../../ui/widget';
+import { formatTime, escape } from '../../../utils';
 
 export default class DedimaniaWidget extends Plugin {
     static depends: string[] = ["tmnf/dedimania"];

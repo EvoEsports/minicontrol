@@ -28,7 +28,7 @@
 * SOFTWARE.
 */
 
-import Plugin from "core/plugins";
+import Plugin from "../../../plugins";
 import http, { ClientRequest } from "http";
 
 export default class Freezone extends Plugin {

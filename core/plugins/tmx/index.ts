@@ -1,4 +1,4 @@
-import Plugin from 'core/plugins';
+import Plugin from '../../plugins';
 import fs from 'fs';
 
 interface Map {

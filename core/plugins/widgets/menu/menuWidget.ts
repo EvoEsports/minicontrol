@@ -1,4 +1,4 @@
-import Widget from "core/ui/widget";
+import Widget from "../../../ui/widget";
 import { type Item } from "./index";
 
 export default class MenuWidget extends Widget {

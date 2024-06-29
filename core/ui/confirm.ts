@@ -1,5 +1,5 @@
 import Widget from './widget';
-import { escape } from 'core/utils';
+import { escape } from '../utils';
 
 export default class Confirm extends Widget {
     template = "core/templates/confirm.twig";
