@@ -22,6 +22,7 @@ export class GbxClient {
         showErrors: false,
         throwErrors: true,
     };
+    timeoutHandler:any;
     promiseCallbacks: { [key: string]: any } = {};
 
     /**
@@ -55,12 +56,16 @@ export class GbxClient {
         port = port || 5000;
         const that = this;
         const socket = new Socket();
+        const timeout = 5000;
         this.socket = socket;
         socket.connect({
             host: host,
             port: port,
             keepAlive: true,
         }, () => {
+                socket.on("connect", () => {
+                    clearTimeout(this.timeoutHandler);
+                });
                 socket.on("end", () => {
                     that.isConnected = false;
                     that.server.onDisconnect("end");
@@ -72,13 +77,16 @@ export class GbxClient {
                 socket.on("data", (data: Buffer) => {
                     that.handleData(data);
                 });
-
                 socket.on("timeout", () => {
                     tmc.cli("¤error¤XMLRPC Connection timeout");
                     process.exit(1);
                 });
         });
-
+        this.timeoutHandler = setTimeout(() => {
+            tmc.cli("¤error¤[ERROR] Attempt at connection exceeded timeout value.");
+            socket.end();
+            process.exit(1);
+        }, timeout);
         const res: boolean = await new Promise((resolve, reject) => {
             this.promiseCallbacks['onConnect'] = {resolve, reject};
         });
