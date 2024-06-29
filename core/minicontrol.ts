@@ -10,21 +10,12 @@ import fs from 'fs';
 import Plugin from './plugins';
 import path from 'path';
 import { DepGraph } from "dependency-graph";
-import os from 'node:os';
-const platform = os.platform();
-/*if (platform.startsWith("win")) {
-    log.info("\n\nSorry, but MINIcontrol currently $f00not supported $zon Windows platforms.");
-    log.info("Please use WSL or Docker to run MINIcontrol.")
-    process.exit(1);
-}*/
 
 export interface GameStruct {
     Name: string;
     Version?: string;
     Build?: string;
 }
-
-
 
 /**
  * MiniControl class
@@ -259,8 +250,8 @@ class MiniControl {
             delete this.plugins[unloadName];
             const file = path.resolve(process.cwd() + "/" + pluginPath + "/index.ts");
             if (require.cache[file]) {
-                // eslint-disable-next-line drizzle/enforce-delete-with-where                
-                Loader.registry.delete(file);
+                // eslint-disable-next-line drizzle/enforce-delete-with-where
+                // Loader.registry.delete(file); // @TODO check how to do this in tsx
                 delete require.cache[file];
             } else {
                 this.cli(`$fffFailed to remove require cache for ¤cmd¤${unloadName}¤white¤, hotreload will not work right.`);

@@ -7,5 +7,8 @@ export default {
     out: "./userdata/drizzle",
     dbCredentials: {
         url: "sqlite://userdata/local.sqlite",
+    },
+    migration: {
+        table: "migrations"
     }
 }
