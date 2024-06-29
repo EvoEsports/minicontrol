@@ -8,12 +8,14 @@ export default class Server {
      * GbxClient instance
      */
     gbx: GbxClient
+
+    /** @ignore */
     events: EventEmitter = new EventEmitter();
-    /** 
-     * method overrides
-     */
+    /** @ignore */
     methodOverrides: { [key: string]: CallableFunction } = {};
+    /** @ignore */
     scriptCalls: { [key: string]: Promise<any> } = {};
+    
     login: string = "";
     name: string = "";
 

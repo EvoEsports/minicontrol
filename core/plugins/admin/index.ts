@@ -248,11 +248,18 @@ export default class AdminPlugin extends Plugin {
             }
         }, "Calls server method");
         tmc.addCommand("//wu", async (login: string, params: string[]) => {
-            tmc.server.send("SetWarmUp", true);
+            if (tmc.game.Name == "TmForever") {
+                tmc.server.send("SetWarmUp", true);
+            }
         }, "Starts warmup");
         tmc.addCommand("//endwu", async (login: string, params: string[]) => {
-            tmc.server.send("SetWarmUp", false);
+            if (tmc.game.Name == "TmForever") {
+                tmc.server.send("SetWarmUp", false);
+            } else {
+                tmc.server.callScript("Trackmania.WarmUp.ForceStop");  
+            }
         }, "end warmup");
+
 
         tmc.addCommand("//addlocal", this.cmdAddLocal.bind(this), "Adds local map to playlist");
         tmc.addCommand("//modecommand", async (login: string, params: string[]) => {
