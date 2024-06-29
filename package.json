@@ -7,9 +7,6 @@
         "daemon": "drizzle-kit generate:sqlite --config=drizzle.config.js && pm2 start core/minicontrol.ts"
     },
     "type": "module",
-    "resolutions": {
-
-    },
     "dependencies": {
         "better-sqlite3": "^11.1.1",
         "dependency-graph": "1.0.0",
