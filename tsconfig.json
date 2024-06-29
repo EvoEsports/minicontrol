@@ -15,11 +15,12 @@
         "strict": true,
         "noFallthroughCasesInSwitch": true,
         "forceConsistentCasingInFileNames": true,
+        "esModuleInterop": true,
         "rootDir": ".",
         "baseUrl": "./",
         "paths": {
             "core/*": ["core/*"],        
             "schemas/*": ["core/schemas/*"]
-        },
+        }
     }
 }

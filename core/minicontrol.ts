@@ -10,12 +10,21 @@ import fs from 'fs';
 import Plugin from 'core/plugins';
 import path from 'path';
 import { DepGraph } from "dependency-graph";
+import os from 'node:os';
+const platform = os.platform();
+if (platform.startsWith("win")) {
+    log.info("\n\nSorry, but MINIcontrol currently $f00not supported $zon Windows platforms.");
+    log.info("Please use WSL or Docker to run MINIcontrol.")
+    process.exit(1);
+}
 
 export interface GameStruct {
     Name: string;
     Version?: string;
     Build?: string;
 }
+
+
 
 /**
  * MiniControl class
