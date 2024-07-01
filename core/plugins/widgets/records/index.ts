@@ -45,12 +45,12 @@ export default class RecordsWidget extends Plugin {
     async updateWidget() {
         let outRecords = [];
         let x = 0;
-        for (let record of this.records) {
+        for (const record of this.records) {
             if (x >= 10) break;  
             outRecords.push(
                 {
                     rank: record.rank,
-                    nickname: escape(record.nickname),
+                    nickname: escape(record.player.nickname),
                     time: formatTime(record.time).replace(/^0:/, ""),
                 });
             x += 1;
@@ -60,7 +60,7 @@ export default class RecordsWidget extends Plugin {
             outRecords.push(
                 {
                     rank: lastRecord.Rank,
-                    nickname: escape(lastRecord.NickName),
+                    nickname: escape(lastRecord.player.nickname),
                     time: formatTime(lastRecord.time).replace(/^0:/, ""),
                 }
             )

@@ -1,47 +1,37 @@
-import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
-import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
-import Database from 'better-sqlite3';
-import { eq, inArray, sql } from "drizzle-orm";
-import type { Logger } from 'drizzle-orm/logger';
+import { Sequelize } from 'sequelize-typescript';
 import type { Player as PlayerType } from '../../playermanager';
-import { Player } from '../../schemas/players';
 import Plugin from '../../plugins';
-import { Map as DbMap } from '../../schemas/map';
 import { chunkArray } from '../../utils';
+import Map from '../../schemas/map.model';
+import Player from '../../schemas/players.model';
 
-class SqliteLogger implements Logger {
-    logQuery(query: string, params: unknown[]): void {
-        tmc.debug(`$d7c${query}`);
-    }
-}
-
-export default class SqliteDb extends Plugin {
+export default class GenericDb extends Plugin {
 
     async onLoad() {
-        const sqlite = new Database(process.cwd() + '/userdata/local.sqlite');
-        const client = drizzle(sqlite, {
-            logger: new SqliteLogger()
-        });
-        console.log("Running Migrates...");
         try {
-            migrate(client, {
-                migrationsFolder: "./userdata/drizzle"
+            const sequelize = new Sequelize(process.env['DATABASE'] ?? "", {
+                logging(sql, timing) {
+                    tmc.debug(`$d7c${sql}`);
+                },
             });
+
+            sequelize.addModels([Map, Player]);
+            await sequelize.authenticate();
+            tmc.storage['db'] = sequelize;
+
+            tmc.cli("¤success¤Database connected.");
+            tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+            tmc.server.addListener("Trackmania.MapListModified", this.onMapListModified, this);
         } catch (e: any) {
-            tmc.cli("¤error¤Error running migrations: ¤white¤" + e.message);
+            tmc.cli("¤error¤" + e.message);
             process.exit(1);
         }
-
-        tmc.storage['sqlite'] = client;
-        tmc.cli("¤success¤Database connected.");
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-        tmc.server.addListener("Trackmania.MapListModified", this.onMapListModified, this);
     }
 
     async onUnload() {
-        if (tmc.storage['sqlite']) {
-            await tmc.storage['sqlite'].close();
-            delete (tmc.storage['sqlite']);
+        if (tmc.storage['db']) {
+            await tmc.storage['db'].close();
+            delete (tmc.storage['db']);
         }
         tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect.bind(this));
     }
@@ -56,25 +46,25 @@ export default class SqliteDb extends Plugin {
     }
 
     async syncPlayer(player: PlayerType) {
-        if (!tmc.storage['sqlite']) return;
-        const db: BetterSQLite3Database = tmc.storage['sqlite'];
-        const query = await db.select().from(Player).where(eq(Player.login, player.login));
-        if (query.length == 0) {
-            await db.insert(Player).values({
+        let dbPlayer = await Player.findByPk(player.login);
+        if (dbPlayer == null) {
+            dbPlayer = await Player.create({
                 login: player.login,
                 nickname: player.nickname,
+                path: player.path,
             });
         } else {
-            await db.update(Player).set({
+            dbPlayer.update({
                 nickname: player.nickname,
-            }).where(eq(Player.login, player.login));
-
-            if (query[0] && query[0].customNick) {
-                tmc.cli("Setting nickname to " + query[0].customNick);
-                player.set("nickname", query[0].customNick);
-            }
+                path: player.path
+            });
+        }
+        if (dbPlayer && dbPlayer.customNick) {
+            tmc.cli("Setting nickname to " + dbPlayer.customNick);
+            player.set("nickname", dbPlayer.customNick);
         }
     }
+
 
     async syncPlayers() {
         const players = tmc.players.getAll();
@@ -90,14 +80,11 @@ export default class SqliteDb extends Plugin {
     }
 
     async syncMaps() {
-        if (!tmc.storage['sqlite']) return;
-        const db: BetterSQLite3Database = tmc.storage['sqlite'];
-
         const serverUids = tmc.maps.getUids();
-        const result = await db.select().from(DbMap).where(inArray(DbMap.uuid, serverUids)).all();
-        const dbUids = result.map((value) => value.uuid);
+        const result = await Map.findAll();
+        const dbUids = result.map((value: any) => value.uuid);
         const missingUids = chunkArray(serverUids.filter(item => dbUids.indexOf(item) < 0), 50);
-        for (const groups of missingUids) {  
+        for (const groups of missingUids) {
             let missingMaps: any[] = [];
             for (const uid of groups) {
                 const map = tmc.maps.getMap(uid);
@@ -109,15 +96,12 @@ export default class SqliteDb extends Plugin {
                     authorNickname: map.AuthorNickname ?? "",
                     authorTime: map.AuthorTime,
                     environment: map.Environnement,
-                    created_at: sql`CURRENT_TIMESTAMP`,
-                    updated_at: sql`CURRENT_TIMESTAMP`,
                 };
                 missingMaps.push(outMap);
             }
 
             try {
-                if (missingMaps.length > 0)
-                    await db.insert(DbMap).values(missingMaps);
+                Map.bulkCreate(missingMaps);
             } catch (e: any) {
                 tmc.cli(`¤error¤` + e.message);
             }

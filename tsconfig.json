@@ -1,9 +1,11 @@
 {
     "compilerOptions": {
         "lib": ["ESNext"],
-        "target": "ESNext",
         "module": "ESNext",    
         "moduleDetection": "force",
+        "target": "es6", // or a more recent ecmascript version
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "jsx": "react-jsx",
         "allowJs": true,
         "preserveSymlinks": true,

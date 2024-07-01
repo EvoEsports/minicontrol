@@ -1,7 +1,6 @@
+import { Sequelize } from "sequelize-typescript";
 import Plugin from "../../plugins";
-import type {BetterSQLite3Database} from "drizzle-orm/better-sqlite3";
-import {and, eq} from "drizzle-orm";
-import {MapLikes as Likes} from "../../schemas/maplikes";
+import Likes from "../../schemas/maplikes.model";
 
 export interface Like {
     login: string;
@@ -14,6 +13,7 @@ export default class MapLikes extends Plugin {
     votes: Like[] = [];
 
     async onLoad() {
+        tmc.storage['db'].addModels([Likes]);
         tmc.addCommand("/++", this.onLike.bind(this), "Like a map");
         tmc.addCommand("/--", this.onDislike.bind(this), "Dislike a map");
         tmc.server.addListener("Trackmania.BeginMap", this.syncVotes, this);
@@ -29,17 +29,15 @@ export default class MapLikes extends Plugin {
         tmc.removeCommand("/--");
         tmc.server.removeListener("Trackmania.BeginMap", this.syncVotes);
         tmc.server.removeListener("Trackmania.PlayerChat", this.onPlayerChat);
-        this.votes = [];        
+        this.votes = [];
     }
 
     async syncVotes() {
-        if (!tmc.storage['sqlite']) return;
         if (!tmc.maps.currentMap) return;
-        const db: BetterSQLite3Database = tmc.storage['sqlite'];
-        const votes = await db.select().from(Likes).where(eq(Likes.mapUuid, tmc.maps.currentMap.UId));
+        const votes = await Likes.findAll({ where: { mapUuid: tmc.maps.currentMap.UId } });
         this.votes = [];
         for (const vote of votes) {
-            this.votes.push({login: vote.login, vote: vote.vote, updatedAt: vote.updatedAt || ""});
+            this.votes.push({ login: vote.login, vote: vote.vote, updatedAt: vote.updatedAt || "" });
         }
         tmc.server.emit("Plugin.MapLikes.onSync", this.votes);
     }
@@ -53,10 +51,10 @@ export default class MapLikes extends Plugin {
         if (text === "++") {
             await this.updateVote(login, 1);
         }
-        
+
         if (text === "--") {
             await this.updateVote(login, -1);
-        }        
+        }
     }
 
     async onLike(login: string) {
@@ -68,22 +66,22 @@ export default class MapLikes extends Plugin {
     }
 
     async updateVote(login: string, value: number = 0) {
-        if (!tmc.storage['sqlite']) return;
         if (!tmc.maps.currentMap) return;
-        const db: BetterSQLite3Database = tmc.storage['sqlite'];
-        const query = await db.select().from(Likes).where(and(eq(Likes.mapUuid, tmc.maps.currentMap.UId), eq(Likes.login, login)));
-        if (query.length == 0) {
-            await db.insert(Likes).values({
+        let mapLike = await Likes.findOne(
+            {
+                where: {
+                    mapUuid: tmc.maps.currentMap.UId,
+                    login: login,
+                }
+            });
+        if (!mapLike) {
+            mapLike = await Likes.create({
                 mapUuid: tmc.maps.currentMap.UId,
                 login: login,
                 vote: value
-            });
-        } else {
-            await db.update(Likes).set({
-                vote: value,
-                updatedAt: new Date().toISOString(),
-            }).where(and(eq(Likes.mapUuid, tmc.maps.currentMap.UId), eq(Likes.login, login)));
+            })
         }
+        await mapLike.update({ vote: value });
         await this.syncVotes();
     }
 
