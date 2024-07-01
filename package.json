@@ -5,7 +5,8 @@
         "start": "drizzle-kit generate --config=drizzle.config.js && tsx --env-file=.env core/minicontrol.ts",
         "start2": "drizzle-kit generate --config=drizzle.config.js && tsx --env-file=.env2 core/minicontrol.ts",
         "up": "drizzle-kit up", 
-        "daemon": "drizzle-kit generate --config=drizzle.config.js && pm2 start core/minicontrol.ts"
+        "daemon": "drizzle-kit generate --config=drizzle.config.js && pm2 start core/minicontrol.ts",
+        "docker": "drizzle-kit generate --config=drizzle.config.js && tsx core/minicontrol.ts"
     },
     "type": "module",
     "dependencies": {
