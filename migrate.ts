@@ -31,6 +31,7 @@ export type Migration = typeof migrator._types.migration;
         log.info("$fffMigrating:")
         await migrator.up()
         log.info("$fffMigrating ends!");
+        process.exit(0);
     } catch (e: any) {
         log.error("$f00error occurred");
     }

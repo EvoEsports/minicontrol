@@ -4,22 +4,48 @@ import Plugin from '../../plugins';
 import { chunkArray } from '../../utils';
 import Map from '../../schemas/map.model';
 import Player from '../../schemas/players.model';
+import { MigrationError, SequelizeStorage, Umzug } from 'umzug';
 
 export default class GenericDb extends Plugin {
 
     async onLoad() {
+        let sequelize;
         try {
-            const sequelize = new Sequelize(process.env['DATABASE'] ?? "", {
+            sequelize = new Sequelize(process.env['DATABASE'] ?? "", {
                 logging(sql, timing) {
                     tmc.debug(`$d7c${sql}`);
                 },
             });
-
-            sequelize.addModels([Map, Player]);
+            tmc.cli("¤info¤Trying to connect database...")
             await sequelize.authenticate();
-            tmc.storage['db'] = sequelize;
+            tmc.cli("¤success¤Success!");
+        } catch (e: any) {
+            tmc.cli("¤error¤" + e.message);
+            process.exit(1);
+        }
 
-            tmc.cli("¤success¤Database connected.");
+        try {
+            const migrator = new Umzug({
+                migrations: {
+                    glob: ['migrations/*.ts', { cwd: process.cwd() }],
+                },
+                context: sequelize,
+                storage: new SequelizeStorage({
+                    sequelize,
+                }),
+                logger: {
+                    debug: (message) => { },
+                    error: (message) => { tmc.cli("$f00" + message) },
+                    warn: (message) => { tmc.cli("$fa0" + message) },
+                    info: (message) => { tmc.cli("$5bf" + message.event + " $fff" + message.name) },
+                }
+            });
+            tmc.cli("¤info¤Running migrates...");
+            await migrator.up();
+            tmc.cli("¤success¤Success!");
+            
+            sequelize.addModels([Map, Player]);
+            tmc.storage['db'] = sequelize;
             tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
             tmc.server.addListener("Trackmania.MapListModified", this.onMapListModified, this);
         } catch (e: any) {
