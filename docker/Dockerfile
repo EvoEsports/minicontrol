@@ -1,5 +1,5 @@
 # Using bun base image + node because of https://github.com/oven-sh/bun/issues/7343
-FROM oven/bun:alpine
+FROM node:lts-alpine
 
 ARG UID="9999" \
     GID="9999" \
@@ -23,7 +23,7 @@ RUN true \
     && addgroup -g $GID minicontrol \
     && adduser -u $UID -Hh /minicontrol -G minicontrol -s /sbin/nologin -D minicontrol \
     && install -d -o minicontrol -g minicontrol -m 775 /minicontrol \
-    && apk add --force-overwrite --no-cache nodejs npm tini \
+    && apk add --force-overwrite --no-cache tini \
     && true
 
 USER minicontrol
@@ -32,11 +32,11 @@ COPY --chown=minicontrol ../ /minicontrol/
 
 RUN true \
     && set -eux \
-    && bun install --production \
+    && npm install --production \
     && true
 
 HEALTHCHECK --interval=5s --timeout=5s --start-period=5s --retries=3 \
     CMD [ "/bin/sh", "-c", "echo 'ping' | nc -w1 127.0.0.1 3000 | grep -qF '0' || exit 1" ]
 
-ENTRYPOINT ["/sbin/tini", "--", "bun"]
-CMD [ "start" ]
+ENTRYPOINT ["/sbin/tini", "--", "npm", "run"]
+CMD [ "docker" ]
