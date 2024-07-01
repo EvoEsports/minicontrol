@@ -51,9 +51,9 @@ export default class Records extends Plugin {
             records.push(
                 {
                     rank: record.rank,
-                    nickname: escape(record.player.nickname??""),
+                    nickname: escape(record.player.nickname ?? ""),
                     login: record.login,
-                    time: "$o" + formatTime(record.time??0),
+                    time: "$o" + formatTime(record.time ?? 0),
                 });
         }
         const window = new RecordsWindow(login, this);
@@ -153,9 +153,9 @@ export default class Records extends Plugin {
                     checkpoints: ranking.BestCheckpoints.join(","),
                     mapUuid: this.currentMapUid,
                 });
-                await newRecord.reload({include: Player});
+                await newRecord.reload({ include: Player });
                 newRecord.rank = 1;
-                
+
                 this.records.push(newRecord);
                 tmc.server.emit("Plugin.Records.onNewRecord", {
                     oldRecord: null,
@@ -190,6 +190,7 @@ export default class Records extends Plugin {
                     checkpoints: ranking.BestCheckpoints.join(","),
                     mapUuid: this.currentMapUid,
                 });
+                await newRecord.reload({ include: Player });
                 this.records.push(newRecord);
             }
             // Sort records
