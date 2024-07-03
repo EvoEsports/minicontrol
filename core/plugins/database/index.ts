@@ -5,6 +5,7 @@ import { chunkArray } from '../../utils';
 import Map from '../../schemas/map.model';
 import Player from '../../schemas/players.model';
 import { MigrationError, SequelizeStorage, Umzug } from 'umzug';
+import { removeColors } from '../../utils';
 
 export default class GenericDb extends Plugin {
 
@@ -13,7 +14,7 @@ export default class GenericDb extends Plugin {
         try {
             sequelize = new Sequelize(process.env['DATABASE'] ?? "", {
                 logging(sql, timing) {
-                    tmc.debug(`$d7c${sql}`);
+                    tmc.debug(`$d7c${removeColors(sql)}`);
                 },
             });
             tmc.cli("¤info¤Trying to connect database...")
@@ -25,25 +26,26 @@ export default class GenericDb extends Plugin {
         }
 
         try {
-            const migrator = new Umzug({
-                migrations: {
-                    glob: ['migrations/*.ts', { cwd: process.cwd() }],
-                },
-                context: sequelize,
-                storage: new SequelizeStorage({
-                    sequelize,
-                }),
-                logger: {
-                    debug: (message) => { },
-                    error: (message) => { tmc.cli("$f00" + message) },
-                    warn: (message) => { tmc.cli("$fa0" + message) },
-                    info: (message) => { tmc.cli("$5bf" + message.event + " $fff" + message.name) },
-                }
-            });
-            tmc.cli("¤info¤Running migrates...");
-            await migrator.up();
-            tmc.cli("¤success¤Success!");
-            
+            for (const path of ["./migrations/", "./userdata/migrations/"]) {
+                const migrator = new Umzug({
+                    migrations: {
+                        glob: [path + '*.ts', { cwd: process.cwd() }],
+                    },
+                    context: sequelize,
+                    storage: new SequelizeStorage({
+                        sequelize,
+                    }),
+                    logger: {
+                        debug: (message) => { },
+                        error: (message) => { tmc.cli("$f00" + message) },
+                        warn: (message) => { tmc.cli("$fa0" + message) },
+                        info: (message) => { tmc.cli("$5bf" + message.event + " $fff" + message.name) },
+                    }
+                });
+                tmc.cli("¤info¤Running migrations for " + path);
+                await migrator.up();
+                tmc.cli("¤success¤Success!");
+            }
             sequelize.addModels([Map, Player]);
             tmc.storage['db'] = sequelize;
             tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);

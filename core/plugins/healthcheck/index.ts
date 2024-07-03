@@ -1,13 +1,19 @@
 
 import { Server, type Socket } from "net";
 import Plugin from "..";
+import { isDocker } from "../../utils";
 
 export default class HealthCheck extends Plugin {
     server: Server | null = null;
 
     async onLoad() {
-        this.server = new Server((socket: Socket) => {
+        if (!isDocker()) {
+            tmc.cli("¤info¤HealthCheck: disabled, docker not detected.");
+            return;
+        }
+        tmc.cli("¤info¤HealthCheck: enabled, docker detected.");
 
+        this.server = new Server((socket: Socket) => {
             socket.on("error", (error: any) => {
                 tmc.cli(`¤error¤HealthCheck: ${error.message}`);
             })

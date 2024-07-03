@@ -1,4 +1,5 @@
 import tm from 'tm-essentials';
+import fs from 'fs';
 
 export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -128,3 +129,28 @@ export function memInfo(section = "") {
     prevValueMem = memMB;
     return processColorString(out);
 }
+
+export function isDocker() {
+    const hasEnv = () => {
+        try {
+            fs.statSync('/.dockerenv');
+            return true;
+        } catch {
+            return false;
+        }
+    };
+    const hasGroup = () => {
+        try {
+            return fs.readFileSync('/proc/self/cgroup', 'utf8').includes('docker');
+        } catch {
+            return false;
+        }
+    }
+    
+    return hasEnv() || hasGroup();
+}
+
+
+
+
+

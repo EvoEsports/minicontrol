@@ -152,7 +152,7 @@ class MiniControl {
                 return;
             }
             let plugin = null;
-            if(process.platform === "win32") {
+            if (process.platform === "win32") {
                 plugin = await import("file:///" + process.cwd() + "/" + pluginPath);
             } else {
                 plugin = await import(process.cwd() + "/" + pluginPath);
@@ -201,14 +201,19 @@ class MiniControl {
             }
 
             // load and init the plugin
-            const cls = new plugin.default();
-            this.plugins[name] = cls;
-            const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ loaded.`;
-            await cls.onLoad();
-            this.cli(msg);
-            if (this.startComplete) {
-                this.chat(msg);
-                await cls.onStart();
+            try {
+                tmc.cli(`¤gray¤Loading ¤cmd¤${name}¤white¤...`)
+                const cls = new plugin.default();
+                this.plugins[name] = cls;
+                await cls.onLoad();
+                if (this.startComplete) {
+                    await cls.onStart();  
+                    this.chat(`¤gray¤Plugin ¤cmd¤${name} ¤white¤loaded!`);
+                }   
+                this.cli("¤gray¤Success.");
+            } catch (e: any) {
+                tmc.cli("¤gray¤Error while starting plugin ¤cmd¤" + name);
+                console.log(e);
             }
         } else {
             const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ already loaded.`;
@@ -279,7 +284,7 @@ class MiniControl {
      * @param object The object to log.
      */
     debug(object: any) {
-        if (process.env.DEBUG == "true") log.info(processColorString(object.toString()));
+        if (process.env.DEBUG == "true") log.debug(processColorString(object.toString()));
     }
 
     /**
@@ -380,7 +385,7 @@ class MiniControl {
                 continue;
             }
             let cls = null;
-            if(process.platform === "win32") {
+            if (process.platform === "win32") {
                 cls = await import("file:///" + process.cwd() + "/" + pluginName);
             } else {
                 cls = await import(process.cwd() + "/" + pluginName);
