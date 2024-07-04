@@ -10,12 +10,14 @@ import fs from 'fs';
 import Plugin from './plugins';
 import path from 'path';
 import { DepGraph } from "dependency-graph";
+import { require } from 'tsx/cjs/api'
 
 export interface GameStruct {
     Name: string;
     Version?: string;
     Build?: string;
 }
+
 
 /**
  * MiniControl class
