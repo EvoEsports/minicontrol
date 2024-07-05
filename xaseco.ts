@@ -1,7 +1,7 @@
 
 import sqlite3 from 'sqlite3';
 import { readFileSync } from 'fs';
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize, UpdatedAt } from 'sequelize-typescript';
 import { removeColors, chunkArray } from './core/utils';
 import log from './core/log';
 import Map from './core/schemas/map.model';
@@ -75,7 +75,7 @@ async function main() {
         log.info("Usage: tsx --env-file=.env xaseco.ts <mysql_dump.sql>");
         return;
     }
-    
+
     if (!process.argv[2].endsWith(".sql")) {
         log.info("Invalid file extension. Must be a .sql file.");
         return;
@@ -104,7 +104,7 @@ async function main() {
     log.info("$5bfMigrating $fffXAseco $5bfdatabase to $fffMINIcontrol...");
     log.info("$5bfPlease wait and do not interrupt the process...");
     log.info("$5bfProcessing maps...")
-    const dbMaps: any = await query("SELECT * FROM challenges;");
+    const dbMaps: any = await query("SELECT Id, * FROM challenges;");
     log.info("Total: " + dbMaps.length);
     let outMaps = [];
     for (const map of dbMaps) {
@@ -118,17 +118,16 @@ async function main() {
         });
     }
     try {
-        for (const maps of chunkArray(outMaps, 500)) {
-            await Map.bulkCreate(maps);
+        for (const mapp of chunkArray(outMaps, 500)) {
+            await Map.bulkCreate(mapp);
         }
     } catch (e: any) {
         log.info("$f00Error " + e.message);
         process.exit(1);
     }
     outMaps = [];
-
     log.info("$5bfProcessing players...");
-    const dbPlayers: any = await query("SELECT DISTINCT Login, NickName, UpdatedAt FROM players;");
+    const dbPlayers: any = await query("SELECT DISTINCT Login, Id, NickName, UpdatedAt FROM players;");
     log.info("Total: " + dbPlayers.length);
     let outPlayers = [];
     for (const player of dbPlayers) {
@@ -165,7 +164,7 @@ async function main() {
     }
     try {
         for (const tempRecords of chunkArray(outRecords, 500)) {
-            await Player.bulkCreate(tempRecords);
+            await Score.bulkCreate(tempRecords);
         }
     } catch (e: any) {
         log.info("$f00Error " + e.message);
@@ -176,13 +175,18 @@ async function main() {
     const dbKarma: any = await query("SELECT * FROM rs_karma;");
     log.info("Total: " + dbKarma.length);
     let outKarma = [];
+    const date = Date.now();
     for (const k of dbKarma) {
         if (!players[k.PlayerId]) continue;
+        if (!maps[k.ChallengeId]) continue;
         let value = 0;
         k.Score > 0 ? value = 1.0 : value = -1.0;
+        if (k.Score == 0) value = 0.;        
         outKarma.push({
-            uuid: maps[k.ChallengeId],
+            mapUuid: maps[k.ChallengeId],
             login: players[k.PlayerId],
+            createdAt: date,
+            updatedAt: date,
             vote: value
         });
     }

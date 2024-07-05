@@ -5,9 +5,9 @@ export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().createTable('maplikes', {
 		id: {
 			type: DataTypes.INTEGER,
+            autoIncrement: true,
 			allowNull: false,
-			primaryKey: true,
-            unique: true
+			primaryKey: true,           
 		},
 		login: {
 			type: DataTypes.STRING,

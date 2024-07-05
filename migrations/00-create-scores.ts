@@ -3,10 +3,14 @@ import type { Migration } from '../migrate';
 
 export const up: Migration = async ({ context: sequelize }) => {
     await sequelize.getQueryInterface().createTable('scores', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+        },
         mapUuid: {
             type: DataTypes.STRING,
             allowNull: false,
-            primaryKey: true,           
         },
         login: {
             type: DataTypes.STRING,

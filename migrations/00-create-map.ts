@@ -6,8 +6,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 		uuid: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			primaryKey: true,
-            unique: true
+			primaryKey: true,            
 		},
 		name: {
 			type: DataTypes.STRING,
