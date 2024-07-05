@@ -32,5 +32,5 @@ export const up: Migration = async ({ context: sequelize }) => {
 };
 
 export const down: Migration = async ({ context: sequelize }) => {
-	await sequelize.getQueryInterface().dropTable('players');
+	await sequelize.getQueryInterface().dropTable('maplikes');
 };
