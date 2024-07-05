@@ -160,7 +160,6 @@ async function main() {
             login: players[record.PlayerId],
             time: record.Score,
             checkpoints: record.Checkpoints,
-            createdAt: record.CreatedAt,
             updatedAt: record.UpdatedAt
         });
     }
