@@ -9,7 +9,8 @@ export default class Confirm extends Widget {
     size = { width: 90, height: 40 };
 
     constructor(login: string, question: string, callback: CallableFunction, params: any) {
-        super(login);
+        super();
+        this.recipient = login;
         this.pos = { x: 0, y: 20, z: 10 };
         this.callback = callback;        
         this.params = params;        
