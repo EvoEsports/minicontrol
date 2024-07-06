@@ -224,8 +224,7 @@ export default class Records extends Plugin {
             // Update ranks
             let outRecord = {};
             for (let i = 0; i < this.records.length; i++) {
-                this.records[i].rank = i + 1;
-                console.log(this.records[i].login);
+                this.records[i].rank = i + 1;               
                 if (this.records[i].login == login) {
                     outRecord = this.records[i];
                 }
@@ -240,8 +239,7 @@ export default class Records extends Plugin {
                         }
                     });
                 }
-            }
-            console.log(outRecord);
+            }            
             this.records = this.records.slice(0, this.limit);
             tmc.server.emit("Plugin.Records.onUpdateRecord", {
                 oldRecord: oldRecord || {},
