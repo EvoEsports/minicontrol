@@ -1,3 +1,4 @@
+import "./instrument"
 import PlayerManager, { Player } from './playermanager';
 import Server from './server';
 import UiManager from './uimanager';
