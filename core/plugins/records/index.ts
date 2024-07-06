@@ -115,6 +115,13 @@ export default class Records extends Plugin {
             });
 
             this.records = this.records.filter(r => r.login !== data.login);
+            
+            let rank = 1;
+            for (const score of this.records) {
+                score.rank = rank;                
+                rank += 1;
+            }            
+            
             tmc.server.emit("Plugin.Records.onRefresh", {
                 records: clone(this.records),
             });
@@ -224,7 +231,8 @@ export default class Records extends Plugin {
             // Update ranks
             let outRecord = {};
             for (let i = 0; i < this.records.length; i++) {
-                this.records[i].rank = i + 1;               
+                this.records[i].rank = i + 1;
+               
                 if (this.records[i].login == login) {
                     outRecord = this.records[i];
                 }
@@ -239,7 +247,8 @@ export default class Records extends Plugin {
                         }
                     });
                 }
-            }            
+            }
+
             this.records = this.records.slice(0, this.limit);
             tmc.server.emit("Plugin.Records.onUpdateRecord", {
                 oldRecord: oldRecord || {},

@@ -2,14 +2,13 @@ import Widget from './widget';
 import { escape } from '../utils';
 
 export default class Confirm extends Widget {
-    template = "core/templates/confirm.twig";
     callback: CallableFunction;
     params: any;
     title = "Confirm required";
     size = { width: 90, height: 40 };
 
     constructor(login: string, question: string, callback: CallableFunction, params: any) {
-        super();
+        super("core/templates/confirm.twig");
         this.recipient = login;
         this.pos = { x: 0, y: 20, z: 10 };
         this.callback = callback;        
