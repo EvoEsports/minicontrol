@@ -142,11 +142,10 @@ export default class Records extends Plugin {
     }
 
     async onPlayerFinish(data: any) {
+        const login = data[0];
         try {
-            const login = data[0];
             if (this.records.length == 0) {
                 let ranking = await this.getRankingsForLogin(data);
-
                 const newRecord: Score = await Score.create({
                     login: login,
                     time: ranking.BestTime,
@@ -170,7 +169,7 @@ export default class Records extends Plugin {
 
             let ranking = await this.getRankingsForLogin(data);
 
-            if (lastIndex >= this.limit && ranking.BestTime >= lastRecord.time) return;
+            if (lastIndex >= this.limit && lastRecord && ranking.BestTime >= lastRecord.time) return;
             const time = ranking.BestTime;
             const record = this.records.find(r => r.login === login);
             let oldRecord = clone(record);
@@ -184,28 +183,42 @@ export default class Records extends Plugin {
                     this.records[this.records.findIndex(r => r.login === login)] = record;
                 }
             } else {
-                const newRecord: Score = await Score.create({
+                await Score.create({
+                    mapUuid: this.currentMapUid,
                     login: login,
                     time: ranking.BestTime,
                     checkpoints: ranking.BestCheckpoints.join(","),
-                    mapUuid: this.currentMapUid,
                 });
-                await newRecord.reload({ include: Player });
+                const newRecord = await Score.findOne(
+                    {
+                        where: {
+                            [Op.and]: {
+                                login: login,
+                                mapUuid: this.currentMapUid
+                            }
+                        },
+                        include: Player
+                    }
+                );                
                 this.records.push(newRecord);
             }
             // Sort records
             this.records.sort((a, b) => {
+
                 if (a.time === b.time) {
-                    return a.updatedAt.localeCompare(b.updatedAt);
+                    const str = a.updatedAt.toString();
+                    return str.localeCompare(b.updatedAt.toString());
                 }
                 return a.time - b.time;
             });
+
             // Update ranks
-            let newRecord = {};
+            let outRecord = {};
             for (let i = 0; i < this.records.length; i++) {
                 this.records[i].rank = i + 1;
-                if (this.records[i].login === login) {
-                    newRecord = this.records[i];
+                console.log(this.records[i].login);
+                if (this.records[i].login == login) {
+                    outRecord = this.records[i];
                 }
                 if (i >= this.limit) {
                     tmc.cli(`Deleting record ${i} because it's out of limit.`);
@@ -219,10 +232,11 @@ export default class Records extends Plugin {
                     });
                 }
             }
+            console.log(outRecord);
             this.records = this.records.slice(0, this.limit);
             tmc.server.emit("Plugin.Records.onUpdateRecord", {
                 oldRecord: oldRecord || {},
-                record: clone(newRecord),
+                record: clone(outRecord),
                 records: clone(this.records)
             });
         } catch (e: any) {

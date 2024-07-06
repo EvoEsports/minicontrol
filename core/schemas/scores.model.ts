@@ -4,7 +4,9 @@ import Player from './players.model';
 @Table({ tableName: "scores", timestamps: true })
 class Score extends Model {
     @PrimaryKey
-    @Unique
+    @Column(DataType.INTEGER)
+    id: number |undefined;
+
     @Column(DataType.STRING)
     mapUuid: string | undefined;
 
