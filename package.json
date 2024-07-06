@@ -10,8 +10,6 @@
     },
     "type": "module",
     "dependencies": {
-        "@sentry/node": "^8.15.0",
-        "@sentry/profiling-node": "^8.15.0",
         "dependency-graph": "1.0.0",
         "iomem": "1.5.10",
         "mysql2": "3.10.2",
