@@ -146,13 +146,22 @@ export default class Records extends Plugin {
         try {
             if (this.records.length == 0) {
                 let ranking = await this.getRankingsForLogin(data);
-                const newRecord: Score = await Score.create({
+                await Score.create({
                     login: login,
                     time: ranking.BestTime,
                     checkpoints: ranking.BestCheckpoints.join(","),
                     mapUuid: this.currentMapUid,
                 });
-                await newRecord.reload({ include: Player });
+                const newRecord = await Score.findOne(
+                    {
+                        where: {
+                            [Op.and]: {
+                                login: login,
+                                mapUuid: this.currentMapUid
+                            }
+                        },
+                        include: Player
+                    });
                 newRecord.rank = 1;
 
                 this.records.push(newRecord);
@@ -199,7 +208,7 @@ export default class Records extends Plugin {
                         },
                         include: Player
                     }
-                );                
+                );
                 this.records.push(newRecord);
             }
             // Sort records
