@@ -44,7 +44,7 @@ async function init() {
     }
 
     try {
-        for (const path of ["./migrations/", "./userdata/migrations/"]) {
+        for (const path of ["./core/migrations/", "./userdata/migrations/"]) {
             const migrator = new Umzug({
                 migrations: {
                     glob: [path + '*.ts', { cwd: process.cwd() }],

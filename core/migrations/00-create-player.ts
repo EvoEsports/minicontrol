@@ -1,29 +1,24 @@
 import { DataTypes } from 'sequelize';
-import type { Migration } from '../migrate';
+import type { Migration } from '../../migrate';
 
 export const up: Migration = async ({ context: sequelize }) => {
-	await sequelize.getQueryInterface().createTable('maps', {
-		uuid: {
+	await sequelize.getQueryInterface().createTable('players', {
+		login: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			primaryKey: true,            
+			primaryKey: true,
 		},
-		name: {
+		nickname: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-        author: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        authorNickname: {
+        customNick: {
             type: DataTypes.STRING
         },
-        authorTime: {
-            type: DataTypes.INTEGER,
-            allowNull:false
+        allowOverride: {
+            type: DataTypes.BOOLEAN
         },
-        environment: {
+        zone: {
             type:DataTypes.STRING
         },
         updatedAt: {
@@ -37,5 +32,5 @@ export const up: Migration = async ({ context: sequelize }) => {
 };
 
 export const down: Migration = async ({ context: sequelize }) => {
-	await sequelize.getQueryInterface().dropTable('maps');
+	await sequelize.getQueryInterface().dropTable('players');
 };
