@@ -48,6 +48,7 @@ export default class BestCps extends Plugin {
         const time = data[1];
         const nb = data[2];
         if (nb >= this.maxCp) return;
+        if (nb >= this.nbCheckpoints - 1) return;
         if (this.bestTimes[nb] && time < this.bestTimes[nb].time) {
             this.bestTimes[nb] = { nickname: (await tmc.getPlayer(login)).nickname, time: time, prettyTime: formatTime(time) };
             await this.display();

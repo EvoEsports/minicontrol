@@ -209,9 +209,9 @@ class MiniControl {
                 this.plugins[name] = cls;
                 await cls.onLoad();
                 if (this.startComplete) {
-                    await cls.onStart();  
+                    await cls.onStart();
                     this.chat(`¤gray¤Plugin ¤cmd¤${name} ¤white¤loaded!`);
-                }   
+                }
                 this.cli("¤gray¤Success.");
             } catch (e: any) {
                 tmc.cli("¤gray¤Error while starting plugin ¤cmd¤" + name);
