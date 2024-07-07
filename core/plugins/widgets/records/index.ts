@@ -7,7 +7,6 @@ export default class RecordsWidget extends Plugin {
     static depends: string[] = ["records"];
     widgets: { [key: string]: Widget } = {};
     records: any[] = [];
-    openAction = tmc.ui.addAction(this.widgetClick.bind(this), "");
 
     async onLoad() {
         tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
@@ -17,6 +16,7 @@ export default class RecordsWidget extends Plugin {
         tmc.server.addListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord, this);
         tmc.server.addListener("Plugin.Records.onNewRecord", this.onNewRecord, this);
     }
+
     async onPlayerConnect(player: Player) {
         const login = player.login;
         await this.updateWidget(login);
@@ -27,8 +27,7 @@ export default class RecordsWidget extends Plugin {
 
     async onPlayerDisconnect(player: Player) {
         const login = player.login;
-        if (this.widgets[login]) {
-            this.widgets[login].destroy();
+        if (this.widgets[login]) {            
             delete this.widgets[login];
         }
     }
@@ -64,7 +63,7 @@ export default class RecordsWidget extends Plugin {
         await tmc.ui.displayManialinks(Object.values(this.widgets));
     }
 
-    async updateWidget(login: string) {
+    updateWidget(login: string) {
         let widget = this.widgets[login];
         if (!widget) {
             widget = new Widget("core/plugins/widgets/records/widget.twig");
@@ -72,7 +71,7 @@ export default class RecordsWidget extends Plugin {
             widget.recipient = login;
             widget.pos = { x: 115, y: 30 };
             widget.size = { width: 45, height: 45 };
-            widget.setOpenActionId(this.openAction);
+            widget.setOpenAction(this.widgetClick.bind(this));
         }
 
         let outRecords = this.records.slice(0, 5);
