@@ -5,7 +5,7 @@ import Widget from '../../ui/widget';
 
 export default class DebugTool extends Plugin {
     widget: Widget | null = null;
-    intervalId: NodeJS.Timer | null = null;
+    intervalId: any | null = null;
 
     async onLoad() {
         if (process.env.DEBUG == "true") {
@@ -18,7 +18,7 @@ export default class DebugTool extends Plugin {
         await this.displayMemInfo();     
         this.intervalId = setInterval(() => {
             this.displayMemInfo();
-        }, 60000) as NodeJS.Timer;
+        }, 60000) as any;
     }
 
     async onUnload() {

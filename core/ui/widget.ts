@@ -13,6 +13,10 @@ export default class Widget extends Manialink {
             this.actions['openWidget'] = tmc.ui.addAction(action, "");
         }
     }
+    
+    setOpenActionId(actionId: string) {
+        this.actions['openWidget'] = actionId;
+    }
 
     setData(data: any) {
         this.data = data;

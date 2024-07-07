@@ -59,7 +59,8 @@ export default class Manialink {
             actions: this.actions,
             colors: tmc.colors,
             data: this.data,
-            title: this.title
+            title: this.title,
+            recipient: this.recipient
         });
     }
 }

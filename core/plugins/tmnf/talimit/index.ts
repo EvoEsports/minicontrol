@@ -9,7 +9,7 @@ export default class TAlimitPlugin extends Plugin {
     active: boolean = false;
     extend: boolean = false;
     widget: Widget | null = null;
-    intervalId: Timer | null = null;
+    intervalId: any | null = null;
 
     async onBeginRound() {
         this.startTime = Date.now();
