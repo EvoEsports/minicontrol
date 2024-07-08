@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize-typescript';
 import type { Player as PlayerType } from '../../playermanager';
 import Plugin from '../../plugins';
-import { chunkArray } from '../../utils';
+import { chunkArray, sleep } from '../../utils';
 import Map from '../../schemas/map.model';
 import Player from '../../schemas/players.model';
 import { MigrationError, SequelizeStorage, Umzug } from 'umzug';
@@ -109,6 +109,7 @@ export default class GenericDb extends Plugin {
 
     async onMapListModified(data: any) {
         if (data[2] === true) {
+            await sleep(250);
             await this.syncMaps();
         }
     }
