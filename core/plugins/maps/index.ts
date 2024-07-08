@@ -136,8 +136,12 @@ export default class Maps extends Plugin {
         if (this.queue.length > 0) {
             const map = this.queue.shift();
             if (map) {
+                try {
                 await tmc.server.call("ChooseNextMap", map.File);
                 tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤chosen by ¤white¤${map.QueueNickName}`);
+                } catch (e:any) {
+                    tmc.cli(`¤error¤${e.message}`);
+                }
             }
         }
     }
