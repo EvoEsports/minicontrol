@@ -103,7 +103,7 @@ export default class Server {
             method = method.replace("Map", "Challenge");
         }
         tmc.debug("$27fcall ¤white¤<> $89a" + method);
-        if (tmc.game.Name == "Trackmania") {
+        if (tmc.game.Name == "Trackmania" || tmc.game.Name == "ManiaPlanet") {
             if (method == "SetTimeAttackLimit") {
                 const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };
                 await tmc.server.call("SetModeScriptSettings", settings);
@@ -157,7 +157,7 @@ export default class Server {
             method = method.replace("Map", "Challenge");
         }
         //  tmc.debug("$4a2send ¤white¤>> $89a" + method);
-        if (tmc.game.Name == "Trackmania") {
+        if (tmc.game.Name == "Trackmania" || tmc.game.Name == "ManiaPlanet") {
             if (method == "SetTimeAttackLimit") {
                 const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };
                 this.gbx.send("SetModeScriptSettings", settings);

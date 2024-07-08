@@ -25,7 +25,7 @@ export default class Maps extends Plugin {
         tmc.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");
         tmc.addCommand("/drop", this.cmdDrop.bind(this), "Drop Map from queue");
         tmc.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
-        if (tmc.game.Name === "TmForever") {
+        if (tmc.game.Name === "TmForever" || tmc.game.Name === "ManiaPlanet" ) {
             tmc.server.addListener("Trackmania.EndRace", this.onEndRace, this);
         } else {
             tmc.server.addListener("Trackmania.Podium_Start", this.onEndRace, this);

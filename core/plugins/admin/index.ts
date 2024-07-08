@@ -124,7 +124,7 @@ export default class AdminPlugin extends Plugin {
                 return;
             }
 
-            if (tmc.game.Name == "Trackmania") {
+            if (tmc.game.Name == "Trackmania" ||tmc.game.Name == "ManiaPlanet") {
                 if (!params[0]) {
                     return tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
                 }
