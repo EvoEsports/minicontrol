@@ -3,7 +3,7 @@
 {% block content %}
 	{% for item in data.records %}
 		<frame pos="0 -{{ loop.index0 * 4 }}" z-index="1">
-            <label pos="2.5 -2" z-index="2" size="5 3.5" text="$n$o{{ item.rank }}" textcolor="{{colors.title_fg}}" halign="center" textsize="1" valign="center2"/>
+            <label pos="2.5 -2" z-index="2" size="5 3.5" text="$n$o{{ item.rank }}" textcolor="fff" halign="center" textsize="1" valign="center2"/>
             {% if loop.index == 1 %}
                 <quad pos="2.5 -2" z-index="1" size="5 3.5" bgcolor="db0e" valign="center" halign="center"/>
             {% endif %}

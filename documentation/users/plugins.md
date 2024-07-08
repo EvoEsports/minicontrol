@@ -108,7 +108,6 @@ Provides mapslist for the server.
 
 | Command             | Description |
 |:---                 |:---         |
-|`/maps` | show maplist |
 |`/list` | show maplist |
 
 # MapWidget

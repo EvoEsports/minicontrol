@@ -75,7 +75,8 @@ class log {
         console.log(Tm2Console(str, this.ansiLevel));
     }
     info(str: string) {
-        console.log(Tm2Console(str, this.ansiLevel));
+        const date = new Date();
+        console.log(Tm2Console(`$555[${date.toISOString()}] $z` + str, this.ansiLevel));
     }
     warn(str: string) {
         console.log(Tm2Console(str, this.ansiLevel));

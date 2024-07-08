@@ -1,4 +1,4 @@
-import { removeColors } from "core/utils";
+import { removeColors } from "../utils.ts";
 import Window from "./window";
 
 /**

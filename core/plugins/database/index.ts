@@ -1,50 +1,78 @@
-import { drizzle, type BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
-import { migrate } from "drizzle-orm/bun-sqlite/migrator";
-import { Database } from 'bun:sqlite';
-import { eq } from "drizzle-orm";
-import type { Logger } from 'drizzle-orm/logger';
-import type { Player as PlayerType } from 'core/playermanager';
-import { Player } from 'core/schemas/players';
-import Plugin from 'core/plugins';
+import { Sequelize } from 'sequelize-typescript';
+import type { Player as PlayerType } from '../../playermanager';
+import Plugin from '../../plugins';
+import { chunkArray, sleep } from '../../utils';
+import Map from '../../schemas/map.model';
+import Player from '../../schemas/players.model';
+import { MigrationError, SequelizeStorage, Umzug } from 'umzug';
+import { removeColors } from '../../utils';
 
-class SqliteLogger implements Logger {
-    logQuery(query: string, params: unknown[]): void {
-        tmc.debug(`$d7c${query}`);
-    }
-}
-
-export default class SqliteDb extends Plugin {
+export default class GenericDb extends Plugin {
 
     async onLoad() {
-        const sqlite = new Database(process.cwd() + '/userdata/local.sqlite');
-        const client = drizzle(sqlite, {
-            logger: new SqliteLogger()         
-        });
-        console.log("Running Migrates...");
-        try {
-            migrate(client, {
-                migrationsFolder: "./userdata/drizzle"
-            });
-        } catch (e: any) {
-            tmc.cli("¤error¤Error running migrations: ¤white¤" + e.message);
+        let sequelize;
+        const dbString = (process.env['DATABASE'] ?? "").split("://", 1)[0];
+        if (!["sqlite", "mysql", "postgres"].includes(dbString)) {
+            tmc.cli("¤error¤Seems you .env is missing 'DATABASE=' define or the database not sqlite, mysql or postgres");
             process.exit(1);
         }
 
-        tmc.storage['sqlite'] = client;
-        tmc.cli("¤success¤Database connected.");
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        try {
+            sequelize = new Sequelize(process.env['DATABASE'] ?? "", {
+                logging(sql, timing) {
+                    tmc.debug(`$d7c${removeColors(sql)}`);
+                },
+            });
+            tmc.cli("¤info¤Trying to connect database...")
+            await sequelize.authenticate();
+            tmc.cli("¤success¤Success!");
+        } catch (e: any) {
+            tmc.cli("¤error¤" + e.message);
+            process.exit(1);
+        }
+
+        try {
+            for (const path of ["./core/migrations/", "./userdata/migrations/"]) {
+                const migrator = new Umzug({
+                    migrations: {
+                        glob: [path + '*.ts', { cwd: process.cwd() }],
+                    },
+                    context: sequelize,
+                    storage: new SequelizeStorage({
+                        sequelize,
+                    }),
+                    logger: {
+                        debug: (message) => { },
+                        error: (message) => { tmc.cli("$f00" + message) },
+                        warn: (message) => { tmc.cli("$fa0" + message) },
+                        info: (message) => { tmc.cli("$5bf" + message.event + " $fff" + message.name) },
+                    }
+                });
+                tmc.cli("¤info¤Running migrations for " + path);
+                await migrator.up();
+                tmc.cli("¤success¤Success!");
+            }
+            sequelize.addModels([Map, Player]);
+            tmc.storage['db'] = sequelize;
+            tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+            tmc.server.addListener("Trackmania.MapListModified", this.onMapListModified, this);
+        } catch (e: any) {
+            tmc.cli("¤error¤" + e.message);
+            process.exit(1);
+        }
     }
 
     async onUnload() {
-        if (tmc.storage['sqlite']) {
-            await tmc.storage['sqlite'].close();
-            delete (tmc.storage['sqlite']);
+        if (tmc.storage['db']) {
+            await tmc.storage['db'].close();
+            delete (tmc.storage['db']);
         }
         tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect.bind(this));
     }
 
     async onStart() {
         await this.syncPlayers();
+        await this.syncMaps();
     }
 
     async onPlayerConnect(player: any) {
@@ -52,30 +80,66 @@ export default class SqliteDb extends Plugin {
     }
 
     async syncPlayer(player: PlayerType) {
-        if (!tmc.storage['sqlite']) return;
-        const db: BunSQLiteDatabase = tmc.storage['sqlite'];
-        const query = await db.select().from(Player).where(eq(Player.login, player.login));
-        if (query.length == 0) {
-            await db.insert(Player).values({
+        let dbPlayer = await Player.findByPk(player.login);
+        if (dbPlayer == null) {
+            dbPlayer = await Player.create({
                 login: player.login,
                 nickname: player.nickname,
+                path: player.path,
             });
         } else {
-            await db.update(Player).set({
+            dbPlayer.update({
                 nickname: player.nickname,
-            }).where(eq(Player.login, player.login));
-
-            if (query[0] && query[0].customNick) {
-                tmc.cli("Setting nickname to " + query[0].customNick);
-                player.set("nickname", query[0].customNick);
-            }
+                path: player.path
+            });
+        }
+        if (dbPlayer && dbPlayer.customNick) {
+            tmc.cli("Setting nickname to " + dbPlayer.customNick);
+            player.set("nickname", dbPlayer.customNick);
         }
     }
 
+
     async syncPlayers() {
-        const players = tmc.players.get();
+        const players = tmc.players.getAll();
         for (const player of players) {
             await this.syncPlayer(await tmc.players.getPlayer(player.login));
+        }
+    }
+
+    async onMapListModified(data: any) {
+        if (data[2] === true) {
+            await sleep(250);
+            await this.syncMaps();
+        }
+    }
+
+    async syncMaps() {
+        const serverUids = tmc.maps.getUids();
+        const result = await Map.findAll();
+        const dbUids = result.map((value: any) => value.uuid);
+        const missingUids = chunkArray(serverUids.filter(item => dbUids.indexOf(item) < 0), 50);
+        for (const groups of missingUids) {
+            let missingMaps: any[] = [];
+            for (const uid of groups) {
+                const map = tmc.maps.getMap(uid);
+                if (!map) continue;
+                const outMap = {
+                    uuid: map.UId,
+                    name: map.Name,
+                    author: map.Author,
+                    authorNickname: map.AuthorNickname ?? "",
+                    authorTime: map.AuthorTime,
+                    environment: map.Environnement,
+                };
+                missingMaps.push(outMap);
+            }
+
+            try {
+                Map.bulkCreate(missingMaps);
+            } catch (e: any) {
+                tmc.cli(`¤error¤` + e.message);
+            }
         }
     }
 }

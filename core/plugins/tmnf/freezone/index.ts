@@ -28,7 +28,7 @@
 * SOFTWARE.
 */
 
-import Plugin from "core/plugins";
+import Plugin from "../../../plugins";
 import http, { ClientRequest } from "http";
 
 export default class Freezone extends Plugin {
@@ -38,7 +38,7 @@ export default class Freezone extends Plugin {
     mlHash: string = "6f116833b419fe7cb9c912fdaefb774845f60e79"
     mlUrl: string = "ws.trackmania.com"
     mlVersion: string = "239"
-    heartbeatInterval: Timer | null = null;
+    heartbeatInterval: any | null = null;
 
     onLoad = async () => {
         if (!this.password) {

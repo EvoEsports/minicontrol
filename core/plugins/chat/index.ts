@@ -1,4 +1,4 @@
-import Plugin from 'core/plugins';
+import Plugin from '../index';
 
 export default class Chat extends Plugin {
     enabled: boolean = false;
@@ -18,7 +18,7 @@ export default class Chat extends Plugin {
         try {
             await tmc.server.call("ChatEnableManualRouting", false, false);
         } catch (e: any) {
-            console.log(e.message);
+            tmc.cli(e.message);
         }
         tmc.server.removeListener("Trackmania.PlayerChat", this.onPlayerChat.bind(this));
         this.enabled = false;

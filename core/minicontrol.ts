@@ -7,20 +7,17 @@ import SettingsManager from './settingsmanager';
 import { processColorString } from './utils';
 import log from './log';
 import fs from 'fs';
-import Plugin from 'core/plugins';
+import Plugin from './plugins';
 import path from 'path';
 import { DepGraph } from "dependency-graph";
-
-if (!process.versions.bun) {
-    log.info(`Please install bun using "npm install -g bun"`);
-    process.exit();
-}
+import { require } from 'tsx/cjs/api'
 
 export interface GameStruct {
     Name: string;
     Version?: string;
     Build?: string;
 }
+
 
 /**
  * MiniControl class
@@ -30,7 +27,7 @@ class MiniControl {
      * The version of MiniControl.
      */
     readonly brand: string = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
-    readonly version: string = "0.3.8";
+    readonly version: string = "0.4.0";
     /**
      * The start time of MiniControl.
      */
@@ -131,7 +128,7 @@ class MiniControl {
     * @returns 
     */
     findPlugin(name: string): string | null {
-        const dirsToCheck = ["core/plugins/", "userdata/plugins/"];
+        const dirsToCheck = ["./core/plugins/", "./userdata/plugins/"];
         for (const dir of dirsToCheck) {
             if (fs.existsSync(dir + name + "/index.ts")) {
                 return (dir + name).replaceAll("\\", "/");
@@ -156,7 +153,12 @@ class MiniControl {
                 }
                 return;
             }
-            const plugin = await import(process.cwd() + "/" + pluginPath);
+            let plugin = null;
+            if (process.platform === "win32") {
+                plugin = await import("file:///" + process.cwd() + "/" + pluginPath);
+            } else {
+                plugin = await import(process.cwd() + "/" + pluginPath);
+            }
 
             if (plugin.default == undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
@@ -196,20 +198,24 @@ class MiniControl {
                     const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ failed to load. Missing dependency ¤cmd¤${depend}¤white¤.`;
                     this.cli(msg);
                     if (this.startComplete) this.chat(msg);
-                    Bun.gc(true);
                     return;
                 }
             }
 
             // load and init the plugin
-            const cls = new plugin.default();
-            this.plugins[name] = cls;
-            const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ loaded.`;
-            await cls.onLoad();
-            this.cli(msg);
-            if (this.startComplete) {
-                this.chat(msg);
-                await cls.onStart();
+            try {
+                tmc.cli(`¤gray¤Loading ¤cmd¤${name}¤white¤...`)
+                const cls = new plugin.default();
+                this.plugins[name] = cls;
+                await cls.onLoad();
+                if (this.startComplete) {
+                    await cls.onStart();
+                    this.chat(`¤gray¤Plugin ¤cmd¤${name} ¤white¤loaded!`);
+                }
+                this.cli("¤gray¤Success.");
+            } catch (e: any) {
+                tmc.cli("¤gray¤Error while starting plugin ¤cmd¤" + name);
+                console.log(e);
             }
         } else {
             const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ already loaded.`;
@@ -251,14 +257,12 @@ class MiniControl {
             delete this.plugins[unloadName];
             const file = path.resolve(process.cwd() + "/" + pluginPath + "/index.ts");
             if (require.cache[file]) {
-                // eslint-disable-next-line drizzle/enforce-delete-with-where                
-                Loader.registry.delete(file);
+                // eslint-disable-next-line drizzle/enforce-delete-with-where
+                // Loader.registry.delete(file); // @TODO check how to do this in tsx
                 delete require.cache[file];
             } else {
                 this.cli(`$fffFailed to remove require cache for ¤cmd¤${unloadName}¤white¤, hotreload will not work right.`);
             }
-
-            Bun.gc(true);
             const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ unloaded.`;
             this.cli(msg);
             this.chat(msg);
@@ -282,7 +286,7 @@ class MiniControl {
      * @param object The object to log.
      */
     debug(object: any) {
-        if (process.env.DEBUG == "true") log.info(processColorString(object.toString()));
+        if (process.env.DEBUG == "true") log.debug(processColorString(object.toString()));
     }
 
     /**
@@ -308,7 +312,7 @@ class MiniControl {
         if (this.startComplete) return;
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
         this.cli("¤info¤Starting MiniControl...");
-        this.cli(`¤info¤Using Bun ¤white¤${Bun.version}`);
+        this.cli(`¤info¤Using Node ¤white¤${process.version}`);
         this.cli("¤info¤Connecting to Trackmania Dedicated server at ¤white¤" + (process.env.XMLRPC_HOST ?? "127.0.0.1") + ":" + port);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
         if (!status) {
@@ -349,13 +353,13 @@ class MiniControl {
     async beforeInit() {
         await this.chatCmd.beforeInit();
         // load plugins
-        let plugins = fs.readdirSync(process.cwd() + "/core/plugins", { withFileTypes: true, recursive: true });
-        plugins = plugins.concat(fs.readdirSync(process.cwd() + "/userdata/plugins", { withFileTypes: true, recursive: true }));
+        let plugins = fs.readdirSync(process.cwd().replaceAll("\\", "/") + "/core/plugins", { withFileTypes: true, recursive: true });
+        plugins = plugins.concat(fs.readdirSync(process.cwd().replaceAll("\\", "/") + "/userdata/plugins", { withFileTypes: true, recursive: true }));
         const exclude = process.env.EXCLUDED_PLUGINS?.split(",") || [];
         let loadList = [];
         for (const plugin of plugins) {
             let include = plugin && plugin.isDirectory();
-            const directory = plugin.path.replace(path.resolve("core", "plugins"), "").replace(path.resolve("userdata", "plugins"), "");
+            const directory = plugin.parentPath.replaceAll("\\", "/").replace(path.resolve("core", "plugins").replaceAll("\\", "/"), "").replace(path.resolve("userdata", "plugins").replaceAll("\\", "/"), "");
             if (include) {
                 let pluginName = plugin.name;
                 if (directory != "") {
@@ -382,7 +386,12 @@ class MiniControl {
                 this.cli(msg);
                 continue;
             }
-            const cls = await import(process.cwd() + "/" + pluginName);
+            let cls = null;
+            if (process.platform === "win32") {
+                cls = await import("file:///" + process.cwd() + "/" + pluginName);
+            } else {
+                cls = await import(process.cwd() + "/" + pluginName);
+            }
             const plugin = cls.default;
             if (plugin == undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;

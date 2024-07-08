@@ -1,5 +1,5 @@
 import { GbxClient } from "./gbx";
-import EventEmitter from "events";
+import EventEmitter from "node:events";
 /**
  * Server class
  */
@@ -8,12 +8,14 @@ export default class Server {
      * GbxClient instance
      */
     gbx: GbxClient
+
+    /** @ignore */
     events: EventEmitter = new EventEmitter();
-    /** 
-     * method overrides
-     */
+    /** @ignore */
     methodOverrides: { [key: string]: CallableFunction } = {};
+    /** @ignore */
     scriptCalls: { [key: string]: Promise<any> } = {};
+    
     login: string = "";
     name: string = "";
 
@@ -101,7 +103,7 @@ export default class Server {
             method = method.replace("Map", "Challenge");
         }
         tmc.debug("$27fcall ¤white¤<> $89a" + method);
-        if (tmc.game.Name == "Trackmania") {
+        if (tmc.game.Name == "Trackmania" || tmc.game.Name == "ManiaPlanet") {
             if (method == "SetTimeAttackLimit") {
                 const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };
                 await tmc.server.call("SetModeScriptSettings", settings);
@@ -155,7 +157,7 @@ export default class Server {
             method = method.replace("Map", "Challenge");
         }
         //  tmc.debug("$4a2send ¤white¤>> $89a" + method);
-        if (tmc.game.Name == "Trackmania") {
+        if (tmc.game.Name == "Trackmania" || tmc.game.Name == "ManiaPlanet") {
             if (method == "SetTimeAttackLimit") {
                 const settings = { "S_TimeLimit": Number.parseInt(args[0]) / 1000 };
                 this.gbx.send("SetModeScriptSettings", settings);

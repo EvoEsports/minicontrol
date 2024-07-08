@@ -1,7 +1,7 @@
 import tm from 'tm-essentials';
 import MapsWindow from './mapsWindow';
-import { clone, escape, formatTime, removeColors } from 'core/utils';
-import Plugin from 'core/plugins';
+import { clone, escape, formatTime, removeColors } from '../../utils';
+import Plugin from '../../plugins';
 import QueueWindow from './queueWIndow';
 
 export interface Map {
@@ -25,7 +25,7 @@ export default class Maps extends Plugin {
         tmc.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");
         tmc.addCommand("/drop", this.cmdDrop.bind(this), "Drop Map from queue");
         tmc.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
-        if (tmc.game.Name === "TmForever") {
+        if (tmc.game.Name === "TmForever" || tmc.game.Name === "ManiaPlanet" ) {
             tmc.server.addListener("Trackmania.EndRace", this.onEndRace, this);
         } else {
             tmc.server.addListener("Trackmania.Podium_Start", this.onEndRace, this);
@@ -136,8 +136,12 @@ export default class Maps extends Plugin {
         if (this.queue.length > 0) {
             const map = this.queue.shift();
             if (map) {
+                try {
                 await tmc.server.call("ChooseNextMap", map.File);
                 tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤chosen by ¤white¤${map.QueueNickName}`);
+                } catch (e:any) {
+                    tmc.cli(`¤error¤${e.message}`);
+                }
             }
         }
     }

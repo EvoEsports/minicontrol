@@ -1,6 +1,6 @@
-import type { Player } from "core/playermanager";
-import Plugin from "core/plugins";
-import Widget from "core/ui/widget";
+import type { Player } from "../../../playermanager";
+import Plugin from "../../../plugins";
+import Widget from "../../../ui/widget";
 
 
 export default class Checkpoints extends Plugin {
@@ -9,7 +9,7 @@ export default class Checkpoints extends Plugin {
 
     async onLoad() {
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("Trackmania.EndRace", this.onHideWidget, this);               
+        tmc.server.addListener("Trackmania.EndRace", this.onHideWidget, this);
         tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
         tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
         tmc.server.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
@@ -40,7 +40,7 @@ export default class Checkpoints extends Plugin {
             widget.pos = { x: 0, y: -74 };
             widget.size = { width: 20, height: 5 };
             widget.data = {
-                totalCheckpoints: tmc.maps.currentMap?.NbCheckpoints || 0,
+                totalCheckpoints: (tmc.maps.currentMap?.NbCheckpoints || 0) - 1,
                 currentCheckpoint: this.checkpointCounter[login] || 0,
             };
             this.widgets[login] = widget;
@@ -57,7 +57,7 @@ export default class Checkpoints extends Plugin {
     }
 
     async onHideWidget(data: any) {
-        const players = tmc.players.get();
+        const players = tmc.players.getAll();
         for (const player of players) {
             if (this.widgets[player.login]) {
                 await this.widgets[player.login].hide();
@@ -67,7 +67,7 @@ export default class Checkpoints extends Plugin {
 
     async onBeginMap(data: any) {
         this.checkpointCounter = {};
-        const players = tmc.players.get();
+        const players = tmc.players.getAll();
         for (const player of players) {
             this.checkpointCounter[player.login] = 0;
             await this.onPlayerConnect(player);
@@ -76,12 +76,15 @@ export default class Checkpoints extends Plugin {
 
     async onPlayerCheckpoint(data: any) {
         this.checkpointCounter[data[0]] += 1;
-        await this.displayWidget(data[0]);
+        if (this.checkpointCounter[data[0]] < (tmc.maps.currentMap?.NbCheckpoints || 0)) {
+            await this.displayWidget(data[0]);
+        }
+
     }
 
     async onPlayerFinish(data: any) {
-        //   this.checkpointCounter[data[0]] = 0;
-        //   await this.displayWidget(data[0]);
+        this.checkpointCounter[data[0]] = 0;
+        await this.displayWidget(data[0]);
     }
 
     async onPlayerGiveup(data: any) {
@@ -95,7 +98,7 @@ export default class Checkpoints extends Plugin {
             await this.onPlayerConnect(player);
         }
         this.widgets[login].data = {
-            totalCheckpoints: tmc.maps.currentMap?.NbCheckpoints || 0,
+            totalCheckpoints: (tmc.maps.currentMap?.NbCheckpoints || 0) - 1,
             currentCheckpoint: this.checkpointCounter[login] || 0,
         };
         await this.widgets[login].display();

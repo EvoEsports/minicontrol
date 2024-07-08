@@ -1,6 +1,6 @@
-import Plugin from "core/plugins";
-import Widget from 'core/ui/widget';
-import type { Like } from "core/plugins/maplikes";
+import Plugin from "../../../plugins";
+import Widget from '../../../ui/widget';
+import type { Like } from "../../../plugins/maplikes";
 
 export default class MapLikesWidget extends Plugin {
     static depends: string[] = ["database", 'maplikes'];

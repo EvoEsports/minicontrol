@@ -1,5 +1,5 @@
-import Confirm from 'core/ui/confirm';
-import ListWindow from 'core/ui/listwindow';
+import Confirm from '../../ui/confirm';
+import ListWindow from '../../ui/listwindow';
 
 export default class PlayerWindow extends ListWindow {
 

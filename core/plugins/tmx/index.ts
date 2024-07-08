@@ -1,4 +1,4 @@
-import Plugin from 'core/plugins';
+import Plugin from '../../plugins';
 import fs from 'fs';
 
 interface Map {
@@ -39,6 +39,10 @@ export default class Tmx extends Plugin {
     async onLoad() {
         tmc.addCommand("//add", this.addMap.bind(this), "Add map from TMX");
         tmc.addCommand("//addpack", this.addMapPack.bind(this), "Add map pack from TMX");
+        tmc.addCommand("//cancelpack", () => {
+            tmc.chat("Admin cancelled the download!");
+            this.cancelToken = true;            
+        }, "Cancel pack download")
     }
 
     async onUnload() {
@@ -80,7 +84,7 @@ export default class Tmx extends Plugin {
             tmc.chat("¤info¤To cancel: ¤cmd¤//addpack cancel", login);
             return;
         }
-        
+
         if (params[0].toLowerCase() === "cancel") {
             this.cancelToken = true;
             tmc.chat("Map Pack download cancelled.", login);
@@ -158,7 +162,12 @@ export default class Tmx extends Plugin {
                 }
                 await tmc.server.call("AddMap", filePath);
                 await tmc.maps.syncMaplist();
-                tmc.chat(`Added MapId ¤white¤${map.id} ¤info¤from ¤white¤${map.baseUrl}!`);
+                const info = await tmc.server.call("GetMapInfo", `${tmc.mapsPath}${filePath}`); await tmc.maps.syncMaplist();
+                const author = info.AuthorNickname || info.Author || "n/a";
+                tmc.chat(`¤info¤Map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
+                if (Object.keys(tmc.plugins).includes("maps")) {
+                    await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
+                }           
                 return;
             } catch (err: any) {
                 tmc.chat(err, login);
@@ -171,7 +180,12 @@ export default class Tmx extends Plugin {
         fs.writeFileSync(`${tmc.mapsPath}${filePath}`, Buffer.from(abuffer));
         await tmc.server.call("AddMap", filePath);
         await tmc.maps.syncMaplist();
-        tmc.chat(`Added MapId ¤white¤${map.id} ¤info¤from ¤white¤${map.baseUrl}!`);
+        const info = await tmc.server.call("GetMapInfo", `${tmc.mapsPath}${filePath}`); await tmc.maps.syncMaplist();
+        const author = info.AuthorNickname || info.Author || "n/a";
+        tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
+        if (Object.keys(tmc.plugins).includes("maps")) {
+            await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
+        }
     }
 
     async parseAndDownloadTrackPack(packId: string, login: string) {
@@ -225,9 +239,9 @@ export default class Tmx extends Plugin {
 
         const res = await fetch(url, { keepalive: false });
         const json: any = await res.json();
-        tmc.chat("Processing Map Pack " + packId);
+        tmc.chat("Processing Map Pack ¤white¤" + packId);
         if (!json) {
-            tmc.chat(`Error while adding Pack ID ${packId}: ${res.statusText}`, login);
+            tmc.chat(`¤error¤Error while adding Pack ID ${packId}: ${res.statusText}`, login);
         }
         let results = json;
         if (tmc.game.Name === "TmForever") results = json.Results;
@@ -236,13 +250,13 @@ export default class Tmx extends Plugin {
             try {
                 let mapName = tmc.game.Name === "TmForever" ? data.TrackName : data.GbxMapName;
                 let id = tmc.game.Name === "TmForever" ? data.TrackId : data.TrackID;
-                tmc.chat(`Downloading: ${mapName}`);
+                tmc.chat(`Downloading: ¤white¤${mapName}`);
                 const map: Map = { id, baseUrl, site }
                 await this.downloadMap(map, login);
             } catch (err: any) {
                 tmc.chat(`¤error¤Error: ${err.message}`);
             }
         }
-        tmc.chat("All Done!");
+        tmc.chat("¤white¤Done!");
     }
 }

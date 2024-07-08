@@ -1,4 +1,4 @@
-import Plugin from "core/plugins";
+import Plugin from "../../../plugins";
 
 const environments = ['Stadium', 'Speed', 'Alpine', 'Bay', 'Coast', 'Island', 'Rally'];
 

@@ -6,9 +6,6 @@ PHP5 support has been dropped some while ago and attempts to get it running on e
 
 On key idea as well is to use same plugins code for all the games. This is due NADEO been kindly enough to keep the Dedicated server API quite the same all these years, kudos to them! So with a few adapters built-in it is very possible to build a plugin system running same code for all these games. Also this is not my first attempt to build a server controller, actually this is my 4th controller project, so i hope to have learnt something from the past projects. Previous attempts been: MLEPP, Expansion and Expansion<sup>2</sup>, you prolly can find these at github, they're all aswell open sourced.
 
-## Typescript and Bun 
-The MINIcontrol is coded usign typescript, and I just lately changed to use Bun over Nodejs since it's even faster than node runtime.
-
 ## Core
 
 Core of the controller itself doesn't do much, rather provides a playground for the plugin developers to work with.

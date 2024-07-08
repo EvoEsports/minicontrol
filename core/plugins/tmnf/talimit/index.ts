@@ -1,5 +1,5 @@
-import Widget from 'core/ui/widget';
-import Plugin from 'core/plugins';
+import Widget from '../../../ui/widget';
+import Plugin from '../../../plugins';
 import tm from 'tm-essentials';
 
 export default class TAlimitPlugin extends Plugin {
@@ -9,7 +9,7 @@ export default class TAlimitPlugin extends Plugin {
     active: boolean = false;
     extend: boolean = false;
     widget: Widget | null = null;
-    intervalId: Timer | null = null;
+    intervalId: any | null = null;
 
     async onBeginRound() {
         this.startTime = Date.now();

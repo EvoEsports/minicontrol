@@ -1,6 +1,7 @@
 import Twig from 'twig';
 import type Manialink from './ui/manialink';
 import Window from './ui/window';
+import { chunkArray } from './utils';
 
 Twig.cache(false);
 
@@ -270,12 +271,56 @@ export default class UiManager {
             await tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false,);
         } else {
             if (this.hiddenManialinks.length > 0) {
-                const logins = tmc.players.get().map((player) => player.login);
+                const logins = tmc.players.getAll().map((player) => player.login);
                 const recipients = logins.filter((login) => !this.hiddenManialinks.includes(login));
                 await tmc.server.send("SendDisplayManialinkPageToLogin", recipients.join(","), xml, 0, false,);
             } else {
                 await tmc.server.send("SendDisplayManialinkPage", xml, 0, false);
             }
+        }
+    }
+
+
+    /**
+     * Display array of manialinks
+     * @param manialink 
+     */
+    async displayManialinks(manialinks: Manialink[]) {
+        let callArray = [];
+        for (const manialink of manialinks) {
+            if (manialink.recipient == undefined) {
+                if (!this.publicManialinks[manialink.id]) {
+                    this.publicManialinks[manialink.id] = manialink;
+                }
+            } else {
+                if (this.playerManialinks[manialink.recipient] == undefined) this.playerManialinks[manialink.recipient] = {};
+                if (manialink instanceof Window) {
+                    for (let id in this.playerManialinks[manialink.recipient]) {
+                        if (this.playerManialinks[manialink.recipient][id] instanceof Window) {
+                            await (this.playerManialinks[manialink.recipient][id] as Window).destroy();
+                            delete this.playerManialinks[manialink.recipient][id];
+                        }
+                    }
+                }
+                this.playerManialinks[manialink.recipient][manialink.id.toString()] = manialink;
+            }
+            const render = manialink.render();
+            const xml = `<?xml version="1.0" encoding="UTF-8"?>
+            <manialinks>${this.convert(render)}</manialinks>`;
+            if (manialink.recipient !== undefined) {
+                callArray.push(["SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false]);
+            } else {
+                if (this.hiddenManialinks.length > 0) {
+                    const logins = tmc.players.getAll().map((player) => player.login);
+                    const recipients = logins.filter((login) => !this.hiddenManialinks.includes(login));
+                    callArray.push(["SendDisplayManialinkPageToLogin", recipients.join(","), xml, 0, false]);
+                } else {
+                    callArray.push(["SendDisplayManialinkPage", xml, 0, false]);
+                }
+            }
+        }
+        for (const calls of chunkArray(callArray, 50)) {
+            await tmc.server.multicall(calls);
         }
     }
 
@@ -293,7 +338,7 @@ export default class UiManager {
             }
         } else {
             if (this.hiddenManialinks.length > 0) {
-                const logins = tmc.players.get().map((player) => player.login);
+                const logins = tmc.players.getAll().map((player) => player.login);
                 const recipients = logins.filter((login) => !this.hiddenManialinks.includes(login));
                 await tmc.server.send("SendDisplayManialinkPageToLogin", recipients.join(","), xml, 0, false);
             } else {
@@ -343,7 +388,6 @@ export default class UiManager {
                 }
             }
         }
-        Bun.gc(true);
     }
 
     /**      

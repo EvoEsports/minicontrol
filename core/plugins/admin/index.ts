@@ -1,6 +1,6 @@
-import { castType, escape, removeColors } from "core/utils";
+import { castType, escape, removeColors } from "../../utils";
 import ModeSettingsWindow from "./ModeSettingsWindow";
-import Plugin from "core/plugins";
+import Plugin from "../../plugins";
 import fs from "fs";
 import LocalMapsWindow from "./LocalMapsWindow";
 import PlayerListsWindow from "./PlayerListsWindow";
@@ -124,7 +124,7 @@ export default class AdminPlugin extends Plugin {
                 return;
             }
 
-            if (tmc.game.Name == "Trackmania") {
+            if (tmc.game.Name == "Trackmania" ||tmc.game.Name == "ManiaPlanet") {
                 if (!params[0]) {
                     return tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
                 }
@@ -248,11 +248,18 @@ export default class AdminPlugin extends Plugin {
             }
         }, "Calls server method");
         tmc.addCommand("//wu", async (login: string, params: string[]) => {
-            tmc.server.send("SetWarmUp", true);
+            if (tmc.game.Name == "TmForever") {
+                tmc.server.send("SetWarmUp", true);
+            }
         }, "Starts warmup");
         tmc.addCommand("//endwu", async (login: string, params: string[]) => {
-            tmc.server.send("SetWarmUp", false);
+            if (tmc.game.Name == "TmForever") {
+                tmc.server.send("SetWarmUp", false);
+            } else {
+                tmc.server.callScript("Trackmania.WarmUp.ForceStop");  
+            }
         }, "end warmup");
+
 
         tmc.addCommand("//addlocal", this.cmdAddLocal.bind(this), "Adds local map to playlist");
         tmc.addCommand("//modecommand", async (login: string, params: string[]) => {
