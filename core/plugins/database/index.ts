@@ -81,7 +81,7 @@ export default class GenericDb extends Plugin {
             for (const path of ["./core/migrations/", "./userdata/migrations/"]) {
                 const migrator = new Umzug({
                     migrations: {
-                        glob: [path + '*.ts', { cwd: pathToFileURL(process.cwd()).href }],
+                        glob: [path + '*.ts', { cwd: process.cwd() }],
                     },
                     context: sequelize,
                     storage: new SequelizeStorage({
