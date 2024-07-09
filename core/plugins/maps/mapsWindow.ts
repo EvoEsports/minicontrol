@@ -22,7 +22,7 @@ export default class MapsWindow extends ListWindow {
                         Index: i++,
                         Name: escape(map.Name),
                         Author: escape(map.AuthorNickname || map.Author || ""),
-                        AuthorTime: formatTime(map.AuthorTime || map.GoldTime),
+                        ATime: formatTime(map.AuthorTime || map.GoldTime),
                     })
                 );
             }

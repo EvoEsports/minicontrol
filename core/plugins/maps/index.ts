@@ -28,8 +28,9 @@ export default class Maps extends Plugin {
             { key: "Index", title: "#", width: 4 },
             { key: "Name", title: "Name", width: 40, action: "Queue" },
             { key: "Author", title: "Author", width: 40 },
-            { key: "Environnement", title: "Environment", width: 25 },
-            { key: "AuthorTime", title: "Author Time", width: 20 }
+            { key: "Environnement", title: "Environment", width: 15 },
+            { key: "Vehicle", title: "Vehicle", width: 15 },
+            { key: "ATime", title: "Author Time", width: 20 }
         ]);
 
         window.title = "Maps [" + tmc.maps.getMapCount() + "]";

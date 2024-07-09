@@ -9,6 +9,49 @@ import { removeColors } from '../../utils';
 import { GBX, CGameCtnChallenge } from 'gbx';
 import { existsSync, promises as fspromises } from 'fs';
 import path from 'path';
+import { pathToFileURL } from 'url';
+
+const strToCar: any = {
+    'Stadium': "Stadium",
+    'StadiumCar': "Stadium",
+    'CarSport': "Stadium",
+
+    'Speed': "Desert",
+    "American": "Desert",
+    'DesertCar': "Desert",
+    'CarDesert': "Desert",
+
+    'Alpine': "Snow",
+    'SnowCar': "Snow",
+    'CarSnow': "Snow",
+
+    'Bay': "Bay",
+    'BayCar': "Bay",
+
+    'Coast': "Coast",
+    'CoastCar': "Coast",
+
+    'Island': "Island",
+    'IslandCar': "Island",
+    "SportCar": "Island",
+
+    'Rally': "Rally",
+    'RallyCar': "Rally",
+    'CarRally': "Rally",
+
+    'CanyonCar': 'Canyon',
+    'Canyon': 'Canyon',
+
+    'Valley': "Valley",
+    'ValleyCar': "Valley",
+    'TrafficCar': 'Valley',
+
+    'Lagoon': "Lagoon",
+    'LagoonCar': "Lagoon",
+
+    "CharacterPilot": "Pilot",
+
+};
 
 export default class GenericDb extends Plugin {
 
@@ -38,7 +81,7 @@ export default class GenericDb extends Plugin {
             for (const path of ["./core/migrations/", "./userdata/migrations/"]) {
                 const migrator = new Umzug({
                     migrations: {
-                        glob: [path + '*.ts', { cwd: process.cwd() }],
+                        glob: [path + '*.ts', { cwd: pathToFileURL(process.cwd()).href }],
                     },
                     context: sequelize,
                     storage: new SequelizeStorage({
@@ -157,9 +200,15 @@ export default class GenericDb extends Plugin {
                         const stream = await fspromises.readFile(fileName);
                         const gbx = new GBX<CGameCtnChallenge>(stream);
                         const file = await gbx.parse();
-                        await map.update({
-                            playerModel: file.playerModel ?? ""
-                        });
+
+                        let car = strToCar[file.playerModel.id ?? ""] || strToCar[mapInfo.Environnement];
+                        if (car) {
+                            await map.update({
+                                playerModel: car,
+                            });
+                        } else {
+                            tmc.cli(`¤info¤ ${file.playerModel.id} not found. skipping...`);
+                        }
                     } else {
                         tmc.cli(`¤error¤ "¤white¤${fileName}¤error¤" not found.`);
                     }
