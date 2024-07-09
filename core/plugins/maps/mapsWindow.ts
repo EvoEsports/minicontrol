@@ -34,8 +34,8 @@ export default class MapsWindow extends ListWindow {
     async onAction(login: string, action: string, item: any) {
         if (action == "Jump") {
             await tmc.chatCmd.execute(login, "//jump " + item.Uid);
-        } else if (action == "Delete") {
-            const confirm = new Confirm(login, "Confirm Delete", this.applyCommand.bind(this), [login, "//remove " + item.UId]);
+        } else if (action == "Remove") {
+            const confirm = new Confirm(login, "Confirm Remove", this.applyCommand.bind(this), [login, "//remove " + item.UId]);
             await confirm.display();    
         } else if (action == "Queue") {
             await tmc.chatCmd.execute(login, "/addqueue " + item.UId);

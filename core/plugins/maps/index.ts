@@ -44,7 +44,7 @@ export default class Maps extends Plugin {
         }
         window.title = "Maps [" + tmc.maps.getMapCount() + "]";
         if (tmc.admins.includes(login)) {
-            window.setActions(["Delete"]);
+            window.setActions(["Remove"]);
         }
 
         await window.display()
