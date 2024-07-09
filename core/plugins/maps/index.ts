@@ -10,7 +10,7 @@ export default class Maps extends Plugin {
 
     async onUnload() {
         tmc.removeCommand("/list");
-        tmc.storage["menu"]?.removeItem("Map List");    
+        tmc.storage["menu"]?.removeItem("Map List");
     }
 
     async onStart() {
@@ -21,18 +21,27 @@ export default class Maps extends Plugin {
         });
     }
 
-    async cmdMaps(login: any, params: string[]) {                
+    async cmdMaps(login: any, params: string[]) {
         const window = new MapsWindow(login, params);
         window.size = { width: 155, height: 95 };
-        window.setColumns([
-            { key: "Index", title: "#", width: 4 },
-            { key: "Name", title: "Name", width: 40, action: "Queue" },
-            { key: "Author", title: "Author", width: 40 },
-            { key: "Environnement", title: "Environment", width: 15 },
-            { key: "Vehicle", title: "Vehicle", width: 15 },
-            { key: "ATime", title: "Author Time", width: 20 }
-        ]);
-
+        if (tmc.plugins['database']) {
+            window.setColumns([
+                { key: "Index", title: "#", width: 4 },
+                { key: "Name", title: "Name", width: 50, action: "Queue" },
+                { key: "Author", title: "Author", width: 30 },
+                { key: "Environnement", title: "Environment", width: 15 },
+                { key: "Vehicle", title: "Vehicle", width: 15 },
+                { key: "ATime", title: "Author Time", width: 20 }
+            ]);
+        } else {
+            window.setColumns([
+                { key: "Index", title: "#", width: 4 },
+                { key: "Name", title: "Name", width: 50, action: "Queue" },
+                { key: "Author", title: "Author", width: 30 },
+                { key: "Environnement", title: "Environment", width: 15 },
+                { key: "ATime", title: "Author Time", width: 20 }
+            ]);
+        }
         window.title = "Maps [" + tmc.maps.getMapCount() + "]";
         if (tmc.admins.includes(login)) {
             window.setActions(["Delete"]);

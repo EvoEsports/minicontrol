@@ -1,6 +1,6 @@
 import Confirm from '../../ui/confirm';
 import ListWindow from '../../ui/listwindow';
-import { formatTime, escape, removeColors } from '../../utils';
+import { formatTime, escape, clone, removeColors } from '../../utils';
 
 export default class MapsWindow extends ListWindow {
     params: string[] = [];
@@ -13,7 +13,7 @@ export default class MapsWindow extends ListWindow {
     async uiPaginate(login: string, answer: any, entries: any): Promise<void> {
         let maps: any[] = [];
         let i = 1;
-        for (const map of tmc.maps.get()) {
+        for (const map of clone(tmc.maps.get())) {
             if (!this.params[0] || (removeColors(map.Name).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
                 removeColors(map.Author).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1
             )) {
