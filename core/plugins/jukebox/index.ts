@@ -127,7 +127,7 @@ export default class Jukebox extends Plugin {
             if (map) {
                 try {
                 await tmc.server.call("ChooseNextMap", map.File);
-                tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤chosen by ¤white¤${map.QueueNickName}`);
+                tmc.chat(`¤info¤Next map ¤white¤${map.Name} ¤info¤jukeboxed by ¤white¤${map.QueueNickName}`);
                 } catch (e:any) {
                     tmc.cli(`¤error¤${e.message}`);
                 }

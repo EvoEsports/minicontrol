@@ -1,6 +1,7 @@
 import type { Player } from "../../playermanager";
 import Plugin from "../index";
 import { formatTime } from '../../utils';
+import Maps from "../maps";
 
 export default class Announces extends Plugin {
     async onLoad() {
@@ -9,11 +10,16 @@ export default class Announces extends Plugin {
         tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
         tmc.server.addListener("Plugin.Records.onNewRecord", this.onNewRecord, this);
         tmc.server.addListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord, this);
-        tmc.server.addListener("Plugin.Records.onSync", this.onSyncRecord, this);
+        tmc.server.addListener("Plugin.Records.onSync", this.onSyncRecord, this);   
+        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+    }
+
+    async onStart() {
+        await this.onBeginMap([tmc.maps.currentMap]);
     }
 
     async onUnload() {
-        // tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
+        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap);
         tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect);
         tmc.server.removeListener("TMC.PlayerDisconnect", this.onPlayerDisconnect);
         tmc.server.removeListener("Plugin.Records.onNewRecord", this.onNewRecord);
@@ -22,8 +28,8 @@ export default class Announces extends Plugin {
     }
 
     async onBeginMap(data: any) {
-        const info = data[0];
-        const msg = `¤info¤Now Playing: ¤white¤${info.Name}¤info¤ by ¤white¤${info.AuthorNickname ? info.AuthorNickname : info.Author}`;
+        const info = tmc.maps.getMap(data[0].UId) || data[0];
+        const msg = `¤info¤${info.Environnement} map ¤white¤${info?.Name.replaceAll(/\$s/gi, "")}¤info¤ by ¤white¤${info.AuthorNickname ? info.AuthorNickname : info.Author}`;
         tmc.chat(msg);
         tmc.cli(msg);
     }
@@ -69,11 +75,10 @@ export default class Announces extends Plugin {
     async onSyncRecord(data: any) {
         const map = tmc.maps.getMap(data.mapUid);
         const records: any[] = data.records;
-        if (records.length === 0) {
-            tmc.chat(`¤rec¤No server records for ¤white¤${map?.Name} ¤rec¤!`);
+        if (records.length === 0) {            
             return;
         }
-        const msg = `¤rec¤Server record for ¤white¤${map?.Name} ¤rec¤by ¤white¤${records[0].player.nickname}`; // ¤rec¤ time ¤white¤${formatTime(records[0].time)}
+        const msg = `¤rec¤Server record ¤white¤${records[0].player.nickname}¤rec¤ time ¤white¤${formatTime(records[0].time)}`; 
         tmc.chat(msg);
     }
 }

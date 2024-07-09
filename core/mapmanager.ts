@@ -16,6 +16,8 @@ export interface Map {
     LapRace: boolean;
     NbLaps: number;
     NbCheckpoints: number;
+    Vehicle?: string;
+    [key: string]: any;
 }
 
 /**
@@ -109,11 +111,11 @@ class MapManager {
      * @returns {Map[]} Returns the current maplist
      */
     get(): Map[] {
-        return clone(Object.values(this.maps));
+        return Object.values(this.maps);
     }
 
     getMap(mapUid: string): Map | undefined {
-        return clone(this.maps[mapUid]);
+        return this.maps[mapUid];
     }
 
     /**

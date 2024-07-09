@@ -489,3 +489,7 @@ process.on("SIGTERM", () => {
     process.exit(0);
 });
 
+process.on('uncaughtException', function(err) {
+    tmc.cli("¤error¤" + err.message);
+    console.log(err.stack);
+});
