@@ -19,6 +19,7 @@ export default class Jukebox extends Plugin {
     async onLoad() {        
         tmc.addCommand("/addqueue", this.cmdQueue.bind(this), "Add Map to queue");
         tmc.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");
+        tmc.addCommand("/jukebox", this.cmdListQueue.bind(this), "List maps in queue");
         tmc.addCommand("/drop", this.cmdDrop.bind(this), "Drop Map from queue");
         tmc.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
         if (tmc.game.Name === "TmForever" || tmc.game.Name === "ManiaPlanet" ) {
