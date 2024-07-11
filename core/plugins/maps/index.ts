@@ -24,7 +24,7 @@ export default class Maps extends Plugin {
 
     async cmdMaps(login: any, params: string[]) {
         const window = new MapsWindow(login, params);
-        window.size = { width: 145, height: 95 };
+        window.size = { width: 190, height: 85 };
         window.setColumns([
             { key: "Index", title: "#", width: 4 },
             { key: "Name", title: "Name", width: 50, action: "Queue" },

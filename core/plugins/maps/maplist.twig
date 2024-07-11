@@ -2,8 +2,8 @@
 
 {% block content %}        
     {% for item in data.items.items %}
-        {% set posy = ((loop.index0 % 6) * 11.5) + 11 %}
-        {% set posx = (loop.index0 // 6) * 46.5 %}
+        {% set posy = ((loop.index0 % 5) * 11.5) + 11 %}
+        {% set posx = (loop.index0 // 5) * 46.5 %}
         <frame pos="{{ posx }} -{{ posy }}" z-index="1">
             <label pos="0 -2.5" z-index="1" size="45 5" textfont="RobotoCondensed" text="{{ item['Index'] }}. {{ item['Name'] }}" halign="left" textsize="1.25" valign="center2"/>
             <label pos="0 -5.5" z-index="1" size="45 5" textfont="RobotoCondensed" text="by {{ item['AuthorName'] }}" halign="left" textsize="0.95" valign="center2"/>
@@ -12,9 +12,9 @@
              
         {% set key = "item_Queue_" ~ item.index %}
         {% if (item.index % 2) == 0 %}
-            <quad pos="0 0" z-index="0" size="45 10" bgcolor="{{colors.window_bg_light}}9" valign="top" action="{{ actions[key] }}"/>
+            <label text=" " pos="0 0" z-index="0" size="45 10" focusareacolor1="{{colors.window_bg_light}}9" focusareacolor2="{{colors.button_bg_hover}}" valign="top" action="{{ actions[key] }}"/>
         {% else %}
-            <quad pos="0 0" z-index="0" size="45 10" bgcolor="{{colors.window_bg_dark}}9" valign="top" action="{{ actions[key] }}"/>
+            <label text=" " pos="0 0" z-index="0" size="45 10" focusarecolor1="{{colors.window_bg_dark}}9" focusareacolor2="{{colors.button_bg_hover}}" valign="top" action="{{ actions[key] }}"/>
         {% endif %}
 
         </frame>

@@ -5,7 +5,7 @@ import { formatTime, escape, clone, removeColors } from '../../utils';
 export default class MapsWindow extends ListWindow {
     params: string[] = [];
     template: string = "core/plugins/maps/maplist.twig"
-    pageSize = 18;
+    pageSize = 20;
 
     constructor(login: string, params: string[]) {
         super(login);
