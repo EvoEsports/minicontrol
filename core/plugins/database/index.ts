@@ -10,47 +10,47 @@ import { GBX, CGameCtnChallenge } from 'gbx';
 import { existsSync, promises as fspromises } from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
+import { findConfigFile } from 'typescript';
 
 const strToCar: any = {
-    'Stadium': "Stadium",
-    'StadiumCar': "Stadium",
-    'CarSport': "Stadium",
+    'Stadium': "StadiumCar",
+    'StadiumCar': "StadiumCar",
+    'CarSport': "StadiumCar",
 
-    'Speed': "Desert",
-    "American": "Desert",
-    'DesertCar': "Desert",
-    'CarDesert': "Desert",
+    'Speed': "DesertCar",
+    "American": "DesertCar",
+    'DesertCar': "DesertCar",
+    'CarDesert': "DesertCar",
 
-    'Alpine': "Snow",
-    'SnowCar': "Snow",
-    'CarSnow': "Snow",
+    'Alpine': "SnowCar",
+    'SnowCar': "SnowCar",
+    'CarSnow': "SnowCar",
 
-    'Bay': "Bay",
-    'BayCar': "Bay",
+    'Bay': "BayCar",
+    'BayCar': "BayCar",
 
-    'Coast': "Coast",
-    'CoastCar': "Coast",
+    'Coast': "CoastCar",
+    'CoastCar': "CoastCar",
 
-    'Island': "Island",
-    'IslandCar': "Island",
-    "SportCar": "Island",
+    'Island': "IslandCar",
+    'IslandCar': "IslandCar",
+    "SportCar": "IslandCar",
 
-    'Rally': "Rally",
-    'RallyCar': "Rally",
-    'CarRally': "Rally",
+    'Rally': "RallyCar",
+    'RallyCar': "RallyCar",
+    'CarRally': "RallyCar",
 
-    'CanyonCar': 'Canyon',
+    'CanyonCar': 'CanyonCar',
     'Canyon': 'Canyon',
 
-    'Valley': "Valley",
-    'ValleyCar': "Valley",
-    'TrafficCar': 'Valley',
+    'Valley': "ValleyCar",
+    'ValleyCar': "ValleyCar",
+    'TrafficCar': 'ValleyCar',
 
-    'Lagoon': "Lagoon",
-    'LagoonCar': "Lagoon",
+    'Lagoon': "LagoonCar",
+    'LagoonCar': "LagoonCar",
 
     "CharacterPilot": "Pilot",
-
 };
 
 export default class GenericDb extends Plugin {
@@ -199,12 +199,10 @@ export default class GenericDb extends Plugin {
                     if (existsSync(fileName)) {
                         const stream = await fspromises.readFile(fileName);
                         const gbx = new GBX<CGameCtnChallenge>(stream);
-                        const file = await gbx.parse();
-
-                        let car = strToCar[file.playerModel.id ?? ""] || strToCar[mapInfo.Environnement];
-                        if (car) {
+                        const file = await gbx.parse();                       
+                        if (file.playerModel.id) {
                             await map.update({
-                                playerModel: car,
+                                playerModel: file.playerModel.id || mapInfo.Environnement,
                             });
                         } else {
                             tmc.cli(`¤info¤ ${file.playerModel.id} not found. skipping...`);
@@ -214,7 +212,8 @@ export default class GenericDb extends Plugin {
                     }
                 }
             }
-            if (mapInfo) mapInfo.Vehicle = map.playerModel ?? "";
+            let car = strToCar[map.playerModel ?? ""] || strToCar[map.environment ?? ""]
+            if (mapInfo) mapInfo.Vehicle = car || "";
         }
     }
 }
