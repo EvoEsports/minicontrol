@@ -59,6 +59,15 @@ export function rgb2hsl(r: number, g: number, b: number) {
     return [60 * (h < 0 ? h + 6 : h), f ? c / f : 0, (v + v - c) / 2];
 }
 
+export function parseEntries(entries: any[]) {
+    let out: { [key: string]: any } = {};
+    for (const value of entries) {
+        out[value.Name] = castType(value.Value);
+    }
+    return out;
+}
+
+
 export function escape(str: string): string {
     return (str || "").replaceAll(/&/g, "&amp;").replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;").replaceAll(/"/g, "&quot;").replaceAll(/'/g, "&apos;")
         .replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "").replaceAll("--", "—-").replaceAll("]]>", "]>");
@@ -146,7 +155,7 @@ export function isDocker() {
             return false;
         }
     }
-    
+
     return hasEnv() || hasGroup();
 }
 
