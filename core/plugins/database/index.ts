@@ -197,7 +197,7 @@ export default class GenericDb extends Plugin {
                     const fileName = path.resolve(tmc.mapsPath, mapInfo.FileName);
                     if (existsSync(fileName)) {
                         const stream = await fspromises.readFile(fileName);
-                        const gbx = new GBX<CGameCtnChallenge>(stream, 1);                        
+                        const gbx = new GBX<CGameCtnChallenge>(stream, 0);                        
                         const file = await gbx.parse();                       
                         if (file.playerModel.id) {
                             await map.update({
