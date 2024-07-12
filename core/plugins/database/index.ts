@@ -9,8 +9,7 @@ import { removeColors } from '../../utils';
 import { GBX, CGameCtnChallenge } from 'gbx';
 import { existsSync, promises as fspromises } from 'fs';
 import path from 'path';
-import { pathToFileURL } from 'url';
-import { findConfigFile } from 'typescript';
+
 
 const strToCar: any = {
     'Stadium': "StadiumCar",
@@ -198,14 +197,16 @@ export default class GenericDb extends Plugin {
                     const fileName = path.resolve(tmc.mapsPath, mapInfo.FileName);
                     if (existsSync(fileName)) {
                         const stream = await fspromises.readFile(fileName);
-                        const gbx = new GBX<CGameCtnChallenge>(stream);
+                        const gbx = new GBX<CGameCtnChallenge>(stream, 1);                        
                         const file = await gbx.parse();                       
                         if (file.playerModel.id) {
                             await map.update({
                                 playerModel: file.playerModel.id || mapInfo.Environnement,
                             });
                         } else {
-                            tmc.cli(`¤info¤ ${file.playerModel.id} not found. skipping...`);
+                            await map.update({
+                                playerModel: mapInfo.Environnement || ""
+                            });
                         }
                     } else {
                         tmc.cli(`¤error¤ "¤white¤${fileName}¤error¤" not found.`);
