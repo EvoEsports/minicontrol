@@ -43,8 +43,12 @@ class MapManager {
         this.maps = {};
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         tmc.server.addListener("Trackmania.MapListModified", this.onMapListModified, this);
-        this.currentMap = await tmc.server.call("GetCurrentMapInfo");
-        this.nextMap = await tmc.server.call("GetNextMapInfo");
+        try {
+            this.currentMap = await tmc.server.call("GetCurrentMapInfo");
+            this.nextMap = await tmc.server.call("GetNextMapInfo");
+        } catch (e:any) {
+            tmc.cli("¤error¤" + e.message);
+        }
         await this.syncMaplist();
     }
 
