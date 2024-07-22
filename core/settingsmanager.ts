@@ -14,7 +14,7 @@ export default class SettingsManager {
         title_bg: "000",
         button_text: "fff",
         button_bg: "778",
-        button_bg_hover: "f90",        
+        button_bg_hover: "679",        
         window_bg: "223",
         cmd: "fd0",
         info: "5bf",
@@ -40,9 +40,9 @@ export default class SettingsManager {
         this.colors['window_bg_light'] = modLightness(this.colors['window_bg'], 5);
         this.colors['window_bg_dark'] = modLightness(this.colors['window_bg'], -5);
 
-        if (existsSync(import.meta.dir + "/../userdata/admins.json")) {
+        if (existsSync(import.meta.dirname + "/../userdata/admins.json")) {
             try {
-                const admins = JSON.parse(readFileSync(import.meta.dir + "/../userdata/admins.json", "utf-8")) || [];
+                const admins = JSON.parse(readFileSync(import.meta.dirname + "/../userdata/admins.json", "utf-8")) || [];
                 this.admins = admins.concat(this.masterAdmins);
             } catch (e: any) {
                 tmc.cli("$f00Error while loading admins.json");
@@ -50,18 +50,18 @@ export default class SettingsManager {
                 process.exit();
             }
         }
-        if (existsSync(import.meta.dir + "/../userdata/settings.json")) {
+        if (existsSync(import.meta.dirname + "/../userdata/settings.json")) {
             try {
-                this.settings = Object.assign({}, this._defaultSettings, JSON.parse(readFileSync(import.meta.dir + "/../userdata/settings.json", "utf-8")) || {});
+                this.settings = Object.assign({}, this._defaultSettings, JSON.parse(readFileSync(import.meta.dirname+ "/../userdata/settings.json", "utf-8")) || {});
             } catch (e: any) {
                 tmc.cli("$f00Error loading settings.json");
                 tmc.cli(e.message);
                 process.exit();
             }
         }
-        if (existsSync(import.meta.dir + "/../userdata/colors.json")) {
+        if (existsSync(import.meta.dirname+ "/../userdata/colors.json")) {
             try {
-                const colors = JSON.parse(readFileSync(import.meta.dir + "/../userdata/colors.json", "utf-8")) || {};
+                const colors = JSON.parse(readFileSync(import.meta.dirname+ "/../userdata/colors.json", "utf-8")) || {};
                 this.colors = Object.assign({}, this._defaultColors);
                 for (const color in colors) {
                     this.colors[color] = colors[color];
@@ -82,15 +82,15 @@ export default class SettingsManager {
                     outSettings[key] = this.settings[key];
                 }
             }
-            writeFileSync(import.meta.dir + "/../userdata/settings.json", JSON.stringify(outSettings));
+            writeFileSync(import.meta.dirname+ "/../userdata/settings.json", JSON.stringify(outSettings));
             const colors: any = {};
             for (const color in this.colors) {
                 if (this.colors[color] !== this._defaultColors[color]) {
                     colors[color] = this.colors[color];
                 }
             }
-            writeFileSync(import.meta.dir + "/../userdata/colors.json", JSON.stringify(colors));
-            writeFileSync(import.meta.dir + "/../userdata/admins.json", JSON.stringify(this.admins.filter((a) => !this.masterAdmins.includes(a))));
+            writeFileSync(import.meta.dirname+ "/../userdata/colors.json", JSON.stringify(colors));
+            writeFileSync(import.meta.dirname+ "/../userdata/admins.json", JSON.stringify(this.admins.filter((a) => !this.masterAdmins.includes(a))));
         } catch (e: any) {
             tmc.cli("¤error¤Error while saving settings!");
             tmc.cli(e.message);

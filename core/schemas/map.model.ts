@@ -13,7 +13,6 @@ class Map extends Model {
     @Column(DataType.STRING)
     name: string | undefined;
 
-
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
@@ -29,6 +28,10 @@ class Map extends Model {
 
     @Column(DataType.STRING)
     environment?: string | null;
+
+    @AllowNull(true)
+    @Column(DataType.STRING)
+    playerModel?: string | null;
 
 }
 

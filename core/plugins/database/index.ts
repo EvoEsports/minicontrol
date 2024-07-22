@@ -6,6 +6,51 @@ import Map from '../../schemas/map.model';
 import Player from '../../schemas/players.model';
 import { MigrationError, SequelizeStorage, Umzug } from 'umzug';
 import { removeColors } from '../../utils';
+import { GBX, CGameCtnChallenge } from 'gbx';
+import { existsSync, promises as fspromises } from 'fs';
+import path from 'path';
+
+
+const strToCar: any = {
+    'Stadium': "StadiumCar",
+    'StadiumCar': "StadiumCar",
+    'CarSport': "StadiumCar",
+
+    'Speed': "DesertCar",
+    "American": "DesertCar",
+    'DesertCar': "DesertCar",
+    'CarDesert': "DesertCar",
+
+    'Alpine': "SnowCar",
+    'SnowCar': "SnowCar",
+    'CarSnow': "SnowCar",
+
+    'Bay': "BayCar",
+    'BayCar': "BayCar",
+
+    'Coast': "CoastCar",
+    'CoastCar': "CoastCar",
+
+    'Island': "IslandCar",
+    'IslandCar': "IslandCar",
+    "SportCar": "IslandCar",
+
+    'Rally': "RallyCar",
+    'RallyCar': "RallyCar",
+    'CarRally': "RallyCar",
+
+    'CanyonCar': 'CanyonCar',
+    'Canyon': 'Canyon',
+
+    'Valley': "ValleyCar",
+    'ValleyCar': "ValleyCar",
+    'TrafficCar': 'ValleyCar',
+
+    'Lagoon': "LagoonCar",
+    'LagoonCar': "LagoonCar",
+
+    "CharacterPilot": "Pilot",
+};
 
 export default class GenericDb extends Plugin {
 
@@ -116,7 +161,7 @@ export default class GenericDb extends Plugin {
 
     async syncMaps() {
         const serverUids = tmc.maps.getUids();
-        const result = await Map.findAll();
+        let result = await Map.findAll();
         const dbUids = result.map((value: any) => value.uuid);
         const missingUids = chunkArray(serverUids.filter(item => dbUids.indexOf(item) < 0), 50);
         for (const groups of missingUids) {
@@ -140,6 +185,36 @@ export default class GenericDb extends Plugin {
             } catch (e: any) {
                 tmc.cli(`¤error¤` + e.message);
             }
+        }
+
+        result = await Map.findAll();
+        tmc.cli("¤white¤Importing vehicle data from maps, if missing");
+        tmc.cli("¤white¤This can take a while...");
+        for (const map of result) {
+            const mapInfo = tmc.maps.getMap(map.uuid ?? "");
+            if (!map.playerModel) {
+                if (mapInfo) {
+                    const fileName = path.resolve(tmc.mapsPath, mapInfo.FileName);
+                    if (existsSync(fileName)) {
+                        const stream = await fspromises.readFile(fileName);
+                        const gbx = new GBX<CGameCtnChallenge>(stream, 0);                        
+                        const file = await gbx.parse();                       
+                        if (file.playerModel.id) {
+                            await map.update({
+                                playerModel: file.playerModel.id || mapInfo.Environnement,
+                            });
+                        } else {
+                            await map.update({
+                                playerModel: mapInfo.Environnement || ""
+                            });
+                        }
+                    } else {
+                        tmc.cli(`¤error¤ "¤white¤${fileName}¤error¤" not found.`);
+                    }
+                }
+            }
+            let car = strToCar[map.playerModel ?? ""] || strToCar[map.environment ?? ""]
+            if (mapInfo) mapInfo.Vehicle = car || "";
         }
     }
 }

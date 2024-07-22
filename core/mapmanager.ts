@@ -16,6 +16,8 @@ export interface Map {
     LapRace: boolean;
     NbLaps: number;
     NbCheckpoints: number;
+    Vehicle?: string;
+    [key: string]: any;
 }
 
 /**
@@ -41,8 +43,12 @@ class MapManager {
         this.maps = {};
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         tmc.server.addListener("Trackmania.MapListModified", this.onMapListModified, this);
-        this.currentMap = await tmc.server.call("GetCurrentMapInfo");
-        this.nextMap = await tmc.server.call("GetNextMapInfo");
+        try {
+            this.currentMap = await tmc.server.call("GetCurrentMapInfo");
+            this.nextMap = await tmc.server.call("GetNextMapInfo");
+        } catch (e:any) {
+            tmc.cli("¤error¤" + e.message);
+        }
         await this.syncMaplist();
     }
 
@@ -109,11 +115,11 @@ class MapManager {
      * @returns {Map[]} Returns the current maplist
      */
     get(): Map[] {
-        return clone(Object.values(this.maps));
+        return Object.values(this.maps);
     }
 
     getMap(mapUid: string): Map | undefined {
-        return clone(this.maps[mapUid]);
+        return this.maps[mapUid];
     }
 
     /**

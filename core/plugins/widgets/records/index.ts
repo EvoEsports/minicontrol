@@ -32,7 +32,6 @@ export default class RecordsWidget extends Plugin {
         }
     }
 
-
     async onUnload() {
         for (const login of Object.keys(this.widgets)) {          
             delete this.widgets[login];

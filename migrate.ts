@@ -10,7 +10,7 @@ const sequelize = new Sequelize(process.env['DATABASE'] ?? "", {
 
 export const migrator = new Umzug({
     migrations: {
-        glob: ['migrations/*.ts', { cwd: process.cwd() }],
+        glob: ['core/migrations/*.ts', { cwd: process.cwd() }],
     },
     context: sequelize,
     storage: new SequelizeStorage({

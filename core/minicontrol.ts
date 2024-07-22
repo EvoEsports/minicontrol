@@ -1,3 +1,20 @@
+/*
+    MINIcontrol - server controller for Trackmania games
+    Copyright (C) 2024 Evo eSports e.V.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 import PlayerManager, { Player } from './playermanager';
 import Server from './server';
 import UiManager from './uimanager';
@@ -27,7 +44,7 @@ class MiniControl {
      * The version of MiniControl.
      */
     readonly brand: string = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
-    readonly version: string = "0.4.0";
+    readonly version: string = "0.5.0";
     /**
      * The start time of MiniControl.
      */
@@ -311,8 +328,8 @@ class MiniControl {
     async run() {
         if (this.startComplete) return;
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
-        this.cli("¤info¤Starting MiniControl...");
-        this.cli(`¤info¤Using Node ¤white¤${process.version}`);
+        this.cli(`¤info¤Starting ¤white¤MINIcontrol ${this.version}`);    
+        this.cli(`¤info¤Using Node ¤white¤${process.version}`);        
         this.cli("¤info¤Connecting to Trackmania Dedicated server at ¤white¤" + (process.env.XMLRPC_HOST ?? "127.0.0.1") + ":" + port);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
         if (!status) {
@@ -436,7 +453,7 @@ class MiniControl {
      * 
      */
     async afterStart() {
-        tmc.cli("¤success¤MiniControl started successfully.");
+        tmc.cli("¤success¤MiniControl started successfully.");        
         this.players.afterInit();
         await this.chatCmd.afterInit();
         await this.ui.afterInit();
@@ -472,3 +489,7 @@ process.on("SIGTERM", () => {
     process.exit(0);
 });
 
+process.on('uncaughtException', function(err) {
+    tmc.cli("¤error¤" + err.message);
+    console.log(err.stack);
+});
