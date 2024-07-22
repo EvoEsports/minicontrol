@@ -44,7 +44,7 @@ class MiniControl {
      * The version of MiniControl.
      */
     readonly brand: string = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
-    readonly version: string = "0.5.0-dev";
+    readonly version: string = "0.5.0";
     /**
      * The start time of MiniControl.
      */
