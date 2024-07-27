@@ -211,7 +211,7 @@ class MiniControl {
                         return;
                     }
                 }
-                if (!this.pluginDependecies.hasNode(depend)) {
+                if (!this.pluginDependecies.hasNode(depend) && !depend.startsWith("game:")) {
                     const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ failed to load. Missing dependency ¤cmd¤${depend}¤white¤.`;
                     this.cli(msg);
                     if (this.startComplete) this.chat(msg);
@@ -328,8 +328,8 @@ class MiniControl {
     async run() {
         if (this.startComplete) return;
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
-        this.cli(`¤info¤Starting ¤white¤MINIcontrol ${this.version}`);    
-        this.cli(`¤info¤Using Node ¤white¤${process.version}`);        
+        this.cli(`¤info¤Starting ¤white¤MINIcontrol ${this.version}`);
+        this.cli(`¤info¤Using Node ¤white¤${process.version}`);
         this.cli("¤info¤Connecting to Trackmania Dedicated server at ¤white¤" + (process.env.XMLRPC_HOST ?? "127.0.0.1") + ":" + port);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
         if (!status) {
@@ -396,6 +396,9 @@ class MiniControl {
         }
 
         // load metadata
+        // this.pluginDependecies.addNode("game:" + tmc.game.Name);
+        let dependencyByPlugin:any = {};
+
         for (const name of loadList) {
             const pluginName = this.findPlugin(name);
             if (pluginName == null) {
@@ -423,20 +426,18 @@ class MiniControl {
 
             this.pluginDependecies.addNode(name);
             if (Reflect.has(plugin, "depends")) {
-                for (const dependency of plugin.depends) {
-                    if (dependency.startsWith("game:")) {
-                        if (dependency != "game:" + this.game.Name) {
-                            this.pluginDependecies.removeNode(name);
-                            break
-                        }
-                    }
-                    if (!this.pluginDependecies.hasNode(dependency)) {
-                        this.pluginDependecies.addNode(dependency);
-                    }
-                    this.pluginDependecies.addDependency(name, dependency)
-                }
+                dependencyByPlugin[name] = plugin.depends;
             }
         }
+
+        for (const name in dependencyByPlugin) {            
+            for (const dependency of dependencyByPlugin[name]) {
+                if (!dependency.startsWith("game:")) {                                    
+                    this.pluginDependecies.addDependency(name, dependency);
+                }                
+            }
+        }
+        dependencyByPlugin = null;
 
         for (const plugin of this.pluginDependecies.overallOrder()) {
             if (loadList.includes(plugin)) {
@@ -453,7 +454,7 @@ class MiniControl {
      * 
      */
     async afterStart() {
-        tmc.cli("¤success¤MiniControl started successfully.");        
+        tmc.cli("¤success¤MiniControl started successfully.");
         this.players.afterInit();
         await this.chatCmd.afterInit();
         await this.ui.afterInit();
@@ -489,7 +490,8 @@ process.on("SIGTERM", () => {
     process.exit(0);
 });
 
-process.on('uncaughtException', function(err) {
+process.on('uncaughtException', function (err) {
     tmc.cli("¤error¤" + err.message);
     console.log(err.stack);
+    process.exit(1);
 });
