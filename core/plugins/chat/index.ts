@@ -1,7 +1,7 @@
 import Plugin from '../index';
 
-export default class KackyChat extends Plugin {
-    static depends: string[] = ["kacky"];
+export default class Chat extends Plugin {
+    static depends: string[] = [];
     pluginEnabled: boolean = false;
     publicChatEnabled: boolean = true;
     playersDisabled: string[] = [];

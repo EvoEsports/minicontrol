@@ -115,23 +115,23 @@ export default class AdminPlugin extends Plugin {
         }, "Unignores player");
 
         tmc.addCommand("//talimit", async (login: string, params: string[]) => {
-            if (tmc.game.Name == "TmForever") {
-                if (!params[0]) {
-                    return tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
-                }
-                tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`, login);
+            if (!params[0]) {
+                return tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
+            }
+
+            if (tmc.game.Name == "TmForever") {                                
                 tmc.server.send("SetTimeAttackLimit", Number.parseInt(params[0]) * 1000);
+                tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                 return;
             }
 
-            if (tmc.game.Name == "Trackmania" ||tmc.game.Name == "ManiaPlanet") {
-                if (!params[0]) {
-                    return tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
-                }
+            if (tmc.game.Name == "Trackmania" ||tmc.game.Name == "ManiaPlanet") {                                
                 const settings = { "S_TimeLimit": Number.parseInt(params[0]) };
                 tmc.server.send("SetModeScriptSettings", settings);
+                tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                 return;
             }
+            
         }, "Sets timelimit");
 
         tmc.addCommand("//jump", async (login: string, params: string[]) => {
