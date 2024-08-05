@@ -200,7 +200,7 @@ export default class GenericDb extends Plugin {
                         const gbx = new GBX<CGameCtnChallenge>(stream, 0);
                         await gbx.parse().then
                             (
-                                async file => await map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || "" })
+                                file => map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || "" })
                             )
                             .catch
                             (
