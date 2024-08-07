@@ -116,7 +116,7 @@ class MiniControl {
     /**
      * Gets a player object from the player manager.
      * @param login The login of the player.
-     * @returns A promise that resolves to the player object.     
+     * @returns A promise that resolves to the player object.
      */
     async getPlayer(login: string): Promise<Player> {
         return await this.players.getPlayer(login);
@@ -126,7 +126,7 @@ class MiniControl {
      * Adds chat command
      * @param command The command name, should start with / for public or // for admin only
      * @param callback The callback function to execute when the command is triggered.
-     * @param help The help text for the command.     
+     * @param help The help text for the command.
      */
     addCommand(command: string, callback: CallableFunction, help: string = "") {
         this.chatCmd.addCommand(command, callback, help);
@@ -134,15 +134,15 @@ class MiniControl {
 
     /**
      *  Removes chat command
-     * @param command The command name to remove.     
+     * @param command The command name to remove.
      */
     removeCommand(command: string) {
         this.chatCmd.removeCommand(command);
     }
 
-    /**  
+    /**
     * @param name name of the plugin folder in ./plugins
-    * @returns 
+    * @returns
     */
     findPlugin(name: string): string | null {
         const dirsToCheck = ["./core/plugins/", "./userdata/plugins/"];
@@ -157,7 +157,7 @@ class MiniControl {
     /**
      * Loads a plugin to runtime
      * @param name name of the plugin folder in ./plugins
-     * @returns 
+     * @returns
      */
     async loadPlugin(name: string) {
         if (!this.plugins[name]) {
@@ -244,7 +244,7 @@ class MiniControl {
     /**
      * unloads plugin from runtime, also checks for dependecies, runs onUnload and removes require cache
      * @param unloadName name of the plugin folder in ./plugins
-     * @returns 
+     * @returns
      */
     async unloadPlugin(unloadName: string) {
         if (this.plugins[unloadName]) {
@@ -263,7 +263,7 @@ class MiniControl {
                 return;
             }
 
-            // unload        
+            // unload
             await this.plugins[unloadName].onUnload();
             // remove from dependecies
             for (const dep of this.plugins[unloadName].getDepends()) {
@@ -364,7 +364,7 @@ class MiniControl {
     }
 
     /**
-     * Executes tasks before MiniControl initialization. 
+     * Executes tasks before MiniControl initialization.
      * @ignore Shouldn't be called directly
      */
     async beforeInit() {
@@ -397,7 +397,7 @@ class MiniControl {
 
         // load metadata
         // this.pluginDependecies.addNode("game:" + tmc.game.Name);
-        let dependencyByPlugin:any = {};
+        let dependencyByPlugin: any = {};
 
         for (const name of loadList) {
             const pluginName = this.findPlugin(name);
@@ -430,11 +430,11 @@ class MiniControl {
             }
         }
 
-        for (const name in dependencyByPlugin) {            
+        for (const name in dependencyByPlugin) {
             for (const dependency of dependencyByPlugin[name]) {
-                if (!dependency.startsWith("game:")) {                                    
+                if (!dependency.startsWith("game:")) {
                     this.pluginDependecies.addDependency(name, dependency);
-                }                
+                }
             }
         }
         dependencyByPlugin = null;
@@ -451,7 +451,7 @@ class MiniControl {
     /**
      * Executes tasks after MiniControl initialization.
      * @ignore Should not be called directly
-     * 
+     *
      */
     async afterStart() {
         tmc.cli("¤success¤MiniControl started successfully.");
@@ -473,11 +473,15 @@ export const tmc = new MiniControl();
 declare global {
     const tmc: MiniControl
 }
+
 (global as any).tmc = tmc;
 
 (async () => {
-    (global as any).tmc = tmc;
-    await tmc.run()
+    try {
+        await tmc.run();
+    } catch (e: any) {
+        tmc.cli("¤error¤" + e.message);
+    }
 })();
 
 process.on('SIGINT', function () {
