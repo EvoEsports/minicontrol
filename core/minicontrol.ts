@@ -344,6 +344,7 @@ class MiniControl {
             this.cli(e.message);
             process.exit();
         }
+        await this.server.fetchServerInfo();
         this.server.send("EnableCallbacks", true);
         this.server.send("SendHideManialinkPage");
         this.game = await this.server.call("GetVersion");

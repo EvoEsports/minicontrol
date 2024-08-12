@@ -209,12 +209,6 @@ export default class Server {
     async connect(host: string, port: number): Promise<boolean> {
         try {
             const status = await this.gbx.connect(host, port);
-            if (status) {
-                const info = await this.gbx.call("GetMainServerPlayerInfo");
-                const info2 = await this.gbx.call("GetServerOptions");
-                this.login = info.Login;
-                this.name = info2.Name;
-            }
             return status;
         } catch (e: any) {
             tmc.cli(e.message);
@@ -222,4 +216,14 @@ export default class Server {
         return false;
     }
 
+
+    /**
+     * Fetch server name and server login
+     */
+    async fetchServerInfo(): Promise<void> {
+        let serverPlayerInfo = await this.gbx.call("GetMainServerPlayerInfo");
+        let serverOptions = await this.gbx.call("GetServerOptions");
+        this.login = serverPlayerInfo.Login;
+        this.name = serverOptions.Name; 
+    }
 }
