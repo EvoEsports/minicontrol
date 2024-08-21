@@ -175,6 +175,7 @@ export default class CommandManager {
         for (const i in plugins) {
             const plugin = plugins[i];
             if (plugin && plugin.isDirectory()) {
+                if (plugin.name == "node_modules" || plugin.parentPath.includes("node_modules")) continue;
                 const path = plugin.path.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
                 let pluginName = plugin.name.replaceAll("\\", "/");
                 if (path != "") {
@@ -201,7 +202,7 @@ export default class CommandManager {
                 active: tmc.plugins[name] ? "$0f0Yes" : "$f00No"
             });
         }
-        out = out.sort((a: any, b: any) => {                        
+        out = out.sort((a: any, b: any) => {
             return a.pluginName.localeCompare(b.pluginName);
         });
 
@@ -259,8 +260,8 @@ export default class CommandManager {
 
     /**
      * execute command
-     * @param login 
-     * @param text 
+     * @param login
+     * @param text
      */
     async execute(login: string, text: string) {
         if (text.startsWith("/")) {
@@ -284,7 +285,7 @@ export default class CommandManager {
     /**
      * @ignore
      * @param data data from the server
-     * @returns 
+     * @returns
      */
     private async onPlayerChat(data: any) {
         if (data[0] == 0) return;
@@ -304,6 +305,6 @@ class PluginManagerWindow extends ListWindow {
             }
             await tmc.chatCmd.execute(login, "//plugins");
             return;
-        }       
+        }
     }
 }

@@ -8,7 +8,7 @@ export default abstract class Plugin {
      * you should initialize listeners here.
      * @example
      * tmc.server.addListener("Trackmania.PlayerFinish",  this.onPlayerFinish, this);
-     * tmc.addCommand("/mycmd", this.onMyCmd.bind(this), "description");     
+     * tmc.addCommand("/mycmd", this.onMyCmd.bind(this), "description");
      */
     async onLoad() {
         return;
@@ -19,14 +19,14 @@ export default abstract class Plugin {
      * free resources and remove listeners here.
      * @example
      * tmc.server.removeListener("Trackmania.PlayerFinish", this.onPlayerFinish);
-     * tmc.removeCommand("/mycmd");      
+     * tmc.removeCommand("/mycmd");
      */
     async onUnload() {
         return;
     }
-    
+
     /**
-     * called when controller is fully ready 
+     * called when controller is fully ready
      * or if controller is already ready, called after plugin onLoad
      */
     async onStart() {

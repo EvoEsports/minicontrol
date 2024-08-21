@@ -24,7 +24,7 @@ import SettingsManager from './settingsmanager';
 import { processColorString } from './utils';
 import log from './log';
 import fs from 'fs';
-import Plugin from './plugins';
+import Plugin from './plugins/index';
 import path from 'path';
 import { DepGraph } from "dependency-graph";
 import { require } from 'tsx/cjs/api'
@@ -377,6 +377,7 @@ class MiniControl {
         let loadList = [];
         for (const plugin of plugins) {
             let include = plugin && plugin.isDirectory();
+            if (plugin.name == "node_modules" || plugin.parentPath.includes("node_modules")) include = false;
             const directory = plugin.parentPath.replaceAll("\\", "/").replace(path.resolve("core", "plugins").replaceAll("\\", "/"), "").replace(path.resolve("userdata", "plugins").replaceAll("\\", "/"), "");
             if (include) {
                 let pluginName = plugin.name;
@@ -414,11 +415,13 @@ class MiniControl {
                 cls = await import(process.cwd() + "/" + pluginName);
             }
             const plugin = cls.default;
+
             if (plugin == undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
                 this.cli(msg);
                 continue;
             }
+
             if (!(plugin.prototype instanceof Plugin)) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ is not a valid plugin.`;
                 this.cli(msg);
