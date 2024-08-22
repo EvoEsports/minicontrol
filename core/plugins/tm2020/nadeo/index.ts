@@ -29,19 +29,15 @@ export default class Nadeo extends Plugin {
 	readonly SERVER_NAME = process.env.SERVER_NAME;
 	readonly SERVER_PASS = process.env.SERVER_PASS;
 
-	readonly AUDIENCE_NADEOSERVICES = "NadeoServices";
-	readonly AUDIENCE_LIVESERVICES = "NadeoLiveServices";
-	readonly AUDIENCE_CLUBSERVICES = "NadeoClubServices";
-
 	readonly CORE_URL = "https://prod.trackmania.core.nadeo.online";
 	readonly LIVE_URL = "https://live-services.trackmania.nadeo.live";
 
 	private tokens: {
 		[key in AUDIENCES]: (TokenResponse & { expire: number }) | undefined;
 	} = {
-		"NadeoServices": undefined,
-		"NadeoLiveServices": undefined,
-		"NadeoClubServices": undefined
+		[AUDIENCES.NadeoServices]: undefined,
+		[AUDIENCES.NadeoLiveServices]: undefined,
+		[AUDIENCES.NadeoClubServices]: undefined
 	};
 
 	async onLoad() {
