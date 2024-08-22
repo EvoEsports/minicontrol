@@ -11,6 +11,7 @@ interface Avatar {
     FileName: string;
     Checksum: string;
 }
+
 interface LadderStats {
     LastMatchScore: number;
     NbrMAtchWins: number;
@@ -106,7 +107,7 @@ export default class PlayerManager {
     private async onPlayerConnect(data: any) {
         const login = data[0];
         if (login) {
-            await sleep(100); // @TODO check if this is really needed
+          //  await sleep(100); // @TODO check if this is really needed
             const player = await this.getPlayer(login);
             tmc.server.emit("TMC.PlayerConnect", player);
         } else {
