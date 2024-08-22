@@ -77,7 +77,7 @@ export default class Nadeo extends Plugin {
 
 	async addClubCampaign(login: string, params: string[]) {
 		if (params.length < 2) {
-			tmc.chat("¤info¤Usage: //addcampaign <clubId> <campaignId>");
+			tmc.chat("¤info¤Usage: ¤cmd¤//addcampaign ¤white¤<clubId> <campaignId>", login);
 			return;
 		}
 
