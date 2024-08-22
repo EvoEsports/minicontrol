@@ -72,8 +72,6 @@ export default class Nadeo extends Plugin {
         tmc.removeCommand("//addcampaign");
     }
 
-    async onStart() {}
-
     async addClubCampaign(login: string, params: string[]) {
         if (params.length < 2) {
             tmc.chat("¤info¤Usage: ¤cmd¤//addcampaign ¤white¤<clubId> <campaignId>", login);
