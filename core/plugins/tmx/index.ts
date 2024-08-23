@@ -41,7 +41,7 @@ export default class Tmx extends Plugin {
         tmc.addCommand("//addpack", this.addMapPack.bind(this), "Add map pack from TMX");
         tmc.addCommand("//cancelpack", () => {
             tmc.chat("Admin cancelled the download!");
-            this.cancelToken = true;            
+            this.cancelToken = true;
         }, "Cancel pack download")
     }
 
@@ -162,12 +162,16 @@ export default class Tmx extends Plugin {
                 }
                 await tmc.server.call("AddMap", filePath);
                 await tmc.maps.syncMaplist();
-                const info = await tmc.server.call("GetMapInfo", `${tmc.mapsPath}${filePath}`); await tmc.maps.syncMaplist();
-                const author = info.AuthorNickname || info.Author || "n/a";
-                tmc.chat(`¤info¤Map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
-                if (Object.keys(tmc.plugins).includes("maps")) {
-                    await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
-                }           
+                const info = tmc.maps.get().filter(map => map.FileName == filePath)[0];
+                if (info) {
+                    const author = info.AuthorNickname || info.Author || "n/a";
+                    tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
+                    if (Object.keys(tmc.plugins).includes("jukebox")) {
+                        await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
+                    }
+                } else {
+                    tmc.chat(`¤info¤Added map but didn't find map info!`);
+                }
                 return;
             } catch (err: any) {
                 tmc.chat(err, login);
@@ -180,11 +184,15 @@ export default class Tmx extends Plugin {
         fs.writeFileSync(`${tmc.mapsPath}${filePath}`, Buffer.from(abuffer));
         await tmc.server.call("AddMap", filePath);
         await tmc.maps.syncMaplist();
-        const info = await tmc.server.call("GetMapInfo", `${tmc.mapsPath}${filePath}`); await tmc.maps.syncMaplist();
-        const author = info.AuthorNickname || info.Author || "n/a";
-        tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
-        if (Object.keys(tmc.plugins).includes("maps")) {
-            await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
+        const info = tmc.maps.get().filter(map => map.FileName == filePath)[0];
+        if (info) {
+            const author = info.AuthorNickname || info.Author || "n/a";
+            tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
+            if (Object.keys(tmc.plugins).includes("jukebox")) {
+                await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
+            }
+        } else {
+            tmc.chat(`¤info¤Added map but didn't find map info!`);
         }
     }
 
