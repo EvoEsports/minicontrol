@@ -168,7 +168,7 @@ export default class Tmx extends Plugin {
                 }
                 await tmc.server.call("AddMap", filePath);
                 await tmc.maps.syncMaplist();
-                const info = tmc.maps.get().filter((map) => map.FileName == filePath)[0];
+                const info = tmc.maps.get().filter(map => map.FileName == filePath)[0];
                 if (info) {
                     const author = info.AuthorNickname || info.Author || "n/a";
                     tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
@@ -178,6 +178,7 @@ export default class Tmx extends Plugin {
                 } else {
                     tmc.chat(`¤info¤Added map but didn't find map info!`);
                 }
+                return;
             } catch (err: any) {
                 tmc.chat(err, login);
                 return;
@@ -189,7 +190,7 @@ export default class Tmx extends Plugin {
         fs.writeFileSync(`${tmc.mapsPath}${filePath}`, Buffer.from(abuffer));
         await tmc.server.call("AddMap", filePath);
         await tmc.maps.syncMaplist();
-        const info = tmc.maps.get().filter((map) => map.FileName == filePath)[0];
+        const info = tmc.maps.get().filter(map => map.FileName == filePath)[0];
         if (info) {
             const author = info.AuthorNickname || info.Author || "n/a";
             tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
