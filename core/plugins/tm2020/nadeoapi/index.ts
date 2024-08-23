@@ -140,6 +140,7 @@ export default class NadeoAPI extends Plugin {
                     return;
                 }
                 await tmc.server.call("AddMap", filePath);
+                await sleep(50); // wait for dedicated server since sc is too fast
                 await tmc.maps.syncMaplist();
 
                 const info = tmc.maps.getMap(uid);
