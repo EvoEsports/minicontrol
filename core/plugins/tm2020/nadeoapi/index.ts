@@ -143,16 +143,16 @@ export default class NadeoAPI extends Plugin {
                 await tmc.maps.syncMaplist();
 
                 const info = tmc.maps.getMap(uid);
-                if (!info) {
-                    tmc.chat(`¤error¤Could not get map info for map with id: ${uid}`, login);
+                if (info) {
+                    const author = info.AuthorNickname || info.Author || "n/a";
+                    tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author}!`);
+                    if (Object.keys(tmc.plugins).includes("maps")) {
+                        await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
+                    }
                     return;
+                } else {
+                    tmc.chat(`¤info¤Added map but couldn't find map info!`);
                 }
-                const author = info.AuthorNickname || info.Author || "n/a";
-                tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author}!`);
-                if (Object.keys(tmc.plugins).includes("maps")) {
-                    await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
-                }
-                return;
             } catch (e: any) {
                 tmc.chat(e, login);
                 return;
@@ -167,14 +167,15 @@ export default class NadeoAPI extends Plugin {
         await sleep(50); // wait for dedicated server since sc is too fast
         await tmc.maps.syncMaplist();
         const info = tmc.maps.getMap(uid);
-        if (!info) {
-            tmc.chat(`¤error¤Could not get map info for map with id: ${uid}`, login);
+        if (info) {
+            const author = info.AuthorNickname || info.Author || "n/a";
+            tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author}!`);
+            if (Object.keys(tmc.plugins).includes("maps")) {
+                await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
+            }
             return;
-        }
-        const author = info.AuthorNickname || info.Author || "n/a";
-        tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author}`);
-        if (Object.keys(tmc.plugins).includes("maps")) {
-            await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
+        } else {
+            tmc.chat(`¤info¤Added map but couldn't find map info!`);
         }
     }
 
