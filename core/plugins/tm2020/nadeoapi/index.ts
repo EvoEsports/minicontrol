@@ -1,5 +1,6 @@
-import Plugin from "../../../plugins";
+import Plugin from "../..";
 import fs from "fs";
+import { sleep } from "../../../utils";
 
 interface Tokens {
     accessToken: string;
@@ -36,16 +37,16 @@ enum AUDIENCES {
     NadeoClubServices = "NadeoClubServices",
 }
 
-export default class Nadeo extends Plugin {
+export default class NadeoAPI extends Plugin {
     static depends: string[] = ["game:Trackmania"];
 
-    readonly toolName: string = "MINIcontrol / marijn.regterschot@gmail.com";
+    readonly toolName: string = `MINIcontrol / ${process.env.CONTACT_INFO}`;
     readonly commonHeader = {
         "Content-Type": "application/json",
         "User-Agent": this.toolName,
     };
 
-    readonly SERVER_NAME = process.env.SERVER_NAME;
+    readonly SERVER_LOGIN = process.env.SERVER_LOGIN;
     readonly SERVER_PASS = process.env.SERVER_PASS;
 
     readonly CORE_URL = "https://prod.trackmania.core.nadeo.online";
@@ -60,9 +61,14 @@ export default class Nadeo extends Plugin {
     };
 
     async onLoad() {
-        if (!this.SERVER_NAME || !this.SERVER_PASS) {
+        if (!this.SERVER_LOGIN || !this.SERVER_PASS) {
             tmc.chat("¤error¤Nadeo: Cannot enable plugin - Server name and/or password was not set, please check your .env file.");
-            await tmc.unloadPlugin("tm2020/nadeo");
+            await tmc.unloadPlugin("tm2020/nadeoapi");
+        }
+
+        if (!process.env.CONTACT_INFO) {
+            tmc.chat("¤error¤Nadeo: Cannot enable plugin - Contact info was not set, please check your .env file.");
+            await tmc.unloadPlugin("tm2020/nadeoapi");
         }
 
         tmc.addCommand("//addcampaign", this.addClubCampaign.bind(this), "Add a campaign from a club");
@@ -136,7 +142,11 @@ export default class Nadeo extends Plugin {
                 await tmc.server.call("AddMap", filePath);
                 await tmc.maps.syncMaplist();
 
-                const info = await tmc.server.call("GetMapInfo", `${tmc.mapsPath}${filePath}`);
+                const info = tmc.maps.getMap(uid);
+                if (!info) {
+                    tmc.chat(`¤error¤Could not get map info for map with id: ${uid}`, login);
+                    return;
+                }
                 const author = info.AuthorNickname || info.Author || "n/a";
                 tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author}!`);
                 if (Object.keys(tmc.plugins).includes("maps")) {
@@ -154,8 +164,13 @@ export default class Nadeo extends Plugin {
 
         fs.writeFileSync(`${tmc.mapsPath}${filePath}`, Buffer.from(abuffer));
         await tmc.server.call("AddMap", filePath);
+        await sleep(50); // wait for dedicated server since sc is too fast
         await tmc.maps.syncMaplist();
-        const info = await tmc.server.call("GetMapInfo", `${tmc.mapsPath}${filePath}`);
+        const info = tmc.maps.getMap(uid);
+        if (!info) {
+            tmc.chat(`¤error¤Could not get map info for map with id: ${uid}`, login);
+            return;
+        }
         const author = info.AuthorNickname || info.Author || "n/a";
         tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author}`);
         if (Object.keys(tmc.plugins).includes("maps")) {
@@ -190,7 +205,7 @@ export default class Nadeo extends Plugin {
 
     async loginDedicatedServer(audience: AUDIENCES, login: string) {
         const headers = Object.assign(this.commonHeader, {
-            Authorization: `Basic ${Buffer.from(`${this.SERVER_NAME}:${this.SERVER_PASS}`).toString("base64")}`,
+            Authorization: `Basic ${Buffer.from(`${this.SERVER_LOGIN}:${this.SERVER_PASS}`).toString("base64")}`,
         });
         const body = JSON.stringify({ audience });
         const response = await fetch(`${this.CORE_URL}/v2/authentication/token/basic`, { method: "POST", headers, body });
