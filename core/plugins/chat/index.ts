@@ -55,7 +55,7 @@ export default class Chat extends Plugin {
 
     async onPlayerChat(data: any) {
         if (!this.pluginEnabled) return;
-        if (!this.publicChatEnabled) {
+        if (!this.publicChatEnabled && !tmc.admins.includes(data[1])) {
             tmc.chat("Public chat is disabled.", data[1]);
             return;
         }

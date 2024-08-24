@@ -107,7 +107,7 @@ export default class PlayerManager {
     private async onPlayerConnect(data: any) {
         const login = data[0];
         if (login) {
-          //  await sleep(100); // @TODO check if this is really needed
+            await sleep(100); // this is really needed to prevent fetch from server multiple times
             const player = await this.getPlayer(login);
             tmc.server.emit("TMC.PlayerConnect", player);
         } else {

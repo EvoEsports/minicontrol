@@ -500,6 +500,8 @@ process.on("SIGTERM", () => {
 
 process.on('uncaughtException', function (err) {
     tmc.cli("¤error¤" + err.message);
-    console.log(err.stack);
-    process.exit(1);
+    console.log(err);
+    if (process.env['DEBUG'] == "true") {
+    // process.exit(1);
+    }
 });
