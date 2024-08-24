@@ -12,18 +12,25 @@ export default class DebugTool extends Plugin {
             this.widget = new Widget("core/plugins/debugtool/widget.twig");
             this.widget.pos = { x: 159, y: -60 };
             tmc.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
-            tmc.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");         
+            tmc.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
         }
         tmc.addCommand("//mem", this.cmdMeminfo.bind(this));
-        await this.displayMemInfo();     
+        tmc.addCommand("//uptime", this.cmdUptime.bind(this));
         this.intervalId = setInterval(() => {
             this.displayMemInfo();
         }, 60000) as any;
     }
 
+    async onStart() {
+        await this.displayMemInfo();
+    }
+
     async onUnload() {
         clearInterval(this.intervalId!);
-        tmc.removeCommand("//heap");
+        tmc.removeCommand("//mem");
+        tmc.removeCommand("//uptime");
+        tmc.removeCommand("//addfake");
+        tmc.removeCommand("//removefake");
         this.widget?.destroy();
         this.widget = null;
     }
@@ -33,7 +40,7 @@ export default class DebugTool extends Plugin {
     }
 
     async cmdFakeUsers(login: string, args: string[]) {
-        let count = Number.parseInt(args[0]) || 1;     
+        let count = Number.parseInt(args[0]) || 1;
         if (count > 100) count = 100;
         if (count < 1) count = 1;
         for (let i = 0; i < count; i++) {
@@ -41,14 +48,18 @@ export default class DebugTool extends Plugin {
         }
     }
 
-    async cmdMeminfo(login:string, args: string[]) {
+    async cmdMeminfo(login: string, args: string[]) {
         const mem = memInfo();
         tmc.chat("¤info¤Memory usage: " + mem, login);
     }
 
+    async cmdUptime(login: string, args: string[]) {
+        let diff = Date.now() - Number.parseInt(tmc.startTime);
+        tmc.chat("¤info¤Uptime: ¤white¤" + tm.Time.fromMilliseconds(diff).toTmString().replace(/[.]\d{3}/, ""), login);
+    }
+
     async displayMemInfo() {
         const mem = memInfo();
-
         let start = Date.now() - Number.parseInt(tmc.startTime);
         tmc.cli("¤info¤Memory usage: " + mem + " ¤info¤uptime: ¤white¤" + tm.Time.fromMilliseconds(start).toTmString().replace(/[.]\d{3}/, ""));
         if (this.widget) {

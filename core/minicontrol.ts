@@ -21,7 +21,7 @@ import UiManager from './uimanager';
 import MapManager from './mapmanager';
 import CommandManager from './commandmanager';
 import SettingsManager from './settingsmanager';
-import { processColorString } from './utils';
+import { processColorString, setMemStart } from './utils';
 import log from './log';
 import fs from 'fs';
 import Plugin from './plugins/index';
@@ -361,7 +361,7 @@ class MiniControl {
         await this.players.init();
         await this.ui.init();
         await this.beforeInit();
-        console.timeEnd("Startup");
+        setMemStart();
     }
 
     /**
@@ -458,7 +458,6 @@ class MiniControl {
      *
      */
     async afterStart() {
-        tmc.cli("¤success¤MiniControl started successfully.");
         this.players.afterInit();
         await this.chatCmd.afterInit();
         await this.ui.afterInit();
@@ -469,6 +468,8 @@ class MiniControl {
         for (const plugin of Object.values(this.plugins)) {
             await plugin.onStart();
         }
+        console.timeEnd("Startup");
+        tmc.cli("¤success¤MiniControl started successfully.");
     }
 }
 
