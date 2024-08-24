@@ -22,6 +22,7 @@ export default class Jukebox extends Plugin {
         tmc.addCommand("/jukebox", this.cmdListQueue.bind(this), "List maps in queue");
         tmc.addCommand("/drop", this.cmdDrop.bind(this), "Drop Map from queue");
         tmc.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
+        tmc.addCommand("//requeue", this.cmdRequeue.bind(this), "Add current map to the front of the queue");
         if (tmc.game.Name === "TmForever" || tmc.game.Name === "ManiaPlanet" ) {
             tmc.server.addListener("Trackmania.EndRace", this.onEndRace, this);
         } else {
@@ -32,12 +33,14 @@ export default class Jukebox extends Plugin {
     async onUnload() {
         tmc.server.removeListener("Trackmania.EndMap", this.onEndRace);
         tmc.server.removeListener("Trackmania.Podium_Start", this.onEndRace);
-        tmc.removeCommand("//cjb");
-        tmc.removeCommand("/jb");
         tmc.removeCommand("/addqueue");
+        tmc.removeCommand("/jb");
+        tmc.removeCommand("/jukebox");
         tmc.removeCommand("/drop");
-        tmc.removeCommand("/maps");
+        tmc.removeCommand("//cjb");
+        tmc.removeCommand("//requeue");
         tmc.storage["menu"]?.removeItem("Show: Queue");
+        tmc.storage["menu"]?.removeItem("Adm: Requeue");
     }
 
     async onStart() {
@@ -46,6 +49,13 @@ export default class Jukebox extends Plugin {
                 category: "Map",
                 title: "Show: Queue",
                 action: "/jb"
+            });
+
+            tmc.storage["menu"].addItem({
+                category: "Map",
+                title: "Adm: Requeue",
+                action: "//requeue",
+                admin: true
             });
         }
     }
@@ -120,6 +130,27 @@ export default class Jukebox extends Plugin {
     async cmdClearQueue(login: any, args: string[]) {
         this.queue = [];
         tmc.chat("¤info¤Map queue cleared");
+    }
+
+    async cmdRequeue(login: any, args: string[]) {
+        const map = tmc.maps.currentMap;
+        const player = await tmc.players.getPlayer(login);
+
+        if (map) {
+            this.queue.unshift({
+                UId: map.UId,
+                File: map.FileName,
+                Name: map.Name,
+                Author: map.AuthorNickname || map.Author,
+                AuthorTime: map.AuthorTime,
+                Environment: map.Environnement,
+                QueueBy: login,
+                QueueNickName: escape(player.nickname),
+            });
+            tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤requeued by ¤white¤${escape(player.nickname)}`);
+        } else {
+            tmc.chat(`¤info¤Could not requeue map`, login);
+        }
     }
 
     async onEndRace(data: any) {
