@@ -139,7 +139,7 @@ export default class Jukebox extends Plugin {
         const player = await tmc.players.getPlayer(login);
 
         if (map) {
-            if (this.queue.find(m => m.UId === map.UId)) {
+            if (this.queue[0]?.UId == map.UId) {
                 tmc.chat("¤info¤Map already in queue", login);
                 return;
             }
