@@ -43,6 +43,7 @@ export default class Jukebox extends Plugin {
         tmc.removeCommand("//prev");
         tmc.storage["menu"]?.removeItem("Show: Queue");
         tmc.storage["menu"]?.removeItem("Adm: Requeue");
+        tmc.storage["menu"]?.removeItem("Adm: Prev");
     }
 
     async onStart() {
@@ -57,6 +58,13 @@ export default class Jukebox extends Plugin {
                 category: "Map",
                 title: "Adm: Requeue",
                 action: "//requeue",
+                admin: true
+            });
+
+            tmc.storage["menu"].addItem({
+                category: "Map",
+                title: "Adm: Prev",
+                action: "//prev",
                 admin: true
             });
         }
