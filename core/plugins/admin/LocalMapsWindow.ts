@@ -1,6 +1,5 @@
 import ListWindow from '../../ui/listwindow';
 import { GBX, CGameCtnChallenge } from "gbx";
-import path from "path";
 import { existsSync, promises as fspromises } from "fs";
 import { escape } from '../../utils';
 
@@ -19,7 +18,11 @@ export default class LocalMapsWindow extends ListWindow {
                                 if (tmc.game.Name == "Trackmania") {
                                     item.MapAuthor = escape(file.authorNickname || "");
                                 }
-                                item.MapName = escape(file.mapName?.toWellFormed() || "");
+                                let name = file.mapName || "";
+                                if (name.startsWith("ï»¿")) {
+                                    name = Buffer.from(name.replace("ï»¿", ""), "latin1").toString('utf-8');
+                                }
+                                item.MapName = escape(name);
                             }
                         );
                 } catch (e: any) {
