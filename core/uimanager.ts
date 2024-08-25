@@ -33,6 +33,12 @@ export default class UiManager {
         if (tmc.game.Name == "Trackmania") {
             tmc.server.addListener("Common.UIModules.Properties", this.onCallbackArray, this);
             await this.getUiProperties();
+            this.setUiProperty("Race_RespawnHelper", "visible", false);
+            this.setUiProperty("Race_DisplayMessage", "visible", false);
+            this.setUiProperty("Race_BestRaceViewer", "visible", false);
+            this.setUiProperty("Race_DisplayMessage", "visible", false);
+            this.setUiProperty("Race_Record", "scale", 0.8);
+            this.setUiProperty("Race_Countdown", "position", [155, -50]);
         }
     }
 
@@ -42,6 +48,9 @@ export default class UiManager {
     async afterInit() {
         if (tmc.game.Name == "TmForever") {
             tmc.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
+        }
+        if (tmc.game.Name == "Trackmania") {
+            await this.sendUiProperties();
         }
         tmc.server.send('SendDisplayManialinkPage', this.convert(this.getGlobalManialink()), 0, false);
     }
@@ -86,7 +95,7 @@ export default class UiManager {
     /**
      * @ignore
      * @param line
-     * @returns 
+     * @returns
      */
     private convertLine(line: string): string {
         const matches = line.matchAll(/(pos|size)="([-.\d]+)\s+([-.\d]+)"/g);
@@ -108,8 +117,8 @@ export default class UiManager {
 
     /**
      * @ignore
-     * @param text 
-     * @returns 
+     * @param text
+     * @returns
      */
     private convert(text: string): string {
         if (tmc.game.Name !== "TmForever") return text;
@@ -124,7 +133,7 @@ export default class UiManager {
 
     /**
      * generate new uuid for manialink
-     * @returns 
+     * @returns
      */
     uuid(): string {
         this.manialinkUUID += 1;
@@ -136,8 +145,8 @@ export default class UiManager {
     /**
      * hash string
      * @ignore
-     * @param str 
-     * @returns 
+     * @param str
+     * @returns
      */
     hash(str: string): number {
         let hash = 0;
@@ -151,7 +160,7 @@ export default class UiManager {
     }
     /**
      * Add manialink action
-     * @param callback 
+     * @param callback
      * @param data
      */
     addAction(callback: CallableFunction, data: any): string {
@@ -175,7 +184,7 @@ export default class UiManager {
 
     /**
      * remove manialink action
-     * @param actionId 
+     * @param actionId
      */
     removeAction(actionId: string) {
         if (this.actions[actionId]) {
@@ -245,7 +254,7 @@ export default class UiManager {
 
     /**
      * Display manialink
-     * @param manialink 
+     * @param manialink
      */
     async displayManialink(manialink: Manialink) {
         if (manialink.recipient == undefined) {
@@ -283,7 +292,7 @@ export default class UiManager {
 
     /**
      * Display array of manialinks
-     * @param manialink 
+     * @param manialink
      */
     async displayManialinks(manialinks: Manialink[]) {
         let callArray = [];
@@ -326,7 +335,7 @@ export default class UiManager {
 
     /**
      * Refresh manialink
-     * @param manialink 
+     * @param manialink
      */
     async refreshManialink(manialink: Manialink) {
         const render = manialink.render();
@@ -349,7 +358,7 @@ export default class UiManager {
 
     /**
      * Hide manialink
-     * @param manialink 
+     * @param manialink
      */
     async hideManialink(manialink: Manialink) {
         try {
@@ -390,19 +399,19 @@ export default class UiManager {
         }
     }
 
-    /**      
+    /**
      * @ignore
      */
     getTmufCustomUi(): string {
         return `
-        <?xml version="1.0" encoding="UTF-8"?>        
+        <?xml version="1.0" encoding="UTF-8"?>
         <manialinks><custom_ui>
-            <notice visible="false"/>            
+            <notice visible="false"/>
             <challenge_info visible="false"/>
             <net_infos visible="true"/>
             <chat visible="true"/>
-            <checkpoint_list visible="true"/>            
-            <round_scores visible="true"/>                
+            <checkpoint_list visible="true"/>
+            <round_scores visible="true"/>
             <scoretable visible="true"/>
             <multilap_infos visible="true"/>
             <speed_and_distance visible="false"/>
@@ -416,7 +425,7 @@ export default class UiManager {
         <?xml version="1.0" encoding="UTF-8"?>
         <manialinks>
         <manialink id="1" version="3">
-            <frame pos="-152.5 -36" z-index="1">           
+            <frame pos="-152.5 -36" z-index="1">
                 <label pos="0 0" size="0 0" valign="center2" halign="center" textsize="0.5" textcolor="fff" text=" " focusareacolor1="0000" focusareacolor2="0000" actionkey="3" action="-2"/>
             </frame>
         </manialink>
