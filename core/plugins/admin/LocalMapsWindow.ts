@@ -8,7 +8,6 @@ export default class LocalMapsWindow extends ListWindow {
 
     async onPageItemsUpdate(items: any) {
         for (const item of items) {
-            console.log(item);
             if (existsSync(item.File) && item.File.match(/[.](Map|Challenge)[.]Gbx/gi)) {
                 const stream = await fspromises.readFile(item.File);
                 const gbx = new GBX<CGameCtnChallenge>(stream, 0);
