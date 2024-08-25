@@ -66,15 +66,15 @@ export default class ListWindow extends Window {
     /**
      * @param items
      * @param pageNb
-     * @param pageSize 
+     * @param pageSize
      * @returns { PaginationResult }
-     * 
+     *
      * @example
      * const myObjectList = ["1","2","3"]
      * const currentPage = 0;
      * const itemsPerPage = 15;
      *
-     * const result = paginate(myObjectList, currentPage, itemsPerPage);     
+     * const result = paginate(myObjectList, currentPage, itemsPerPage);
      */
     doPaginate<T>(items: T[], pageNb: number, pageSize: number): PaginationResult<T> {
         const startIndex = pageNb * pageSize;
@@ -138,6 +138,8 @@ export default class ListWindow extends Window {
         }
 
         const items = this.doPaginate(itemsArray, this.currentPage, this.pageSize);
+        await this.onPageItemsUpdate(items.items);
+
         for (const item of items.items) {
             for (const action of this.listActions || []) {
                 if (!this.actions["item_" + action + "_" + item.index]) {
@@ -173,9 +175,9 @@ export default class ListWindow extends Window {
 
     /**
      * override this
-     * @param login 
-     * @param action 
-     * @param item 
+     * @param login
+     * @param action
+     * @param item
      */
     async onAction(login: string, action: string, item: any): Promise<void> {
         // Override this
@@ -183,9 +185,16 @@ export default class ListWindow extends Window {
 
     /**
      * override this
-     * @param login 
-     * @param answer 
-     * @param entries 
+     */
+    async onPageItemsUpdate(items:any) {
+
+    }
+
+    /**
+     * override this
+     * @param login
+     * @param answer
+     * @param entries
      */
     async onApply(login: string, answer: any, entries: any): Promise<void> {
         // override this

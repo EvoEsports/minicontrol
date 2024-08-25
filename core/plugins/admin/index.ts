@@ -4,8 +4,7 @@ import Plugin from "../../plugins";
 import fs, { existsSync, promises as fspromises } from "fs";
 import LocalMapsWindow from "./LocalMapsWindow";
 import PlayerListsWindow from "./PlayerListsWindow";
-import { GBX, CGameCtnChallenge, CGameCtnChallengeParameters } from "gbx";
-import path from "path";
+import fspath from 'path';
 
 export default class AdminPlugin extends Plugin {
 
@@ -390,39 +389,23 @@ export default class AdminPlugin extends Plugin {
     async cmdAddLocal(login: string, args: string[]) {
         if (args.length < 1) {
             const window = new LocalMapsWindow(login);
-            window.title = "Add Local Maps";
             window.size = { width: 175, height: 95 };
             let out = [];
             for (let file of fs.readdirSync(tmc.mapsPath, { withFileTypes: true, recursive: true, encoding: "utf8" })) {
                 if (file.name.toLowerCase().endsWith(".gbx")) {
                     let name = escape(file.name.replaceAll(/[.](Map|Challenge)[.]Gbx/gi, ""));
-                    let filename = path.resolve(tmc.mapsPath, file.parentPath, file.name);
-                    let author = "";
-                    let mapName = "";
-                    if (existsSync(filename)) {
-                        const stream = await fspromises.readFile(filename);
-                        const gbx = new GBX<CGameCtnChallenge>(stream, 0);
-
-                        await gbx.parseHeaders().then
-                            (
-                                file => {
-                                    author = file.mapInfo.author || "";
-                                    if (tmc.game.Name == "Trackmania") {
-                                    author = file.authorNickname || "";
-                                    }
-                                    mapName = escape(file.mapName || "");
-                                }
-                            );
-                        let path = file.parentPath.replace(tmc.mapsPath, "");
-                        out.push({
-                            FileName: name,
-                            Path: path,
-                            MapName: mapName,
-                            MapAuthor: author
-                        });
-                    }
+                    let filename = fspath.resolve(tmc.mapsPath, file.parentPath, file.name);
+                    let path = file.parentPath.replace(tmc.mapsPath, "");
+                    out.push({
+                        File: filename,
+                        FileName: name,
+                        Path: path,
+                        MapName: "",
+                        MapAuthor: "",
+                    });
                 }
             }
+            window.title = `Add Local Maps [${out.length}]`;
             window.setItems(out);
             window.setColumns([
                 { key: "Path", title: "Path", width: 40 },
