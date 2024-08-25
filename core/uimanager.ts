@@ -33,12 +33,6 @@ export default class UiManager {
         if (tmc.game.Name == "Trackmania") {
             tmc.server.addListener("Common.UIModules.Properties", this.onCallbackArray, this);
             await this.getUiProperties();
-            this.setUiProperty("Race_RespawnHelper", "visible", false);
-            this.setUiProperty("Race_DisplayMessage", "visible", false);
-            this.setUiProperty("Race_BestRaceViewer", "visible", false);
-            this.setUiProperty("Race_DisplayMessage", "visible", false);
-            this.setUiProperty("Race_Record", "scale", 0.8);
-            this.setUiProperty("Race_Countdown", "position", [155, -50]);
         }
     }
 
@@ -50,6 +44,12 @@ export default class UiManager {
             tmc.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
         }
         if (tmc.game.Name == "Trackmania") {
+            this.setUiProperty("Race_RespawnHelper", "visible", false);
+            this.setUiProperty("Race_DisplayMessage", "visible", false);
+            this.setUiProperty("Race_BestRaceViewer", "visible", false);
+            this.setUiProperty("Race_DisplayMessage", "visible", false);
+            this.setUiProperty("Race_Record", "scale", 0.8);
+            this.setUiProperty("Race_Countdown", "position", [155, -50]);
             await this.sendUiProperties();
         }
         tmc.server.send('SendDisplayManialinkPage', this.convert(this.getGlobalManialink()), 0, false);

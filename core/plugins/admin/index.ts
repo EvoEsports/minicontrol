@@ -403,7 +403,7 @@ export default class AdminPlugin extends Plugin {
                         const stream = await fspromises.readFile(filename);
                         const gbx = new GBX<CGameCtnChallenge>(stream, 0);
 
-                        await gbx.parse().then
+                        await gbx.parseHeaders().then
                             (
                                 file => {
                                     author = file.mapInfo.author || "";
