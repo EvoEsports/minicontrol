@@ -175,7 +175,8 @@ export default class CommandManager {
         for (const i in plugins) {
             const plugin = plugins[i];
             if (plugin && plugin.isDirectory()) {
-                if (plugin.name == "node_modules" || plugin.parentPath.includes("node_modules")) continue;
+                if (plugin.name.includes(".") || plugin.parentPath.includes(".")) continue;
+                if (plugin.name.includes("node_modules") || plugin.parentPath.includes("node_modules")) continue;
                 const path = plugin.path.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
                 let pluginName = plugin.name.replaceAll("\\", "/");
                 if (path != "") {

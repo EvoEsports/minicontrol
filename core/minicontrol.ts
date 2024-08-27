@@ -376,8 +376,9 @@ class MiniControl {
         const exclude = process.env.EXCLUDED_PLUGINS?.split(",") || [];
         let loadList = [];
         for (const plugin of plugins) {
-            let include = plugin && plugin.isDirectory();
-            if (plugin.name == "node_modules" || plugin.parentPath.includes("node_modules")) include = false;
+            let include = plugin && plugin.name && plugin.isDirectory();
+            if (plugin.name.includes(".") || plugin.parentPath.includes(".")) include = false;
+            if (plugin.name.includes("node_modules") || plugin.parentPath.includes("node_modules")) include = false;
             const directory = plugin.parentPath.replaceAll("\\", "/").replace(path.resolve("core", "plugins").replaceAll("\\", "/"), "").replace(path.resolve("userdata", "plugins").replaceAll("\\", "/"), "");
             if (include) {
                 let pluginName = plugin.name;
