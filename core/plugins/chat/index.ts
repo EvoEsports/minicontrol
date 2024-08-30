@@ -1,7 +1,7 @@
 import Plugin from '../index';
 
-export default class KackyChat extends Plugin {
-    static depends: string[] = ["kacky"];
+export default class Chat extends Plugin {
+    static depends: string[] = [];
     pluginEnabled: boolean = false;
     publicChatEnabled: boolean = true;
     playersDisabled: string[] = [];
@@ -55,7 +55,7 @@ export default class KackyChat extends Plugin {
 
     async onPlayerChat(data: any) {
         if (!this.pluginEnabled) return;
-        if (!this.publicChatEnabled) {
+        if (!this.publicChatEnabled && !tmc.admins.includes(data[1])) {
             tmc.chat("Public chat is disabled.", data[1]);
             return;
         }

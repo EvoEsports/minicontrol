@@ -21,10 +21,10 @@ import UiManager from './uimanager';
 import MapManager from './mapmanager';
 import CommandManager from './commandmanager';
 import SettingsManager from './settingsmanager';
-import { processColorString } from './utils';
+import { processColorString, setMemStart } from './utils';
 import log from './log';
 import fs from 'fs';
-import Plugin from './plugins';
+import Plugin from './plugins/index';
 import path from 'path';
 import { DepGraph } from "dependency-graph";
 import { require } from 'tsx/cjs/api'
@@ -44,7 +44,7 @@ class MiniControl {
      * The version of MiniControl.
      */
     readonly brand: string = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
-    readonly version: string = "0.5.0";
+    readonly version: string = "0.6.0";
     /**
      * The start time of MiniControl.
      */
@@ -116,7 +116,7 @@ class MiniControl {
     /**
      * Gets a player object from the player manager.
      * @param login The login of the player.
-     * @returns A promise that resolves to the player object.     
+     * @returns A promise that resolves to the player object.
      */
     async getPlayer(login: string): Promise<Player> {
         return await this.players.getPlayer(login);
@@ -126,7 +126,7 @@ class MiniControl {
      * Adds chat command
      * @param command The command name, should start with / for public or // for admin only
      * @param callback The callback function to execute when the command is triggered.
-     * @param help The help text for the command.     
+     * @param help The help text for the command.
      */
     addCommand(command: string, callback: CallableFunction, help: string = "") {
         this.chatCmd.addCommand(command, callback, help);
@@ -134,15 +134,15 @@ class MiniControl {
 
     /**
      *  Removes chat command
-     * @param command The command name to remove.     
+     * @param command The command name to remove.
      */
     removeCommand(command: string) {
         this.chatCmd.removeCommand(command);
     }
 
-    /**  
+    /**
     * @param name name of the plugin folder in ./plugins
-    * @returns 
+    * @returns
     */
     findPlugin(name: string): string | null {
         const dirsToCheck = ["./core/plugins/", "./userdata/plugins/"];
@@ -157,7 +157,7 @@ class MiniControl {
     /**
      * Loads a plugin to runtime
      * @param name name of the plugin folder in ./plugins
-     * @returns 
+     * @returns
      */
     async loadPlugin(name: string) {
         if (!this.plugins[name]) {
@@ -211,7 +211,7 @@ class MiniControl {
                         return;
                     }
                 }
-                if (!this.pluginDependecies.hasNode(depend)) {
+                if (!this.pluginDependecies.hasNode(depend) && !depend.startsWith("game:")) {
                     const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ failed to load. Missing dependency ¤cmd¤${depend}¤white¤.`;
                     this.cli(msg);
                     if (this.startComplete) this.chat(msg);
@@ -244,7 +244,7 @@ class MiniControl {
     /**
      * unloads plugin from runtime, also checks for dependecies, runs onUnload and removes require cache
      * @param unloadName name of the plugin folder in ./plugins
-     * @returns 
+     * @returns
      */
     async unloadPlugin(unloadName: string) {
         if (this.plugins[unloadName]) {
@@ -263,7 +263,7 @@ class MiniControl {
                 return;
             }
 
-            // unload        
+            // unload
             await this.plugins[unloadName].onUnload();
             // remove from dependecies
             for (const dep of this.plugins[unloadName].getDepends()) {
@@ -328,8 +328,8 @@ class MiniControl {
     async run() {
         if (this.startComplete) return;
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
-        this.cli(`¤info¤Starting ¤white¤MINIcontrol ${this.version}`);    
-        this.cli(`¤info¤Using Node ¤white¤${process.version}`);        
+        this.cli(`¤info¤Starting ¤white¤MINIcontrol ${this.version}`);
+        this.cli(`¤info¤Using Node ¤white¤${process.version}`);
         this.cli("¤info¤Connecting to Trackmania Dedicated server at ¤white¤" + (process.env.XMLRPC_HOST ?? "127.0.0.1") + ":" + port);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
         if (!status) {
@@ -344,6 +344,7 @@ class MiniControl {
             this.cli(e.message);
             process.exit();
         }
+        await this.server.fetchServerInfo();
         this.server.send("EnableCallbacks", true);
         this.server.send("SendHideManialinkPage");
         this.game = await this.server.call("GetVersion");
@@ -360,11 +361,11 @@ class MiniControl {
         await this.players.init();
         await this.ui.init();
         await this.beforeInit();
-        console.timeEnd("Startup");
+        setMemStart();
     }
 
     /**
-     * Executes tasks before MiniControl initialization. 
+     * Executes tasks before MiniControl initialization.
      * @ignore Shouldn't be called directly
      */
     async beforeInit() {
@@ -375,7 +376,9 @@ class MiniControl {
         const exclude = process.env.EXCLUDED_PLUGINS?.split(",") || [];
         let loadList = [];
         for (const plugin of plugins) {
-            let include = plugin && plugin.isDirectory();
+            let include = plugin && plugin.name && plugin.isDirectory();
+            if (plugin.name.includes(".") || plugin.parentPath.includes(".")) include = false;
+            if (plugin.name.includes("node_modules") || plugin.parentPath.includes("node_modules")) include = false;
             const directory = plugin.parentPath.replaceAll("\\", "/").replace(path.resolve("core", "plugins").replaceAll("\\", "/"), "").replace(path.resolve("userdata", "plugins").replaceAll("\\", "/"), "");
             if (include) {
                 let pluginName = plugin.name;
@@ -396,6 +399,9 @@ class MiniControl {
         }
 
         // load metadata
+        // this.pluginDependecies.addNode("game:" + tmc.game.Name);
+        let dependencyByPlugin: any = {};
+
         for (const name of loadList) {
             const pluginName = this.findPlugin(name);
             if (pluginName == null) {
@@ -410,11 +416,13 @@ class MiniControl {
                 cls = await import(process.cwd() + "/" + pluginName);
             }
             const plugin = cls.default;
+
             if (plugin == undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
                 this.cli(msg);
                 continue;
             }
+
             if (!(plugin.prototype instanceof Plugin)) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ is not a valid plugin.`;
                 this.cli(msg);
@@ -423,20 +431,18 @@ class MiniControl {
 
             this.pluginDependecies.addNode(name);
             if (Reflect.has(plugin, "depends")) {
-                for (const dependency of plugin.depends) {
-                    if (dependency.startsWith("game:")) {
-                        if (dependency != "game:" + this.game.Name) {
-                            this.pluginDependecies.removeNode(name);
-                            break
-                        }
-                    }
-                    if (!this.pluginDependecies.hasNode(dependency)) {
-                        this.pluginDependecies.addNode(dependency);
-                    }
-                    this.pluginDependecies.addDependency(name, dependency)
+                dependencyByPlugin[name] = plugin.depends;
+            }
+        }
+
+        for (const name in dependencyByPlugin) {
+            for (const dependency of dependencyByPlugin[name]) {
+                if (!dependency.startsWith("game:")) {
+                    this.pluginDependecies.addDependency(name, dependency);
                 }
             }
         }
+        dependencyByPlugin = null;
 
         for (const plugin of this.pluginDependecies.overallOrder()) {
             if (loadList.includes(plugin)) {
@@ -450,10 +456,9 @@ class MiniControl {
     /**
      * Executes tasks after MiniControl initialization.
      * @ignore Should not be called directly
-     * 
+     *
      */
     async afterStart() {
-        tmc.cli("¤success¤MiniControl started successfully.");        
         this.players.afterInit();
         await this.chatCmd.afterInit();
         await this.ui.afterInit();
@@ -464,6 +469,8 @@ class MiniControl {
         for (const plugin of Object.values(this.plugins)) {
             await plugin.onStart();
         }
+        console.timeEnd("Startup");
+        tmc.cli("¤success¤MiniControl started successfully.");
     }
 }
 
@@ -472,11 +479,15 @@ export const tmc = new MiniControl();
 declare global {
     const tmc: MiniControl
 }
+
 (global as any).tmc = tmc;
 
 (async () => {
-    (global as any).tmc = tmc;
-    await tmc.run()
+    try {
+        await tmc.run();
+    } catch (e: any) {
+        tmc.cli("¤error¤" + e.message);
+    }
 })();
 
 process.on('SIGINT', function () {
@@ -489,7 +500,10 @@ process.on("SIGTERM", () => {
     process.exit(0);
 });
 
-process.on('uncaughtException', function(err) {
+process.on('uncaughtException', function (err) {
     tmc.cli("¤error¤" + err.message);
-    console.log(err.stack);
+    console.log(err);
+    if (process.env['DEBUG'] == "true") {
+    // process.exit(1);
+    }
 });

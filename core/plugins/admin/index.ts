@@ -1,10 +1,10 @@
 import { castType, escape, removeColors } from "../../utils";
 import ModeSettingsWindow from "./ModeSettingsWindow";
 import Plugin from "../../plugins";
-import fs from "fs";
+import fs, { existsSync, promises as fspromises } from "fs";
 import LocalMapsWindow from "./LocalMapsWindow";
 import PlayerListsWindow from "./PlayerListsWindow";
-import Tmx from "../tmx";
+import fspath from 'path';
 
 export default class AdminPlugin extends Plugin {
 
@@ -115,23 +115,23 @@ export default class AdminPlugin extends Plugin {
         }, "Unignores player");
 
         tmc.addCommand("//talimit", async (login: string, params: string[]) => {
+            if (!params[0]) {
+                return tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
+            }
+
             if (tmc.game.Name == "TmForever") {
-                if (!params[0]) {
-                    return tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
-                }
-                tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`, login);
                 tmc.server.send("SetTimeAttackLimit", Number.parseInt(params[0]) * 1000);
+                tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                 return;
             }
 
-            if (tmc.game.Name == "Trackmania" ||tmc.game.Name == "ManiaPlanet") {
-                if (!params[0]) {
-                    return tmc.chat("¤cmd¤//talimit ¤info¤needs numeric value in seconds");
-                }
+            if (tmc.game.Name == "Trackmania" || tmc.game.Name == "ManiaPlanet") {
                 const settings = { "S_TimeLimit": Number.parseInt(params[0]) };
                 tmc.server.send("SetModeScriptSettings", settings);
+                tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                 return;
             }
+
         }, "Sets timelimit");
 
         tmc.addCommand("//jump", async (login: string, params: string[]) => {
@@ -256,7 +256,7 @@ export default class AdminPlugin extends Plugin {
             if (tmc.game.Name == "TmForever") {
                 tmc.server.send("SetWarmUp", false);
             } else {
-                tmc.server.callScript("Trackmania.WarmUp.ForceStop");  
+                tmc.server.callScript("Trackmania.WarmUp.ForceStop");
             }
         }, "end warmup");
 
@@ -389,23 +389,29 @@ export default class AdminPlugin extends Plugin {
     async cmdAddLocal(login: string, args: string[]) {
         if (args.length < 1) {
             const window = new LocalMapsWindow(login);
-            window.title = "Add Local Maps";
             window.size = { width: 175, height: 95 };
             let out = [];
             for (let file of fs.readdirSync(tmc.mapsPath, { withFileTypes: true, recursive: true, encoding: "utf8" })) {
                 if (file.name.toLowerCase().endsWith(".gbx")) {
                     let name = escape(file.name.replaceAll(/[.](Map|Challenge)[.]Gbx/gi, ""));
-                    let path = file.path.replace(tmc.mapsPath, "");
+                    let filename = fspath.resolve(tmc.mapsPath, file.parentPath, file.name);
+                    let path = file.parentPath.replace(tmc.mapsPath, "");
                     out.push({
-                        Name: name,
-                        Path: path
+                        File: filename,
+                        FileName: name,
+                        Path: path,
+                        MapName: "",
+                        MapAuthor: "",
                     });
                 }
             }
+            window.title = `Add Local Maps [${out.length}]`;
             window.setItems(out);
             window.setColumns([
-                { key: "Path", title: "Path", width: 70 },
-                { key: "Name", title: "Map File", width: 70, action: "Add" },
+                { key: "Path", title: "Path", width: 40 },
+                { key: "FileName", title: "Map File", width: 30, action: "Add" },
+                { key: "MapName", title: "Name", width: 50, action: "Add" },
+                { key: "MapAuthor", title: "Author", width: 35 }
             ]);
             window.setActions(["Add"]);
             await window.display();

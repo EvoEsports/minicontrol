@@ -12,7 +12,6 @@
     "dependencies": {
         "dependency-graph": "1.0.0",
         "gbx": "1.0.0-rc8",
-        "iomem": "1.5.10",
         "lzo-ts": "0.2.3",
         "mysql2": "3.10.2",
         "pg": "8.12.0",

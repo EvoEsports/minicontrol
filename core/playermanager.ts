@@ -11,6 +11,7 @@ interface Avatar {
     FileName: string;
     Checksum: string;
 }
+
 interface LadderStats {
     LastMatchScore: number;
     NbrMAtchWins: number;
@@ -63,7 +64,7 @@ export class Player {
     syncFromPlayerInfo(data: any) {
         this.login = data.Login;
         // disabled for now, doens't need to be updated every time
-        //    this.nickname = data.NickName.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")        
+        //    this.nickname = data.NickName.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")
         this.teamId = Number.parseInt(data.TeamId);
         this.isSpectator = data.SpectatorStatus !== 0;
         this.isAdmin = tmc.admins.includes(data.Login);
@@ -105,8 +106,8 @@ export default class PlayerManager {
 
     private async onPlayerConnect(data: any) {
         const login = data[0];
-        if (login) { 
-            await sleep(100); // @TODO check if this is really needed
+        if (login) {
+            await sleep(100); // this is really needed to prevent fetch from server multiple times
             const player = await this.getPlayer(login);
             tmc.server.emit("TMC.PlayerConnect", player);
         } else {
@@ -139,7 +140,7 @@ export default class PlayerManager {
 
     /**
      * get player by nickname
-     * @param nickname 
+     * @param nickname
      * @returns {Player | null} Returns the player object or null if not found
      */
     getPlayerbyNick(nickname: string): Player | null {
@@ -151,12 +152,12 @@ export default class PlayerManager {
 
     /**
      * gets player object
-     * @param login 
+     * @param login
      * @returns {Player} Returns the player object
      */
     async getPlayer(login: string): Promise<Player> {
         if (this.players[login]) return this.players[login];
-       
+
         try {
             tmc.debug(`$888Player ${login} not found, fetching from server.`);
             const data = await tmc.server.call("GetDetailedPlayerInfo", login);
@@ -173,7 +174,7 @@ export default class PlayerManager {
      * callback for when a player info changes
      * @ignore
      * @param data data from the server
-     * @returns 
+     * @returns
      */
     private async onPlayerInfoChanged(data: any) {
         data = data[0];

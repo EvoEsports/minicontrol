@@ -1,3 +1,4 @@
+import { ClientRequest } from "node:http";
 import { GbxClient } from "./gbx";
 import EventEmitter from "node:events";
 /**
@@ -15,7 +16,7 @@ export default class Server {
     methodOverrides: { [key: string]: CallableFunction } = {};
     /** @ignore */
     scriptCalls: { [key: string]: Promise<any> } = {};
-    
+
     login: string = "";
     name: string = "";
 
@@ -95,8 +96,8 @@ export default class Server {
     /**
      * Send request and wait for response
      * @param method
-     * @param args 
-     * @returns 
+     * @param args
+     * @returns
      */
     async call(method: string, ...args: any) {
         if (tmc.game.Name == "TmForever") {
@@ -113,7 +114,12 @@ export default class Server {
         if (this.methodOverrides[method]) {
             return await this.methodOverrides[method](...args);
         }
-        return await this.gbx.call(method, ...args);
+        try {
+            return await this.gbx.call(method, ...args);
+        } catch (e:any) {
+            tmc.cli(e.message);
+            return undefined;
+        }
     }
     /**
      * adds override for a method
@@ -148,9 +154,9 @@ export default class Server {
 
     /**
      * send request and ignore everything
-     * @param method 
-     * @param args 
-     * @returns 
+     * @param method
+     * @param args
+     * @returns
      */
     send(method: string, ...args: any) {
         if (tmc.game.Name == "TmForever") {
@@ -167,38 +173,57 @@ export default class Server {
         if (this.methodOverrides[method]) {
             return this.methodOverrides[method](...args);
         }
-        this.gbx.send(method, ...args);
+        try {
+            this.gbx.send(method, ...args);
+        } catch (e: any) {
+            tmc.cli(e.message);
+            return undefined;
+        }
     }
 
     /**
      * call script method
-     * @param method 
-     * @param args 
-     * @returns 
+     * @param method
+     * @param args
+     * @returns
      */
     async callScript(method: string, ...args: any) {
         return this.gbx.callScript(method, ...args);
     }
- 
+
     /** perform multicall */
     async multicall(methods: any[]) {
-        return this.gbx.multicall(methods);
+        try {
+            return this.gbx.multicall(methods);
+        } catch (e: any) {
+            tmc.cli(e.message);
+            return undefined;
+        }
     }
 
     /**
      * connect to server
-     * @param host 
+     * @param host
      * @param port
      */
     async connect(host: string, port: number): Promise<boolean> {
-        const status = await this.gbx.connect(host, port);
-        if (status) {
-            const info = await this.gbx.call("GetMainServerPlayerInfo");
-            const info2 = await this.gbx.call("GetServerOptions");
-            this.login = info.Login;
-            this.name = info2.Name; 
+        try {
+            const status = await this.gbx.connect(host, port);
+            return status;
+        } catch (e: any) {
+            tmc.cli(e.message);
         }
-        return status;
+        return false;
     }
 
+
+    /**
+     * Fetch server name and server login
+     */
+    async fetchServerInfo(): Promise<void> {
+        let serverPlayerInfo = await this.gbx.call("GetMainServerPlayerInfo");
+        let serverOptions = await this.gbx.call("GetServerOptions");
+        this.login = serverPlayerInfo.Login;
+        this.name = serverOptions.Name; 
+    }
 }

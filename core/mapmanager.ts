@@ -25,6 +25,7 @@ export interface Map {
  */
 class MapManager {
     private maps: { [key: string]: Map; };
+    previousMap?: Map;
     currentMap?: Map;
     nextMap?: Map;
 
@@ -53,6 +54,7 @@ class MapManager {
     }
 
     private async onBeginMap(data: any) {
+        this.previousMap = clone(this.currentMap);
         this.currentMap = data[0];
         const index = Object.keys(this.maps).indexOf(data[0].UId);
         const indexNext = (index + 1) % Object.keys(this.maps).length;

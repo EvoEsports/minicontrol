@@ -127,14 +127,21 @@ export function castType(value: string, type: string | undefined = undefined): a
 let prevValueMem: number = -1;
 let startValueMem: number = (process.memoryUsage().rss / 1048576);
 
+/**
+ * @ignore
+ */
+export function setMemStart() {
+    startValueMem = (process.memoryUsage().rss / 1048576);
+}
+
 export function memInfo(section = "") {
     const memMB = (process.memoryUsage().rss / 1048576);
-    let prefix = "$f22 +";
-    if (memMB < prevValueMem) {
-        prefix = "$0f0 -";
+    let prefix = "$f22+";
+    if (memMB < startValueMem) {
+        prefix = "$0f0-";
     }
     section = (section != "") ? `¤info¤${section} ` : "";
-    const out = section + "¤white¤" + memMB.toFixed(1) + "Mb " + prefix + Math.abs(memMB - prevValueMem).toFixed(1) + 'Mb ¤white¤(' + (memMB - startValueMem).toFixed(1) + "Mb)";
+    const out = section + " ¤white¤Start:" + (startValueMem).toFixed(1) + "Mb  Curr:" + memMB.toFixed(1) + "Mb  Diff:" + prefix + Math.abs(memMB - startValueMem).toFixed(1) + 'Mb';
     prevValueMem = memMB;
     return processColorString(out);
 }
