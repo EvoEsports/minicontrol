@@ -59,7 +59,6 @@ export default class Dedimania extends Plugin {
         }
         try {
             const res = await this.authenticate();
-            tmc.debug(res);
             if (res) {
                 tmc.cli("¤info¤Dedimania: Authenticated.");
                 await this.updatePlayers();
