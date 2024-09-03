@@ -1,7 +1,7 @@
 import tm from 'tm-essentials';
-import Plugin from '../../../plugins';
-import Widget from '../../../ui/widget';
-import { formatTime } from '../../../utils';
+import Plugin from '@core/plugins';
+import Widget from '@core/ui/widget';
+import { formatTime } from '@core/utils';
 
 interface Time {
     nickname: string;

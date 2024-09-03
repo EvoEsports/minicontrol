@@ -1,6 +1,6 @@
-import Plugin from "../../../plugins";
-import Widget from '../../../ui/widget';
-import type { Like } from "../../../plugins/maplikes";
+import Plugin from "@core/plugins";
+import Widget from '@core/ui/widget';
+import type { Like } from "@core/plugins/maplikes";
 
 export default class MapLikesWidget extends Plugin {
     static depends: string[] = ["database", 'maplikes'];
@@ -9,17 +9,17 @@ export default class MapLikesWidget extends Plugin {
 
     async onLoad() {
         tmc.server.addListener("Plugin.MapLikes.onSync", this.onSync, this);
-        this.widget = new Widget("core/plugins/widgets/maplikes/widget.twig");      
-        this.widget.pos = { x: 115, y: 60 };   
+        this.widget = new Widget("core/plugins/widgets/maplikes/widget.twig");
+        this.widget.pos = { x: 115, y: 60 };
         this.widget.actions['like'] = tmc.ui.addAction(this.actionLike.bind(this), 1);
         this.widget.actions['dislike'] = tmc.ui.addAction(this.actionLike.bind(this), -1);
     };
-    
+
 
     async actionLike(login: string, value: number) {
         if (value > 0)
             await tmc.chatCmd.execute(login, "/++")
-        else 
+        else
             await tmc.chatCmd.execute(login, "/--")
     }
 

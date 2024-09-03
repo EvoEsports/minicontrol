@@ -1,6 +1,6 @@
-import { escape, formatTime } from '../../../utils';
-import Plugin from '../../../plugins';
-import Widget from '../../../ui/widget';
+import { escape, formatTime } from '@core/utils';
+import Plugin from '@core/plugins';
+import Widget from '@core/ui/widget';
 
 interface Time {
     login: string;

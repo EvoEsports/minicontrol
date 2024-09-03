@@ -1,4 +1,4 @@
-import Plugin from "../../../plugins";
+import Plugin from "@core/plugins";
 
 export interface ModCollection {
   Stadium: string;

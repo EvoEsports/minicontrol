@@ -1,5 +1,5 @@
-import Plugin from "../../../plugins";
-import Widget from "../../../ui/widget";
+import Plugin from "@core/plugins";
+import Widget from "@core/ui/widget";
 import MenuWidget from "./menuWidget";
 
 export interface Item {

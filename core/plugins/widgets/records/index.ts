@@ -1,7 +1,7 @@
-import type { Player } from "../../../playermanager";
-import Plugin from "../../../plugins";
-import Widget from '../../../ui/widget';
-import { formatTime, escape } from "../../../utils";
+import type { Player } from "@core/playermanager";
+import Plugin from "@core/plugins";
+import Widget from '@core/ui/widget';
+import { formatTime, escape } from "@core/utils";
 
 export default class RecordsWidget extends Plugin {
     static depends: string[] = ["records"];
@@ -27,13 +27,13 @@ export default class RecordsWidget extends Plugin {
 
     async onPlayerDisconnect(player: Player) {
         const login = player.login;
-        if (this.widgets[login]) {            
+        if (this.widgets[login]) {
             delete this.widgets[login];
         }
     }
 
     async onUnload() {
-        for (const login of Object.keys(this.widgets)) {          
+        for (const login of Object.keys(this.widgets)) {
             delete this.widgets[login];
         }
     }

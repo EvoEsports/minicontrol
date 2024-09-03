@@ -1,4 +1,4 @@
-import Plugin from "../../../plugins";
+import Plugin from "@core/plugins";
 
 interface BillState {
     login: string;
@@ -56,7 +56,7 @@ export default class tmnf_coppers extends Plugin {
                     else if (StateName == "Refused") {
                         delete this.billStates[BillId];
                         tmc.chat(`¤info¤${recipient.nickname} ¤info¤refused to pay the bill.`);
-                    } 
+                    }
                     else if (StateName == "ValidatingPayement") {
                         // do nothing
                     } else {
@@ -76,7 +76,7 @@ export default class tmnf_coppers extends Plugin {
                     }
                     else if (StateName == "Refused") {
                         delete this.billStates[BillId];
-                    } 
+                    }
                     else if (StateName == "ValidatingPayement") {
                         // do nothing
                     } else {
@@ -95,7 +95,7 @@ export default class tmnf_coppers extends Plugin {
                     }
                     else if (StateName == "Refused") {
                         delete this.billStates[BillId];
-                    } 
+                    }
                     else if (StateName == "ValidatingPayement") {
                         // do nothing
                     } else {

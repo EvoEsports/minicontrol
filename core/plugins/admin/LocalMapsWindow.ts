@@ -1,7 +1,7 @@
-import ListWindow from '../../ui/listwindow';
+import ListWindow from '@core/ui/listwindow';
 import { GBX, CGameCtnChallenge } from "gbx";
 import { existsSync, promises as fspromises } from "fs";
-import { escape } from '../../utils';
+import { escape } from '@core/utils';
 
 export default class LocalMapsWindow extends ListWindow {
 

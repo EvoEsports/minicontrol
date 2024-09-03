@@ -1,6 +1,6 @@
-import Confirm from '../../ui/confirm';
-import ListWindow from '../../ui/listwindow';
-import { formatTime, escape, clone, removeColors } from '../../utils';
+import Confirm from '@core/ui/confirm';
+import ListWindow from '@core/ui/listwindow';
+import { formatTime, escape, clone, removeColors } from '@core/utils';
 
 export default class MapsWindow extends ListWindow {
     params: string[] = [];

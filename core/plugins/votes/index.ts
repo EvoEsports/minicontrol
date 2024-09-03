@@ -1,6 +1,6 @@
-import Plugin from '../../plugins';
-import Widget from '../../ui/widget';
-import { formatTime, processColorString, escape } from '../..//utils';
+import Plugin from '@core/plugins';
+import Widget from '@core/ui/widget';
+import { formatTime, processColorString, escape } from '@core//utils';
 
 export class Vote {
     type: string;
@@ -72,7 +72,7 @@ export default class VotesPlugin extends Plugin {
         tmc.removeCommand("/no");
     }
 
-    async onStart() {        
+    async onStart() {
         tmc.addCommand("//vote", this.cmdVotes.bind(this), "Start custom vote");
         tmc.addCommand("//pass", this.cmdPassVote.bind(this), "Pass vote");
         tmc.addCommand("/skip", this.cmdSkip.bind(this), "Start vote to Skip map");
@@ -103,7 +103,7 @@ export default class VotesPlugin extends Plugin {
                 action: "//pass",
                 admin: true
             });
-            
+
 
             menu.addItem({
                 category: "Votes",
@@ -129,10 +129,10 @@ export default class VotesPlugin extends Plugin {
 
     async onBeginRound() {
         this.currentVote = null;
-        this.newLimit = this.origTimeLimit;        
-        this.hideWidget();        
+        this.newLimit = this.origTimeLimit;
+        this.hideWidget();
         if (this.extendCounter > 1) {
-            tmc.server.send("SetTimeAttackLimit", this.origTimeLimit * 1000);            
+            tmc.server.send("SetTimeAttackLimit", this.origTimeLimit * 1000);
         }
         this.extendCounter = 1;
     }
@@ -175,7 +175,7 @@ export default class VotesPlugin extends Plugin {
     }
 
     async cmdExtend(login: string, args: string[]) {
-        let minutes = Number.parseInt(args[0]) || 5;     
+        let minutes = Number.parseInt(args[0]) || 5;
         if (minutes < 1) minutes = 1;
         if (minutes > 10) minutes = 10;
 

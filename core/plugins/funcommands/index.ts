@@ -1,4 +1,4 @@
-import Plugin from '../../plugins';
+import Plugin from '@core/plugins';
 
 export default class FunCommands extends Plugin {
 
@@ -17,8 +17,8 @@ export default class FunCommands extends Plugin {
         tmc.addCommand("/posture", this.command_posture.bind(this), "Posture check");
         tmc.addCommand("/hydrate", this.command_hydrate.bind(this), "Hydrate check");
     }
-    
-    async onUnload() {        
+
+    async onUnload() {
         tmc.removeCommand("/afk");
         tmc.removeCommand("/bootme");
         tmc.removeCommand("/ragequit");
@@ -33,15 +33,15 @@ export default class FunCommands extends Plugin {
         tmc.removeCommand("/posture");
         tmc.removeCommand("/hydrate");
     }
-    
+
     async command_afk(login: string, data: any) {
         const player = await tmc.getPlayer(login);
-        tmc.chat(`¤white¤${player.nickname} ¤info¤is now away from keyboard.`);        
+        tmc.chat(`¤white¤${player.nickname} ¤info¤is now away from keyboard.`);
         tmc.server.send(`ForceSpectator`, login, 1);
         tmc.server.send(`ForceSpectator`, login, 0);
-        
+
     }
-    
+
     async command_bootme(login: string, data: any) {
         const player = await tmc.getPlayer(login);
         tmc.chat(`¤white¤${player.nickname}$z$s¤white¤ chooses to boot back to real life!`);

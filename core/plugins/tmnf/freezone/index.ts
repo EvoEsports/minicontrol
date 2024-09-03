@@ -1,4 +1,4 @@
-/** 
+/**
 * Reference: https://github.com/lythx/trakman/blob/main/plugins/freezone/Freezone.ts
 * Ported to Minicontrol by Chris92 <christopher.fluegel@evoesports.gg>
 *
@@ -28,7 +28,7 @@
 * SOFTWARE.
 */
 
-import Plugin from "../../../plugins";
+import Plugin from "@core/plugins";
 import http, { ClientRequest } from "http";
 
 export default class Freezone extends Plugin {
@@ -55,7 +55,7 @@ export default class Freezone extends Plugin {
             tmc.cli("¤info¤Freezone: Authenticated.");
             this.heartbeatInterval = setInterval(async (): Promise<void> => { await this.sendHeartbeat() }, 3600000)
         }
-        
+
     }
 
     onUnload = async () => {

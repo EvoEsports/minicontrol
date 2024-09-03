@@ -1,11 +1,11 @@
 import { Sequelize } from 'sequelize-typescript';
-import type { Player as PlayerType } from '../../playermanager';
-import Plugin from '../../plugins';
-import { chunkArray, sleep } from '../../utils';
-import Map from '../../schemas/map.model';
-import Player from '../../schemas/players.model';
+import type { Player as PlayerType } from '@core/playermanager';
+import Plugin from '@core/plugins';
+import { chunkArray, sleep } from '@core/utils';
+import Map from '@core/schemas/map.model';
+import Player from '@core/schemas/players.model';
 import { MigrationError, SequelizeStorage, Umzug } from 'umzug';
-import { removeColors } from '../../utils';
+import { removeColors } from '@core/utils';
 import { GBX, CGameCtnChallenge } from 'gbx';
 import { existsSync, promises as fspromises } from 'fs';
 import path from 'path';

@@ -1,6 +1,6 @@
-import type { Player } from "../../playermanager";
+import type { Player } from "@core/playermanager";
 import Plugin from "../index";
-import { formatTime } from '../../utils';
+import { formatTime } from '@core/utils';
 import Maps from "../maps";
 
 export default class Announces extends Plugin {
@@ -10,7 +10,7 @@ export default class Announces extends Plugin {
         tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
         tmc.server.addListener("Plugin.Records.onNewRecord", this.onNewRecord, this);
         tmc.server.addListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord, this);
-        tmc.server.addListener("Plugin.Records.onSync", this.onSyncRecord, this);   
+        tmc.server.addListener("Plugin.Records.onSync", this.onSyncRecord, this);
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
     }
 
@@ -75,12 +75,11 @@ export default class Announces extends Plugin {
     async onSyncRecord(data: any) {
         const map = tmc.maps.getMap(data.mapUid);
         const records: any[] = data.records;
-        if (records.length === 0) {            
+        if (records.length === 0) {
             return;
         }
-        const msg = `¤rec¤Server record ¤white¤${records[0].player.nickname}¤rec¤ time ¤white¤${formatTime(records[0].time)}`; 
+        const msg = `¤rec¤Server record ¤white¤${records[0].player.nickname}¤rec¤ time ¤white¤${formatTime(records[0].time)}`;
         tmc.chat(msg);
     }
 }
 
- 
