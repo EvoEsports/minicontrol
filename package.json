@@ -38,9 +38,5 @@
     },
     "peerDependencies": {
         "typescript": "5.5.3"
-    },
-    "imports": {
-        "core": "./core/",
-        "schemas": "./core/schemas/"
     }
 }

@@ -25,7 +25,7 @@ export default class Dedimania extends Plugin {
     server: any = {};
     serverInfo: any = {};
     records: DediRecord[] = [];
-    intervalId: Timer | null = null;
+    intervalId: NodeJS.Timeout | null = null;
 
     async onLoad() {
         tmc.cli("¤info¤Dedimania: TmForever detected, enabling plugin.");
