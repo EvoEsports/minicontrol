@@ -173,10 +173,11 @@ export function getCallerName() {
     Error.prepareStackTrace = (error, stack) => stack;
     const { stack } = new Error();
     Error.prepareStackTrace = orig;
-
-    const caller:any = stack[2];
-    if (caller) {
-         log.debug("$fff└ $4cb"+caller.getTypeName()+"$fff.$eea"+caller.getMethodName() + "$fb1()    $333vscode://vscode-remote/wsl+ubuntu/"+caller.getFileName().replace("file:///", "")+":"+caller.getLineNumber());
+    if (stack) {
+        const caller:any = stack[2];
+        if (caller) {
+            log.debug("$fff└ $4cb"+caller.getTypeName()+"$fff.$eea"+caller.getMethodName() + "$fb1()    $333vscode://vscode-remote/wsl+ubuntu/"+caller.getFileName().replace("file:///", "")+":"+caller.getLineNumber());
+        }
     }
 }
 
