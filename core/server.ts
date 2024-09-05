@@ -1,4 +1,3 @@
-import { ClientRequest } from "node:http";
 import { GbxClient } from "./gbx";
 import EventEmitter from "node:events";
 /**
@@ -224,6 +223,6 @@ export default class Server {
         let serverPlayerInfo = await this.gbx.call("GetMainServerPlayerInfo");
         let serverOptions = await this.gbx.call("GetServerOptions");
         this.login = serverPlayerInfo.Login;
-        this.name = serverOptions.Name; 
+        this.name = serverOptions.Name;
     }
 }
