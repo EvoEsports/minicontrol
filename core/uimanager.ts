@@ -50,6 +50,9 @@ export default class UiManager {
             this.setUiProperty("Race_DisplayMessage", "visible", false);
             this.setUiProperty("Race_Record", "scale", 0.8);
             this.setUiProperty("Race_Countdown", "position", [155, -50]);
+            // checkpoint counter is integrated with laps counter for some reason
+            this.setUiProperty('Race_LapsCounter', 'position', [155.7, -77]);
+            this.setUiProperty('Race_LapsCounter', 'scale', 0.7);
             await this.sendUiProperties();
         }
         tmc.server.send('SendDisplayManialinkPage', this.convert(this.getGlobalManialink()), 0, false);
