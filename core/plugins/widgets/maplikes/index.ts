@@ -10,7 +10,8 @@ export default class MapLikesWidget extends Plugin {
     async onLoad() {
         tmc.server.addListener("Plugin.MapLikes.onSync", this.onSync, this);
         this.widget = new Widget("core/plugins/widgets/maplikes/widget.twig");
-        this.widget.pos = { x: 115, y: 60 };
+        this.widget.pos = { x: 121, y: 60, z: 1 };
+        this.widget.size = { width: 38, height: 11 };
         this.widget.actions['like'] = tmc.ui.addAction(this.actionLike.bind(this), 1);
         this.widget.actions['dislike'] = tmc.ui.addAction(this.actionLike.bind(this), -1);
     };
@@ -36,22 +37,39 @@ export default class MapLikesWidget extends Plugin {
     async updateWidget(data: Like[]) {
         if (this.widget) {
             let positive = 0;
+            let negative = 0;
             let total = 0.0001;
+            let wording = "Neutral";
 
             for (const like of data) {
                 if (like.vote > 0) {
                     positive++;
+                } else {
+                    negative++;
                 }
                 total++;
             }
             let percentage = ((positive / total * 100).toFixed(0) || 0) + "%";
-            if (total < 1) percentage = "No Votes";
+            const percent = positive / total * 100;
+
+            if (percent < 40) wording = "Not Fun";
+            if (percent > 50) wording = "Fun";
+            if (percent > 60) wording = "Super Fun";
+            if (total <= 0) {
+                percentage = "No Votes";
+                wording = "Neutral";
+            }
+
+
             this.widget.setData({
                 percentage: percentage,
+                wording: wording,
+                positive: positive,
+                negative: negative,
                 width: (positive / total * 30).toFixed(0)
             });
-            this.widget.title = "Map Likes ["+data.length+"]";
-            this.widget.size = { width: 45, height: 6 };
+
+            this.widget.title = "MAP KARMA ["+data.length+"]";
             await this.widget.display();
         }
     }

@@ -7,14 +7,14 @@
         {% set keyy = "" %}
         {% for column in data.columns %}
             {% set keyy = "title_" ~ loop.index0 %}
-            <label pos="{{ posx }} -2" z-index="2" size="{{column.width}} 5" textfont="RobotoCondensedBold" text=" ${{ colors.title_fg }}{{ column.title }}" halign="left" textsize="1.5" valign="center2" focusareacolor1="0000" focusareacolor2="{{colors.button_bg_hover}}" action="{{actions[keyy]}}"/>
-            <quad pos="{{ posx }} -4.5" z-index="3" size="{{ column.width }} .2" bgcolor="{{ colors.white }}" valign="bottom" /> 
+            <label pos="{{ posx }} -2" z-index="2" size="{{column.width}} 5" textfont="RobotoCondensedBold" text=" ${{ colors.window_text }}{{ column.title }}" halign="left" textsize="1.5" valign="center2" focusareacolor1="0000" focusareacolor2="{{colors.button_bg_hover}}" action="{{actions[keyy]}}"/>
+            <quad pos="{{ posx }} -4.5" z-index="3" size="{{ column.width }} .2" bgcolor="{{ colors.black }}" valign="bottom" />
             {% set posx = (posx + column.width ) %}
             {% set totalWidth = totalWidth + data.columns[loop.index0].width + 1 %}
         {% endfor %}
         {% if data.listActions %}
-            <label pos="{{ posx }} -2" z-index="1" size="{{ 14 * data.listActions|length }} 5" textfont="RobotoCondensedBold" text="  Actions" halign="left" textsize="1.5" valign="center2" focusareacolor1="0000" />
-            <quad pos="{{ posx }} -4.5" z-index="0" size="{{ 14 * data.listActions|length }} 0.2" bgcolor="{{ colors.white }}" valign="bottom"/> -->
+            <label pos="{{ posx }} -2" z-index="1" size="{{ 14 * data.listActions|length }} 5" textfont="RobotoCondensedBold" text="${{ colors.window_text }}  Actions" halign="left" textsize="1.5" valign="center2" focusareacolor1="0000" />
+            <quad pos="{{ posx }} -4.5" z-index="0" size="{{ 14 * data.listActions|length }} 0.2" bgcolor="{{ colors.black }}" valign="bottom"/> -->
             {% set totalWidth = totalWidth + 14 * data.listActions|length %}
         {% endif %}
         <!-- <quad pos="-2 -4" z-index="0" size="{{ totalWidth }} 0.2" bgcolor="eee" valign="center2"/> -->
@@ -28,9 +28,9 @@
                         {% else %}
                             {%  if column.action is defined %}
                                 {% set key = "item_" ~ column.action ~ "_" ~ item.index %}
-                                <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" textfont="RobotoCondensed" text=" {{ item[column.key] }}" halign="left" textsize="1.5" valign="center2" focusareacolor1="0000" focusareacolor2="{{colors.button_bg_hover}}" action="{{ actions[key] }}"/>
+                                <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" textfont="RobotoCondensed" text="${{ colors.window_text }} {{ item[column.key] }}" halign="left" textsize="1.5" valign="center2" focusareacolor1="0000" focusareacolor2="{{colors.button_bg_hover}}" action="{{ actions[key] }}"/>
                             {% else %}
-                                <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" textfont="RobotoCondensed" text=" {{ item[column.key] }}" halign="left" textsize="1.5" valign="center2"/>
+                                <label pos="{{ posx }} -2" z-index="1" size="{{column.width}} 5" textfont="RobotoCondensed" text="${{ colors.window_text }} {{ item[column.key] }}" halign="left" textsize="1.5" valign="center2"/>
                             {% endif %}
                         {% endif %}
                         {% if (item.index % 2) == 0 %}
@@ -44,12 +44,12 @@
                 {% for action in data.listActions %}
                         {% set key = "item_" ~ action ~ "_" ~ item.index %}
                         <label pos="{{ posx + 6.5 }} -2" z-index="1" size="12 4"
-                        text="{{action}}" textsize="1" 
+                        text="${{ colors.window_text }}{{action}}" textsize="1"
                         valign="center2" halign="center"
                         textfont="RobotoCondensed"
                         focusareacolor1="{{colors.button_bg}}" focusareacolor2="{{colors.button_bg_hover}}" textcolor="{{colors.button_text}}"
                         action="{{ actions[key] }}" />
-                        {% set posx = (posx + 13) %}                    
+                        {% set posx = (posx + 13) %}
                 {% endfor %}
 
         </frame>
@@ -58,11 +58,11 @@
     <frame pos="{{ (size.width / 2) -17}} -{{ size.height - 12}}">
             <quad pos="-3 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowFirst"  halign="center" valign="center" action="{{actions.pg_start}}" />
             <quad pos="3 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowPrev"  halign="center" valign="center" action="{{actions.pg_prev}}" />
-            <label pos="12 -2.5" z-index="1" size="6 6" text="$fff$o{{ data.items.currentPage + 1 }}/{{ data.items.totalPages }}" halign="center" textsize="1" valign="center2"/>
+            <label pos="12 -2.5" z-index="1" size="6 6" text="${{ colors.window_text }}$o{{ data.items.currentPage + 1 }}/{{ data.items.totalPages }}" halign="center" textsize="1" valign="center2"/>
             <quad pos="22 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowNext" halign="center"  valign="center" action="{{actions.pg_next}}" />
-            <quad pos="28 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowLast"  halign="center" valign="center" action="{{actions.pg_end}}"/>        
+            <quad pos="28 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowLast"  halign="center" valign="center" action="{{actions.pg_end}}"/>
     </frame>
-    
+
     {% if actions.apply is defined %}
     <frame  pos="{{ (size.width) -6}} -{{ size.height - 7}}" z-index="2">
         <label pos="-21 0" z-index="1" size="12 5" text="Apply" textsize="1.2" valign="center2" halign="center" focusareacolor1="{{colors.button_bg}}" focusareacolor2="{{colors.button_bg_hover}}" textcolor="{{colors.button_text}}" action="{{ actions.apply }}" />

@@ -1,34 +1,35 @@
 {% extends "core/templates/widget.twig" %}
 
 {% block content %}
+    {% if data.records|length == 0 %}
+            <label pos="19 -1.5" z-index="3" size="38 3" text="$fffNo records" halign="center" valign="center" textsize="1" textfont="RajdhaniMono"/>
+    {% else %}
 	{% for item in data.records %}
-		<frame pos="0 -{{ loop.index0 * 4 }}" z-index="1">
-            <label pos="2.5 -2" z-index="2" size="5 3.5" text="$n$o{{ item.rank }}" textcolor="fff" halign="center" textsize="1" valign="center2"/>
+		<frame pos="0 -{{ loop.index0 * 4 + 1}}" z-index="1">
+            <label pos="2.5 -1.25" z-index="3" size="3.5 3" text="$fff{{ item.rank }}" halign="center" valign="center" textsize="0.5" textfont="RajdhaniMono"/>
             {% if loop.index == 1 %}
-                <quad pos="2.5 -2" z-index="0" size="5 3.5" bgcolor="db0e" valign="center" halign="center"/>
+                <quad pos="2.5 0" z-index="0" size="4 3" bgcolor="db0e" halign="center"/>
             {% endif %}
             {% if loop.index == 2 %}
-                <quad pos="2.5 -2" z-index="0" size="5 3.5" bgcolor="aabe" valign="center" halign="center"/>
+                <quad pos="2.5 0" z-index="0" size="4 3" bgcolor="aabe" halign="center"/>
             {% endif %}
             {% if loop.index == 3 %}
-                <quad pos="2.5 -2" z-index="0" size="5 3.5" bgcolor="963e" valign="center" halign="center"/>
+                <quad pos="2.5 0" z-index="0" size="4 3" bgcolor="963e" halign="center"/>
             {% endif %}
             {% if loop.index > 3 %}
-                <quad pos="2.5 -2" z-index="0" size="5 3.5" bgcolor="000e" valign="center" halign="center"/>
+                <quad pos="2.5 0" z-index="0" size="4 3" bgcolor="000e" halign="center"/>
             {% endif %}
             {% if item.player.login == recipient %}
-                <quad pos="2.5 -2" z-index="1" size="5 3.5" bgcolor="090e" valign="center" halign="center"/>
+                <quad pos="2.5 0" z-index="1" size="4 3" bgcolor="090e" halign="center"/>
             {% endif %}
 
-            <label pos="6.5 -2" z-index="1" size="28 3.5" text="{{ item.nickname }}" halign="left" textsize="1" valign="center2"/>
-            <quad pos="5.75 -2" z-index="0" size="28.5 3.5" bgcolor="0008" halign="left" valign="center" />
+            <label pos="16 -1.25" z-index="1" size="20 3" text="${{colors.widget_text}}{{item.nickname}}" halign="left" valign="center" textsize="0.5" textfont="RobotoCondensedBold"/>
 
-            <label pos="40 -2" z-index="1" size="9 3.5" text="$n$o{{ item.formattedTime }}" halign="center" textsize="1" valign="center2"/>
-            <quad pos="40 -2" z-index="0" size="10 3.5" bgcolor="000e" valign="center" halign="center"/>
 
-            {% if loop.index == 11 %}
-                <quad pos="0 0" z-index="2" size="45 0.2" bgcolor="fff" valign="center"/>
-            {% endif %}
+            <label pos="10 -1.25" z-index="3" size="10 3" text="$fff{{ item.formattedTime }}" halign="center" valign="center" textsize="0.5" textfont="RobotoCondensedBold"/>
+			<quad pos="5 0" z-index="1" size="10 3" bgcolor="7778" />
+
         </frame>
 	{% endfor %}
+    {% endif %}
 {% endblock %}

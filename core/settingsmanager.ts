@@ -10,12 +10,15 @@ export default class SettingsManager {
         black: "000",
         primary: "9f0",
         secondary: "f90",
-        title_fg: "eef",
-        title_bg: "000",
-        button_text: "fff",
-        button_bg: "778",
-        button_bg_hover: "679",        
+        title_fg: "fff",
+        title_bg: "334",
+        widget_bg: "000",
+        widget_text: "fff",
         window_bg: "223",
+        window_text: "fff",
+        button_bg: "778",
+        button_bg_hover: "679",
+        button_text: "fff",
         cmd: "fd0",
         info: "5bf",
         rec: "2e0",
@@ -29,7 +32,7 @@ export default class SettingsManager {
 
     load() {
         this.admins = this.masterAdmins;
-        this.settings = this._defaultSettings;        
+        this.settings = this._defaultSettings;
         /** load colors from environment variables */
         for (const color in this._defaultColors) {
             const vari = "COLOR_" + color.toString().toUpperCase();
@@ -103,7 +106,7 @@ export default class SettingsManager {
         this.settings[key] = value;
     }
 
-    get(key: string) {      
+    get(key: string) {
         return this.settings[key] || this._defaultSettings[key];
     }
 

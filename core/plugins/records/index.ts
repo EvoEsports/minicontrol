@@ -1,7 +1,7 @@
 import Plugin from "@core/plugins";
 import Score from "@core/schemas/scores.model";
 import Player from "@core/schemas/players.model";
-import { clone, escape, removeLinks, formatTime } from "@core/utils";
+import { clone, escape, removeLinks, formatTime, removeColors } from "@core/utils";
 import RecordsWindow from "./recordsWindow";
 import { Op } from "sequelize";
 
@@ -10,7 +10,6 @@ export default class Records extends Plugin {
     records: Score[] = [];
     currentMapUid: string = "";
     limit: number = 100;
-
 
     async onLoad() {
         tmc.storage['db'].addModels([Score]);
