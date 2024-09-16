@@ -91,7 +91,9 @@ export default class DedimaniaWidget extends Plugin {
 
         widget.setData({ records: outRecords });
         widget.size.height = 4 * outRecords.length + 1;
-
+        if (outRecords.length == 0) {
+            widget.size.height = 4;
+        }
         this.widgets[login] = widget;
     }
 

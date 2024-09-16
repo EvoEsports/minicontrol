@@ -178,12 +178,15 @@ export default class Dedimania extends Plugin {
 
             const lastIndex = this.records.length > this.maxRank ? this.maxRank : this.records.length;
             const lastRecord = this.records[lastIndex - 1];
-            if (lastIndex >= this.maxRank && time >= lastRecord.Best) return;
-            const oldRecord = this.records.find(r => r.Login === player.login);
+            if (lastIndex >= this.maxRank && time > lastRecord.Best) return;
+            const oldRecord = clone(this.records.find(r => r.Login === player.login));
+            if (oldRecord && time > oldRecord.Best) return;
             let newRecord = clone(oldRecord);
             if (oldRecord) {
                 if (time < oldRecord.Best) {
-                    oldRecord.Best = time;
+                    const record = this.records[oldRecord.Rank-1];
+                    record.Best = time;
+                    newRecord.Best = time;
                 }
             } else {
                 newRecord = {

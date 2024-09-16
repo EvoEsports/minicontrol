@@ -2,6 +2,7 @@ import type { Player } from "@core/playermanager";
 import Plugin from "../index";
 import { formatTime } from '@core/utils';
 import Maps from "../maps";
+import { type DediRecord } from "../tmnf/dedimania";
 
 export default class Announces extends Plugin {
     async onLoad() {
@@ -11,6 +12,7 @@ export default class Announces extends Plugin {
         tmc.server.addListener("Plugin.Records.onNewRecord", this.onNewRecord, this);
         tmc.server.addListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord, this);
         tmc.server.addListener("Plugin.Records.onSync", this.onSyncRecord, this);
+        tmc.server.addListener("Plugin.Dedimania.onNewRecord", this.onDediRecord, this);
         tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
     }
 
@@ -25,6 +27,7 @@ export default class Announces extends Plugin {
         tmc.server.removeListener("Plugin.Records.onNewRecord", this.onNewRecord);
         tmc.server.removeListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord);
         tmc.server.removeListener("Plugin.Records.onSync", this.onSyncRecord);
+        tmc.server.removeListener("Plugin.Dedimania.onNewRecord", this.onDediRecord);
     }
 
     async onBeginMap(data: any) {
@@ -45,6 +48,25 @@ export default class Announces extends Plugin {
         const msg = `¤white¤${player.nickname}¤info¤ leaves!`;
         tmc.chat(msg);
         tmc.cli(msg);
+    }
+
+    async onDediRecord(data: any ) {
+        console.log(data);
+        const newRecord:DediRecord = data.record;
+        const oldRecord:DediRecord = data.oldRecord;
+
+        let extrainfo = "";
+        if (oldRecord && oldRecord.Rank) {
+            extrainfo = `(¤gray¤$n${formatTime(newRecord.Best - oldRecord.Best).replace("0:", "")}$m¤rec¤)`;
+        }
+        let recipient = undefined;
+
+        if (oldRecord && oldRecord.Best == newRecord.Best) {
+            tmc.chat(`¤white¤${newRecord.NickName}¤rec¤ equalled their ¤white¤${newRecord.Rank}. ¤rec¤dedimania record ¤white¤${formatTime(newRecord.Best)}¤rec¤!`, recipient);
+            return;
+        }
+
+        tmc.chat(`¤white¤${newRecord.NickName}¤rec¤ improved ¤white¤${newRecord.Rank}. ¤rec¤dedimania record ¤white¤${formatTime(newRecord.Best)}¤rec¤ ${extrainfo}!`, recipient);
     }
 
     async onNewRecord(data: any, records: any[]) {
