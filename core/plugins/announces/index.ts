@@ -51,7 +51,6 @@ export default class Announces extends Plugin {
     }
 
     async onDediRecord(data: any ) {
-        console.log(data);
         const newRecord:DediRecord = data.record;
         const oldRecord:DediRecord = data.oldRecord;
 
