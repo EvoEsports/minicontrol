@@ -4,14 +4,14 @@
     {% for cpdata in data.checkpoints %}
         {% if cpdata.prettyTime != "" %}
             <frame pos="{{ 34.25 * (loop.index0 % 8) }} -{{ (loop.index0 // 8 ) * 3.5 }}">
-                <label pos="2 -2" z-index="1" size="3 3" text="$n$o{{ loop.index }}" textcolor="{{colors.title_fg}}" halign="center" textsize="0.9" valign="center2"/>
-                <quad pos="2 -2" z-index="0" size="3 3" bgcolor="{{colors.title_bg}}e" valign="center" halign="center"/>
+                <label pos="2 -2" z-index="1" size="3 3" text="${{colors.title_fg}}$n$o{{ loop.index }}" textcolor="{{colors.title_fg}}" halign="center" textsize="0.9" valign="center2"/>
+                <quad pos="2 -2" z-index="0" size="3 3" bgcolor="{{colors.title_bg}}" opacity="0.7" valign="center" halign="center"/>
 
-                <label pos="4.5 -2" z-index="1" size="19 3" text="{{ cpdata.nickname }}" halign="left" textsize="0.9" valign="center2"/>
-                <quad pos="3.75 -2" z-index="0" size="20 3" bgcolor="{{colors.window_bg}}e" valign="center" halign="left"/>
+                <label pos="4.5 -2" z-index="1" size="19 3" text="${{colors.widget_text}}{{ cpdata.nickname }}" halign="left" textsize="0.9" valign="center2"/>
+                <quad pos="3.75 -2" z-index="0" size="20 3" bgcolor="{{colors.widget_bg}}e" opacity="0.7" valign="center" halign="left"/>
 
-                <label pos="29 -2" z-index="1" size="10 3" text="$n$o{{ cpdata.prettyTime }}" halign="center" textsize="0.9" valign="center2"/>
-                <quad pos="29 -2" z-index="0" size="10 3" bgcolor="{{colors.window_bg_dark}}e" valign="center" halign="center"/>
+                <label pos="29 -2" z-index="1" size="10 3" text="${{colors.widget_text}}$n$o{{ cpdata.prettyTime }}" halign="center" textsize="0.9" valign="center2"/>
+                <quad pos="29 -2" z-index="0" size="10 3" bgcolor="{{colors.widget_bg}}e" opacity="0.7" valign="center" halign="center"/>
             </frame>
         {% endif %}
     {% endfor %}

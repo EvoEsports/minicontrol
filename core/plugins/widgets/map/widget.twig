@@ -1,8 +1,7 @@
 {% extends "core/templates/widget.twig" %}
 
 {% block content %}
-    <label pos="0 -3" z-index="1" size="45 3" text="{{ data.mapname }}" halign="right" valign="center2" textfont="GameFontBlack" textsize="2"/>
-    <label pos="0 -7.5" z-index="1" size="45 3" text="{{ data.author }}" halign="right" valign="center2" textfont="GameFontSemiBold" textsize="2"/>
-    <label pos="0 -12" z-index="1" size="45 3" text="{{ data.authortime }}" halign="right" valign="center2" textfont="GameFontSemiBold" textsize="1.5"/>
-    <quad  pos="0 0" z-index="0" size="{{size.width}} {{size.height}}" halign="right" bgcolor="0000" action="{{actions['openWidget']}}"/>    
+    <label pos="{{size.width / 2}} -2" z-index="2" size="{{size.width}} 4" text="${{colors.widget_text}}{{ data.mapname }}" halign="center" valign="center2" textcolor="000" textfont="RobotoCondensedBold" textsize="1.5"/>
+	<label pos="{{size.width / 2}} -5" z-index="2" size="{{size.width}} 4" text="${{colors.widget_text}}{{ data.author }}" halign="center" valign="center2" textcolor="000" textfont="RobotoCondensed" textsize="1"/>
+	<label pos="{{size.width / 2}} -8" z-index="2" size="{{size.width}} 4" text="${{colors.widget_text}}{{ data.authortime }}" halign="center" valign="center2" textcolor="000" textfont="RobotoCondensed" textsize="1"/>
 {% endblock %}

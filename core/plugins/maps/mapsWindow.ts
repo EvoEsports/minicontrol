@@ -1,11 +1,10 @@
-import Confirm from '../../ui/confirm';
-import ListWindow from '../../ui/listwindow';
-import { formatTime, escape, clone, removeColors } from '../../utils';
+import ListWindow from '@core/ui/listwindow';
+import { formatTime, escape, clone, removeColors } from '@core/utils';
 
 export default class MapsWindow extends ListWindow {
     params: string[] = [];
     template: string = "core/plugins/maps/maplist.twig"
-    pageSize = 20;
+    pageSize = 32;
 
     constructor(login: string, params: string[]) {
         super(login);
@@ -39,12 +38,7 @@ export default class MapsWindow extends ListWindow {
     }
 
     async onAction(login: string, action: string, item: any) {
-        if (action == "Jump") {
-            await tmc.chatCmd.execute(login, "//jump " + item.Uid);
-        } else if (action == "Remove") {
-            const confirm = new Confirm(login, "Confirm Remove", this.applyCommand.bind(this), [login, "//remove " + item.UId]);
-            await confirm.display();
-        } else if (action == "Queue") {
+        if (action == "Queue") {
             await tmc.chatCmd.execute(login, "/addqueue " + item.UId);
         }
     }

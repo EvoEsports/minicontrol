@@ -1,11 +1,11 @@
 import { Sequelize } from 'sequelize-typescript';
-import type { Player as PlayerType } from '../../playermanager';
-import Plugin from '../../plugins';
-import { chunkArray, sleep } from '../../utils';
-import Map from '../../schemas/map.model';
-import Player from '../../schemas/players.model';
+import type { Player as PlayerType } from '@core/playermanager';
+import Plugin from '@core/plugins';
+import { chunkArray, sleep } from '@core/utils';
+import Map from '@core/schemas/map.model';
+import Player from '@core/schemas/players.model';
 import { MigrationError, SequelizeStorage, Umzug } from 'umzug';
-import { removeColors } from '../../utils';
+import { removeColors } from '@core/utils';
 import { GBX, CGameCtnChallenge } from 'gbx';
 import { existsSync, promises as fspromises } from 'fs';
 import path from 'path';
@@ -199,25 +199,25 @@ export default class GenericDb extends Plugin {
                         const stream = await fspromises.readFile(fileName);
                         const gbx = new GBX<CGameCtnChallenge>(stream, 0);
                         await gbx.parse().then
-                            (
-                                file => map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || "" })
-                            )
-                            .catch
-                            (
-                                async error => {
-                                    tmc.cli(`¤error¤Failed to parse "¤white¤${fileName}¤error¤" file, falling back to the map environment...`);
-                                    tmc.debug(error);
+                        (
+                            file => map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || "" })
+                        )
+                        .catch
+                        (
+                            async error => {
+                                tmc.cli(`¤error¤Failed to parse "¤white¤${fileName}¤error¤" file, falling back to the map environment...`);
+                                tmc.debug(error);
 
-                                    await map.update({ playerModel: mapInfo.Environnement || "" });
-                                }
-                            )
-                            .catch
-                            (
-                                error => {
-                                    tmc.cli(`¤error¤Failed to update player model to map environment for "¤white¤${fileName}¤error¤" file, skipping...`);
-                                    tmc.debug(error);
-                                }
-                            );
+                                await map.update({ playerModel: mapInfo.Environnement || "" });
+                            }
+                        )
+                        .catch
+                        (
+                            error => {
+                                tmc.cli(`¤error¤Failed to update player model to map environment for "¤white¤${fileName}¤error¤" file, skipping...`);
+                                tmc.debug(error);
+                            }
+                        );
                     } else {
                         tmc.cli(`¤error¤ "¤white¤${fileName}¤error¤" not found.`);
                     }

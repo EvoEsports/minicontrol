@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "lib": ["ESNext"],
-        "module": "ESNext",    
+        "module": "ESNext",
         "moduleDetection": "force",
         "target": "es6", // or a more recent ecmascript version
         "experimentalDecorators": true,
@@ -20,5 +20,8 @@
         "esModuleInterop": true,
         "traceResolution": true,
         "rootDir": ".",
+        "paths": {
+            "@core/*": ["./core/*"]
+        }
     }
 }

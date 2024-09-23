@@ -1,26 +1,26 @@
 {% extends "core/templates/window.twig" %}
 
-{% block content %}        
+{% block content %}
     {% for item in data.items.items %}
-        {% set posy = ((loop.index0 % 5) * 11.5) + 11 %}
-        {% set posx = (loop.index0 // 5) * 46.5 %}
-        <frame pos="{{ posx }} -{{ posy }}" z-index="1">
-            <label pos="0 -2.5" z-index="1" size="45 5" textfont="RobotoCondensed" text="{{ item['Index'] }}. {{ item['Name'] }}" halign="left" textsize="1.25" valign="center2"/>
-            <label pos="0 -5.5" z-index="1" size="45 5" textfont="RobotoCondensed" text="by {{ item['AuthorName'] }}" halign="left" textsize="0.95" valign="center2"/>
-            <label pos="0 -8.5" z-index="1" size="45 5" textfont="RobotoCondensed" text="{{ item['Environnement'] }} / {{ item['Vehicle'] }}" halign="left" textsize="0.9" valign="center2"/>
-            <label pos="44 -8.5" z-index="1" size="45 5" textfont="RobotoCondensed" text="{{ item['ATime'] }}" halign="right" textsize="1" valign="center2"/>
-             
+        {% set posx = (loop.index0 % 4) * 46 %}
+        {% set posy = ((loop.index0 // 4) * 11.5) + 11 %}
+        <frame pos="{{ posx }} -{{ posy }}" z-index="4">
+            <label pos="1 -2.5" z-index="5" size="43 5" textfont="RobotoCondensed" text="${{colors.window_text}}{{ item['Index'] }}. {{ item['Name'] }}" halign="left" textsize="1.25" valign="center2"/>
+            <label pos="1 -5.5" z-index="5" size="43 5" textfont="RobotoCondensed" text="${{colors.window_text}}by {{ item['AuthorName'] }}" halign="left" textsize="0.95" valign="center2"/>
+            <label pos="1 -8.5" z-index="5" size="43 5" textfont="RobotoCondensed" text="${{colors.window_text}}{{ item['Environnement'] }} / {{ item['Vehicle'] }}" halign="left" textsize="0.9" valign="center2"/>
+            <label pos="44 -8.5" z-index="5" size="43 5" textfont="RobotoCondensed" text="${{colors.window_text}}{{ item['ATime'] }}" halign="right" textsize="1" valign="center2"/>
+
         {% set key = "item_Queue_" ~ item.index %}
         {% if (item.index % 2) == 0 %}
-            <label text=" " pos="0 0" z-index="0" size="45 10" focusareacolor1="{{colors.window_bg_light}}9" focusareacolor2="{{colors.button_bg_hover}}" valign="top" action="{{ actions[key] }}"/>
+            <label text=" " pos="0 0" z-index="1" size="45 10" focusareacolor1="456" focusareacolor2="{{colors.button_bg_hover}}" valign="top" action="{{ actions[key] }}"/>
         {% else %}
-            <label text=" " pos="0 0" z-index="0" size="45 10" focusarecolor1="{{colors.window_bg_dark}}9" focusareacolor2="{{colors.button_bg_hover}}" valign="top" action="{{ actions[key] }}"/>
+            <label text=" " pos="0 0" z-index="2" size="45 10" focusareacolor1="678" focusareacolor2="{{colors.button_bg_hover}}" valign="top" action="{{ actions[key] }}"/>
         {% endif %}
 
         </frame>
     {% endfor %}
-    <frame pos="-4 0">        
-        <label pos="2 0" z-index="1" size="45 5" textfont="RobotoCondensed" text="Sort maps by" halign="left" textsize="1.25" valign="center2"/>
+    <frame pos="-2 0">
+        <label pos="2 0" z-index="1" size="45 5" textfont="RobotoCondensed" text="${{colors.window_text}}Sort maps by" halign="left" textsize="1.25" valign="center2"/>
         <frame pos="-2 0">
             <label text="Index" pos="10 -4" z-index="1" size="12 4" textsize="1" valign="center2" halign="center" textfont="RobotoCondensed" focusareacolor1="{{colors.button_bg}}" focusareacolor2="{{colors.button_bg_hover}}" textcolor="{{colors.button_text}}"
                 action="{{ actions['title_0'] }}" />
@@ -36,15 +36,15 @@
                 action="{{ actions['title_5'] }}" />
         </frame>
     </frame>
-    
-    <frame pos="{{ (size.width / 2) -17}} -{{ size.height - 12}}">
+
+    <frame pos="{{ (size.width / 2) -16}} -{{ size.height - 12}}">
             <quad pos="-3 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowFirst"  halign="center" valign="center" action="{{actions.pg_start}}" />
             <quad pos="3 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowPrev"  halign="center" valign="center" action="{{actions.pg_prev}}" />
-            <label pos="12 -2.5" z-index="1" size="6 6" text="$fff$o{{ data.items.currentPage + 1 }}/{{ data.items.totalPages }}" halign="center" textsize="1" valign="center2"/>
+            <label pos="12 -2.5" z-index="1" size="6 6" text="${{colors.window_text}}$o{{ data.items.currentPage + 1 }}/{{ data.items.totalPages }}" halign="center" textsize="1" valign="center2"/>
             <quad pos="22 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowNext" halign="center"  valign="center" action="{{actions.pg_next}}" />
-            <quad pos="28 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowLast"  halign="center" valign="center" action="{{actions.pg_end}}"/>        
+            <quad pos="28 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowLast"  halign="center" valign="center" action="{{actions.pg_end}}"/>
     </frame>
-    
+
     {% if actions.apply is defined %}
     <frame  pos="{{ (size.width) -6}} -{{ size.height - 7}}" z-index="2">
         <label pos="-21 0" z-index="1" size="12 5" text="Apply" textsize="1.2" valign="center2" halign="center" focusareacolor1="{{colors.button_bg}}" focusareacolor2="{{colors.button_bg_hover}}" textcolor="{{colors.button_text}}" action="{{ actions.apply }}" />

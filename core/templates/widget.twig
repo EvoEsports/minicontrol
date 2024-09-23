@@ -2,19 +2,19 @@
 {% block body %}
 	<frame pos="{{pos.x}} {{pos.y}}" z-index="{{pos.z | default(1) }}">
         {% if title != "" %}
-            <frame pos="0 0" z-index="1">
-            <label pos="{{size.width / 2}} -2" z-index="1" size="{{size.width}} 4" textsize="1.5" textfont="RobotoCondensed" text="$o{{title}}" focusareacolor2="{{colors.window_bg_light}}" textcolor="{{colors.title_fg}}" halign="center" valign="center2" action="{{actions['openWidget']}}"/>
-            <quad pos="0 -2" z-index="0" size="{{size.width}} 4" bgcolor="{{colors.title_bg}}e" valign="center"/>
-        </frame>
-        <frame pos="0 -4" z-index="1">
+            <frame pos="0 0" z-index="3">
+                <label pos="{{size.width / 2}} -2" z-index="1" size="{{size.width}} 6" textsize="1.5" textfont="RobotoCondensed" text="{{title}}" focusareacolor1="0000" focusareacolor2="000" textcolor="{{colors.title_fg}}" halign="center" valign="center2" action="{{actions['openWidget']}}"/>
+                <quad pos="0 0" z-index="0" size="{{size.width}} 4" bgcolor="{{colors.title_bg}}e" halign="left" valign="top"/>
+                <quad pos="0 -4" z-index="3" size="{{size.width}} 0.3" bgcolor="000" halign="left" valign="top"/>
+            </frame>
+            <frame pos="0 -4" z-index="1">
         {% else %}
-        <frame pos="0 0" z-index="1">
+            <frame pos="0 0" z-index="1">
         {% endif %}
             {% block content %}{% endblock %}
-          
+        </frame>
         {% if title != "" %}
-            <quad pos="0 0" z-index="-2" size="{{size.width}} {{size.height}}" bgcolor="{{colors.window_bg}}9" action="{{actions['openWidget']}}"/>           
+            <quad pos="0 -4" z-index="-1" size="{{size.width}} {{size.height}}" bgcolor="{{colors.widget_bg}}9" action="{{actions['openWidget']}}"/>
         {% endif %}
-        </frame>       
     </frame>
 {% endblock %}

@@ -1,7 +1,7 @@
-import type { Player } from '../../../playermanager';
-import Plugin from '../../../plugins';
-import Manialink from '../../../ui/manialink';
-import { parseEntries } from '../../../utils';
+import type { Player } from '@core/playermanager';
+import Plugin from '@core/plugins';
+import Manialink from '@core/ui/manialink';
+import { parseEntries } from '@core/utils';
 
 
 export default class OpenPlanet extends Plugin {

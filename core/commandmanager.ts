@@ -1,5 +1,5 @@
 import ListWindow from "./ui/listwindow";
-import { sleep } from "./utils";
+import { escapeRegex, sleep } from "./utils";
 import fs from 'fs';
 
 export interface ChatCommand {
@@ -271,7 +271,7 @@ export default class CommandManager {
                     tmc.chat("¤error¤Not allowed.", login);
                     return;
                 }
-                const exp = new RegExp(`^${command.trigger}`);
+                const exp = new RegExp(`^${escapeRegex(command.trigger)}`, "i");
                 const cmd = exp.test(text);
                 if (cmd) {
                     const words = text.replace(command.trigger, "").trim();

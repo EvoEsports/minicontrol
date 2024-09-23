@@ -1,4 +1,4 @@
-import { formatTime } from '../../utils'
+import { formatTime } from '@core/utils'
 import Plugin from '../index';
 
 export default class ATime extends Plugin {

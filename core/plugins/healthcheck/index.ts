@@ -1,7 +1,7 @@
 
 import { Server, type Socket } from "net";
 import Plugin from "..";
-import { isDocker } from "../../utils";
+import { isDocker } from "@core/utils";
 
 export default class HealthCheck extends Plugin {
     server: Server | null = null;

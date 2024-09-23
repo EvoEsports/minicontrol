@@ -1,5 +1,5 @@
-import Plugin from '../../../plugins';
-import Widget from '../../../ui/widget';
+import Plugin from '@core/plugins';
+import Widget from '@core/ui/widget';
 
 export default class ToggleChat extends Plugin {
     static depends: string[] = ["game:TmForever"];
@@ -10,14 +10,14 @@ export default class ToggleChat extends Plugin {
         this.widget = new Widget("core/plugins/tmnf/togglechat/widget.twig");
         this.widget.pos = { x: -154, y: -40 };
         this.widget.size = { width: 12, height: 5 };
-        this.widget.setOpenAction(this.manialinkToggle.bind(this));        
+        this.widget.setOpenAction(this.manialinkToggle.bind(this));
         await this.widget.display();
-        tmc.addCommand("/togglechat", this.cmdChat.bind(this), "Toggle chat visibility");        
+        tmc.addCommand("/togglechat", this.cmdChat.bind(this), "Toggle chat visibility");
     }
 
     async onUnload() {
         this.widget?.destroy();
-        this.widget = null;                
+        this.widget = null;
         tmc.removeCommand("/togglechat");
     }
 
@@ -45,7 +45,7 @@ export default class ToggleChat extends Plugin {
 
     getTmnfManialink(chatStatus: boolean): string {
         const chatStatusString = chatStatus ? "true" : "false";
-        return `<manialinks><custom_ui><chat visible="${chatStatusString}"/><notice visible="false"/>            
+        return `<manialinks><custom_ui><chat visible="${chatStatusString}"/><notice visible="false"/>
         <challenge_info visible="false"/></custom_ui></manialinks>`;
     }
 

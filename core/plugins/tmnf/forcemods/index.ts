@@ -1,13 +1,14 @@
-import Plugin from "../../../plugins";
+import Plugin from "@core/plugins";
 
 export interface ModCollection {
-  Stadium: string | undefined;
-  Island: string | undefined;
-  Speed: string | undefined;
-  Rally: string | undefined;
-  Bay: string | undefined;
-  Coast: string | undefined;
-  Alpine: string | undefined;
+  Stadium: string;
+  Island: string;
+  Speed: string;
+  Rally: string;
+  Bay: string;
+  Coast: string;
+  Alpine: string;
+  [key:string]:string;
 }
 
 export default class ForceMods extends Plugin {

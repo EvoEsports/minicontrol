@@ -24,14 +24,15 @@ export default class Maps extends Plugin {
 
     async cmdMaps(login: any, params: string[]) {
         const window = new MapsWindow(login, params);
-        window.size = { width: 190, height: 85 };
+        window.pos.y = 0;
+        window.size = { width: 187, height: 120 };
         window.setColumns([
             { key: "Index", title: "#", width: 4 },
             { key: "Name", title: "Name", width: 50, action: "Queue" },
             { key: "AuthorName", title: "Author", width: 30 },
             { key: "ATime", title: "Author Time", width: 20 },
             { key: "Environnement", title: "Environment", width: 15 },
-            { key: "Vehicle", title: "Vehicle", width: 15 }            
+            { key: "Vehicle", title: "Vehicle", width: 15 }
         ]);
         window.title = "Maps [" + tmc.maps.getMapCount() + "]";
         await window.display()

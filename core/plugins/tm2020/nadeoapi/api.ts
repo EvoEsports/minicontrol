@@ -1,5 +1,5 @@
 import fs from "fs";
-import { sleep } from "../../../utils";
+import { sleep } from "@core/utils";
 
 interface Tokens {
     accessToken: string;

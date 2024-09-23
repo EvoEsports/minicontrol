@@ -1,5 +1,6 @@
 import tm from 'tm-essentials';
 import fs from 'fs';
+import log from '@core/log';
 
 export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -22,8 +23,8 @@ export function processColorString(str: string, prefix: string = ""): string {
 export function chunkArray<T>(array: T[], chunkSize: number): T[][] {
     const chunks = Array.from({ length: Math.ceil(array.length / chunkSize) }, (_, index) =>
         array.slice(index * chunkSize, (index + 1) * chunkSize)
-    );
-    return chunks;
+);
+return chunks;
 }
 
 export function modLightness(color: string, percent: number) {
@@ -52,10 +53,10 @@ export function hsl2rgb(h: number, s: number, l: number) {
 
 export function rgb2hsl(r: number, g: number, b: number) {
     let v = Math.max(r, g, b),
-        c = v - Math.min(r, g, b),
-        f = 1 - Math.abs(v + v - c - 1);
+    c = v - Math.min(r, g, b),
+    f = 1 - Math.abs(v + v - c - 1);
     let h =
-        c && (v == r ? (g - b) / c : v == g ? 2 + (b - r) / c : 4 + (r - g) / c);
+    c && (v == r ? (g - b) / c : v == g ? 2 + (b - r) / c : 4 + (r - g) / c);
     return [60 * (h < 0 ? h + 6 : h), f ? c / f : 0, (v + v - c) / 2];
 }
 
@@ -70,7 +71,7 @@ export function parseEntries(entries: any[]) {
 
 export function escape(str: string): string {
     return (str || "").replaceAll(/&/g, "&amp;").replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;").replaceAll(/"/g, "&quot;").replaceAll(/'/g, "&apos;")
-        .replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "").replaceAll("--", "—-").replaceAll("]]>", "]>");
+    .replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "").replaceAll("--", "—-").replaceAll("]]>", "]>");
 }
 
 export function removeLinks(str: string): string {
@@ -117,7 +118,7 @@ export function castType(value: string, type: string | undefined = undefined): a
     else if (value == "null") return null;
     else if (!isNaN(Number.parseFloat(value))) {
         if (value.includes(".")) return Number.parseFloat(value)
-        else return Number.parseInt(value);
+            else return Number.parseInt(value);
     }
     else {
         return value;
@@ -128,8 +129,8 @@ let prevValueMem: number = -1;
 let startValueMem: number = (process.memoryUsage().rss / 1048576);
 
 /**
- * @ignore
- */
+* @ignore
+*/
 export function setMemStart() {
     startValueMem = (process.memoryUsage().rss / 1048576);
 }
@@ -166,7 +167,20 @@ export function isDocker() {
     return hasEnv() || hasGroup();
 }
 
+export function getCallerName() {
+    // Get stack array
+    const orig = Error.prepareStackTrace;
+    Error.prepareStackTrace = (error, stack) => stack;
+    const { stack } = new Error();
+    Error.prepareStackTrace = orig;
+    if (stack) {
+        const caller:any = stack[2];
+        if (caller) {
+            log.debug("$fff└ $4cb"+caller.getTypeName()+"$fff.$eea"+caller.getMethodName() + "$fb1()    $333vscode://vscode-remote/wsl+ubuntu/"+caller.getFileName().replace("file:///", "")+":"+caller.getLineNumber());
+        }
+    }
+}
 
-
-
-
+export function escapeRegex(text: string) {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+ }

@@ -1,5 +1,5 @@
-import Widget from '../../../ui/widget';
-import Plugin from '../../../plugins';
+import Widget from '@core/ui/widget';
+import Plugin from '@core/plugins';
 import tm from 'tm-essentials';
 
 export default class TAlimitPlugin extends Plugin {

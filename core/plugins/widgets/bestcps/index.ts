@@ -1,7 +1,7 @@
 import tm from 'tm-essentials';
-import Plugin from '../../../plugins';
-import Widget from '../../../ui/widget';
-import { formatTime } from '../../../utils';
+import Plugin from '@core/plugins';
+import Widget from '@core/ui/widget';
+import { formatTime, removeColors } from '@core/utils';
 
 interface Time {
     nickname: string;
@@ -50,7 +50,7 @@ export default class BestCps extends Plugin {
         if (nb >= this.maxCp) return;
         if (nb >= this.nbCheckpoints - 1) return;
         if (this.bestTimes[nb] && time < this.bestTimes[nb].time) {
-            this.bestTimes[nb] = { nickname: (await tmc.getPlayer(login)).nickname, time: time, prettyTime: formatTime(time) };
+            this.bestTimes[nb] = { nickname: removeColors((await tmc.getPlayer(login)).nickname), time: time, prettyTime: formatTime(time) };
             await this.display();
         }
 

@@ -1,7 +1,7 @@
-import Plugin from "../../plugins";
-import Score from "../../schemas/scores.model";
-import Player from "../../schemas/players.model";
-import { clone, escape, removeLinks, formatTime } from "../../utils";
+import Plugin from "@core/plugins";
+import Score from "@core/schemas/scores.model";
+import Player from "@core/schemas/players.model";
+import { clone, escape, removeLinks, formatTime, removeColors } from "@core/utils";
 import RecordsWindow from "./recordsWindow";
 import { Op } from "sequelize";
 
@@ -10,7 +10,6 @@ export default class Records extends Plugin {
     records: Score[] = [];
     currentMapUid: string = "";
     limit: number = 100;
-
 
     async onLoad() {
         tmc.storage['db'].addModels([Score]);
@@ -115,13 +114,13 @@ export default class Records extends Plugin {
             });
 
             this.records = this.records.filter(r => r.login !== data.login);
-            
+
             let rank = 1;
             for (const score of this.records) {
-                score.rank = rank;                
+                score.rank = rank;
                 rank += 1;
-            }            
-            
+            }
+
             tmc.server.emit("Plugin.Records.onRefresh", {
                 records: clone(this.records),
             });
@@ -232,7 +231,7 @@ export default class Records extends Plugin {
             let outRecord = {};
             for (let i = 0; i < this.records.length; i++) {
                 this.records[i].rank = i + 1;
-               
+
                 if (this.records[i].login == login) {
                     outRecord = this.records[i];
                 }

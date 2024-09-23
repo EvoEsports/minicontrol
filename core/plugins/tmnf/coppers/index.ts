@@ -1,4 +1,4 @@
-import Plugin from "../../../plugins";
+import Plugin from "@core/plugins";
 
 interface BillState {
     login: string;
@@ -43,67 +43,67 @@ export default class tmnf_coppers extends Plugin {
             const bill = this.billStates[BillId];
             switch(bill.type) {
                 case "bill":
-                    recipient = await tmc.getPlayer(bill.recipient);
-                    player = await tmc.getPlayer(bill.login);
-                    if (StateName == "error") {
-                        // do nothing
-                    } else if (StateName == "Issued") {
-                        tmc.chat(`¤info¤${player.nickname}¤info¤ issued a bill of ¤white¤${bill.amount} ¤info¤coppers to ¤white¤${recipient.nickname}¤info¤.`)
-                    } else if (StateName == "Payed") {
-                        delete this.billStates[BillId];
-                        tmc.chat(`¤info¤${recipient.nickname}¤info¤ paid bill of ¤white¤${bill.amount} ¤info¤coppers`);
-                    }
-                    else if (StateName == "Refused") {
-                        delete this.billStates[BillId];
-                        tmc.chat(`¤info¤${recipient.nickname} ¤info¤refused to pay the bill.`);
-                    } 
-                    else if (StateName == "ValidatingPayement") {
-                        // do nothing
-                    } else {
-                        tmc.chat(`Unknown StateName: ¤white¤${StateName}`);
-                    }
-                    break;
+                recipient = await tmc.getPlayer(bill.recipient);
+                player = await tmc.getPlayer(bill.login);
+                if (StateName == "error") {
+                    // do nothing
+                } else if (StateName == "Issued") {
+                    tmc.chat(`¤info¤${player.nickname}¤info¤ issued a bill of ¤white¤${bill.amount} ¤info¤coppers to ¤white¤${recipient.nickname}¤info¤.`)
+                } else if (StateName == "Payed") {
+                    delete this.billStates[BillId];
+                    tmc.chat(`¤info¤${recipient.nickname}¤info¤ paid bill of ¤white¤${bill.amount} ¤info¤coppers`);
+                }
+                else if (StateName == "Refused") {
+                    delete this.billStates[BillId];
+                    tmc.chat(`¤info¤${recipient.nickname} ¤info¤refused to pay the bill.`);
+                }
+                else if (StateName == "ValidatingPayement") {
+                    // do nothing
+                } else {
+                    tmc.chat(`Unknown StateName: ¤white¤${StateName}`);
+                }
+                break;
                 case "pay":
-                    recipient = await tmc.getPlayer(bill.to);
-                    player = await tmc.getPlayer(bill.login);
-                    if (StateName == "error") {
-                        // do nothing
-                    } else if (StateName == "Issued") {
-                        // do nothing
-                    } else if (StateName == "Payed") {
-                        delete this.billStates[BillId];
-                        tmc.chat(`¤info¤${recipient.nickname}¤info¤ was paid out ¤white¤${bill.amount} ¤info¤coppers by ${player.nickname}¤info¤.`);
-                    }
-                    else if (StateName == "Refused") {
-                        delete this.billStates[BillId];
-                    } 
-                    else if (StateName == "ValidatingPayement") {
-                        // do nothing
-                    } else {
-                        tmc.chat(`Unknown StateName: ¤white¤${StateName}`);
-                    }
-                    break;
+                recipient = await tmc.getPlayer(bill.to);
+                player = await tmc.getPlayer(bill.login);
+                if (StateName == "error") {
+                    // do nothing
+                } else if (StateName == "Issued") {
+                    // do nothing
+                } else if (StateName == "Payed") {
+                    delete this.billStates[BillId];
+                    tmc.chat(`¤info¤${recipient.nickname}¤info¤ was paid out ¤white¤${bill.amount} ¤info¤coppers by ${player.nickname}¤info¤.`);
+                }
+                else if (StateName == "Refused") {
+                    delete this.billStates[BillId];
+                }
+                else if (StateName == "ValidatingPayement") {
+                    // do nothing
+                } else {
+                    tmc.chat(`Unknown StateName: ¤white¤${StateName}`);
+                }
+                break;
                 case "donate":
-                    player = await tmc.getPlayer(bill.login);
-                    if (StateName == "error") {
-                        // do nothing
-                    } else if (StateName == "Issued") {
-                        // do nothing
-                    } else if (StateName == "Payed") {
-                        delete this.billStates[BillId];
-                        tmc.chat(`¤info¤${player.nickname}¤info¤ donated ¤white¤${bill.amount} ¤info¤coppers - thanks!`);
-                    }
-                    else if (StateName == "Refused") {
-                        delete this.billStates[BillId];
-                    } 
-                    else if (StateName == "ValidatingPayement") {
-                        // do nothing
-                    } else {
-                        tmc.chat(`Unknown StateName: ¤white¤${StateName}`);
-                    }
-                    break;
+                player = await tmc.getPlayer(bill.login);
+                if (StateName == "error") {
+                    // do nothing
+                } else if (StateName == "Issued") {
+                    // do nothing
+                } else if (StateName == "Payed") {
+                    delete this.billStates[BillId];
+                    tmc.chat(`¤info¤${player.nickname}¤info¤ donated ¤white¤${bill.amount} ¤info¤coppers - thanks!`);
+                }
+                else if (StateName == "Refused") {
+                    delete this.billStates[BillId];
+                }
+                else if (StateName == "ValidatingPayement") {
+                    // do nothing
+                } else {
+                    tmc.chat(`Unknown StateName: ¤white¤${StateName}`);
+                }
+                break;
                 default:
-                    break;
+                break;
             }
         } else {
             tmc.cli(`¤info¤Bill ¤white¤${BillId} ¤info¤updated to ¤white¤${StateName} ¤info¤with transaction id ¤white¤${TransactionId}`);

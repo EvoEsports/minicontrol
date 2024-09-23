@@ -1,6 +1,6 @@
-import { escape, formatTime } from '../../../utils';
-import Plugin from '../../../plugins';
-import Widget from '../../../ui/widget';
+import { escape, formatTime } from '@core/utils';
+import Plugin from '@core/plugins';
+import Widget from '@core/ui/widget';
 
 interface Time {
     login: string;
@@ -17,9 +17,9 @@ export default class MapWidget extends Plugin {
     async onLoad() {
         this.id = tmc.ui.uuid();
         this.widget = new Widget("core/plugins/widgets/map/widget.twig");
-       // this.widget.title ="Map Info";
-        this.widget.pos = { x: 158, y: 88, z: 1 };
-        this.widget.size = { width: 45, height: 14 };
+        this.widget.title ="MAP INFO";
+        this.widget.pos = { x: 121, y: 90, z: 1 };
+        this.widget.size = { width: 38, height: 10 };
         this.widget.setOpenAction(this.buttonClick.bind(this));
         tmc.server.addListener("Trackmania.BeginMap", this.beginMap, this);
         const info = tmc.maps.currentMap;

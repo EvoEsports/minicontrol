@@ -1,6 +1,6 @@
-import type { Player } from "../../../playermanager";
-import Plugin from "../../../plugins";
-import Widget from "../../../ui/widget";
+import type { Player } from "@core/playermanager";
+import Plugin from "@core/plugins";
+import Widget from "@core/ui/widget";
 
 
 export default class Checkpoints extends Plugin {

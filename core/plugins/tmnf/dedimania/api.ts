@@ -40,15 +40,14 @@ export default class DedimaniaClient {
         }
 
         const res = await fetch(url, {
-            method: "POST",                       
-            body: await this.compress(body),            
+            method: "POST",
+            body: await this.compress(body),
             headers: {
                 "Content-Type": "text/xml",
                 "Content-Encoding": "gzip",
                 'Connection': "Keep-Alive"
-            }, 
-            keepalive: true,
-            verbose: true
+            },
+            keepalive: true
         });
 
         if (method === "dedimania.Authenticate") {

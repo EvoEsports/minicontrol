@@ -21,7 +21,7 @@ import UiManager from './uimanager';
 import MapManager from './mapmanager';
 import CommandManager from './commandmanager';
 import SettingsManager from './settingsmanager';
-import { processColorString, setMemStart } from './utils';
+import { getCallerName, processColorString, setMemStart } from './utils';
 import log from './log';
 import fs from 'fs';
 import Plugin from './plugins/index';
@@ -44,7 +44,7 @@ class MiniControl {
      * The version of MiniControl.
      */
     readonly brand: string = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
-    readonly version: string = "0.6.0";
+    readonly version: string = "0.6.1";
     /**
      * The start time of MiniControl.
      */
@@ -272,7 +272,7 @@ class MiniControl {
             this.pluginDependecies.removeNode(unloadName);
 
             delete this.plugins[unloadName];
-            const file = path.resolve(process.cwd() + "/" + pluginPath + "/index.ts");
+            const file = process.cwd() + pluginPath.replaceAll(".", "") + "/index.ts";
             if (require.cache[file]) {
                 // eslint-disable-next-line drizzle/enforce-delete-with-where
                 // Loader.registry.delete(file); // @TODO check how to do this in tsx
@@ -296,6 +296,7 @@ class MiniControl {
      */
     cli(object: any) {
         log.info(processColorString(object.toString()));
+        if (process.env.DEBUG == "true") getCallerName();
     }
 
     /**
@@ -304,6 +305,7 @@ class MiniControl {
      */
     debug(object: any) {
         if (process.env.DEBUG == "true") log.debug(processColorString(object.toString()));
+        getCallerName();
     }
 
     /**

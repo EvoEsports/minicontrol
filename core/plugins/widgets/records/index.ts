@@ -1,7 +1,7 @@
-import type { Player } from "../../../playermanager";
-import Plugin from "../../../plugins";
-import Widget from '../../../ui/widget';
-import { formatTime, escape } from "../../../utils";
+import type { Player } from "@core/playermanager";
+import Plugin from "@core/plugins";
+import Widget from '@core/ui/widget';
+import { formatTime, escape, removeColors } from "@core/utils";
 
 export default class RecordsWidget extends Plugin {
     static depends: string[] = ["records"];
@@ -27,13 +27,13 @@ export default class RecordsWidget extends Plugin {
 
     async onPlayerDisconnect(player: Player) {
         const login = player.login;
-        if (this.widgets[login]) {            
+        if (this.widgets[login]) {
             delete this.widgets[login];
         }
     }
 
     async onUnload() {
-        for (const login of Object.keys(this.widgets)) {          
+        for (const login of Object.keys(this.widgets)) {
             delete this.widgets[login];
         }
     }
@@ -66,10 +66,10 @@ export default class RecordsWidget extends Plugin {
         let widget = this.widgets[login];
         if (!widget) {
             widget = new Widget("core/plugins/widgets/records/widget.twig");
-            widget.title = "Records";
+            widget.title = "RECORDS";
             widget.recipient = login;
-            widget.pos = { x: 115, y: 30 };
-            widget.size = { width: 45, height: 45 };
+            widget.pos = { x: 121, y: 30 };
+            widget.size = { width: 38, height: 45 };
             widget.setOpenAction(this.widgetClick.bind(this));
         }
 
@@ -93,8 +93,10 @@ export default class RecordsWidget extends Plugin {
         }
 
         widget.setData({ records: outRecords });
-        widget.size = { width: 45, height: 4 * outRecords.length + 1 };
-
+        widget.size.height = 4 * outRecords.length + 1;
+        if (outRecords.length < 1) {
+            widget.size.height = 4;
+        }
         this.widgets[login] = widget;
     }
 

@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize-typescript";
-import Plugin from "../../plugins";
-import Likes from "../../schemas/maplikes.model";
+import Plugin from "@core/plugins";
+import Likes from "@core/schemas/maplikes.model";
 
 export interface Like {
     login: string;

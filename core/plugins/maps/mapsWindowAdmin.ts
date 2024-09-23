@@ -1,6 +1,6 @@
-import Confirm from '../../ui/confirm';
-import ListWindow from '../../ui/listwindow';
-import { formatTime, escape, clone, removeColors } from '../../utils';
+import Confirm from '@core/ui/confirm';
+import ListWindow from '@core/ui/listwindow';
+import { formatTime, escape, clone, removeColors } from '@core/utils';
 
 export default class MapsWindowAdmin extends ListWindow {
     params: string[] = [];
@@ -36,7 +36,7 @@ export default class MapsWindowAdmin extends ListWindow {
             await tmc.chatCmd.execute(login, "//jump " + item.Uid);
         } else if (action == "Remove") {
             const confirm = new Confirm(login, "Confirm Remove", this.applyCommand.bind(this), [login, "//remove " + item.UId]);
-            await confirm.display();    
+            await confirm.display();
         } else if (action == "Queue") {
             await tmc.chatCmd.execute(login, "/addqueue " + item.UId);
         }
@@ -45,5 +45,5 @@ export default class MapsWindowAdmin extends ListWindow {
     async applyCommand(login: string, action: string) {
         await tmc.chatCmd.execute(login, action);
         await this.uiPaginate(login, "", []);
-    }   
+    }
 }

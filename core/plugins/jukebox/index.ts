@@ -1,4 +1,4 @@
-import { clone, escape, formatTime } from '../../utils';
+import { clone, escape, formatTime } from '@core/utils';
 import Plugin from '..';
 import QueueWindow from './queueWIndow';
 
@@ -16,7 +16,7 @@ export interface Map {
 export default class Jukebox extends Plugin {
     queue: Map[] = [];
 
-    async onLoad() {        
+    async onLoad() {
         tmc.addCommand("/addqueue", this.cmdQueue.bind(this), "Add Map to queue");
         tmc.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");
         tmc.addCommand("/jukebox", this.cmdListQueue.bind(this), "List maps in queue");
