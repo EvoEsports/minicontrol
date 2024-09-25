@@ -1,42 +1,48 @@
 # MINIcontrol for developers
 
-Core concept is to provide modern, modular, easy-to-use server controller for all current trackmania games.
-Idea for this started since [XAseco](https://xaseco.org), (most popular and very good controller overall) is getting aged.
-PHP5 support has been dropped some while ago and attempts to get it running on even on PHP8 is limited. Luckily there is newer systems available like [Trakman](https://github.com/lythx/trakman), which is a nice controller as well, but for my needs it proven not to be as modular I would wished. So I started with MINIcontrol - the one tool for all trackmania games.
+The core concept of MINIcontrol is to provide a modern, modular, easy-to-use server controller for all current Trackmania games.
 
-On key idea as well is to use same plugins code for all the games. This is due NADEO been kindly enough to keep the Dedicated server API quite the same all these years, kudos to them! So with a few adapters built-in it is very possible to build a plugin system running same code for all these games. Also this is not my first attempt to build a server controller, actually this is my 4th controller project, so i hope to have learnt something from the past projects. Previous attempts been: MLEPP, Expansion and Expansion<sup>2</sup>, you prolly can find these at github, they're all aswell open sourced.
+The idea for this project came to reaby due to looking into hosting servers for TMNF/UF and [XAseco](https://xaseco.org) - the most popular and feature-rich server controller - really shows its age these days.
+
+XAseco 1.16 relies on PHP 5.6, which has now been end-of-life for several years, and while there have been community attempts to port XAseco to modern versions of PHP like PHP7.4 and PHP8, these versions lack support for several available plugins, which would have to be ported manually. 
+Modern alternatives exist, like [Trakman](https://github.com/lythx/trakman), but for reaby's needs it proved not to be as modular as he would have liked. So he started working on MINIcontrol - the one tool for all Trackmania games. Soon after realizing its potential, we at Evo Esports took the project under our wing and provided reaby with additional development support for MINIcontrol.
+
+One key idea of MINIcontrol is to make plugins compatible across all games with one single code-base. 
+While this would normally not be a small feat, thankfully the XML-RPC API of the Dedicated Servers for the Trackmania games haven't changed much over the years, meaning with a few adapters built-in it is very possible to build a plugin system running the same code for all these games. 
+
+Furthermode, this isn't reaby's or our first attempt to build a server controller, combined we have worked on several controller projects in the past (MLEPP, Expansion, Expansion², EvoSC, etc), and have learnt a lot of lessons from those.
 
 ## Core
 
-Core of the controller itself doesn't do much, rather provides a playground for the plugin developers to work with.
+The core of the controller itself doesn't do much, it provides a framework for plugin developers to work with.
+
+#### Overview of the folder structure
 
 * 📂 **minicontrol**  
-    * 📁 **core**  - core classes to reference and use
+    * 📁 **core**  - core contains all built-in classes and also plugins MINIcontrol ships with
     * 📁 **documentation**  - this folder
-    * 📁 **drizzle** - contains database migration info
-    * 📁 **plugins** - all the plugins available
-    * 📁 **schemas** - database schemas for drizzle orm
+    * 📁 **userdata** - Dockerfile and example Docker Compose
+    * 📁 **userdata** - contains all user data, e.g. the db migrations and schemata, the .sqlite file and user-installed plugins
     * 📄 app.ts - minicontrol main entry 
     * 📄 .env - environmental variables for config
-    * 📄 plugins.json - plugins list to load
 
 ## Trackmania Mini Control - the `tmc` global variable
- `tmc` is available for everywhere and should be always used to perform interactions with server, plugins, database and such.
+ `tmc` is available for everywhere and should be always used to interact with the dedicated server, plugins, database and such.
 
 ### Public variables
 
-* `tmc.admins` list of admin logins
-* `tmc.version` contains the current iteration of the controller
-* `tmc.startTime` is the start timestamp of the controller, for uptime and detecting the most newly started controller instance
-* `tmc.server` [Server class](./class/server.md) 
-* `tmc.players` [PlayerManager class](./class/playermanager.md) 
-* `tmc.ui` [UiManager class](./class/uimanager.md)
-* `tmc.chatCmd` [ChatCommandManager class](./class/chatcmd.md)
-* `tmc.maps` [MapManager class](./class/maps.md)
-* `tmc.plugins` object containing all the plugin instances
-* `tmc.game` struct containing gameinfos 
-* `tmc.mapsPath` string to map folder at os
-* `tmc.storage` objectStorage for global key-value sharing between plugins
+* `tmc.admins` - List of admin logins
+* `tmc.version` - Contains the current version of the controller
+* `tmc.startTime` - Start timestamp of the controller, for uptime tracking
+* `tmc.server` - See [Server class](./class/server.md) 
+* `tmc.players` - See [PlayerManager class](./class/playermanager.md) 
+* `tmc.ui` - See [UiManager class](./class/uimanager.md)
+* `tmc.chatCmd` - See [ChatCommandManager class](./class/chatcmd.md)
+* `tmc.maps` - See [MapManager class](./class/maps.md)
+* `tmc.plugins` - object containing all the plugin instances
+* `tmc.game` - struct containing current game info from the dedicated server
+* `tmc.mapsPath` - string containing absolute path to the dedicated server's map folder
+* `tmc.storage` - Object Storage for global key-value sharing between plugins
 
 ### Public methods
 

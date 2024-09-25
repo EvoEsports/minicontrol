@@ -2,12 +2,13 @@
 
 ## Listeners
 
-To make everything working with all generations of the games, some things had to changed.
-Callbacks starting with: `TrackMania.` and  `ManiaPlanet.` are all renamed to start with `Trackmania.` All script callbacks will be redirected as events.
+To make plugins work across all generations of Trackmania games, we took some creative liberties to make our lives easier.
+* Callbacks starting with: `TrackMania.` and  `ManiaPlanet.` are all renamed to start with `Trackmania.`. 
+* All script callbacks will be redirected as events.
 
-Also note that there's few `TMC.events` that should be used instead of the native ones.
-These are writeen as adapters so they'll provide the right info from each game in same way,
-even the game data differs.
+Also note that there's a few `TMC.events` that should be used instead of the native dedicated server callbacks.
+These are writen as adapters so they'll provide the right info from each game in the same way,
+even if the game's underlying data differs.
 
 ```ts
 // async onPlayerConnect(player: Player) {}
@@ -46,17 +47,17 @@ tmc.addCommand("/mycommand", this.myCommand.bind(this), "description");
 
 
 
-## Interacting with server
+## Interacting with the dedicated server
 
-To interact with the server you usually wish to listen for ingame event and react to it.
-To communicate with the dedicated server you have 3 options:
+To interact with the dedicated server, you usually subscribe to Dedicated Server callbacks and act upon them.
+You have 3 options in MINIcontrol:
 
 ```ts
-// to perform a full call with the server getting answer back
+// Execute an XML-RPC API call and receive the server response
 const answer = await tmc.server.call("method", ...params);
-// to perform just send call, ignore answer
+// Execute an XML-RPC API call but ignore the server response
 tmc.server.send("method", ...params);
-// to perform multicall
+// Execute an XML-RPC API multicall, containing several XML-RPC API methods
 const answers:any[] = await tmc.server.multicall([
     ["method", ...params],
     ["method2", ...params],
@@ -70,7 +71,7 @@ You can also override methods if needed...
 tmc.server.addOverride("method", this.myOverride.bind(this));
 ```
 
-In case you need to call the original gbx method, use
+In case you need to call the original GBX method, use
 
 ```ts
 async myOverride(data: any) {
@@ -80,23 +81,23 @@ async myOverride(data: any) {
 
 ## Sending chat messages 
 
-Sending public and personalized chat messages.
+Sending public and private chat messages.
 ```ts
-// note no await needed, it's a pure send, ignoring the answer from dedicated
+// For sending chat messages, await is not needed.
 tmc.chat(`Hello World!`);
 
-// and to send personalized messages, use login, comma separated values of logins, or array of logins
+// To send chat messages to specific players, provide a (comma-separated list or array of) login(s) as second parameter
 tmc.chat(`Hello World!`, "login")
 tmc.chat(`Hello World!`, "login1, login2, ...")
 tmc.chat(`Hello World!`, ["login1", "login2"])
 ```
 
-## Interacting with TTY console
+## Write to stdout / log file
 
 ```ts
-// to send direct line at console, trackmania colors will be parsed to ansi sequences
+// To log a message to stdout/log file, TM colors will be parsed to ansi sequences
 tmc.cli("trackmania colorCoded string");
-// send debug line at console, shows only when debug is enabled
+// To log a debug message, shows only when debug is enabled in `.env`
 tmc.debug("trackmania colorCoded string");
 ```
 
