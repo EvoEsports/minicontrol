@@ -23,7 +23,7 @@
         "tm-essentials": "1.0.5",
         "tsx": "4.16.2",
         "twig": "1.17.1",
-        "umzug": "3.8.1",
+        "umzug": "3.8.2",
         "xmlrpc": "1.3.2"
     },
     "devDependencies": {

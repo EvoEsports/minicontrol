@@ -9,12 +9,9 @@
 
 # Requirements
 
-> [!NOTE]  
-> Due to a library constraint, MINIcontrol's database migrations currently do not work under Windows. Please use Docker or run MINIcontrol natively under Linux / MacOS instead.
-
 - Node.js LTS installed
 - (optional) MySQL or PostgreSQL database
-- Linux or MacOS host - Windows supported via Docker image
+- Windows, Linux or MacOS host
 
 # Quick  Start
 
@@ -40,7 +37,7 @@ See [documentation](./documentation/index.md) for more info!
 
 
 # Contributing
-See the documentation in `documentation/devs` to read more about the core concept of MINIcontrol and how plugins work. 
+See the documentation in `documentation/devs` to read more about the core concept of MINIcontrol and how plugins work.
 
 If you want to contribute changes or plugins to MINIcontrol, please open up an `Issue` first before you start working on things, so we can discuss the details of implementation, etc.
 
