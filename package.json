@@ -9,6 +9,9 @@
         "docker": "tsx core/minicontrol.ts"
     },
     "type": "module",
+    "engines": {
+        "node": ">=21.5.0"
+    },
     "dependencies": {
         "dependency-graph": "1.0.0",
         "gbx": "1.0.0-rc8",
