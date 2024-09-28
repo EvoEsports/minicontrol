@@ -304,8 +304,10 @@ class MiniControl {
      * @param object The object to log.
      */
     debug(object: any) {
-        if (process.env.DEBUG == "true") log.debug(processColorString(object.toString()));
-        getCallerName();
+        if (process.env.DEBUG == "true") {
+            log.debug(processColorString(object.toString()));
+            getCallerName();
+        }
     }
 
     /**
