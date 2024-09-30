@@ -182,5 +182,5 @@ export function getCallerName() {
 }
 
 export function escapeRegex(text: string) {
-    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    return text.replaceAll(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
  }

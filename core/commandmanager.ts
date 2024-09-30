@@ -271,9 +271,10 @@ export default class CommandManager {
                     tmc.chat("¤error¤Not allowed.", login);
                     return;
                 }
-                const exp = new RegExp(`^${escapeRegex(command.trigger)}`, "i");
-                const cmd = exp.test(text);
-                if (cmd) {
+                let prefix = "[/]";
+                if (command.trigger.startsWith("//")) prefix ="[/]{2}";
+                const exp = new RegExp(`^${prefix}\\b${escapeRegex(command.trigger.replaceAll("/", ""))}\\b`, "i");
+                if (exp.test(text)) {
                     const words = text.replace(command.trigger, "").trim();
                     let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s"]+/gi) || []).map((word) => word.replace(/^"(.+(?="$))"$/, '$1').replaceAll("\\", ""));
                     await command.callback(login, params);
