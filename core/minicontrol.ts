@@ -296,7 +296,7 @@ class MiniControl {
      */
     cli(object: any) {
         log.info(processColorString(object.toString()));
-        if (process.env.DEBUG == "true") getCallerName();
+        if (process.env.DEBUGLEVEL == "2") getCallerName();
     }
 
     /**
@@ -306,7 +306,7 @@ class MiniControl {
     debug(object: any) {
         if (process.env.DEBUG == "true") {
             log.debug(processColorString(object.toString()));
-            getCallerName();
+            if (process.env.DEBUGLEVEL == "2") getCallerName();
         }
     }
 
