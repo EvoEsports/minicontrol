@@ -151,7 +151,6 @@ export default class BillManager {
                         if (bill.onError) {
                             await bill.onError(bill);
                         }
-                        tmc.chat(StateName, bill.issuerLogin);
                         this.removeBill(bill.billId);
                         return;
                     }
