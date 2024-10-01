@@ -1,9 +1,10 @@
 {% extends "core/templates/widget.twig" %}
 
 {% block content %}
+    <frame pos="5 -5">
     <quad pos="0 3" z-index="3" size="7 0.2" halign="center" valign="center" bgcolor="fff"/>
     <quad pos="0 1.5" z-index="3" size="7 0.2" halign="center" valign="center" bgcolor="fff"/>
-    <quad pos="0 0" z-index="3" size="7 0.2" halign="center" valign="center" bgcolor="fff" />    
+    <quad pos="0 0" z-index="3" size="7 0.2" halign="center" valign="center" bgcolor="fff" />
     <label pos="0 -3" z-index="2" size="10 10" halign="center" valign="center2" text="Menu" textsize="1" />
-    <label pos="0 0" z-index="1" size="10 10" halign="center" valign="center" text=" " focusareacolor1="0008" focusareacolor2="000e" action="{{actions.openWidget}}" />
+    </frame>
 {% endblock %}

@@ -1,6 +1,6 @@
 import Plugin from '@core/plugins';
 import Confirm from '@core/ui/confirm';
-import { config } from 'process';
+
 
 export default class CoPlanets extends Plugin {
     static depends: string[] = [];
