@@ -25,7 +25,7 @@ export default class Server {
     }
 
     onDisconnect(str: string) {
-        tmc.cli("¤error¤Disconnected from server.\n" + str);
+        tmc.cli("¤error¤Disconnected from server. " + str);
         process.exit(1);
     }
 

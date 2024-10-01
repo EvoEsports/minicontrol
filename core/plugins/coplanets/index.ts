@@ -69,7 +69,7 @@ export default class CoPlanets extends Plugin {
                 tmc.chat(`¤info¤${targetPlayer.nickname} ¤info¤refused to pay the bill.`);
             };
             bill.onError = async (bill) => {
-                tmc.chat(`¤info¤There was error processing the bill.`);
+                tmc.chat(`¤error¤${bill.stateName}`, bill.issuerLogin);
             };
             await bill.send();
         } catch (e: any) {
@@ -93,6 +93,9 @@ export default class CoPlanets extends Plugin {
             bill.onPayed = async (bill) => {
                 const player = await tmc.getPlayer(bill.loginFrom);
                 tmc.chat(`¤info¤${player.nickname}¤info¤ donated ¤white¤${bill.amount} ¤info¤ - thanks!`);
+            };
+            bill.onError = async (bill) => {
+                tmc.chat("¤error¤"+bill.stateName, bill.issuerLogin);
             };
             await bill.send();
         } catch (e: any) {
@@ -130,6 +133,9 @@ export default class CoPlanets extends Plugin {
             bill.onPayed = async (bill) => {
                 const targetPlayer = await tmc.getPlayer(bill.loginFrom);
                 tmc.chat(`¤info¤${targetPlayer.nickname}¤info¤ was paid out ¤white¤${bill.amount}¤info¤ from the server¤info¤.`);
+            };
+            bill.onError = async (bill) => {
+                tmc.chat("¤error¤"+bill.stateName, bill.issuerLogin);
             };
             await bill.send();
         } catch (e: any) {

@@ -360,8 +360,12 @@ class MiniControl {
             await this.server.call("SetApiVersion", "2023-04-16");
             this.mapsPath = await this.server.call("GetMapsDirectory");
             await this.server.callScript("XmlRpc.EnableCallbacks", "true");
-        } else {
+        } else if (this.game.Name == "TmForever") {
             this.mapsPath = await this.server.call("GetTracksDirectory");
+        } else if (this.game.Name == "ManiaPlanet") {
+            await this.server.call("SetApiVersion", "2013-04-16");
+            this.mapsPath = await this.server.call("GetMapsDirectory");
+            await this.server.callScript("XmlRpc.EnableCallbacks", "true");
         }
 
         await this.maps.init();

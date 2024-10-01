@@ -147,6 +147,15 @@ export default class BillManager {
                     break;
                 }
                 default: {
+                    if (State == 6) {
+                        if (bill.onError) {
+                            await bill.onError(bill);
+                        }
+                        tmc.chat(StateName, bill.issuerLogin);
+                        this.removeBill(bill.billId);
+                        return;
+                    }
+
                     tmc.cli(`Unknown Bill StateName: ¤white¤${StateName}`);
                     break;
                 }
