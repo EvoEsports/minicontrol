@@ -147,9 +147,13 @@ export default class SettingsManager {
             tmc.cli("¤error¤Cannot remove master admin!");
             return;
         }
-        this.admins = this.admins.filter((a) => a !== login || this.masterAdmins.includes(a));
+        
+        let index = this.admins.indexOf(login);
+        while (index > -1) {
+            this.admins.splice(index, 1);
+            index = this.admins.indexOf(login);
+        }
         this.save();
-        this.admins = this.admins.concat(this.masterAdmins);
     }
 
     async delete(key: string) {
