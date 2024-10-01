@@ -28,6 +28,7 @@ import Plugin from './plugins/index';
 import path from 'path';
 import { DepGraph } from "dependency-graph";
 import { require } from 'tsx/cjs/api'
+import BillManager from './billmanager';
 
 export interface GameStruct {
     Name: string;
@@ -90,6 +91,7 @@ class MiniControl {
     */
     plugins: { [key: string]: Plugin } = {};
     pluginDependecies: DepGraph<string> = new DepGraph();
+    billMgr: BillManager;
     /**
      * The game object.
      */
@@ -105,6 +107,7 @@ class MiniControl {
         this.players = new PlayerManager();
         this.ui = new UiManager();
         this.chatCmd = new CommandManager();
+        this.billMgr = new BillManager();
         this.settingsMgr = new SettingsManager();
         this.settingsMgr.load();
         this.settings = this.settingsMgr.settings;
@@ -463,6 +466,7 @@ class MiniControl {
      *
      */
     async afterStart() {
+        this.billMgr.afterInit();
         this.players.afterInit();
         await this.chatCmd.afterInit();
         await this.ui.afterInit();
