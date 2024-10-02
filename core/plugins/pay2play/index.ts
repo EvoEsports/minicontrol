@@ -59,7 +59,7 @@ export default class Pay2Play extends Plugin {
 
     async res(login: string, data: any) {
         try {
-            const bill = tmc.billMgr.createTransaction('SendBill', login, login, this.skipAmount, `Pay ${this.skipAmount} to restart map?`);
+            const bill = tmc.billMgr.createTransaction('SendBill', login, login, this.resAmount, `Pay ${this.resAmount} to restart map?`);
             bill.onPayed = async (bill) => {
                 tmc.chat(`¤white¤${bill.loginFrom}$z$s¤info¤ paid to restart. Map will be restarted!`);
                 if (Object.keys(tmc.plugins).includes('jukebox')) {
