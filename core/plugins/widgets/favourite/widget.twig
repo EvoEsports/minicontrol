@@ -1,0 +1,7 @@
+{% extends "core/templates/widget.twig" %}
+
+{% block content %}
+    <label pos="{{size.width / 2}} -{{ 0.5 * size.width - 1.5}}" z-index="2" size="{{size.width}} 4" text="${{colors.widget_text}}Add" halign="center" valign="center2" textcolor="000" textfont="RobotoCondensedBold" textsize=".5" />
+	<label pos="{{size.width / 2}} -{{ 0.5 * size.width + 2}}" z-index="2" size="{{size.width}} 4" text="${{colors.widget_text}}FAV" halign="center" valign="center2" textcolor="000" textfont="RobotoCondensed" textsize=".5" />
+    <label pos="0 0" z-index="1" size="{{size.width}} {{size.height}}" text=" " focusareacolor1="0009" focusareacolor2="0009" url="{{data.link}}" />
+{% endblock %}

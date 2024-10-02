@@ -3,7 +3,7 @@
 	<frame pos="{{pos.x}} {{pos.y}}" z-index="{{pos.z | default(1) }}">
         {% if title != "" %}
             <frame pos="0 0" z-index="3">
-                <label pos="{{size.width / 2}} -2" z-index="1" size="{{size.width}} 6" textsize="1.5" textfont="RobotoCondensed" text="{{title}}" focusareacolor1="0000" focusareacolor2="000" textcolor="{{colors.title_fg}}" halign="center" valign="center2" action="{{actions['openWidget']}}"/>
+                <label pos="{{size.width / 2}} -2" z-index="1" size="{{size.width}} 5" textsize="1" textfont="RobotoCondensed" text="{{title}}" focusareacolor1="0000" focusareacolor2="000" textcolor="{{colors.title_fg}}" halign="center" valign="center2" action="{{actions['openWidget']}}"/>
                 <quad pos="0 0" z-index="0" size="{{size.width}} 4" bgcolor="{{colors.title_bg}}e" halign="left" valign="top"/>
                 <quad pos="0 -4" z-index="3" size="{{size.width}} 0.3" bgcolor="000" halign="left" valign="top"/>
             </frame>
@@ -12,10 +12,9 @@
             <frame pos="0 0" z-index="1">
         {% endif %}
             {% block content %}{% endblock %}
-            {% if actions['openWidget'] is defined and actions['openWidget'] is not null %}
+            {% if (actions['openWidget'] is defined and actions['openWidget'] is not null) or title != "" %}
             <quad pos="0 0" z-index="-1" size="{{size.width}} {{size.height}}" valign="top" halign="left" bgcolor="{{colors.widget_bg}}9" action="{{actions['openWidget']}}"/>
             {% endif %}
         </frame>
-
     </frame>
 {% endblock %}
