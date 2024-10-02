@@ -88,7 +88,7 @@ class MiniControl {
     /**
      * The plugins.
      */
-    plugins: { [key: string]: Plugin } = {};
+    plugins: { [key: string]: Plugin|undefined } = {};
     pluginDependecies: DepGraph<string> = new DepGraph();
     billMgr: BillManager;
     /**
@@ -272,8 +272,9 @@ class MiniControl {
                 this.pluginDependecies.removeDependency(unloadName, dep);
             }
             this.pluginDependecies.removeNode(unloadName);
-
+            this.plugins[unloadName] = undefined;
             delete this.plugins[unloadName];
+
             const file = process.cwd() + pluginPath.replaceAll('.', '') + '/index.ts';
             if (require.cache[file]) {
                 // eslint-disable-next-line drizzle/enforce-delete-with-where
@@ -487,7 +488,7 @@ class MiniControl {
         this.cli(msg);
         this.startComplete = true;
         for (const plugin of Object.values(this.plugins)) {
-            await plugin.onStart();
+            await plugin?.onStart();
         }
         console.timeEnd('Startup');
         tmc.cli('¤success¤MiniControl started successfully.');

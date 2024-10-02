@@ -13,7 +13,7 @@ export interface ChatCommand {
  * CommandManager class
  */
 export default class CommandManager {
-    private commands: { [key: string]: ChatCommand } = {};
+    private commands: { [key: string]: ChatCommand|undefined } = {};
 
     /**
      * Initialize the command manager
@@ -23,8 +23,8 @@ export default class CommandManager {
         this.addCommand("/help", async (login: string, args: string[]) => {
             let help = "Available: \n";
             for (let command in this.commands) {
-                if (this.commands[command].admin) continue;
-                help += `¤cmd¤${this.commands[command].trigger} ¤white¤${this.commands[command].help}, `;
+                if (this.commands[command]?.admin) continue;
+                help += `¤cmd¤${this.commands[command]?.trigger} ¤white¤${this.commands[command]?.help}, `;
             }
             tmc.chat(help, login);
         }, "Display help for command");
@@ -32,7 +32,7 @@ export default class CommandManager {
         this.addCommand("//help", async (login: string, args: string[]) => {
             let help = "Available: \n";
             for (let command in this.commands) {
-                if (!this.commands[command].admin) continue;
+                if (!this.commands[command]?.admin) continue;
                 help += `¤cmd¤${this.commands[command].trigger} ¤white¤${this.commands[command].help}, `;
             }
             tmc.chat(help, login);
@@ -254,7 +254,8 @@ export default class CommandManager {
      * @param command remove command
      */
     removeCommand(command: string) {
-        if (this.commands[command]) {
+        if (Object.keys(this.commands).indexOf(command) !== -1) {
+            this.commands[command] = undefined;
             delete this.commands[command];
         }
     }
@@ -271,6 +272,7 @@ export default class CommandManager {
                     tmc.chat("¤error¤Not allowed.", login);
                     return;
                 }
+                if (!command) continue;
                 let prefix = "[/]";
                 if (command.trigger.startsWith("//")) prefix ="[/]{2}";
                 const exp = new RegExp(`^${prefix}\\b${escapeRegex(command.trigger.replaceAll("/", ""))}\\b`, "i");

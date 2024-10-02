@@ -8,8 +8,8 @@ export default class ToggleChat extends Plugin {
 
     async onLoad() {
         this.widget = new Widget("core/plugins/tmnf/togglechat/widget.twig");
-        this.widget.pos = { x: -154, y: -40 };
-        this.widget.size = { width: 12, height: 5 };
+        this.widget.pos = {x: -160, y: -40, z: 5};
+        this.widget.size = { width: 15, height: 3 };
         this.widget.setOpenAction(this.manialinkToggle.bind(this));
         await this.widget.display();
         tmc.addCommand("/togglechat", this.cmdChat.bind(this), "Toggle chat visibility");

@@ -2,11 +2,11 @@
     "scripts": {
         "dev": "tsx --tsconfig ./tsconfig.json --env-file=.env --watch ./core/minicontrol.ts",
         "dev2": "tsx --env-file=.env2 --watch run core/minicontrol.ts",
-        "start": "tsx --env-file=.env core/minicontrol.ts",
+        "start": "tsx --expose-gc --env-file=.env core/minicontrol.ts",
         "start2": "tsx --env-file=.env2 core/minicontrol.ts",
         "migrate": "tsx --env-file=.env migrate.ts",
         "migrate:docker": "tsx migrate.ts",
-        "docker": "tsx core/minicontrol.ts"
+        "docker": "tsx -expose-gc core/minicontrol.ts"
     },
     "type": "module",
     "engines": {
