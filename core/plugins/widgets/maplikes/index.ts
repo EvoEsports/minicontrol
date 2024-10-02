@@ -1,6 +1,8 @@
 import Plugin from "@core/plugins";
 import Widget from '@core/ui/widget';
 import type { Like } from "@core/plugins/maplikes";
+import Maplikes from "@core/plugins/maplikes";
+import MapLikes from "@core/plugins/maplikes";
 
 export default class MapLikesWidget extends Plugin {
     static depends: string[] = ["database", 'maplikes'];
@@ -19,9 +21,9 @@ export default class MapLikesWidget extends Plugin {
 
     async actionLike(login: string, value: number) {
         if (value > 0)
-            await tmc.chatCmd.execute(login, "/++")
+        (tmc.plugins['maplikes'] as MapLikes)?.updateVote(login,1);
         else
-            await tmc.chatCmd.execute(login, "/--")
+        (tmc.plugins['maplikes'] as MapLikes)?.updateVote(login,-1);
     }
 
     async onUnload() {
