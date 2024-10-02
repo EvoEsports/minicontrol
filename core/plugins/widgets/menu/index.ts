@@ -57,7 +57,7 @@ export default class MenuPlugin extends Plugin {
         }
 
         this.menuButton = new Widget("core/plugins/widgets/menu/menuButton.twig");
-        this.menuButton.pos = {x: 130, y: -40, z: 10};
+        this.menuButton.pos = {x: 125, y: -35, z: 10};
         this.menuButton.size = {width: 10, height: 10};
         this.menuButton.setOpenAction(this.toggleMenu.bind(this));
         await this.menuButton.display();
