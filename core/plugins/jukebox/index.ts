@@ -24,16 +24,16 @@ export default class Jukebox extends Plugin {
         tmc.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
         tmc.addCommand("//requeue", this.cmdRequeue.bind(this), "Add current map to the front of the queue");
         tmc.addCommand("//prev", this.cmdPrev.bind(this), "Skip to previous map");
-        if (tmc.game.Name === "TmForever" || tmc.game.Name === "ManiaPlanet" ) {
+        if (tmc.game.Name === "TmForever") {
             tmc.server.addListener("Trackmania.EndRace", this.onEndRace, this);
         } else {
-            tmc.server.addListener("Trackmania.Podium_Start", this.onEndRace, this);
+            tmc.server.addListener("Trackmania.EndMatch", this.onEndRace, this);
         }
     }
 
     async onUnload() {
         tmc.server.removeListener("Trackmania.EndMap", this.onEndRace);
-        tmc.server.removeListener("Trackmania.Podium_Start", this.onEndRace);
+        tmc.server.removeListener("Trackmania.EndMatch", this.onEndRace);
         tmc.removeCommand("/addqueue");
         tmc.removeCommand("/jb");
         tmc.removeCommand("/jukebox");
