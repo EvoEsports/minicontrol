@@ -108,7 +108,7 @@ export default class Jukebox extends Plugin {
             AuthorTime: map.AuthorTime,
             Environment: map.Environnement,
             QueueBy: login,
-            QueueNickName: escape(player.nickname),
+            QueueNickName: player.nickname,
         });
         tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤added to the queue by ¤white¤${player.nickname}`);
     }
@@ -157,9 +157,9 @@ export default class Jukebox extends Plugin {
                 AuthorTime: map.AuthorTime,
                 Environment: map.Environnement,
                 QueueBy: login,
-                QueueNickName: escape(player.nickname),
+                QueueNickName: player.nickname,
             });
-            tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤requeued by ¤white¤${escape(player.nickname)}`);
+            tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤requeued by ¤white¤${player.nickname}`);
         } else {
             tmc.chat(`¤info¤Could not requeue map`, login);
         }
@@ -180,7 +180,7 @@ export default class Jukebox extends Plugin {
             AuthorTime: map.AuthorTime,
             Environment: map.Environnement,
             QueueBy: login,
-            QueueNickName: escape(player.nickname),
+            QueueNickName: player.nickname,
         });
 
         await tmc.server.call("NextMap");
@@ -211,6 +211,7 @@ export default class Jukebox extends Plugin {
                     Name: escape(map.Name),
                     Author: escape(map.Author),
                     AuthorTime: formatTime(map.AuthorTime),
+                    QueueNickName: escape(map.QueueNickName),
                 })
             );
         }
