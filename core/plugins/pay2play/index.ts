@@ -48,8 +48,7 @@ export default class Pay2Play extends Plugin {
         try {
             const bill = tmc.billMgr.createTransaction('SendBill', login, login, this.skipAmount, `Pay ${this.skipAmount} to skip map?`);
             bill.onPayed = async (bill) => {
-                const player = await tmc.getPlayer(bill.loginFrom);
-                tmc.chat(`¤white¤${player.nickname}$z$s¤info¤ paid to skip. Skipping!`);
+                tmc.chat(`¤white¤${bill.loginFrom}¤info¤ paid to skip. Skipping!`);
                 await tmc.server.call('NextMap');
             };
             await bill.send();
@@ -60,10 +59,9 @@ export default class Pay2Play extends Plugin {
 
     async res(login: string, data: any) {
         try {
-            const bill = tmc.billMgr.createTransaction('SendBill', login, login, this.resAmount, `Pay ${this.resAmount} to restart map?`);
+            const bill = tmc.billMgr.createTransaction('SendBill', login, login, this.skipAmount, `Pay ${this.skipAmount} to restart map?`);
             bill.onPayed = async (bill) => {
-                const player = await tmc.getPlayer(bill.loginFrom);
-                tmc.chat(`¤white¤${player.nickname}$z$s¤info¤ paid to restart. Map will be restarted!`);
+                tmc.chat(`¤white¤${bill.loginFrom}$z$s¤info¤ paid to restart. Map will be restarted!`);
                 if (Object.keys(tmc.plugins).includes('jukebox')) {
                     await (tmc.plugins['jukebox'] as Jukebox).cmdRequeue(login, []);
                 } else {

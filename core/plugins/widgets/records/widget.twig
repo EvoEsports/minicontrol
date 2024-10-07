@@ -1,12 +1,27 @@
 {% extends "core/templates/widget.twig" %}
 
 {% block content %}
+    <frame pos="6.5 -2.3" z-index="1">
+        <!-- Button 1: Live -->
+        <quad pos="0 0" z-index="1" size="12 3" bgcolor="{{colors.title_bg}}e" halign="center" valign="center"/>
+        <label pos="0 0" z-index="2" size="12 3" text="Live" halign="center" valign="center" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="0000" focusareacolor2="000" textcolor="{% if 'LIVE' in title %}0f0{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['liveAction']}}" />
+
+        <!-- Button 2: Server -->
+        <quad pos="12.5 0" z-index="1" size="12 3" bgcolor="{{colors.title_bg}}e" halign="center" valign="center"/>
+        <label pos="12.5 0" z-index="2" size="12 3" text="Server" halign="center" valign="center" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="0000" focusareacolor2="000" textcolor="{% if 'SERVER' in title %}0f0{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['serverAction']}}" />
+
+        <!-- Button 3: World -->
+        <quad pos="25 0" z-index="1" size="12 3" bgcolor="{{colors.title_bg}}e" halign="center" valign="center"/>
+        <label pos="25 0" z-index="2" size="12 3" text="World" halign="center" valign="center" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="0000" focusareacolor2="000" textcolor="{% if 'WORLD' in title %}0f0{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['worldAction']}}" />
+        <quad pos="-6.5 -2" z-index="3" size="{{size.width}} 0.3" bgcolor="000" halign="left" valign="top"/>
+    </frame>
+
     {% if data.records|length == 0 %}
-            <label pos="19 -1.5" z-index="3" size="38 3" text="$fffNo records" halign="center" valign="center" textsize="1" textfont="RajdhaniMono"/>
+            <label pos="19 -6" z-index="3" size="38 3" text="$fffNo records" halign="center" valign="center" textsize="1" textfont="RobotoCondensedBold"/>
     {% else %}
 	{% for item in data.records %}
-		<frame pos="0 -{{ loop.index0 * 4 + 1}}" z-index="1">
-            <label pos="2.5 -1.25" z-index="3" size="3.5 3" text="$fff{{ item.rank }}" halign="center" valign="center" textsize="0.5" textfont="RajdhaniMono"/>
+		<frame pos="0 -{{ loop.index0 * 4 + 5}}" z-index="2">
+            <label pos="2.5 -1.25" z-index="3" size="3.5 3" text="$fff{{ item.rank }}" halign="center" valign="center" textsize="0.5" textfont="RobotoCondensedBold"/>
             {% if loop.index == 1 %}
                 <quad pos="2.5 0" z-index="0" size="4 3" bgcolor="db0e" halign="center"/>
             {% endif %}
@@ -19,7 +34,7 @@
             {% if loop.index > 3 %}
                 <quad pos="2.5 0" z-index="0" size="4 3" bgcolor="000e" halign="center"/>
             {% endif %}
-            {% if item.player.login == recipient %}
+            {% if item.rank == data.myRank +1 %}
                 <quad pos="2.5 0" z-index="1" size="4 3" bgcolor="090e" halign="center"/>
             {% endif %}
 
