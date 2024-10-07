@@ -15,6 +15,7 @@ class Score extends Model {
     @Column(DataType.STRING)
     @HasOne(() => Player, { as: "player", sourceKey: "login", foreignKey: "login" })
     login: string | undefined;
+    player?: Player;
 
     @NotNull
     @AllowNull(false)

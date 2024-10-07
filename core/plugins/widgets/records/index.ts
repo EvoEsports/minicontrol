@@ -1,11 +1,11 @@
 import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
-import Widget from '@core/ui/widget';
-import { formatTime, escape, removeColors } from "@core/utils";
+import recordsWidget from '@core/plugins/widgets/records/recordsWidget';
+import { formatTime, escape } from "@core/utils";
 
 export default class RecordsWidget extends Plugin {
     static depends: string[] = ["records"];
-    widgets: { [key: string]: Widget } = {};
+    widgets: { [key: string]: recordsWidget } = {};
     records: any[] = [];
     liveRecords: any[] = [];
     worldRecords: any[] = [];
@@ -86,7 +86,7 @@ export default class RecordsWidget extends Plugin {
         let outRecords: any[] = [];
 
         if (!widget) {
-            widget = new Widget("core/plugins/widgets/records/widget.twig");
+            widget = new recordsWidget("core/plugins/widgets/records/widget.twig");
             widget.recipient = login;
             widget.pos = { x: 121, y: 30, z: 0 };
             widget.size = { width: 38, height: 45 };

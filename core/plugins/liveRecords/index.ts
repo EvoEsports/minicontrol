@@ -166,7 +166,7 @@ export default class LiveRecords extends Plugin {
             });
         }
         catch (e: any) {
-            console.log(e);
+            tmc.cli(e);
         }
     }
 }

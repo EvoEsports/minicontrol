@@ -291,7 +291,7 @@ export default class Records extends Plugin {
                 records: clone(this.records)
             });
         } catch (e: any) {
-            console.log(e);
+            tmc.cli(e);
         }
     }
 }
