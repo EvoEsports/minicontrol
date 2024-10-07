@@ -13,7 +13,7 @@
         {% endif %}
             {% block content %}{% endblock %}
             {% if (actions['openWidget'] is defined and actions['openWidget'] is not null) or title != "" %}
-            <quad pos="0 0" z-index="-1" size="{{size.width}} {{size.height + 4}}" valign="top" halign="left" bgcolor="{{colors.widget_bg}}9"/>
+            <quad pos="0 0" z-index="-1" size="{{size.width}} {{size.height + 4}}" valign="top" halign="left" bgcolor="{{colors.widget_bg}}9" action="{{actions['openWidget']}}"/>
             {% endif %}
         </frame>
     </frame>
