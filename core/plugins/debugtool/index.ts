@@ -10,7 +10,7 @@ export default class DebugTool extends Plugin {
     async onLoad() {
         if (process.env.DEBUG == "true") {
             this.widget = new Widget("core/plugins/debugtool/widget.twig");
-            this.widget.pos = { x: 159, y: -60 };
+            this.widget.pos = { x: 159, y: -60, z: 0 };
             tmc.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
             tmc.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
         }

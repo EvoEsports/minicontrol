@@ -34,7 +34,7 @@ export default class LiveRecords extends Plugin {
         const menu = tmc.storage["menu"];
         if (menu) {
             menu.addItem({
-                category: "Map",
+                category: "Records",
                 title: "Show: Live Records",
                 action: "/liverecords"
             });

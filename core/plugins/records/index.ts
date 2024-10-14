@@ -32,7 +32,7 @@ export default class Records extends Plugin {
         const menu = tmc.storage["menu"];
         if (menu) {
             menu.addItem({
-                category: "Map",
+                category: "Records",
                 title: "Show: Server Records",
                 action: "/records"
             });
