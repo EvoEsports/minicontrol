@@ -2,7 +2,7 @@
 
 {% block content %}
     {% for cpdata in data.checkpoints %}
-        {% if cpdata.prettyTime != "" %}
+        {% if data.maxCps > loop.index0 %}
             <frame pos="{{ 34.25 * (loop.index0 % 8) }} -{{ (loop.index0 // 8 ) * 3.5 }}">
                 <label pos="2 -2" z-index="1" size="3 3" text="${{colors.title_fg}}$n$o{{ loop.index }}" textcolor="{{colors.title_fg}}" halign="center" textsize="0.9" valign="center2"/>
                 <quad pos="2 -2" z-index="0" size="3 3" bgcolor="{{colors.title_bg}}" opacity="0.7" valign="center" halign="center"/>

@@ -78,7 +78,7 @@ export default class worldRecords extends Plugin {
         const menu = tmc.storage["menu"];
         if (menu) {
             menu.addItem({
-                category: "Map",
+                category: "Records",
                 title: "Show: World Records",
                 action: "/worldrecords"
             });
