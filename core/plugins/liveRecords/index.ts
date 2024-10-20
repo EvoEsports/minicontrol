@@ -109,21 +109,23 @@ export default class LiveRecords extends Plugin {
 
     async onPlayerCheckpoint(data: any) {
         const login = data[0];
+        const racetime = data[1];
+        const checkpointIndex = data[2];
         const cpData = data[3];
-    
-        if (!this.playerCheckpoints[login] || cpData.checkpointinrace === 0) {
+
+        if (!this.playerCheckpoints[login] || checkpointIndex === 0) {
             this.playerCheckpoints[login] = [];
         }
-        
-        this.playerCheckpoints[login].push(cpData.racetime.toString());
-    
+
+        this.playerCheckpoints[login].push(racetime.toString());
+
         if (cpData.isendlap) {
             this.playerCheckpoints[login].push(";");
         }
         else {
             this.playerCheckpoints[login].push(",");
         }
-    }    
+    }
 
     async onPlayerFinish(data: any) {
         const login = data[0];

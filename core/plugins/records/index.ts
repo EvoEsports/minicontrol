@@ -70,7 +70,7 @@ export default class Records extends Plugin {
         ]);
 
         window.setActions(["View"]);
-        
+
         if (tmc.admins.includes(login)) {
             window.size.width = 115;
             window.setActions(["View", "Delete"]);
@@ -155,21 +155,23 @@ export default class Records extends Plugin {
 
     async onPlayerCheckpoint(data: any) {
         const login = data[0];
+        const racetime =  data[1];
+        const checkpointIndex =  data[2];
         const cpData = data[3];
-    
-        if (!this.playerCheckpoints[login] || cpData.checkpointinrace === 0) {
+
+        if (!this.playerCheckpoints[login] || checkpointIndex === 0) {
             this.playerCheckpoints[login] = [];
         }
-        
-        this.playerCheckpoints[login].push(cpData.racetime.toString());
-    
+
+        this.playerCheckpoints[login].push(racetime.toString());
+
         if (cpData.isendlap) {
             this.playerCheckpoints[login].push(";");
         }
         else {
             this.playerCheckpoints[login].push(",");
         }
-    }    
+    }
 
     async onPlayerFinish(data: any) {
         const login = data[0];
@@ -200,7 +202,7 @@ export default class Records extends Plugin {
                 });
                 if (newRecord) {
                     newRecord.rank = 1;
-    
+
                     this.records.push(newRecord);
                     tmc.server.emit("Plugin.Records.onNewRecord", {
                         record: newRecord,
@@ -253,13 +255,13 @@ export default class Records extends Plugin {
             this.records.sort((a, b) => {
                 const timeA = a.time ?? Infinity;
                 const timeB = b.time ?? Infinity;
-            
+
                 if (timeA === timeB) {
                     const strA = a.updatedAt.toString();
                     const strB = b.updatedAt.toString();
                     return strA.localeCompare(strB);
                 }
-                
+
                 return timeA - timeB;
             });
 
