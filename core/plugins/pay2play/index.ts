@@ -33,7 +33,7 @@ export default class Pay2Play extends Plugin {
     createWidget(index: number, text: string, amount: number, callback: CallableFunction) {
         const widget = new Widget();
         widget.size = { width: 10, height: 10 };
-        widget.pos = { x: -130 + index * (widget.size.width + 1), y: 72.5, z: 5 };
+        widget.pos = { x: -160 + index * (widget.size.width + 1), y: 72.5, z: 5 };
 
         widget.template = 'core/plugins/pay2play/widget.twig';
         widget.setData({
