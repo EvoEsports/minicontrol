@@ -25,7 +25,7 @@ export default class Jukebox extends Plugin {
         tmc.addCommand("//requeue", this.cmdRequeue.bind(this), "Add current map to the front of the queue");
         tmc.addCommand("//prev", this.cmdPrev.bind(this), "Skip to previous map");
         if (tmc.game.Name === "TmForever") {
-            tmc.server.addListener("Trackmania.EndRace", this.onEndRace, this);
+            tmc.server.addListener("Trackmania.EndMap", this.onEndRace, this);
         } else {
             tmc.server.addListener("Trackmania.EndMatch", this.onEndRace, this);
         }
