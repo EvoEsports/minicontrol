@@ -104,6 +104,9 @@ export default class PlayerManager {
         tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
     }
 
+    /**
+    * @ignore
+    */
     private async onPlayerConnect(data: any) {
         const login = data[0];
         if (login) {
