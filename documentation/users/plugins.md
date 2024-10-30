@@ -124,13 +124,23 @@ Provides a players listing for the server
 
 
 # Records
-> ⚠️ Depends on database
+> ⚠️ Depends on database / API credentials
 
-Provides local records for the server
+Provides live / local world records for the server
 
 | Command             | Description |
 |:---                 |:---         |
 |`/records` | show local records |
+|`/liverecords` | show live records |
+|`/worldrecords` | show world records |
+
+# Checkpoints
+
+Shows full best checkpoint times
+
+| Command             | Description |
+|:---                 |:---         |
+|`/checkpoints` | shows best checkpoints |
 
 # Tmnf/talimit
 > ℹ️ Only available with TmForever
@@ -185,3 +195,6 @@ Provides voting.
 |:---                   |:---               |
 | VOTE_TIMEOUT          | defaults to 30    |
 | VOTE_RATIO            | defaults to 0.55  |
+| MAX_RECORDS           | defaults to 100  |
+| WORLD_RECORDS         | defaults to 100  |
+| UPDATE_RECORDS        | defaults to 60  |
