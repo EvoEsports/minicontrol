@@ -1,7 +1,8 @@
 const Sentry = require('@sentry/node');
+const optOut = (process.env['OPT_OUT_ERROR_REPORTING'] || 'false') == 'true' ? true : false;
 
 if (!process.env['SENTRY_INIT']) {
-    if (process.env['DEBUG'] != 'true') {
+    if (optOut == false) {
         process.env['SENTRY_INIT'] = 'true';
         Sentry.init({
             release: 'minicontrol@' + process.env.npm_package_version,
@@ -9,12 +10,9 @@ if (!process.env['SENTRY_INIT']) {
             tracesSampleRate: 1.0,
             profilesSampleRate: 1.0
         });
-        console.log('Debug mode: DISABLED');
         console.log('Sending error reports to Sentry.io: ENABLED');
-        console.log('\nIf you wish not to send error reports, set environment:\nDEBUG=true\nDEBUGLEVEL=0\n');
+        console.log('\nIf you wish not to send error reports, set environment:\nOPT_OUT_ERROR_REPORTING=true\n');
     } else {
-        const level = process.env.DEBUGLEVEL || 1;
-        console.log('Debug mode: ENABLED, level ' + level);
         console.log('Sending error reports to Sentry.io: DISABLED');
     }
 }
