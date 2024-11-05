@@ -466,8 +466,12 @@ class MiniControl {
 
         for (const name in dependencyByPlugin) {
             for (const dependency of dependencyByPlugin[name]) {
-                if (!dependency.startsWith('game:')) {
-                    this.pluginDependecies.addDependency(name, dependency);
+                if (!dependency.startsWith("game:")) {
+                    try {
+                        this.pluginDependecies.addDependency(name, dependency);
+                    } catch (error) {
+                        this.cli(error);
+                    }
                 }
             }
         }
