@@ -1,12 +1,11 @@
-import { Buffer } from "node:buffer";
+import { Buffer } from 'node:buffer';
 import { Socket } from 'net';
-import type Server from "../../core/server";
-import {Readable} from 'stream';
+import type Server from '../../core/server';
+import { Readable } from 'stream';
 // @ts-ignore
-import Serializer from "xmlrpc/lib/serializer";
+import Serializer from 'xmlrpc/lib/serializer';
 // @ts-ignore
-import Deserializer from "xmlrpc/lib/deserializer";
-
+import Deserializer from 'xmlrpc/lib/deserializer';
 
 export class GbxClient {
     isConnected: boolean;
@@ -20,9 +19,9 @@ export class GbxClient {
     server: Server;
     options: any = {
         showErrors: false,
-        throwErrors: true,
+        throwErrors: true
     };
-    timeoutHandler:any;
+    timeoutHandler: any;
     promiseCallbacks: { [key: string]: any } = {};
 
     /**
@@ -52,51 +51,54 @@ export class GbxClient {
      * @memberof GbxClient
      */
     async connect(host?: string, port?: number): Promise<boolean> {
-        host = host || "127.0.0.1";
+        host = host || '127.0.0.1';
         port = port || 5000;
         const that = this;
         const socket = new Socket();
         const timeout = 5000;
         this.socket = socket;
-        socket.connect({
-            host: host,
-            port: port,
-            keepAlive: true,
-        }, () => {
-                socket.on("connect", () => {
+        socket.connect(
+            {
+                host: host,
+                port: port,
+                keepAlive: true
+            },
+            () => {
+                socket.on('connect', () => {
                     clearTimeout(that.timeoutHandler);
                 });
-                socket.on("end", () => {
+                socket.on('end', () => {
                     that.isConnected = false;
-                    that.server.onDisconnect("end");
+                    that.server.onDisconnect('end');
                 });
-                socket.on("error", (error: any) => {
+                socket.on('error', (error: any) => {
                     that.isConnected = false;
                     that.server.onDisconnect(error.message);
                 });
-                socket.on("data", (data: Buffer) => {
+                socket.on('data', (data: Buffer) => {
                     clearTimeout(that.timeoutHandler);
                     that.handleData(data);
                 });
-                socket.on("timeout", () => {
-                    tmc.cli("¤error¤XMLRPC Connection timeout");
+                socket.on('timeout', () => {
+                    tmc.cli('¤error¤XMLRPC Connection timeout');
                     process.exit(1);
                 });
-        });
+            }
+        );
         this.timeoutHandler = setTimeout(() => {
-            tmc.cli("¤error¤[ERROR] Attempt at connection exceeded timeout value.");
+            tmc.cli('¤error¤[ERROR] Attempt at connection exceeded timeout value.');
             socket.end();
             process.exit(1);
         }, timeout);
         const res: boolean = await new Promise((resolve, reject) => {
-            this.promiseCallbacks['onConnect'] = {resolve, reject};
+            this.promiseCallbacks['onConnect'] = { resolve, reject };
         });
 
         delete this.promiseCallbacks['onConnect'];
         return res;
     }
 
-    private handleData(data: Buffer | null): void {
+    private handleData(data: any | null): void {
         if (data != null) {
             this.recvData = Buffer.concat([this.recvData, data]);
         }
@@ -115,7 +117,7 @@ export class GbxClient {
             }
 
             if (!this.isConnected) {
-                if (data.toString('utf-8') == "GBXRemote 2") {
+                if (data.toString('utf-8') == 'GBXRemote 2') {
                     this.isConnected = true;
                     this.promiseCallbacks['onConnect']?.resolve(true);
                 } else {
@@ -123,33 +125,26 @@ export class GbxClient {
                     this.isConnected = false;
                     this.socket = null;
                     this.promiseCallbacks['onConnect']?.reject(false);
-
-                    this.server.onDisconnect("GBXRemote 2 protocol not supported");
+                    this.server.onDisconnect('Unknown protocol: ' + data.toString('utf-8'));
                 }
             } else {
-                const deserializer = new Deserializer("utf-8");
+                const deserializer = new Deserializer('utf-8');
                 const requestHandle = data.readUInt32LE();
                 const readable = Readable.from(data.subarray(4));
                 if (requestHandle >= 0x80000000) {
-                    deserializer.deserializeMethodResponse(
-                        readable,
-                        (err: any, res: any) => {
-                            if (this.promiseCallbacks[requestHandle]) {
-                                this.promiseCallbacks[requestHandle].resolve([res, err]);
-                            }
+                    deserializer.deserializeMethodResponse(readable, (err: any, res: any) => {
+                        if (this.promiseCallbacks[requestHandle]) {
+                            this.promiseCallbacks[requestHandle].resolve([res, err]);
                         }
-                    );
+                    });
                 } else {
-                    deserializer.deserializeMethodCall(
-                        readable,
-                        (err: any, method: any, res: any) => {
-                            if (err) {
-                                if (this.options.showErrors) console.error(err);
-                            } else {
-                                this.server.onCallback(method, res);
-                            }
+                    deserializer.deserializeMethodCall(readable, (err: any, method: any, res: any) => {
+                        if (err) {
+                            if (this.options.showErrors) console.error(err);
+                        } else {
+                            this.server.onCallback(method, res);
                         }
-                    );
+                    });
                 }
             }
             this.responseLength = null;
@@ -169,14 +164,14 @@ export class GbxClient {
      */
     async call(method: string, ...params: any) {
         if (!this.isConnected) {
-            return undefined
+            return undefined;
         }
         try {
             const xml = Serializer.serializeMethodCall(method, params);
             return await this.query(xml, true);
         } catch (err: any) {
             if (this.options.showErrors) {
-                console.error("[ERROR] gbxclient >" + err.message);
+                console.error('[ERROR] gbxclient >' + err.message);
             }
             if (this.options.throwErrors) {
                 throw new Error(err);
@@ -195,7 +190,7 @@ export class GbxClient {
      */
     send(method: string, ...params: any) {
         if (!this.isConnected) {
-            return undefined
+            return undefined;
         }
         try {
             // tmc.debug(`$080send ¤white¤>> $888${method}`);
@@ -203,7 +198,7 @@ export class GbxClient {
             return this.query(xml, false);
         } catch (err: any) {
             if (this.options.showErrors) {
-                console.error("[ERROR] gbxclient >" + err.message);
+                console.error('[ERROR] gbxclient >' + err.message);
             }
             if (this.options.throwErrors) {
                 throw new Error(err.message);
@@ -211,7 +206,6 @@ export class GbxClient {
             return undefined;
         }
     }
-
 
     /**
      * execute a script method call
@@ -223,9 +217,9 @@ export class GbxClient {
      */
     async callScript(method: string, ...params: any) {
         if (!this.isConnected) {
-            return undefined
+            return undefined;
         }
-        return await this.call("TriggerModeScriptEventArray", method, params);
+        return await this.call('TriggerModeScriptEventArray', method, params);
     }
 
     /**
@@ -243,14 +237,14 @@ export class GbxClient {
      */
     async multicall(methods: Array<any>) {
         if (!this.isConnected) {
-            return undefined
+            return undefined;
         }
         const params: any = [];
         for (let method of methods) {
-            params.push({methodName: method.shift(), params: method});
+            params.push({ methodName: method.shift(), params: method });
         }
 
-        const xml = Serializer.serializeMethodCall("system.multicall", [params]);
+        const xml = Serializer.serializeMethodCall('system.multicall', [params]);
 
         const out = [];
         for (let answer of await this.query(xml, true)) {
@@ -262,9 +256,7 @@ export class GbxClient {
     private async query(xml: string, wait: boolean = true) {
         // if request is more than 4mb
         if (xml.length + 8 > 4 * 1024 * 1024) {
-            throw new Error(
-                "transport error - request too large (" + xml.length + ")"
-            );
+            throw new Error('transport error - request too large (' + Math.fround(xml.length/1024/1024) + ' Mb)');
         }
         this.reqHandle++;
         if (this.reqHandle >= 0xffffff00) this.reqHandle = 0x80000000;
@@ -277,13 +269,13 @@ export class GbxClient {
         this.socket?.write(buf);
         if (wait) {
             const response = await new Promise<any>((resolve, reject) => {
-                this.promiseCallbacks[handle] = {resolve, reject};
-            })
+                this.promiseCallbacks[handle] = { resolve, reject };
+            });
             delete this.promiseCallbacks[handle];
 
             if (response[1]) {
                 if (this.options.showErrors) {
-                    console.error(response[1].faultString ? "[ERROR] gbxclient > " + response[1].faultString : response[1]);
+                    console.error(response[1].faultString ? '[ERROR] gbxclient > ' + response[1].faultString : response[1]);
                 }
                 if (this.options.throwErrors) {
                     throw response[1];
@@ -304,7 +296,7 @@ export class GbxClient {
     async disconnect(): Promise<true> {
         this.socket?.destroy();
         this.isConnected = false;
-        this.server.onDisconnect("disconnect");
+        this.server.onDisconnect('disconnect');
         return true;
     }
 }
