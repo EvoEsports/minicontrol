@@ -1,7 +1,7 @@
-import { appendFileSync, exists, existsSync, mkdirSync } from "fs";
+import { appendFileSync, existsSync, mkdirSync } from "fs";
 import { rgb2hsl, removeColors } from "./utils";
 
-function Tm2Console(input: string, ansilevel: number = 0) {
+export function Tm2Console(input: string, ansilevel: number = 0) {
     if (ansilevel == 0) return removeColors(input);
 
     const chunks = input.split(/([$][0-9A-F]{3}|[$][zsowin])/gi);
@@ -14,7 +14,6 @@ function Tm2Console(input: string, ansilevel: number = 0) {
         if (str == "$s") return ansi_esc + "[0m";
         if (str == "$i") return ansi_esc + "[3m";
         if (str.match(/[$][obw]/gi)) return ansi_esc + "[1m";
-
 
         const [r, g, b] = str.replace("$", "").split("");
         const [h, s, l] = rgb2hsl(c(r), c(g), c(b));

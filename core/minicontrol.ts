@@ -15,7 +15,12 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+import { require } from 'tsx/cjs/api';
+import * as SentryType from '@sentry/node';
+const Sentry = require('./sentry', import.meta.url);
+
 import PlayerManager, { Player } from './playermanager';
+import BillManager from './billmanager';
 import Server from './server';
 import UiManager from './uimanager';
 import MapManager from './mapmanager';
@@ -27,8 +32,6 @@ import fs from 'fs';
 import Plugin from './plugins/index';
 import path from 'path';
 import { DepGraph } from 'dependency-graph';
-import { require } from 'tsx/cjs/api';
-import BillManager from './billmanager';
 
 export interface GameStruct {
     Name: string;
@@ -44,7 +47,7 @@ class MiniControl {
      * The version of MiniControl.
      */
     readonly brand: string = '$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤';
-    readonly version: string = '0.6.1';
+    readonly version: string = process.env.npm_package_version || 'unknown';
     /**
      * The start time of MiniControl.
      */
@@ -88,7 +91,7 @@ class MiniControl {
     /**
      * The plugins.
      */
-    plugins: { [key: string]: Plugin|undefined } = {};
+    plugins: { [key: string]: Plugin | undefined } = {};
     pluginDependecies: DepGraph<string> = new DepGraph();
     billMgr: BillManager;
     /**
@@ -234,6 +237,11 @@ class MiniControl {
                 this.cli('¤gray¤Success.');
             } catch (e: any) {
                 tmc.cli('¤gray¤Error while starting plugin ¤cmd¤' + name);
+                sentry.captureException(e, {
+                    tags: {
+                        section: 'initPlugin'
+                    }
+                });
                 console.log(e);
             }
         } else {
@@ -308,8 +316,9 @@ class MiniControl {
      */
     debug(object: any) {
         if (process.env.DEBUG == 'true') {
-            log.debug(processColorString(object.toString()));
-            if (process.env.DEBUGLEVEL == '2') getCallerName();
+            const level = parseInt(process.env.DEBUGLEVEL || '1');
+            if (level >= 1) log.debug(processColorString(object.toString()));
+            if (level >= 2) getCallerName();
         }
     }
 
@@ -499,9 +508,11 @@ export const tmc = new MiniControl();
 
 declare global {
     const tmc: MiniControl;
+    const sentry: typeof SentryType;
 }
 
-(global as any).tmc = tmc;
+(globalThis as any).tmc = tmc;
+(globalThis as any).sentry = Sentry;
 
 (async () => {
     try {
@@ -513,12 +524,18 @@ declare global {
 
 process.on('SIGINT', function () {
     tmc.server.send('SendHideManialinkPage', 0, false);
-    process.exit(0);
+    Sentry.close(2000).then(() => {
+        console.log("MINIcontrol exits successfully.");
+        process.exit(0);
+    });
 });
 
 process.on('SIGTERM', () => {
     tmc.server.send('SendHideManialinkPage', 0, false);
-    process.exit(0);
+    Sentry.close(2000).then(() => {
+        console.log("MINIcontrol exits succesfully.");
+        process.exit(0);
+    });
 });
 
 process.on('uncaughtException', function (err) {
