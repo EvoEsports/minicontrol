@@ -7,7 +7,7 @@ import Player from "@core/schemas/players.model";
 import { formatTime } from '@core/utils';
 import { Op } from "sequelize";
 import liveRecords from "@core/plugins/liveRecords/index.ts";
-import type worldRecords from "../worldRecords";
+import type worldRecords from "../worldrecords";
 
 interface Column {
     title: string;
@@ -61,7 +61,7 @@ export default class RecordsWindow extends ListWindow {
             try {
                 const record = await Score.findOne({
                     where: { login: login, mapUuid: this.app.currentMapUid },
-                    order: [['time', 'ASC'], ['updatedAt', 'ASC']], // just in case there are multiple entries for the same player on that map for whatever reason 
+                    order: [['time', 'ASC'], ['updatedAt', 'ASC']], // just in case there are multiple entries for the same player on that map for whatever reason
                     include: [Player],
                 });
 
@@ -70,7 +70,7 @@ export default class RecordsWindow extends ListWindow {
                         where: {
                             mapUuid: this.app.currentMapUid,
                             [Op.or]: [
-                                { 
+                                {
                                     time: { [Op.lt]: record.time }
                                 },
                                 {
@@ -101,11 +101,11 @@ export default class RecordsWindow extends ListWindow {
         else if (this.app instanceof liveRecords) {
             try {
                 const liveRecord = this.app.liveRecords.find(record => record.login === login);
-        
+
                 if (!liveRecord) {
                     return null;
                 }
-                
+
                 return {
                     rank: this.app.liveRecords.indexOf(liveRecord) + 1,
                     nickname: liveRecord.player?.nickname || liveRecord.login,
@@ -129,7 +129,7 @@ class DetailsWindow extends ListWindow {
 
     constructor(login: string, record: any) {
         super(login);
-        this.record = record;  
+        this.record = record;
         this.title = `Record Details for ${this.record?.nickname || 'Unknown'}`;
     }
 
@@ -149,14 +149,14 @@ class DetailsWindow extends ListWindow {
                 items.push({ key: "", value: "" });
                 const laps = this.record.checkpoints.split(';');
                 let lastLapTotalTime = 0;
-            
+
                 laps.forEach((lap: string, lapIndex: number) => {
                     const lapCheckpoints = lap.split(',');
                     items.push({ key: `Lap ${lapIndex + 1}`, value: "" });
-            
+
                     lapCheckpoints.forEach((cpTimeStr: string, index: number) => {
                         const cpTime = parseInt(cpTimeStr);
-            
+
                         if (!isNaN(cpTime)) {
                             const lapTime = cpTime - lastLapTotalTime;
                             lastLapTotalTime = cpTime;
