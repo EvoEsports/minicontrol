@@ -17,28 +17,31 @@
     {% else %}
 	{% for item in data.records %}
 		<frame pos="0 -{{ loop.index0 * 4 + 5}}" z-index="2">
-            <label pos="2.5 -1.25" z-index="3" size="3.5 3" text="$fff{{ item.rank }}" halign="center" valign="center" textsize="0.5" textfont="RobotoCondensedBold"/>
+
             {% if loop.index == 1 %}
                 <quad pos="2.5 0" z-index="0" size="4 3" bgcolor="db0e" halign="center"/>
+                <label pos="2.5 -1.25" z-index="3" size="3.5 3" text="$o$fff{{ item.rank }}" halign="center" valign="center" textsize="0.7" textfont="RobotoCondensedBold"/>
             {% endif %}
             {% if loop.index == 2 %}
                 <quad pos="2.5 0" z-index="0" size="4 3" bgcolor="aabe" halign="center"/>
+                <label pos="2.5 -1.25" z-index="3" size="3.5 3" text="$o$fff{{ item.rank }}" halign="center" valign="center" textsize="0.7" textfont="RobotoCondensedBold"/>
             {% endif %}
             {% if loop.index == 3 %}
                 <quad pos="2.5 0" z-index="0" size="4 3" bgcolor="963e" halign="center"/>
+                <label pos="2.5 -1.25" z-index="3" size="3.5 3" text="$o$fff{{ item.rank }}" halign="center" valign="center" textsize="0.7" textfont="RobotoCondensedBold"/>
             {% endif %}
             {% if loop.index > 3 %}
-                <quad pos="2.5 0" z-index="0" size="4 3" bgcolor="000e" halign="center"/>
+                <quad pos="2.5 0" z-index="0" size="4 3" bgcolor="fff" halign="center"/>
+                <label pos="2.5 -1.25" z-index="3" size="3.5 3" text="$000{{ item.rank }}" scale="0.8" halign="center" valign="center" textsize="1" textfont="RobotoCondensedBold"/>
             {% endif %}
-            {% if item.rank == data.myRank +1 %}
+            {% if item.rank == data.myRank + 1 %}
                 <quad pos="2.5 0" z-index="1" size="4 3" bgcolor="090e" halign="center"/>
             {% endif %}
 
-            <label pos="16 -1.25" z-index="1" size="20 3" text="${{colors.widget_text}}{{item.nickname}}" halign="left" valign="center" textsize="0.5" textfont="RobotoCondensedBold"/>
+            <label pos="5 -1.75" z-index="1" size="22 2.25" text="${{colors.widget_text}}{{item.nickname}}" halign="left" valign="center2" textsize="1" textfont="RobotoCondensedBold"/>
 
-
-            <label pos="10 -1.25" z-index="3" size="10 3" text="$fff{{ item.formattedTime }}" halign="center" valign="center" textsize="0.5" textfont="RobotoCondensedBold"/>
-			<quad pos="5 0" z-index="1" size="10 3" bgcolor="7778" />
+            <label pos="32 -1.25" z-index="3" size="10 3" scale="0.85" text="$fff{{ item.formattedTime }}" halign="center" valign="center" textsize="1" textfont="RobotoCondensedBold"/>
+			<!--<quad pos="5 0" z-index="1" size="10 3" bgcolor="7778" /> -->
 
         </frame>
 	{% endfor %}
