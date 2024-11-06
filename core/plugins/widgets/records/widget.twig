@@ -1,19 +1,15 @@
 {% extends "core/templates/widget.twig" %}
 
 {% block content %}
-    <frame pos="6.5 -2.3" z-index="1">
+    <frame pos="6.5 -2.25" z-index="1">
         <!-- Button 1: Live -->
-        <quad pos="0 0" z-index="1" size="12 3" bgcolor="{{colors.title_bg}}e" halign="center" valign="center"/>
-        <label pos="0 0" z-index="2" size="12 3" text="Live" halign="center" valign="center" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="0000" focusareacolor2="000" textcolor="{% if data.type == "live" %}0f0{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['liveAction']}}" />
+        <label pos="0 0" z-index="2" size="12 3.5" text="Live" halign="center" valign="center2" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="{% if data.type == "live" %}fff{% else %}{{colors.title_bg}}e{% endif %}" focusareacolor2="000" textcolor="{% if data.type == "live" %}{{ colors.title_bg }}{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['liveAction']}}" />
 
         <!-- Button 2: Server -->
-        <quad pos="12.5 0" z-index="1" size="12 3" bgcolor="{{colors.title_bg}}e" halign="center" valign="center"/>
-        <label pos="12.5 0" z-index="2" size="12 3" text="Server" halign="center" valign="center" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="0000" focusareacolor2="000" textcolor="{% if data.type == "server" %}0f0{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['serverAction']}}" />
+        <label pos="12.5 0" z-index="2" size="12 3.5" text="Server" halign="center" valign="center2" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="{% if data.type == "server" %}fff{% else %}{{colors.title_bg}}e{% endif %}" focusareacolor2="000" textcolor="{% if data.type == "server" %}{{ colors.title_bg }}{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['serverAction']}}" />
 
         <!-- Button 3: World -->
-        <quad pos="25 0" z-index="1" size="12 3" bgcolor="{{colors.title_bg}}e" halign="center" valign="center"/>
-        <label pos="25 0" z-index="2" size="12 3" text="World" halign="center" valign="center" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="0000" focusareacolor2="000" textcolor="{% if data.type == "world" or data.type == "dedimania" %}0f0{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['worldAction']}}" />
-        <quad pos="-6.5 -2" z-index="3" size="{{size.width}} 0.3" bgcolor="000" halign="left" valign="top"/>
+        <label pos="25 0" z-index="2" size="12 3.5" text="World" halign="center" valign="center2" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="{% if data.type == "world" or data.type == "dedimania" %}fff{% else %}{{colors.title_bg}}e{% endif %}" focusareacolor2="000" textcolor="{% if data.type == "world" or data.type == "dedimania" %}{{ colors.title_bg }}{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['worldAction']}}" />
     </frame>
 
     {% if data.records|length == 0 %}

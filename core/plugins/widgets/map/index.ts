@@ -4,12 +4,10 @@ import Widget from '@core/ui/widget';
 
 export default class MapWidget extends Plugin {
     static depends: string[] = ["maps"];
-    id: string = "";
     nbCheckpoints: number = -1;
     widget: Widget | null = null;
 
     async onLoad() {
-        this.id = tmc.ui.uuid();
         this.widget = new Widget("core/plugins/widgets/map/widget.twig");
         this.widget.title ="MAP INFO";
         this.widget.pos = { x: 121, y: 90, z: 1 };
@@ -41,7 +39,7 @@ export default class MapWidget extends Plugin {
         this.widget?.display();
     }
 
-    async buttonClick(login: string, data: any) {
+    async buttonClick(login: string, _data: any) {
         await tmc.chatCmd.execute(login, "/list");
     }
 }

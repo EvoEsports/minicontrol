@@ -4,7 +4,7 @@ import Manialink, { type MlSize } from './manialink';
 export default class Widget extends Manialink {
     size: MlSize = { width: 32, height: 50 };
 
-    constructor(path: string = "core/ui/widget.twig") {
+    constructor(path: string = "core/templates/widget.twig") {
         super();
         this.template = path;
     }

@@ -12,7 +12,7 @@ export default class MapLikesWidget extends Plugin {
         tmc.server.addListener("Plugin.MapLikes.onSync", this.onSync, this);
         this.widget = new Widget("core/plugins/widgets/maplikes/widget.twig");
         this.widget.pos = { x: 121, y: 60, z: 1 };
-        this.widget.size = { width: 38, height: 11 };
+        this.widget.size = { width: 38, height: 10 };
         this.widget.actions['like'] = tmc.ui.addAction(this.actionLike.bind(this), 1);
         this.widget.actions['dislike'] = tmc.ui.addAction(this.actionLike.bind(this), -1);
     };
@@ -67,7 +67,7 @@ export default class MapLikesWidget extends Plugin {
                 wording: wording,
                 positive: positive,
                 negative: negative,
-                width: (positive / total * 30).toFixed(0)
+                width: (positive / total * (this.widget.size.width-12)).toFixed(0)
             });
 
             this.widget.title = "MAP KARMA ["+data.length+"]";

@@ -12,7 +12,7 @@
         {% endif %}
             {% block content %}{% endblock %}
             {% if title != "" or (actions['openWidget'] is defined and actions['openWidget'] is not null) %}
-            <label pos="0 0" text=" " z-index="0" size="{{size.width}} {{size.height}}" valign="top" halign="left" focusareacolor1="{{colors.widget_bg}}9" focusareacolor2="0009" action="{{actions['openWidget']}}"/>
+            <quad pos="0 0" z-index="-20" size="{{size.width}} {{size.height}}" valign="top" halign="left" bgcolor="{{colors.widget_bg}}9" action="{{actions['openWidget']}}"/>
             {% endif %}
         </frame>
     </frame>
