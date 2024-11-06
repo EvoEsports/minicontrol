@@ -29,7 +29,9 @@ export default class TAlimitPlugin extends Plugin {
 
     async onLoad() {
         this.widget = new Widget("core/plugins/tmnf/talimit/widget.twig");
-        this.widget.pos = { x: 139, y: -40, z: 0 };
+        this.widget.pos = { x: 121, y: 45, z: 1 };
+        this.widget.size = { width: 38, height: 10 };
+        this.widget.title = "TIME LEFT";
         this.timeLimit = Number.parseInt(process.env.TALIMIT || "300");
         this.startTime = Date.now();
         tmc.server.addListener("Trackmania.BeginRound", this.onBeginRound, this);

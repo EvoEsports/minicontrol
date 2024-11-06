@@ -3,13 +3,13 @@
 {% block content %}
     <frame pos="6.5 -2.25" z-index="1">
         <!-- Button 1: Live -->
-        <label pos="0 0" z-index="2" size="12 3.5" text="Live" halign="center" valign="center2" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="{% if data.type == "live" %}fff{% else %}{{colors.title_bg}}e{% endif %}" focusareacolor2="000" textcolor="{% if data.type == "live" %}{{ colors.title_bg }}{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['liveAction']}}" />
+        <label pos="0 0" z-index="2" size="12 3.5" text="Live" halign="center" valign="center2" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="{% if data.type == "live" %}fff{% else %}{{colors.button_bg}}e{% endif %}" focusareacolor2="000" textcolor="{% if data.type == "live" %}{{ colors.title_bg }}{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['liveAction']}}" />
 
         <!-- Button 2: Server -->
-        <label pos="12.5 0" z-index="2" size="12 3.5" text="Server" halign="center" valign="center2" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="{% if data.type == "server" %}fff{% else %}{{colors.title_bg}}e{% endif %}" focusareacolor2="000" textcolor="{% if data.type == "server" %}{{ colors.title_bg }}{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['serverAction']}}" />
+        <label pos="12.5 0" z-index="2" size="12 3.5" text="Server" halign="center" valign="center2" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="{% if data.type == "server" %}fff{% else %}{{colors.button_bg}}e{% endif %}" focusareacolor2="000" textcolor="{% if data.type == "server" %}{{ colors.title_bg }}{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['serverAction']}}" />
 
         <!-- Button 3: World -->
-        <label pos="25 0" z-index="2" size="12 3.5" text="World" halign="center" valign="center2" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="{% if data.type == "world" or data.type == "dedimania" %}fff{% else %}{{colors.title_bg}}e{% endif %}" focusareacolor2="000" textcolor="{% if data.type == "world" or data.type == "dedimania" %}{{ colors.title_bg }}{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['worldAction']}}" />
+        <label pos="25 0" z-index="2" size="12 3.5" text="World" halign="center" valign="center2" textsize="1" textfont="RobotoCondensedBold" focusareacolor1="{% if data.type == "world" or data.type == "dedimania" %}fff{% else %}{{colors.button_bg}}e{% endif %}" focusareacolor2="000" textcolor="{% if data.type == "world" or data.type == "dedimania" %}{{ colors.title_bg }}{% else %}{{colors.title_fg}}{% endif %}" action="{{actions['worldAction']}}" />
     </frame>
 
     {% if data.records|length == 0 %}
