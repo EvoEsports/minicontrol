@@ -1,7 +1,7 @@
 import Plugin from '@core/plugins';
 import ListWindow from '@core/ui/listwindow';
 import Widget from '@core/ui/widget';
-import { formatTime, removeColors } from '@core/utils';
+import {formatTime, removeColors} from '@core/utils';
 
 interface Time {
     nickname: string;
@@ -21,8 +21,8 @@ export default class BestCps extends Plugin {
         tmc.server.addListener("TMC.PlayerCheckpoint", this.checkpoint, this);
         tmc.chatCmd.addCommand("/checkpoints", this.cmdCheckpoints.bind(this), "Display best Checkpoints");
         this.widget = new Widget("core/plugins/widgets/bestcps/widget.twig");
-        this.widget.pos = { x: -160, z: 0, y: 90 };
-        this.widget.size = { width: 240, height: 20 };
+        this.widget.pos = {x: -160, z: 0, y: 90};
+        this.widget.size = {width: 240, height: 20};
         const info = tmc.maps.currentMap;
         this.nbCheckpoints = info?.NbCheckpoints || -1;
         await this.display();
@@ -52,9 +52,9 @@ export default class BestCps extends Plugin {
         const login = data[0];
         const time = data[1];
         const nb = data[2];
-        if (!this.bestTimes[nb -1] && nb > 0) return;
+        if (!this.bestTimes[nb - 1] && nb > 0) return;
         if (!this.bestTimes[nb] || time < this.bestTimes[nb].time) {
-            this.bestTimes[nb] = { nickname: removeColors((await tmc.getPlayer(login)).nickname), time: time, prettyTime: formatTime(time) };
+            this.bestTimes[nb] = {nickname: removeColors((await tmc.getPlayer(login)).nickname), time: time, prettyTime: formatTime(time)};
             await this.display();
         }
     }
@@ -77,7 +77,7 @@ export default class BestCps extends Plugin {
             tmc.chat("¤error¤No Checkpoints found!", login);
             return;
         }
-        let checkpoints = [];
+        let checkpoints:any = [];
         let checkpointNumber = 1;
         for (const checkpoint of this.bestTimes) {
             checkpoints.push(
@@ -89,13 +89,13 @@ export default class BestCps extends Plugin {
             checkpointNumber++;
         }
         const window = new ListWindow(login);
-        window.size = { width: 100, height: 100 };
+        window.size = {width: 100, height: 100};
         window.title = `Best Checkpoints [${this.bestTimes.length}]`;
         window.setItems(checkpoints);
         window.setColumns([
-            { key: "checkpoint", title: "Checkpoint", width: 20 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "time", title: "Time", width: 20 },
+            {key: "checkpoint", title: "Checkpoint", width: 20},
+            {key: "nickname", title: "Nickname", width: 50},
+            {key: "time", title: "Time", width: 20},
         ]);
 
         await window.display();

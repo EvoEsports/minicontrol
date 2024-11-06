@@ -207,8 +207,7 @@ export default class Server {
      */
     async connect(host: string, port: number): Promise<boolean> {
         try {
-            const status = await this.gbx.connect(host, port);
-            return status;
+            return await this.gbx.connect(host, port);
         } catch (e: any) {
             tmc.cli(e.message);
         }

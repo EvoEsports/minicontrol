@@ -21,7 +21,6 @@ export default class OpenPlanet extends Plugin {
                 widgets.push(this.getManialink(player.login));
             }
             await tmc.ui.displayManialinks(widgets);
-            widgets = [];
         }
     }
 
@@ -41,16 +40,6 @@ export default class OpenPlanet extends Plugin {
         widget.data['signature'] = process.env['FORCE_OP_MODE'];
         widget.template = "core/plugins/tm2020/openplanet/opdetect.twig";
         return widget;
-    }
-
-    async onOpenplanetResponse(login: string, answer: string, entries: any) {
-        const res = parseEntries(entries);
-        const regex = (/^Openplanet ([\d.]+) \((\w+), ([A-Z]\w+), (\d{4}-\d{2}-\d{2})\)(?:\s(?:\[([A-Z]+)\]))*$/).exec(res.response);
-        if (regex && regex.length == 6) {
-            if (regex[5] != "REGULAR") {
-
-            }
-        }
     }
 
 }

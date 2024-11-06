@@ -1,9 +1,9 @@
 import Plugin from "@core/plugins";
 import Score from "@core/schemas/scores.model";
 import Player from "@core/schemas/players.model";
-import { clone, escape, formatTime } from "@core/utils";
+import {clone, escape, formatTime} from "@core/utils";
 import RecordsWindow from "./recordsWindow";
-import { Op } from "sequelize";
+import {Op} from "sequelize";
 
 export default class Records extends Plugin {
     static depends: string[] = ["database"];
@@ -48,8 +48,8 @@ export default class Records extends Plugin {
         await this.syncRecords(map.UId);
     }
 
-    async cmdRecords(login: string, args: string[]) {
-        let records = [];
+    async cmdRecords(login: string, _args: string[]) {
+        let records: any = [];
         for (const record of this.records) {
             records.push(
                 {
@@ -60,13 +60,13 @@ export default class Records extends Plugin {
                 });
         }
         const window = new RecordsWindow(login, this);
-        window.size = { width: 100, height: 100 };
+        window.size = {width: 100, height: 100};
         window.title = `Server Records [${this.records.length}]`;
         window.setItems(records);
         window.setColumns([
-            { key: "rank", title: "Rank", width: 10 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "time", title: "Time", width: 20 },
+            {key: "rank", title: "Rank", width: 10},
+            {key: "nickname", title: "Nickname", width: 50},
+            {key: "time", title: "Time", width: 20},
         ]);
 
         window.setActions(["View"]);
@@ -131,8 +131,7 @@ export default class Records extends Plugin {
                 records: clone(this.records),
             });
             await this.cmdRecords(login, []);
-        }
-        catch (err: any) {
+        } catch (err: any) {
             const msg = (`Error deleting record: ${err.message}`);
             tmc.cli(msg);
             tmc.chat(msg, login);
@@ -155,9 +154,9 @@ export default class Records extends Plugin {
 
     async onPlayerCheckpoint(data: any) {
         const login = data[0];
-        const racetime =  data[1];
-        const checkpointIndex =  data[2];
-        const cpData = data[3];
+        const racetime = data[1];
+        const checkpointIndex = data[2];
+
 
         if (!this.playerCheckpoints[login] || checkpointIndex === 0) {
             this.playerCheckpoints[login] = [];
@@ -165,10 +164,10 @@ export default class Records extends Plugin {
 
         this.playerCheckpoints[login].push(racetime.toString());
 
-        if (cpData.isendlap) {
+        const nbCp = tmc.maps.currentMap?.NbCheckpoints || 1;
+        if (checkpointIndex%nbCp == 0) {
             this.playerCheckpoints[login].push(";");
-        }
-        else {
+        } else {
             this.playerCheckpoints[login].push(",");
         }
     }

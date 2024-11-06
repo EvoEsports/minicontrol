@@ -1,6 +1,6 @@
 import { Player } from '@core/playermanager';
 import Api from './api';
-import { clone, escape, formatTime, removeColors } from '@core/utils';
+import { clone, escape, formatTime } from '@core/utils';
 import ListWindow from '@core/ui/listwindow';
 import Plugin from '@core/plugins';
 
@@ -21,7 +21,6 @@ export default class Dedimania extends Plugin {
     maxRank: number = 30;
     api: Api = new Api();
     serverLogin: string = "";
-    sessionId: string = "";
     server: any = {};
     serverInfo: any = {};
     records: DediRecord[] = [];
@@ -76,8 +75,8 @@ export default class Dedimania extends Plugin {
         }
     }
 
-    async cmdDediRecords(login: string, args: string[]) {
-        let records = [];
+    async cmdDediRecords(login: string, _args: string[]) {
+        let records:any = [];
         for (let record of this.records) {
             records.push(
                 {
@@ -240,7 +239,7 @@ export default class Dedimania extends Plugin {
             }
 
             getDedimaniaScores(scores: any) {
-                const out = [];
+                const out:any = [];
                 for (let score of scores) {
                     if (score.BestCheckpoints.length < 1) continue;
                     out.push({
@@ -289,7 +288,7 @@ export default class Dedimania extends Plugin {
             }
 
             async getDedimaniaPlayers() {
-                const out = [];
+                const out:any = [];
                 for (let player of tmc.players.getAll()) {
                     out.push({
                         Login: player.login,

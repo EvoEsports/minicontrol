@@ -21,7 +21,7 @@ export default class ATime extends Plugin {
         tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap);
     }
 
-    async onBeginMap(data: any) {
+    async onBeginMap(_data: any) {
         if (!tmc.maps.currentMap) return;
         let newLimit = Math.round((tmc.maps.currentMap.GoldTime / 1000) * this.multiply);
         const min = parseInt(process.env['ATIME_MIN'] || "180") || 180;

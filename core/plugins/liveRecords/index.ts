@@ -52,8 +52,8 @@ export default class LiveRecords extends Plugin {
         });
     }
 
-    async cmdRecords(login: string, args: string[]) {
-        let liveRecords = [];
+    async cmdRecords(login: string, _args: string[]) {
+        let liveRecords:any = [];
         for (const record of this.liveRecords) {
             liveRecords.push({
                 rank: record.rank,
@@ -109,17 +109,17 @@ export default class LiveRecords extends Plugin {
 
     async onPlayerCheckpoint(data: any) {
         const login = data[0];
-        const racetime = data[1];
+        const raceTime = data[1];
         const checkpointIndex = data[2];
-        const cpData = data[3];
 
         if (!this.playerCheckpoints[login] || checkpointIndex === 0) {
             this.playerCheckpoints[login] = [];
         }
 
-        this.playerCheckpoints[login].push(racetime.toString());
+        this.playerCheckpoints[login].push(raceTime.toString());
+        const nbCp = tmc.maps.currentMap?.NbCheckpoints || 1;
 
-        if (cpData.isendlap) {
+        if (checkpointIndex%nbCp == 0) {
             this.playerCheckpoints[login].push(";");
         }
         else {

@@ -1,8 +1,8 @@
 import { appendFileSync, existsSync, mkdirSync } from "fs";
 import { rgb2hsl, removeColors } from "./utils";
 
-export function Tm2Console(input: string, ansilevel: number = 0) {
-    if (ansilevel == 0) return removeColors(input);
+export function Tm2Console(input: string, ansiLevel: number = 0) {
+    if (ansiLevel == 0) return removeColors(input);
 
     const chunks = input.split(/([$][0-9A-F]{3}|[$][zsowin])/gi);
     const ansi_esc = String.fromCharCode(0x1b);
@@ -49,7 +49,7 @@ export function Tm2Console(input: string, ansilevel: number = 0) {
             ansi = 7;
         }
         const cc = (str: string) => parseInt(str, 16) * 17;
-        return ansilevel > 1
+        return ansiLevel > 1
         ? ansi_esc + `[38;2;${cc(r)};${cc(g)};${cc(b)}m`
         : ansi_esc + `[${prefix}${ansi}m`;
     };

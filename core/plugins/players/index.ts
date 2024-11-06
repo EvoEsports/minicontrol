@@ -23,7 +23,7 @@ export default class Players extends Plugin {
         }
     }
 
-    async cmdPlayers(login: any, args: string[]) {
+    async cmdPlayers(login: any, _args: string[]) {
         const window = new PlayerWindow(login);
         window.size = { width: 195, height: 95 };
         window.title = "Players";

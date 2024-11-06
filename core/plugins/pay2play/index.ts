@@ -1,5 +1,4 @@
 import Plugin from '@core/plugins';
-import Confirm from '@core/ui/confirm';
 import Widget from '@core/ui/widget';
 import type Jukebox from '../jukebox';
 
@@ -12,9 +11,6 @@ export default class Pay2Play extends Plugin {
 
     async onStart() {
         if (tmc.game.Name == 'Trackmania') return;
-        if (Object.keys(tmc.plugins).includes('votes')) {
-            await tmc.unloadPlugin('votes');
-        }
         this.widgets.push(this.createWidget(0, 'SKIP', this.skipAmount, this.skip.bind(this)));
         this.widgets.push(this.createWidget(1, 'RES', this.resAmount, this.res.bind(this)));
 
@@ -44,7 +40,7 @@ export default class Pay2Play extends Plugin {
         return widget;
     }
 
-    async skip(login: string, data: any) {
+    async skip(login: string, _data: any) {
         try {
             const bill = tmc.billMgr.createTransaction('SendBill', login, login, this.skipAmount, `Pay ${this.skipAmount} to skip map?`);
             bill.onPayed = async (bill) => {
@@ -58,7 +54,7 @@ export default class Pay2Play extends Plugin {
         }
     }
 
-    async res(login: string, data: any) {
+    async res(login: string, _data: any) {
         try {
             const bill = tmc.billMgr.createTransaction('SendBill', login, login, this.resAmount, `Pay ${this.resAmount} to restart map?`);
             bill.onPayed = async (bill) => {

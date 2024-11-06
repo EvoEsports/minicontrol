@@ -53,7 +53,7 @@ enum AUDIENCES {
 }
 
 export default class API {
-    readonly toolName: string = `MINIcontrol / ${process.env.CONTACT_INFO}`;
+    readonly toolName: string = `MINIcontrol@${process.env.npm_package_version} / ${process.env.CONTACT_INFO}`;
     readonly commonHeader = {
         "Content-Type": "application/json",
         "User-Agent": this.toolName,

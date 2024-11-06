@@ -5,7 +5,7 @@ import Widget from '@core/ui/widget';
 
 export default class DebugTool extends Plugin {
     widget: Widget | null = null;
-    intervalId: any | null = null;
+    intervalId: any = null;
 
     async onLoad() {
         if (process.env.DEBUG == "true") {
@@ -35,11 +35,11 @@ export default class DebugTool extends Plugin {
         this.widget = null;
     }
 
-    async cmdRemoveFakeUsers(login: string, args: string[]) {
+    async cmdRemoveFakeUsers(_login: string, _args: string[]) {
         tmc.server.send("DisconnectFakePlayer", "*");
     }
 
-    async cmdFakeUsers(login: string, args: string[]) {
+    async cmdFakeUsers(_login: string, args: string[]) {
         let count = Number.parseInt(args[0]) || 1;
         if (count > 100) count = 100;
         if (count < 1) count = 1;
@@ -48,12 +48,12 @@ export default class DebugTool extends Plugin {
         }
     }
 
-    async cmdMeminfo(login: string, args: string[]) {
+    async cmdMeminfo(login: string, _args: string[]) {
         const mem = memInfo();
         tmc.chat("¤info¤Memory usage: " + mem, login);
     }
 
-    async cmdUptime(login: string, args: string[]) {
+    async cmdUptime(login: string, _args: string[]) {
         let diff = Date.now() - Number.parseInt(tmc.startTime);
         tmc.chat("¤info¤Uptime: ¤white¤" + tm.Time.fromMilliseconds(diff).toTmString().replace(/[.]\d{3}/, ""), login);
     }

@@ -35,7 +35,6 @@ export default class CoPlanets extends Plugin {
     }
 
     async bill(login: string, params: string[]) {
-        const player = await tmc.getPlayer(login);
         if (params.length < 2) {
             tmc.chat('¤info¤Usage: ¤cmd¤//bill ¤white¤<login> <amount>', login);
             return;
@@ -61,10 +60,10 @@ export default class CoPlanets extends Plugin {
                 const player = await tmc.getPlayer(bill.issuerLogin);
                 tmc.chat(`¤info¤${player.nickname}¤info¤ issued a bill of ¤white¤${bill.amount} ¤info¤ to ¤white¤${targetPlayer.nickname}¤info¤.`);
             };
-            bill.onPayed = async (bill) => {
+            bill.onPayed = async (_bill) => {
                 tmc.chat(`¤info¤Bill was paid successfully.`);
             };
-            bill.onRefuced = async (bill) => {
+            bill.onRefused = async (bill) => {
                 const targetPlayer = await tmc.getPlayer(bill.loginFrom);
                 tmc.chat(`¤info¤${targetPlayer.nickname} ¤info¤refused to pay the bill.`);
             };

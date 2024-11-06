@@ -35,8 +35,8 @@ export default class SettingsManager {
         this.settings = this._defaultSettings;
         /** load colors from environment variables */
         for (const color in this._defaultColors) {
-            const vari = "COLOR_" + color.toString().toUpperCase();
-            this.colors[color] = process.env[vari] || this._defaultColors[color];
+            const envVar = "COLOR_" + color.toString().toUpperCase();
+            this.colors[color] = process.env[envVar] || this._defaultColors[color];
         }
         this.colors['button_bg_light'] = modLightness(this.colors['button_bg'], 15);
         this.colors['button_bg_dark'] = modLightness(this.colors['button_bg'], -15);

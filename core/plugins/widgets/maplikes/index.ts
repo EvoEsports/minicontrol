@@ -1,7 +1,6 @@
 import Plugin from "@core/plugins";
 import Widget from '@core/ui/widget';
 import type { Like } from "@core/plugins/maplikes";
-import Maplikes from "@core/plugins/maplikes";
 import MapLikes from "@core/plugins/maplikes";
 
 export default class MapLikesWidget extends Plugin {

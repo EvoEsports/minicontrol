@@ -15,23 +15,24 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import { require } from 'tsx/cjs/api';
+import {require} from 'tsx/cjs/api';
 import * as SentryType from '@sentry/node';
+
 const Sentry = require('./sentry', import.meta.url);
 
-import PlayerManager, { Player } from './playermanager';
+import PlayerManager, {Player} from './playermanager';
 import BillManager from './billmanager';
 import Server from './server';
 import UiManager from './uimanager';
 import MapManager from './mapmanager';
-import CommandManager from './commandmanager';
+import CommandManager, {type CallableCommand} from './commandmanager';
 import SettingsManager from './settingsmanager';
-import { getCallerName, processColorString, setMemStart } from './utils';
+import {getCallerName, processColorString, setMemStart} from './utils';
 import log from './log';
 import fs from 'fs';
 import Plugin from './plugins/index';
 import path from 'path';
-import { DepGraph } from 'dependency-graph';
+import {DepGraph} from 'dependency-graph';
 
 export interface GameStruct {
     Name: string;
@@ -91,7 +92,7 @@ class MiniControl {
     /**
      * The plugins.
      */
-    plugins: { [key: string]: Plugin | undefined } = {};
+    plugins: { [key: string]: Plugin } = {};
     pluginDependecies: DepGraph<string> = new DepGraph();
     billMgr: BillManager;
     /**
@@ -115,7 +116,7 @@ class MiniControl {
         this.settings = this.settingsMgr.settings;
         this.colors = this.settingsMgr.colors;
         this.admins = this.settingsMgr.admins;
-        this.game = { Name: '' };
+        this.game = {Name: ''};
     }
 
     /**
@@ -133,7 +134,7 @@ class MiniControl {
      * @param callback The callback function to execute when the command is triggered.
      * @param help The help text for the command.
      */
-    addCommand(command: string, callback: CallableFunction, help: string = '') {
+    addCommand(command: string, callback: CallableCommand, help: string = '') {
         this.chatCmd.addCommand(command, callback, help);
     }
 
@@ -175,11 +176,13 @@ class MiniControl {
                 }
                 return;
             }
-            let plugin = null;
+
+            let plugin: any;
+            const epoch = new Date().getTime();
             if (process.platform === 'win32') {
-                plugin = await import('file:///' + process.cwd() + '/' + pluginPath);
+                plugin = await import('file:///' + process.cwd() + '/' + pluginPath) + "?stamp="+epoch;
             } else {
-                plugin = await import(process.cwd() + '/' + pluginPath);
+                plugin = await import(process.cwd() + '/' + pluginPath+ "?stamp="+epoch);
             }
 
             if (plugin.default == undefined) {
@@ -280,17 +283,16 @@ class MiniControl {
                 this.pluginDependecies.removeDependency(unloadName, dep);
             }
             this.pluginDependecies.removeNode(unloadName);
-            this.plugins[unloadName] = undefined;
             delete this.plugins[unloadName];
 
+            /* disabled for now
             const file = process.cwd() + pluginPath.replaceAll('.', '') + '/index.ts';
             if (require.cache[file]) {
-                // eslint-disable-next-line drizzle/enforce-delete-with-where
-                // Loader.registry.delete(file); // @TODO check how to do this in tsx
                 delete require.cache[file];
             } else {
                 this.cli(`$fffFailed to remove require cache for ¤cmd¤${unloadName}¤white¤, hotreload will not work right.`);
             }
+            */
             const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ unloaded.`;
             this.cli(msg);
             this.chat(msg);
@@ -376,7 +378,7 @@ class MiniControl {
             this.mapsPath = await this.server.call('GetMapsDirectory');
             await this.server.callScript('XmlRpc.EnableCallbacks', 'true');
             try {
-                const settings = { S_UseLegacyXmlRpcCallbacks: false };
+                const settings = {S_UseLegacyXmlRpcCallbacks: false};
                 tmc.server.send('SetModeScriptSettings', settings);
             } catch (e: any) {
                 tmc.cli(e.message);
@@ -397,10 +399,10 @@ class MiniControl {
     async beforeInit() {
         await this.chatCmd.beforeInit();
         // load plugins
-        let plugins = fs.readdirSync(process.cwd().replaceAll('\\', '/') + '/core/plugins', { withFileTypes: true, recursive: true });
-        plugins = plugins.concat(fs.readdirSync(process.cwd().replaceAll('\\', '/') + '/userdata/plugins', { withFileTypes: true, recursive: true }));
+        let plugins = fs.readdirSync(process.cwd().replaceAll('\\', '/') + '/core/plugins', {withFileTypes: true, recursive: true});
+        plugins = plugins.concat(fs.readdirSync(process.cwd().replaceAll('\\', '/') + '/userdata/plugins', {withFileTypes: true, recursive: true}));
         const exclude = process.env.EXCLUDED_PLUGINS?.split(',') || [];
-        let loadList = [];
+        let loadList: string[] = [];
         for (const plugin of plugins) {
             let include = plugin && plugin.name && plugin.isDirectory();
             if (plugin.name.includes('.') || plugin.parentPath.includes('.')) include = false;
@@ -410,7 +412,7 @@ class MiniControl {
                 .replace(path.resolve('core', 'plugins').replaceAll('\\', '/'), '')
                 .replace(path.resolve('userdata', 'plugins').replaceAll('\\', '/'), '');
             if (include) {
-                let pluginName = plugin.name;
+                let pluginName: string = plugin.name;
                 if (directory != '') {
                     pluginName = (directory + '/' + plugin.name).replaceAll('\\', '/');
                     if (pluginName.startsWith('/')) pluginName = pluginName.substring(1);
@@ -438,13 +440,14 @@ class MiniControl {
                 this.cli(msg);
                 continue;
             }
-            let cls = null;
+            let cls: any = null;
             if (process.platform === 'win32') {
                 cls = await import('file:///' + process.cwd() + '/' + pluginName);
             } else {
                 cls = await import(process.cwd() + '/' + pluginName);
             }
-            const plugin = cls.default;
+
+            let plugin: any = cls.default;
 
             if (plugin == undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
@@ -508,7 +511,7 @@ class MiniControl {
     }
 }
 
-export const tmc = new MiniControl();
+const tmc = new MiniControl();
 
 declare global {
     const tmc: MiniControl;

@@ -82,8 +82,8 @@ export default class UiManager {
         if (data && this.scriptCalls.includes(data.responseid)) {
             this.scriptCalls.splice(this.scriptCalls.indexOf(data.responseid), 1);
             if (data.uimodules) {
-                this.uiProperties = data.uimodules as uiModule[];
-                let reset = [];
+                this.uiProperties = (data.uimodules as uiModule[]);
+                let reset:string[] = [];
                 for (let uiModule of this.uiProperties) {
                     reset.push(uiModule.id);
                 }
@@ -295,10 +295,10 @@ export default class UiManager {
 
     /**
      * Display array of manialinks
-     * @param manialink
+     * @param manialinks
      */
     async displayManialinks(manialinks: Manialink[]) {
-        let callArray = [];
+        let callArray:any = [];
         for (const manialink of manialinks) {
             if (manialink.recipient == undefined) {
                 if (!this.publicManialinks[manialink.id]) {

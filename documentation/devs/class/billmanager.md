@@ -24,7 +24,7 @@ bill.onPayed = async (bill) => {
     tmc.chat(`¤info¤Bill was paid successfully.`);
 };
 
-bill.onRefuced = async (bill) => {
+bill.onRefused = async (bill) => {
     const targetPlayer = await tmc.getPlayer(bill.loginFrom);
     tmc.chat(`¤info¤${targetPlayer.nickname} ¤info¤refused to pay the bill.`);
 };

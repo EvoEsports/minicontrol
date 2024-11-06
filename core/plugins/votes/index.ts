@@ -298,7 +298,7 @@ export default class VotesPlugin extends Plugin {
         this.widget = null;
     }
 
-    cmdAdmExtend(_login: string, params: string[]) {
+    async cmdAdmExtend(_login: string, params: string[]) {
         this.extendCounter += 1;
         const seconds = params[0] ? parseInt(params[0]) : this.origTimeLimit;
         this.newLimit += seconds;

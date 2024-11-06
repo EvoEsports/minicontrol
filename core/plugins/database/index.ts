@@ -4,10 +4,10 @@ import Plugin from '@core/plugins';
 import { chunkArray, sleep } from '@core/utils';
 import Map from '@core/schemas/map.model';
 import Player from '@core/schemas/players.model';
-import { MigrationError, SequelizeStorage, Umzug } from 'umzug';
+import { SequelizeStorage, Umzug } from 'umzug';
 import { removeColors } from '@core/utils';
 import { GBX, CGameCtnChallenge } from 'gbx';
-import { existsSync, promises as fspromises } from 'fs';
+import { existsSync, promises as fsPromises } from 'fs';
 import path from 'path';
 
 
@@ -55,7 +55,7 @@ const strToCar: any = {
 export default class GenericDb extends Plugin {
 
     async onLoad() {
-        let sequelize;
+        let sequelize:Sequelize;
         const dbString = (process.env['DATABASE'] ?? "").split("://", 1)[0];
         if (!["sqlite", "mysql", "postgres"].includes(dbString)) {
             tmc.cli("¤error¤Seems you .env is missing 'DATABASE=' define or the database not sqlite, mysql or postgres");
@@ -64,7 +64,7 @@ export default class GenericDb extends Plugin {
 
         try {
             sequelize = new Sequelize(process.env['DATABASE'] ?? "", {
-                logging(sql, timing) {
+                logging(sql, _timing) {
                     tmc.debug(`$d7c${removeColors(sql)}`);
                 },
             });
@@ -87,7 +87,7 @@ export default class GenericDb extends Plugin {
                         sequelize,
                     }),
                     logger: {
-                        debug: (message) => { },
+                        debug: (_message) => { },
                         error: (message) => { tmc.cli("$f00" + message) },
                         warn: (message) => { tmc.cli("$fa0" + message) },
                         info: (message) => { tmc.cli("$5bf" + message.event + " $fff" + message.name) },
@@ -133,7 +133,7 @@ export default class GenericDb extends Plugin {
                 path: player.path,
             });
         } else {
-            dbPlayer.update({
+            await dbPlayer.update({
                 nickname: player.nickname,
                 path: player.path
             });
@@ -181,7 +181,7 @@ export default class GenericDb extends Plugin {
             }
 
             try {
-                Map.bulkCreate(missingMaps);
+                await Map.bulkCreate(missingMaps);
             } catch (e: any) {
                 tmc.cli(`¤error¤` + e.message);
             }
@@ -196,7 +196,7 @@ export default class GenericDb extends Plugin {
                 if (mapInfo) {
                     const fileName = path.resolve(tmc.mapsPath, mapInfo.FileName);
                     if (existsSync(fileName)) {
-                        const stream = await fspromises.readFile(fileName);
+                        const stream = await fsPromises.readFile(fileName);
                         const gbx = new GBX<CGameCtnChallenge>(stream, 0);
                         await gbx.parse().then
                         (

@@ -37,7 +37,7 @@ export default class ToggleChat extends Plugin {
         await tmc.server.call("SendDisplayManialinkPageToLogin", login, manialink, 0, false);
     }
 
-    async manialinkToggle(login: string, params: string[]) {
+    async manialinkToggle(login: string, _params: string[]) {
         if (this.enabled[login] === undefined) this.enabled[login] = true;
         const visible = !this.enabled[login];
         await this.setChat(login, visible);

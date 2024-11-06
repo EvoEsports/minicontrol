@@ -16,7 +16,7 @@ export class BillState {
 
     onIssued?: Callable;
     onPayed?: Callable;
-    onRefuced?: Callable;
+    onRefused?: Callable;
     onError?: Callable;
 
     async send() {
@@ -52,7 +52,7 @@ export default class BillManager {
      * @returns {BillState}
      * @throws {Error}
      */
-    createTransaction(type: 'SendBill' | 'Donate' | 'Pay', issuerLogin: string, loginFrom: string, amount: number, message: string) {
+    createTransaction(type: 'SendBill' | 'Donate' | 'Pay', issuerLogin: string, loginFrom: string, amount: number, message: string): BillState {
         const state: BillState = new BillState();
         state.issuerLogin = issuerLogin;
         state.loginFrom = loginFrom;
@@ -137,8 +137,8 @@ export default class BillManager {
                     break;
                 }
                 case 'Refused': {
-                    if (bill.onRefuced) {
-                        await bill.onRefuced(bill);
+                    if (bill.onRefused) {
+                        await bill.onRefused(bill);
                     }
                     this.removeBill(bill.billId);
                     break;

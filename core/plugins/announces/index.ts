@@ -1,7 +1,6 @@
 import type { Player } from "@core/playermanager";
 import Plugin from "../index";
 import { formatTime } from '@core/utils';
-import Maps from "../maps";
 import { type DediRecord } from "../tmnf/dedimania";
 
 export default class Announces extends Plugin {
@@ -68,12 +67,12 @@ export default class Announces extends Plugin {
         tmc.chat(`¤white¤${newRecord.NickName}¤rec¤ improved ¤white¤${newRecord.Rank}. ¤rec¤dedimania record ¤white¤${formatTime(newRecord.Best)}¤rec¤ ${extrainfo}!`, recipient);
     }
 
-    async onNewRecord(data: any, records: any[]) {
+    async onNewRecord(data: any, _records: any[]) {
         const newRecord = data.record;
         tmc.chat(`¤white¤${newRecord.player.nickname}¤rec¤ has set a new $fff1. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`);
     }
 
-    async onUpdateRecord(data: any, records: any[]) {
+    async onUpdateRecord(data: any, _records: any[]) {
         const newRecord = data.record;
         const oldRecord = data.oldRecord;
         let extrainfo = "";
@@ -94,7 +93,7 @@ export default class Announces extends Plugin {
     }
 
     async onSyncRecord(data: any) {
-        const map = tmc.maps.getMap(data.mapUid);
+        // const map = tmc.maps.getMap(data.mapUid);
         const records: any[] = data.records;
         if (records.length === 0) {
             return;

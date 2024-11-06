@@ -2,18 +2,24 @@ import ListWindow from "./ui/listwindow";
 import { escapeRegex, sleep } from "./utils";
 import fs from 'fs';
 
-export interface ChatCommand {
-    trigger: string;
-    help: string;
-    admin: boolean;
-    callback: CallableFunction;
+export interface CallableCommand {
+    (login: string, args: string[]): Promise<void>;
 }
+
+
+export interface ChatCommand {
+    admin: boolean;
+    callback: CallableCommand;
+    help: string;
+    trigger: string;
+}
+
 
 /**
  * CommandManager class
  */
 export default class CommandManager {
-    private commands: { [key: string]: ChatCommand|undefined } = {};
+    private commands: { [key: string]: ChatCommand } = {};
 
     /**
      * Initialize the command manager
@@ -166,9 +172,9 @@ export default class CommandManager {
         const window = new PluginManagerWindow(login);
         window.size = { width: 160, height: 95 };
         window.title = "Plugins";
-        let out = [];
-        let all = [];
-        let diff = [];
+        let out:any[] = [];
+        let all:string[] = [];
+        let diff:string[] = [];
         let plugins = fs.readdirSync(process.cwd() +"/core/plugins", { withFileTypes: true, recursive: true });
         plugins = plugins.concat(fs.readdirSync(process.cwd() + "/userdata/plugins", { withFileTypes: true, recursive: true }));
 
@@ -177,7 +183,7 @@ export default class CommandManager {
             if (plugin && plugin.isDirectory()) {
                 if (plugin.name.includes(".") || plugin.parentPath.includes(".")) continue;
                 if (plugin.name.includes("node_modules") || plugin.parentPath.includes("node_modules")) continue;
-                const path = plugin.path.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
+                const path = plugin.parentPath.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
                 let pluginName = plugin.name.replaceAll("\\", "/");
                 if (path != "") {
                     pluginName = (path.substring(1) +"/"+ plugin.name).replaceAll("\\", "/");
@@ -233,7 +239,7 @@ export default class CommandManager {
      * @param help help text
      * @param admin force admin
      */
-    addCommand(command: string, callback: CallableFunction, help: string = "", admin: boolean | undefined = undefined) {
+    addCommand(command: string, callback: CallableCommand, help: string = "", admin?:boolean) {
         if (admin === undefined) {
             admin = command.startsWith("//");
         }
@@ -255,7 +261,6 @@ export default class CommandManager {
      */
     removeCommand(command: string) {
         if (Object.keys(this.commands).indexOf(command) !== -1) {
-            this.commands[command] = undefined;
             delete this.commands[command];
         }
     }

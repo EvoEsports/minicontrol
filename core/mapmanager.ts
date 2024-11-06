@@ -80,18 +80,16 @@ class MapManager {
         if (tmc.game.Name == "TmForever") method = "GetChallengeInfo";
 
         for (const infos of chunckedMaps) {
-            let out = [];
+            let out:any[] = [];
 
             for (const map of infos) {
                 out.push([method, map.FileName]);
             }
-
-            let res = await tmc.server.multicall(out) || [];
+            const res:any = await tmc.server.multicall(out) || [];
 
             for (const map of res) {
                 this.maps[map.UId] = map;
             }
-
         }
     }
     /**

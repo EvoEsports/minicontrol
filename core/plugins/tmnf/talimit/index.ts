@@ -83,7 +83,7 @@ export default class TAlimitPlugin extends Plugin {
         await this.hideWidget();
     }
 
-    async overrideGetLimit(args: string) {
+    async overrideGetLimit(_args: string) {
         return { CurrentValue: this.timeLimit*1000, NextValue: this.timeLimit*1000 };
     }
 

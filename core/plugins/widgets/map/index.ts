@@ -2,15 +2,9 @@ import { escape, formatTime } from '@core/utils';
 import Plugin from '@core/plugins';
 import Widget from '@core/ui/widget';
 
-interface Time {
-    login: string;
-    time: number;
-}
-
 export default class MapWidget extends Plugin {
     static depends: string[] = ["maps"];
     id: string = "";
-    bestTimes: Time[] = [];
     nbCheckpoints: number = -1;
     widget: Widget | null = null;
 

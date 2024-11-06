@@ -1,4 +1,3 @@
-import { Sequelize } from "sequelize-typescript";
 import Plugin from "@core/plugins";
 import Likes from "@core/schemas/maplikes.model";
 

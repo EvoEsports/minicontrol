@@ -2,9 +2,9 @@ import { Buffer } from 'node:buffer';
 import { Socket } from 'net';
 import type Server from '../../core/server';
 import { Readable } from 'stream';
-// @ts-ignore
+/** @ts-ignore */
 import Serializer from 'xmlrpc/lib/serializer';
-// @ts-ignore
+/** @ts-ignore */
 import Deserializer from 'xmlrpc/lib/deserializer';
 
 export class GbxClient {
@@ -225,11 +225,11 @@ export class GbxClient {
     /**
      * perform a multicall
      *
-     * @example await gbx.multicall([
-     *                              ["Method1", param1, param2, ...],
-     *                              ["Method2", param1, param2, ...],
-     *                              ...
-     *                              ])
+     * @example
+     * await gbx.multicall([
+     *                     ["Method1", param1, param2, ...],
+     *                     ["Method2", param1, param2, ...],
+     *                     ])
      *
      * @param {Array<any>} methods
      * @returns Array<any>
@@ -246,7 +246,7 @@ export class GbxClient {
 
         const xml = Serializer.serializeMethodCall('system.multicall', [params]);
 
-        const out = [];
+        const out:any = [];
         for (let answer of await this.query(xml, true)) {
             out.push(answer[0]);
         }

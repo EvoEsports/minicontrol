@@ -1,5 +1,5 @@
 const Sentry = require('@sentry/node');
-const optOut = (process.env['OPT_OUT_ERROR_REPORTING'] || 'false') == 'true' ? true : false;
+const optOut:boolean = (process.env['OPT_OUT_ERROR_REPORTING'] || 'false') == 'true';
 
 if (!process.env['SENTRY_INIT']) {
     if (optOut == false) {
