@@ -13,16 +13,11 @@ export default class TopPlayers extends Plugin {
     topPlayersCacheTime!: Date | null;
 
     async onLoad() {
-        
-        //tmc.addCommand("//top50", this.getTopPlayers.bind(this), "Get top 50 players of the server.");
-    }
-
-    async onStart(): Promise<void> {
-        this.cmdTop50("mery");
+        tmc.addCommand("/top50", this.cmdTop50.bind(this), "Get top 50 players of the server.");
     }
 
     async onUnload() {
-        tmc.removeCommand("//top50");
+        tmc.removeCommand("/top50");
     }
 
     async cmdTop50(login: string) {
@@ -30,7 +25,7 @@ export default class TopPlayers extends Plugin {
         tmc.chat(msg, login);
         tmc.cli(msg);
         const ranking = await this.getTopPlayers(50);
-        if(!ranking) {
+        if (!ranking) {
             tmc.chat("No ranking yet.", login);
             tmc.cli("No ranking yet.");
             return;
@@ -46,7 +41,7 @@ export default class TopPlayers extends Plugin {
         }
 
         console.log(formattedRanking);
-        
+
         const window = new ListWindow(login);
         window.size = { width: 90, height: 95 };
         window.title = "Top 50 Players of this server [" + formattedRanking.length + "]";
@@ -83,7 +78,7 @@ export default class TopPlayers extends Plugin {
                 where: {
                     mapUuid: map.UId
                 },
-                include: [Player],
+                include: { model: Player, attributes: ['nickname'] },
                 limit: maxPlayers,
 
             });
