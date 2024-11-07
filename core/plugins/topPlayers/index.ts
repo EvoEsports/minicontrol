@@ -41,7 +41,7 @@ export default class TopPlayers extends Plugin {
         }
 
         const window = new ListWindow(login);
-        window.size = { width: 50, height: 95 };
+        window.size = { width: 70, height: 95 };
         window.title = "Top 50 Players of this server [" + formattedRanking.length + "]";
         window.setItems(formattedRanking);
         window.setColumns([
