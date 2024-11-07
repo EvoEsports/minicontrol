@@ -142,3 +142,4 @@ userdata/schemas/*
 !userdata/migrations/.gitkeep
 !userdata/plugins/.gitkeep
 docker-compose.yml
+userdata/seed.sql
