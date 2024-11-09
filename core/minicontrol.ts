@@ -180,7 +180,7 @@ class MiniControl {
             let plugin: any;
             const epoch = new Date().getTime();
             if (process.platform === 'win32') {
-                plugin = await import('file:///' + process.cwd() + '/' + pluginPath) + "?stamp="+epoch;
+                plugin = await import('file:///' + process.cwd() + '/' + pluginPath + "?stamp="+epoch);
             } else {
                 plugin = await import(process.cwd() + '/' + pluginPath+ "?stamp="+epoch);
             }
