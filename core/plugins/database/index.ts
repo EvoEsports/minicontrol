@@ -10,99 +10,105 @@ import { GBX, CGameCtnChallenge } from 'gbx';
 import { existsSync, promises as fsPromises } from 'fs';
 import path from 'path';
 
-
 const strToCar: any = {
-    'Stadium': "StadiumCar",
-    'StadiumCar': "StadiumCar",
-    'CarSport': "StadiumCar",
+    Stadium: 'StadiumCar',
+    StadiumCar: 'StadiumCar',
+    CarSport: 'StadiumCar',
 
-    'Speed': "DesertCar",
-    "American": "DesertCar",
-    'DesertCar': "DesertCar",
-    'CarDesert': "DesertCar",
+    Speed: 'DesertCar',
+    American: 'DesertCar',
+    DesertCar: 'DesertCar',
+    CarDesert: 'DesertCar',
 
-    'Alpine': "SnowCar",
-    'SnowCar': "SnowCar",
-    'CarSnow': "SnowCar",
+    Alpine: 'SnowCar',
+    SnowCar: 'SnowCar',
+    CarSnow: 'SnowCar',
 
-    'Bay': "BayCar",
-    'BayCar': "BayCar",
+    Bay: 'BayCar',
+    BayCar: 'BayCar',
 
-    'Coast': "CoastCar",
-    'CoastCar': "CoastCar",
+    Coast: 'CoastCar',
+    CoastCar: 'CoastCar',
 
-    'Island': "IslandCar",
-    'IslandCar': "IslandCar",
-    "SportCar": "IslandCar",
+    Island: 'IslandCar',
+    IslandCar: 'IslandCar',
+    SportCar: 'IslandCar',
 
-    'Rally': "RallyCar",
-    'RallyCar': "RallyCar",
-    'CarRally': "RallyCar",
+    Rally: 'RallyCar',
+    RallyCar: 'RallyCar',
+    CarRally: 'RallyCar',
 
-    'CanyonCar': 'CanyonCar',
-    'Canyon': 'Canyon',
+    CanyonCar: 'CanyonCar',
+    Canyon: 'Canyon',
 
-    'Valley': "ValleyCar",
-    'ValleyCar': "ValleyCar",
-    'TrafficCar': 'ValleyCar',
+    Valley: 'ValleyCar',
+    ValleyCar: 'ValleyCar',
+    TrafficCar: 'ValleyCar',
 
-    'Lagoon': "LagoonCar",
-    'LagoonCar': "LagoonCar",
+    Lagoon: 'LagoonCar',
+    LagoonCar: 'LagoonCar',
 
-    "CharacterPilot": "Pilot",
+    CharacterPilot: 'Pilot'
 };
 
 export default class GenericDb extends Plugin {
-
     async onLoad() {
-        let sequelize:Sequelize;
-        const dbString = (process.env['DATABASE'] ?? "").split("://", 1)[0];
-        if (!["sqlite", "mysql", "postgres"].includes(dbString)) {
+        let sequelize: Sequelize;
+        const dbString = (process.env['DATABASE'] ?? '').split('://', 1)[0];
+        if (!['sqlite', 'mysql', 'postgres'].includes(dbString)) {
             tmc.cli("¤error¤Seems you .env is missing 'DATABASE=' define or the database not sqlite, mysql or postgres");
             process.exit(1);
         }
 
         try {
-            sequelize = new Sequelize(process.env['DATABASE'] ?? "", {
+            let enableLog = process.env.DEBUG == 'true' && parseInt(process.env.DEBUGLEVEL || '0') >= 2;
+
+            sequelize = new Sequelize(process.env['DATABASE'] ?? '', {
                 logging(sql, _timing) {
-                    tmc.debug(`$d7c${removeColors(sql)}`);
-                },
+                    if (enableLog) tmc.debug(`$d7c${removeColors(sql)}`);
+                }
             });
-            tmc.cli("¤info¤Trying to connect database...")
+            tmc.cli('¤info¤Trying to connect database...');
             await sequelize.authenticate();
-            tmc.cli("¤success¤Success!");
+            tmc.cli('¤success¤Success!');
         } catch (e: any) {
-            tmc.cli("¤error¤" + e.message);
+            tmc.cli('¤error¤' + e.message);
             process.exit(1);
         }
 
         try {
-            for (const path of ["./core/migrations/", "./userdata/migrations/"]) {
+            for (const path of ['./core/migrations/', './userdata/migrations/']) {
                 const migrator = new Umzug({
                     migrations: {
-                        glob: [path + '*.ts', { cwd: process.cwd() }],
+                        glob: [path + '*.ts', { cwd: process.cwd() }]
                     },
                     context: sequelize,
                     storage: new SequelizeStorage({
-                        sequelize,
+                        sequelize
                     }),
                     logger: {
-                        debug: (_message) => { },
-                        error: (message) => { tmc.cli("$f00" + message) },
-                        warn: (message) => { tmc.cli("$fa0" + message) },
-                        info: (message) => { tmc.cli("$5bf" + message.event + " $fff" + message.name) },
+                        debug: (_message) => {},
+                        error: (message) => {
+                            tmc.cli('$f00' + message);
+                        },
+                        warn: (message) => {
+                            tmc.cli('$fa0' + message);
+                        },
+                        info: (message) => {
+                            tmc.cli('$5bf' + message.event + ' $fff' + message.name);
+                        }
                     }
                 });
-                tmc.cli("¤info¤Running migrations for " + path);
+                tmc.cli('¤info¤Running migrations for ' + path);
                 await migrator.up();
-                tmc.cli("¤success¤Success!");
+                tmc.cli('¤success¤Success!');
             }
             sequelize.addModels([Map, Player]);
             tmc.storage['db'] = sequelize;
-            tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-            tmc.server.addListener("Trackmania.MapListModified", this.onMapListModified, this);
+            tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
+            tmc.server.addListener('Trackmania.MapListModified', this.onMapListModified, this);
         } catch (e: any) {
-            tmc.cli("¤error¤" + e.message);
+            tmc.cli('¤error¤' + e.message);
             process.exit(1);
         }
     }
@@ -110,9 +116,9 @@ export default class GenericDb extends Plugin {
     async onUnload() {
         if (tmc.storage['db']) {
             await tmc.storage['db'].close();
-            delete (tmc.storage['db']);
+            delete tmc.storage['db'];
         }
-        tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect.bind(this));
+        tmc.server.removeListener('TMC.PlayerConnect', this.onPlayerConnect.bind(this));
     }
 
     async onStart() {
@@ -130,7 +136,7 @@ export default class GenericDb extends Plugin {
             dbPlayer = await Player.create({
                 login: player.login,
                 nickname: player.nickname,
-                path: player.path,
+                path: player.path
             });
         } else {
             await dbPlayer.update({
@@ -139,11 +145,10 @@ export default class GenericDb extends Plugin {
             });
         }
         if (dbPlayer && dbPlayer.customNick) {
-            tmc.cli("Setting nickname to " + dbPlayer.customNick);
-            player.set("nickname", dbPlayer.customNick);
+            tmc.cli('Setting nickname to ' + dbPlayer.customNick);
+            player.set('nickname', dbPlayer.customNick);
         }
     }
-
 
     async syncPlayers() {
         const players = tmc.players.getAll();
@@ -163,7 +168,10 @@ export default class GenericDb extends Plugin {
         const serverUids = tmc.maps.getUids();
         let result = await Map.findAll();
         const dbUids = result.map((value: any) => value.uuid);
-        const missingUids = chunkArray(serverUids.filter(item => dbUids.indexOf(item) < 0), 50);
+        const missingUids = chunkArray(
+            serverUids.filter((item) => dbUids.indexOf(item) < 0),
+            50
+        );
         for (const groups of missingUids) {
             let missingMaps: any[] = [];
             for (const uid of groups) {
@@ -173,9 +181,9 @@ export default class GenericDb extends Plugin {
                     uuid: map.UId,
                     name: map.Name,
                     author: map.Author,
-                    authorNickname: map.AuthorNickname ?? "",
+                    authorNickname: map.AuthorNickname ?? '',
                     authorTime: map.AuthorTime,
-                    environment: map.Environnement,
+                    environment: map.Environnement
                 };
                 missingMaps.push(outMap);
             }
@@ -188,43 +196,36 @@ export default class GenericDb extends Plugin {
         }
 
         result = await Map.findAll();
-        tmc.cli("¤white¤Importing vehicle data from maps, if missing");
-        tmc.cli("¤white¤This can take a while...");
+        tmc.cli('¤white¤Importing vehicle data from maps, if missing');
+        tmc.cli('¤white¤This can take a while...');
         for (const map of result) {
-            const mapInfo = tmc.maps.getMap(map.uuid ?? "");
+            const mapInfo = tmc.maps.getMap(map.uuid ?? '');
             if (!map.playerModel) {
                 if (mapInfo) {
                     const fileName = path.resolve(tmc.mapsPath, mapInfo.FileName);
                     if (existsSync(fileName)) {
                         const stream = await fsPromises.readFile(fileName);
                         const gbx = new GBX<CGameCtnChallenge>(stream, 0);
-                        await gbx.parse().then
-                        (
-                            file => map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || "" })
-                        )
-                        .catch
-                        (
-                            async error => {
+                        await gbx
+                            .parse()
+                            .then((file) => map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || '' }))
+                            .catch(async (error) => {
                                 tmc.cli(`¤error¤Failed to parse "¤white¤${fileName}¤error¤" file, falling back to the map environment...`);
                                 tmc.debug(error);
 
-                                await map.update({ playerModel: mapInfo.Environnement || "" });
-                            }
-                        )
-                        .catch
-                        (
-                            error => {
+                                await map.update({ playerModel: mapInfo.Environnement || '' });
+                            })
+                            .catch((error) => {
                                 tmc.cli(`¤error¤Failed to update player model to map environment for "¤white¤${fileName}¤error¤" file, skipping...`);
                                 tmc.debug(error);
-                            }
-                        );
+                            });
                     } else {
                         tmc.cli(`¤error¤ "¤white¤${fileName}¤error¤" not found.`);
                     }
                 }
             }
-            let car = strToCar[map.playerModel ?? ""] || strToCar[map.environment ?? ""]
-            if (mapInfo) mapInfo.Vehicle = car || "";
+            let car = strToCar[map.playerModel ?? ''] || strToCar[map.environment ?? ''];
+            if (mapInfo) mapInfo.Vehicle = car || '';
         }
     }
 }

@@ -320,7 +320,7 @@ class MiniControl {
         if (process.env.DEBUG == 'true') {
             const level = parseInt(process.env.DEBUGLEVEL || '1');
             if (level >= 1) log.debug(processColorString(object.toString()));
-            if (level >= 2) getCallerName();
+            if (level >= 3) getCallerName();
         }
     }
 

@@ -106,7 +106,7 @@ async function main() {
     log.info("$5bfProcessing maps...")
     const dbMaps: any = await query("SELECT Id, * FROM challenges;");
     log.info("Total: " + dbMaps.length);
-    let outMaps = [];
+    let outMaps:any = [];
     for (const map of dbMaps) {
         maps[map.Id] = map.Uid;
         outMaps.push({
@@ -119,7 +119,7 @@ async function main() {
     }
     try {
         for (const mapp of chunkArray(outMaps, 500)) {
-            await Map.bulkCreate(mapp);
+            await Map.bulkCreate(mapp as any);
         }
     } catch (e: any) {
         log.info("$f00Error " + e.message);
@@ -129,7 +129,7 @@ async function main() {
     log.info("$5bfProcessing players...");
     const dbPlayers: any = await query("SELECT DISTINCT Login, Id, NickName, UpdatedAt FROM players;");
     log.info("Total: " + dbPlayers.length);
-    let outPlayers = [];
+    let outPlayers:any = [];
     for (const player of dbPlayers) {
         players[player.Id] = player.Login;
         outPlayers.push({
@@ -141,7 +141,7 @@ async function main() {
     }
     try {
         for (const tempPlayers of chunkArray(outPlayers, 500)) {
-            await Player.bulkCreate(tempPlayers);
+            await Player.bulkCreate(tempPlayers as any);
         }
     } catch (e: any) {
         log.info("$f00Error " + e.message);
@@ -151,7 +151,7 @@ async function main() {
     log.info("$5bfProcessing records...");
     const dbRecords: any = await query("SELECT * FROM records;");
     log.info("Total: " + dbRecords.length);
-    let outRecords = [];
+    let outRecords:any = [];
     for (const record of dbRecords) {
         if (!players[record.PlayerId]) continue;
         outRecords.push({
@@ -164,7 +164,7 @@ async function main() {
     }
     try {
         for (const tempRecords of chunkArray(outRecords, 500)) {
-            await Score.bulkCreate(tempRecords);
+            await Score.bulkCreate(tempRecords as any);
         }
     } catch (e: any) {
         log.info("$f00Error " + e.message);
@@ -174,14 +174,14 @@ async function main() {
     log.info("$5bfProcessing karma...");
     const dbKarma: any = await query("SELECT * FROM rs_karma;");
     log.info("Total: " + dbKarma.length);
-    let outKarma = [];
+    let outKarma:any = [];
     const date = Date.now();
     for (const k of dbKarma) {
         if (!players[k.PlayerId]) continue;
         if (!maps[k.ChallengeId]) continue;
         let value = 0;
         k.Score > 0 ? value = 1.0 : value = -1.0;
-        if (k.Score == 0) value = 0.;        
+        if (k.Score == 0) value = 0.;
         outKarma.push({
             mapUuid: maps[k.ChallengeId],
             login: players[k.PlayerId],
@@ -192,7 +192,7 @@ async function main() {
     }
     try {
         for (const tempKarma of chunkArray(outKarma, 500)) {
-            await MapLikes.bulkCreate(tempKarma);
+            await MapLikes.bulkCreate(tempKarma as any);
         }
     } catch (e: any) {
         log.info("$f00Error " + e.message);
