@@ -177,7 +177,7 @@ export default class RecordsWidget extends Plugin {
         if (['live', 'server'].includes(this.widgetType[login])) {
             for (const rec of outRecords) {
                 rec.formattedTime = formatTime(rec.time);
-                rec.nickname = rec.player ? escape(rec.player.nickname) : 'Unknown';
+                rec.nickname = rec.player ? escape(rec.player?.customNick ?? rec.player?.nickname ??'') : 'Unknown';
             }
         }
 

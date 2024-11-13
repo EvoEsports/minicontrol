@@ -53,7 +53,7 @@ export default class Records extends Plugin {
         for (const record of this.records) {
             records.push({
                 rank: record.rank,
-                nickname: escape(record?.player?.nickname ?? ''),
+                nickname: escape(record?.player?.customNick ?? record?.player?.nickname ??''),
                 login: record.login,
                 time: formatTime(record.time ?? 0)
             });
@@ -86,6 +86,7 @@ export default class Records extends Plugin {
                 ['time', 'ASC'],
                 ['updatedAt', 'ASC']
             ],
+            limit: this.limit,
             include: [Player]
         });
 
