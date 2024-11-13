@@ -1,8 +1,8 @@
 const Sentry = require('@sentry/node');
-const optOut:boolean = (process.env['OPT_OUT_ERROR_REPORTING'] || 'false') == 'true';
+const errorReporting:boolean = (process.env['ERROR_REPORTING'] || 'true') == 'true';
 
 if (!process.env['SENTRY_INIT']) {
-    if (optOut == false) {
+    if (errorReporting) {
         process.env['SENTRY_INIT'] = 'true';
         Sentry.init({
             release: 'minicontrol@' + process.env.npm_package_version,

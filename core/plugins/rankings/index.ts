@@ -36,10 +36,10 @@ export default class Players extends Plugin {
         const maxRank = parseInt(process.env.MAX_RECORDS || '100');
         const rankedRecordCount = 3;
         const rankings: Ranking[] = await sequelize.query(
-            `SELECT row_number() OVER (order by average) as rank, login, (average / 10000) as avg FROM (
+            `SELECT row_number() OVER (order by average) as rank, login, average as avg FROM (
             SELECT
                 login,
-                ROUND((SUM(player_rank) + (${mapCount} - COUNT(player_rank)) * ${maxRank}) / ${mapCount} * 10000, 0) AS average,
+                (1.0 * (SUM(player_rank) + (${mapCount} - COUNT(player_rank)) * ${maxRank}) / ${mapCount} * 10000) AS average,
                 COUNT(player_rank) AS ranked_records_count
                 FROM
                 (
@@ -66,7 +66,8 @@ export default class Players extends Plugin {
     async cmdMyRank(login: string, _args: string[]) {
         const rank = this.rankings.find((val) => val.login == login);
         if (rank) {
-            tmc.chat(`Your server rank is ${rank.rank}/${this.rankings.length} with average ${rank.avg}`, login);
+            const avg = (rank.avg / 10000).toFixed(2);
+            tmc.chat(`Your server rank is ${rank.rank}/${this.rankings.length} with average ${avg}`, login);
         } else {
             tmc.chat(`No rankings found.`, login);
         }
@@ -76,13 +77,17 @@ export default class Players extends Plugin {
         const window = new ListWindow(login);
         const players = await Player.findAll();
         const outRanks: any = [];
-
+        let x = 0;
         for (const rank of this.rankings) {
+            if (x > 100) break;
+            const avg = rank.avg / 10000;
+            const player = players.find((val) => val.login == rank.login);
             outRanks.push({
                 rank: rank.rank,
-                nickname: players.find((val) => val.login == rank.login)?.nickname,
-                avg: rank.avg
+                nickname: player?.customNick ?? player?.nickname ?? "Unknown",
+                avg: avg.toFixed(2)
             });
+            x += 1;
         }
 
         window.setItems(outRanks);

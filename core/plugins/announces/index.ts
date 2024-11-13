@@ -69,13 +69,16 @@ export default class Announces extends Plugin {
 
     async onNewRecord(data: any, _records: any[]) {
         const newRecord = data.record;
-        tmc.chat(`¤white¤${newRecord.player.nickname}¤rec¤ has set a new $fff1. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`);
+        const nick = newRecord.player.customNick ?? newRecord.player.nickname;
+        tmc.chat(`¤white¤${nick}¤rec¤ has set a new $fff1. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`);
     }
 
     async onUpdateRecord(data: any, _records: any[]) {
         const newRecord = data.record;
         const oldRecord = data.oldRecord;
         let extrainfo = "";
+        const nick = newRecord.player.customNick ?? newRecord.player.nickname;
+
         if (oldRecord.rank) {
             extrainfo = `(¤gray¤$n${formatTime(newRecord.time - oldRecord.time).replace("0:", "")}$m¤rec¤)`;
         }
@@ -85,11 +88,11 @@ export default class Announces extends Plugin {
         }
 
         if (oldRecord.time == newRecord.time) {
-            tmc.chat(`¤white¤${newRecord.player.nickname}¤rec¤ equalled their ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`, newRecord.login);
+            tmc.chat(`¤white¤${nick}¤rec¤ equalled their ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`, newRecord.login);
             return;
         }
 
-        tmc.chat(`¤white¤${newRecord.player.nickname}¤rec¤ improved ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤ ${extrainfo}!`, recipient);
+        tmc.chat(`¤white¤${nick}¤rec¤ improved ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤ ${extrainfo}!`, recipient);
     }
 
     async onSyncRecord(data: any) {
@@ -98,7 +101,8 @@ export default class Announces extends Plugin {
         if (records.length === 0) {
             return;
         }
-        const msg = `¤rec¤Server record ¤white¤${records[0].player.nickname}¤rec¤ time ¤white¤${formatTime(records[0].time)}`;
+        const nick = records[0].player.customNick ?? records[0].player.nickname;
+        const msg = `¤rec¤Server record ¤white¤${nick}¤rec¤ time ¤white¤${formatTime(records[0].time)}`;
         tmc.chat(msg);
     }
 }
