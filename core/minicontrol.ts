@@ -33,6 +33,7 @@ import fs from 'fs';
 import Plugin from './plugins/index';
 import path from 'path';
 import {DepGraph} from 'dependency-graph';
+import semver from 'semver';
 
 export interface GameStruct {
     Name: string;
@@ -180,7 +181,7 @@ class MiniControl {
             let plugin: any;
             const epoch = new Date().getTime();
             if (process.platform === 'win32') {
-                plugin = await import('file:///' + process.cwd() + '/' + pluginPath) + "?stamp="+epoch;
+                plugin = await import('file:///' + process.cwd() + '/' + pluginPath + "?stamp="+epoch);
             } else {
                 plugin = await import(process.cwd() + '/' + pluginPath+ "?stamp="+epoch);
             }
@@ -348,6 +349,10 @@ class MiniControl {
         const port = Number.parseInt(process.env.XMLRPC_PORT || '5000');
         this.cli(`¤info¤Starting ¤white¤MINIcontrol ${this.version}`);
         this.cli(`¤info¤Using Node ¤white¤${process.version}`);
+        if (semver.gt("21.5.0", process.version)) {
+            this.cli("¤error¤Your Node version is too old. Must be atleast 21.5.0, please upgrade!");
+            process.exit(1);
+        }
         this.cli('¤info¤Connecting to Trackmania Dedicated server at ¤white¤' + (process.env.XMLRPC_HOST ?? '127.0.0.1') + ':' + port);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? '127.0.0.1', port);
         if (!status) {
