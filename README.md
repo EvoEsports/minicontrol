@@ -29,12 +29,17 @@ See [documentation](./documentation/index.md) for more info!
 
 # Migrating from XAseco?
 
-1. Run MINIControl once to generate the default database structure.
-2. Export your old XAseco database with `mysqldump -u root -p databasename > xaseco.sql`
-3. Move `xaseco.sql` to the main folder of MINIcontrol
-4. Run in MINIControl folder: `tsx xaseco.ts xaseco.sql`
-5. Start MINIcontrol
+1. Export your old XAseco database with `mysqldump -u root -p databasename > xaseco.sql`
+2. Move `xaseco.sql` to the main folder of MINIcontrol
+3. Run in MINIControl folder: `tsx --env-file=.env xaseco.ts xaseco.sql`
+4. Start MINIcontrol
 
+# Migrating from PyPlanet?
+
+1. Export your old XAseco database with `mysqldump -u root -p databasename > pyplanet.sql`
+2. Move `xaseco.sql` to the main folder of MINIcontrol
+3. Run in MINIControl folder: `tsx --env-file=.env pyplanet.ts pyplanet.sql`
+4. Start MINIcontrol
 
 # Contributing
 See the documentation in `documentation/devs` to read more about the core concept of MINIcontrol and how plugins work.

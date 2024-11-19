@@ -1,5 +1,5 @@
 {
-    "version": "0.7.0-dev",
+    "version": "0.7.0",
     "scripts": {
         "dev": "tsx --env-file=.env --watch ./core/minicontrol.ts",
         "dev2": "tsx --env-file=.env2 --watch ./core/minicontrol.ts",
@@ -19,12 +19,12 @@
         "dependency-graph": "1.0.0",
         "gbx": "1.0.0-rc8",
         "lzo-ts": "0.2.3",
-        "mysql2": "3.10.2",
-        "pg": "8.12.0",
+        "mysql2": "3.11.4",
+        "pg": "8.13.1",
         "pg-hstore": "2.3.4",
         "reflect-metadata": "0.2.2",
-        "semver": "^7.6.3",
-        "sequelize": "6.37.3",
+        "semver": "7.6.3",
+        "sequelize": "6.37.5",
         "sequelize-typescript": "2.1.6",
         "sqlite3": "5.1.7",
         "tm-essentials": "1.0.5",
