@@ -84,7 +84,7 @@ class log {
 
     info(str: string) {
         const date = new Date();
-        const message = `$555[${date.toISOString()}] $z` + str;
+        const message = `$888[${date.toISOString()}] $z` + str;
         console.log(Tm2Console(message, this.ansiLevel));
         this.writeLog(str);
     }
