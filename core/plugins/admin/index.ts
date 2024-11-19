@@ -16,10 +16,11 @@ export default class AdminPlugin extends Plugin {
         tmc.addCommand("//skip", async () => await tmc.server.call("NextMap"), "Skips Map");
         tmc.addCommand("//res", async () => await tmc.server.call("RestartMap"), "Restarts Map");
         tmc.addCommand("//kick", async (login: string, params: string[]) => {
-            if (!params[0]) {
+            const kickLogin:any = params.shift();
+            if (!kickLogin) {
                 return tmc.chat("¤cmd¤//kick ¤info¤needs a login", login);
             }
-            await tmc.server.call("Kick", params[0]);
+            await tmc.server.call("Kick", kickLogin, params.join(" "));
         }, "Kicks player");
         tmc.addCommand("//ban", async (login: string, params: string[]) => {
             if (!params[0]) {
