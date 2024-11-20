@@ -63,8 +63,6 @@ export class Player {
 
     syncFromPlayerInfo(data: any) {
         this.login = data.Login;
-        // disabled for now, doens't need to be updated every time
-        //    this.nickname = data.NickName.replace(/[$][lh]\[.*?\](.*?)([$][lh]){0,1}/i, "$1").replaceAll(/[$][lh]/gi, "")
         this.teamId = Number.parseInt(data.TeamId);
         this.isSpectator = data.SpectatorStatus !== 0;
         this.isAdmin = tmc.admins.includes(data.Login);
@@ -104,6 +102,9 @@ export default class PlayerManager {
         tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
     }
 
+    /**
+    * @ignore
+    */
     private async onPlayerConnect(data: any) {
         const login = data[0];
         if (login) {

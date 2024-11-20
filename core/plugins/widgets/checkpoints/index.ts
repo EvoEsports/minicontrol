@@ -37,7 +37,7 @@ export default class Checkpoints extends Plugin {
         if (!this.widgets[login]) {
             const widget = new Widget("core/plugins/widgets/checkpoints/widget.twig");
             widget.recipient = login;
-            widget.pos = { x: 0, y: -74 };
+            widget.pos = { x: 0, y: -74, z: 0 };
             widget.size = { width: 20, height: 5 };
             widget.data = {
                 totalCheckpoints: (tmc.maps.currentMap?.NbCheckpoints || 0) - 1,

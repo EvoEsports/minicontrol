@@ -1,23 +1,22 @@
 # UImanager
 
 Adapter class to transform manialink v3 to legacy formats and manage overall Manialink actions and drawing.
+Usually you no need to operate directly with ui manager, as the main ui is handled automatically from the classes.
 
+We use twig as template language, see https://twig.symfony.com/doc/3.x/templates.html for more details on how to use.
+MINIcontrol uses manialink v3 for all games, for manialink tutorial: https://wiki.trackmania.io/en/ManiaScript/UI-Manialinks/Manialinks
+Please note that you can use safely for all games:
+```xml
+    <frame>, <quad>, <label>, <entry>, <textedit>
+```
+To create background hoverable buttons ets... use:
+
+```xml
+<label focusareacolor1="" focusareacolor2="" />
+```
+
+# Example how to create simple widgets
 ```ts
-class UiManager {
-
-    // generate new uuid for manialinks id's
-    uuid();
-    // Add manialink action, increase manialink counter by one
-    addAction(callback, data:any): number;
-    removeAction(actionId:string|number);
-
-    // displays a manialink
-    displayManialink(manialink:Manialink, recipients);
-    // hide a manialink
-    hideManialink(manialink: Manialink, recipients);
-    // hide and free resources
-    destroyManialink(manialink: Manialink)
-}
-
-
+  const widget = new Widget("core/plugins/debugtool/widget.twig");
+  await widget.display();
 ```

@@ -1,4 +1,3 @@
-import { Sequelize } from "sequelize-typescript";
 import Plugin from "@core/plugins";
 import Likes from "@core/schemas/maplikes.model";
 
@@ -37,7 +36,7 @@ export default class MapLikes extends Plugin {
         const votes = await Likes.findAll({ where: { mapUuid: tmc.maps.currentMap.UId } });
         this.votes = [];
         for (const vote of votes) {
-            this.votes.push({ login: vote.login, vote: vote.vote, updatedAt: vote.updatedAt || "" });
+            this.votes.push({ login: vote.login || "", vote: vote.vote || 0, updatedAt: vote.updatedAt || "" });
         }
         tmc.server.emit("Plugin.MapLikes.onSync", this.votes);
     }

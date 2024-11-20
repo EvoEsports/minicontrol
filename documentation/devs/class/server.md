@@ -6,10 +6,10 @@ The calls you can interact with the server:
 
 ```ts
 class Server {
-    
+
     // call a xmlrpc method for server and WAIT for answer
     async call(method, ...params): any;
-    
+
     // shorthand method to call script
     async callScript(method: string, ...args: any);
 

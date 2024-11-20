@@ -50,6 +50,13 @@ export default class VotesPlugin extends Plugin {
         } else {
             tmc.server.addListener("Trackmania.Podium_Start", this.onEndMatch, this);
         }
+        tmc.addCommand("//vote", this.cmdVotes.bind(this), "Start custom vote");
+        tmc.addCommand("//pass", this.cmdPassVote.bind(this), "Pass vote");
+        tmc.addCommand("/skip", this.cmdSkip.bind(this), "Start vote to Skip map");
+        tmc.addCommand("/extend", this.cmdExtend.bind(this), "Start vote to Extend map");
+        tmc.addCommand("//extend", this.cmdAdmExtend.bind(this), "Extend timelimit");
+        tmc.addCommand("/yes", this.cmdYes.bind(this), "Vote yes");
+        tmc.addCommand("/no", this.cmdNo.bind(this), "Vote no");
     }
 
     async onUnload() {
@@ -60,9 +67,6 @@ export default class VotesPlugin extends Plugin {
         tmc.server.removeListener("Trackmania.EndRace", this.onEndMatch);
         tmc.server.removeListener("Trackmania.Podium_Start", this.onEndMatch);
         tmc.server.removeListener("Trackmania.BeginMap", this.onBeginRound);
-        this.widget?.destroy();
-        this.widget = null;
-        this.currentVote = null;
         tmc.removeCommand("//vote");
         tmc.removeCommand("//pass");
         tmc.removeCommand("/skip");
@@ -70,17 +74,12 @@ export default class VotesPlugin extends Plugin {
         tmc.removeCommand("//extend");
         tmc.removeCommand("/yes");
         tmc.removeCommand("/no");
+        this.widget?.destroy();
+        this.widget = null;
+        this.currentVote = null;
     }
 
-    async onStart() {
-        tmc.addCommand("//vote", this.cmdVotes.bind(this), "Start custom vote");
-        tmc.addCommand("//pass", this.cmdPassVote.bind(this), "Pass vote");
-        tmc.addCommand("/skip", this.cmdSkip.bind(this), "Start vote to Skip map");
-        tmc.addCommand("/extend", this.cmdExtend.bind(this), "Start vote to Extend map");
-        tmc.addCommand("//extend", this.cmdAdmExtend.bind(this), "Extend timelimit");
-        tmc.addCommand("/yes", this.cmdYes.bind(this), "Vote yes");
-        tmc.addCommand("/no", this.cmdNo.bind(this), "Vote no");
-
+/*    async onStart() {
         const menu = tmc.storage["menu"];
         if (menu) {
             menu.addItem({
@@ -104,12 +103,12 @@ export default class VotesPlugin extends Plugin {
                 admin: true
             });
 
-
             menu.addItem({
                 category: "Votes",
                 title: "Skip",
                 action: "/skip"
             });
+
             menu.addItem({
                 category: "Votes",
                 title: "Extend",
@@ -117,7 +116,7 @@ export default class VotesPlugin extends Plugin {
             });
 
         }
-    }
+    } */
 
     async onEndMatch() {
         this.newLimit = this.origTimeLimit;
@@ -200,7 +199,7 @@ export default class VotesPlugin extends Plugin {
         this.currentVote.vote_ratio = this.ratio;
         await this.vote(login, true);
         this.widget = new Widget("core/plugins/votes/widget.twig");
-        this.widget.pos = { x: 0, y: 60 };
+        this.widget.pos = { x: 0, y: 60, z: 10 };
         this.widget.actions['yes'] = tmc.ui.addAction(this.vote.bind(this), true);
         this.widget.actions['no'] = tmc.ui.addAction(this.vote.bind(this), false);
         await this.checkVote();
@@ -299,7 +298,7 @@ export default class VotesPlugin extends Plugin {
         this.widget = null;
     }
 
-    cmdAdmExtend(_login: string, params: string[]) {
+    async cmdAdmExtend(_login: string, params: string[]) {
         this.extendCounter += 1;
         const seconds = params[0] ? parseInt(params[0]) : this.origTimeLimit;
         this.newLimit += seconds;

@@ -30,6 +30,22 @@ interface MapInfo {
     [key: string]: any;
 }
 
+interface LeaderboardResponse {
+    groupUid: string;
+    mapUid: string;
+    tops: {
+        zoneId: string;
+        zoneName: string;
+        top: {
+            accountId: string;
+            zoneId: string;
+            zoneName: string;
+            position: number;
+            score: number;
+        }[];
+    }[];
+}
+
 enum AUDIENCES {
     NadeoServices = "NadeoServices",
     NadeoLiveServices = "NadeoLiveServices",
@@ -37,7 +53,7 @@ enum AUDIENCES {
 }
 
 export default class API {
-    readonly toolName: string = `MINIcontrol / ${process.env.CONTACT_INFO}`;
+    readonly toolName: string = `MINIcontrol@${process.env.npm_package_version} / ${process.env.CONTACT_INFO}`;
     readonly commonHeader = {
         "Content-Type": "application/json",
         "User-Agent": this.toolName,
@@ -88,6 +104,14 @@ export default class API {
         const url = `${this.LIVE_URL}/api/token/map/get-multiple?mapUidList=${mapUids.join(",")}`;
         return (await this.fetchUrl(url, token, login))["mapList"] as MapInfo[];
     }
+
+    async getLeaderboard(mapUid: string, login: string, length: number = 50, offset: number = 0) {
+        const token = await this.getToken(AUDIENCES.NadeoLiveServices, login);
+        if (!token) return;
+        const url = `${this.LIVE_URL}/api/token/leaderboard/group/Personal_Best/map/${mapUid}/top?length=${length}&onlyWorld=true&offset=${offset}`;
+        return (await this.fetchUrl(url, token, login)) as LeaderboardResponse;
+    }
+    
 
     async downloadMap(url: string, uid: string, login: string) {
         let filePath = `nadeo/${uid}.Map.Gbx`;

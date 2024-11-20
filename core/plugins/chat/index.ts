@@ -30,12 +30,11 @@ export default class Chat extends Plugin {
 
     async cmdChat(login: string, params: string[]) {
         if (params.length == 0) {
-            tmc.chat("¤info¤usage: ¤cmd¤//chat <on/off> ¤info¤ or ¤cmd¤//chat <login> <on/off>")
+            tmc.chat(`¤info¤usage: ¤cmd¤//chat <on/off> ¤info¤ or ¤cmd¤//chat <login> <on/off>`);
             return;
         }
         if (params.length == 1 && ["on", "off"].includes(params[0])) {
-            this.publicChatEnabled = false;
-            if (params[0] == "on") this.publicChatEnabled = true;
+            this.publicChatEnabled = params[0] == "on";
             tmc.chat("¤info¤Public chat is ¤white¤" + params[0]);
             return;
         }

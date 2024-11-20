@@ -21,7 +21,7 @@ export default class ATime extends Plugin {
         tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap);
     }
 
-    async onBeginMap(data: any) {
+    async onBeginMap(_data: any) {
         if (!tmc.maps.currentMap) return;
         let newLimit = Math.round((tmc.maps.currentMap.GoldTime / 1000) * this.multiply);
         const min = parseInt(process.env['ATIME_MIN'] || "180") || 180;
@@ -36,14 +36,14 @@ export default class ATime extends Plugin {
         try {
             if (tmc.game.Name == "TmForever") {
                 tmc.server.send("SetTimeAttackLimit", newLimit * 1000);
-                tmc.chat(`¤info¤Timelimit set to ¤white¤${time} ¤info¤(¤white¤${this.multiply} * ${goldTime}¤info¤)`);
+                tmc.chat(`¤info¤Timelimit set to ¤white¤${time} ¤info¤(¤white¤${this.multiply} x ${goldTime}¤info¤)`);
                 return;
             }
 
             if (tmc.game.Name == "Trackmania" || tmc.game.Name == "ManiaPlanet") {
                 const settings = { "S_TimeLimit": newLimit };
                 tmc.server.send("SetModeScriptSettings", settings);
-                tmc.chat(`¤info¤Timelimit set to ¤white¤${time} ¤info¤(¤white¤${this.multiply} * ${goldTime}¤info¤)`);
+                tmc.chat(`¤info¤Timelimit set to ¤white¤${time} ¤info¤(¤white¤${this.multiply} x ${goldTime}¤info¤)`);
                 return;
             }
         } catch (e: any) {

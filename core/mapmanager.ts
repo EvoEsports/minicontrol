@@ -37,8 +37,8 @@ class MapManager {
     }
 
     /**
-     * Initialize the map manager 
-     * @ignore 
+     * Initialize the map manager
+     * @ignore
      **/
     async init() {
         this.maps = {};
@@ -53,6 +53,7 @@ class MapManager {
         await this.syncMaplist();
     }
 
+    /** @ignore */
     private async onBeginMap(data: any) {
         this.previousMap = clone(this.currentMap);
         this.currentMap = data[0];
@@ -61,6 +62,7 @@ class MapManager {
         this.nextMap = Object.values(this.maps)[indexNext];
     }
 
+    /** @ignore */
     private async onMapListModified(data: any) {
         if (data[2] === true) {
             await this.syncMaplist();
@@ -72,29 +74,27 @@ class MapManager {
      */
     async syncMaplist() {
         this.maps = {};
-        
+
         const chunckedMaps: any = chunkArray(await tmc.server.call("GetMapList", -1, 0), 100);
-        let method = "GetMapInfo";    
+        let method = "GetMapInfo";
         if (tmc.game.Name == "TmForever") method = "GetChallengeInfo";
 
         for (const infos of chunckedMaps) {
-            let out = [];
-            
+            let out:any[] = [];
+
             for (const map of infos) {
                 out.push([method, map.FileName]);
             }
+            const res:any = await tmc.server.multicall(out) || [];
 
-            let res = await tmc.server.multicall(out) || [];
-            
             for (const map of res) {
                 this.maps[map.UId] = map;
             }
-
         }
     }
     /**
      * add map
-     * @param map 
+     * @param map
      */
     addMap(map: Map) {
         if (!this.maps[map.UId]) {
@@ -104,7 +104,7 @@ class MapManager {
 
     /**
      * remove map
-     * @param mapUId 
+     * @param mapUId
      */
     removeMap(mapUId: string) {
         if (this.maps[mapUId]) {

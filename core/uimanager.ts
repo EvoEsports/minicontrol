@@ -82,8 +82,8 @@ export default class UiManager {
         if (data && this.scriptCalls.includes(data.responseid)) {
             this.scriptCalls.splice(this.scriptCalls.indexOf(data.responseid), 1);
             if (data.uimodules) {
-                this.uiProperties = data.uimodules as uiModule[];
-                let reset = [];
+                this.uiProperties = (data.uimodules as uiModule[]);
+                let reset:string[] = [];
                 for (let uiModule of this.uiProperties) {
                     reset.push(uiModule.id);
                 }
@@ -107,10 +107,10 @@ export default class UiManager {
             const x = (Number.parseFloat(match[2]) / 160) * 64;
             const y = (Number.parseFloat(match[3]) / 90) * 48;
             let z = 0;
-            const zindex = line.match(/z-index="([-\d]+)"/) || ["0", "0"];
-            z = Number.parseInt(zindex[1]) ?? 0;
+            const zindex = line.match(/z-index="([\-\d]+)"/) || ["0", "0"];
+            z = Number.parseInt(zindex[1]) ?? 1;
             if (match[1] == "pos") {
-                out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="\d+"/, "");
+                out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="[-\d]+"/, "");
             } else if (match[1] == "size") {
                 out = out.replaceAll(match[0], `${match[1]}n="${x} ${y}"`);
             }
@@ -295,10 +295,10 @@ export default class UiManager {
 
     /**
      * Display array of manialinks
-     * @param manialink
+     * @param manialinks
      */
     async displayManialinks(manialinks: Manialink[]) {
-        let callArray = [];
+        let callArray:any = [];
         for (const manialink of manialinks) {
             if (manialink.recipient == undefined) {
                 if (!this.publicManialinks[manialink.id]) {

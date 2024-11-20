@@ -8,6 +8,7 @@
         "emitDecoratorMetadata": true,
         "jsx": "react-jsx",
         "allowJs": true,
+        "noImplicitAny": false,
         "preserveSymlinks": true,
         "moduleResolution": "Bundler",
         "allowImportingTsExtensions": true,

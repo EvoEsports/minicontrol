@@ -1,4 +1,6 @@
 root: true
+env:
+  - es2020: true
 extends:
   - "plugin:drizzle/recommended"
 parser: '@typescript-eslint/parser'

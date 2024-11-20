@@ -122,7 +122,7 @@ export default class ListWindow extends Window {
             });
         }
 
-        const itemsArray = [];
+        const itemsArray:any = [];
         let x = 1;
         for (let item of this.items) {
             Object.assign(item, { index: x });
@@ -137,7 +137,7 @@ export default class ListWindow extends Window {
             }
         }
 
-        const items = this.doPaginate(itemsArray, this.currentPage, this.pageSize);
+        const items:any = this.doPaginate(itemsArray, this.currentPage, this.pageSize);
         await this.onPageItemsUpdate(items.items);
 
         for (const item of items.items) {

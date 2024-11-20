@@ -2,10 +2,21 @@ import Twig from 'twig';
 import fs from 'fs';
 Twig.cache(false);
 
+export interface MlSize {
+    width: number;
+    height: number;
+}
+
+export interface MlPos {
+    x: number;
+    y: number;
+    z: number;
+}
+
 export default class Manialink {
     id: string = tmc.ui.uuid();
-    size: { [key: string]: number } = { width: 160, height: 90 };
-    pos: { [key: string]: number } = { x: 0, y: 20, z: 1 };
+    size: MlSize = { width: 160, height: 90 };
+    pos: MlPos = { x: 0, y: 20, z: 1 };
     template: string = "core/templates/manialink.twig";
     actions: { [key: string]: string } = {};
     data: { [key: string]: any } = {};

@@ -1,6 +1,9 @@
-# MINIcontroller documentation
+# MINIcontrol documentation
 
-Welcome to MINIcontorller documentation, the documentation is split with two sections: one for server admins and one for plugin developers.
+> [!NOTE]  
+> This documentation is incomplete and will be filled out more over time. Should you have any questions, feel free to join the [Evo Esports Discord](https://discord.gg/evoesports) and ask in the `#minicontrol` channel.
+
+Welcome to MINIcontrol documentation, the documentation is split into two sections: one for server admins and one for plugin developers.
 
 
 ## Server Admins

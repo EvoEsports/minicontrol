@@ -44,7 +44,7 @@ export default class Tmx extends Plugin {
         tmc.addCommand("//addpack", this.addMapPack.bind(this), "Add map pack from TMX");
         tmc.addCommand(
             "//cancelpack",
-            () => {
+            async () => {
                 tmc.chat("Admin cancelled the download!");
                 this.cancelToken = true;
             },

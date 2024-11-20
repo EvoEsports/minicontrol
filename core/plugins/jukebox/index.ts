@@ -1,4 +1,4 @@
-import { clone, escape, formatTime } from '@core/utils';
+import {clone, escape, formatTime} from '@core/utils';
 import Plugin from '..';
 import QueueWindow from './queueWIndow';
 
@@ -24,16 +24,16 @@ export default class Jukebox extends Plugin {
         tmc.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
         tmc.addCommand("//requeue", this.cmdRequeue.bind(this), "Add current map to the front of the queue");
         tmc.addCommand("//prev", this.cmdPrev.bind(this), "Skip to previous map");
-        if (tmc.game.Name === "TmForever" || tmc.game.Name === "ManiaPlanet" ) {
-            tmc.server.addListener("Trackmania.EndRace", this.onEndRace, this);
+        if (tmc.game.Name === "TmForever") {
+            tmc.server.addListener("Trackmania.EndMap", this.onEndRace, this);
         } else {
-            tmc.server.addListener("Trackmania.Podium_Start", this.onEndRace, this);
+            tmc.server.addListener("Trackmania.EndMatch", this.onEndRace, this);
         }
     }
 
     async onUnload() {
         tmc.server.removeListener("Trackmania.EndMap", this.onEndRace);
-        tmc.server.removeListener("Trackmania.Podium_Start", this.onEndRace);
+        tmc.server.removeListener("Trackmania.EndMatch", this.onEndRace);
         tmc.removeCommand("/addqueue");
         tmc.removeCommand("/jb");
         tmc.removeCommand("/jukebox");
@@ -108,15 +108,14 @@ export default class Jukebox extends Plugin {
             AuthorTime: map.AuthorTime,
             Environment: map.Environnement,
             QueueBy: login,
-            QueueNickName: escape(player.nickname),
+            QueueNickName: player.nickname,
         });
         tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤added to the queue by ¤white¤${player.nickname}`);
     }
 
     async cmdDrop(login: any, args: string[]) {
-        const player = await tmc.players.getPlayer(login);
-        let index = 0;
-        let map: any = null;
+        let index: number;
+        let map: any;
         if (tmc.admins.includes(login) && args.length > 0) {
             index = parseInt(args[0]) - 1;
             map = this.queue[index];
@@ -137,12 +136,12 @@ export default class Jukebox extends Plugin {
         }
     }
 
-    async cmdClearQueue(login: any, args: string[]) {
+    async cmdClearQueue(_login: any, _args: string[]) {
         this.queue = [];
         tmc.chat("¤info¤Map queue cleared");
     }
 
-    async cmdRequeue(login: any, args: string[]) {
+    async cmdRequeue(login: any, _args: string[]) {
         const map = tmc.maps.currentMap;
         const player = await tmc.players.getPlayer(login);
 
@@ -157,15 +156,15 @@ export default class Jukebox extends Plugin {
                 AuthorTime: map.AuthorTime,
                 Environment: map.Environnement,
                 QueueBy: login,
-                QueueNickName: escape(player.nickname),
+                QueueNickName: player.nickname,
             });
-            tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤requeued by ¤white¤${escape(player.nickname)}`);
+            tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤requeued by ¤white¤${player.nickname}`);
         } else {
             tmc.chat(`¤info¤Could not requeue map`, login);
         }
     }
 
-    async cmdPrev(login: any, args: string[]) {
+    async cmdPrev(login: any, _args: string[]) {
         const map = tmc.maps.previousMap;
         const player = await tmc.players.getPlayer(login);
 
@@ -180,29 +179,29 @@ export default class Jukebox extends Plugin {
             AuthorTime: map.AuthorTime,
             Environment: map.Environnement,
             QueueBy: login,
-            QueueNickName: escape(player.nickname),
+            QueueNickName: player.nickname,
         });
 
         await tmc.server.call("NextMap");
     }
 
-    async onEndRace(data: any) {
+    async onEndRace(_data: any) {
         if (this.queue.length > 0) {
             const map = this.queue.shift();
             if (map) {
                 try {
-                await tmc.server.call("ChooseNextMap", map.File);
-                tmc.chat(`¤info¤Next map ¤white¤${map.Name} ¤info¤jukeboxed by ¤white¤${map.QueueNickName}`);
-                } catch (e:any) {
+                    await tmc.server.call("ChooseNextMap", map.File);
+                    tmc.chat(`¤info¤Next map ¤white¤${map.Name} ¤info¤jukeboxed by ¤white¤${map.QueueNickName}`);
+                } catch (e: any) {
                     tmc.cli(`¤error¤${e.message}`);
                 }
             }
         }
     }
 
-     async cmdListQueue(login: any, args: string[]) {
+    async cmdListQueue(login: any, _args: string[]) {
         const window = new QueueWindow(login);
-        const maps = [];
+        const maps: any = [];
         let i = 1;
         for (const map of clone(this.queue)) {
             maps.push(
@@ -211,18 +210,19 @@ export default class Jukebox extends Plugin {
                     Name: escape(map.Name),
                     Author: escape(map.Author),
                     AuthorTime: formatTime(map.AuthorTime),
+                    QueueNickName: escape(map.QueueNickName),
                 })
             );
         }
         window.title = "Map Queue [" + maps.length + "]";
-        window.size = { width: 205, height: 95 };
+        window.size = {width: 205, height: 95};
         window.setItems(maps);
         window.setColumns([
-            { key: "Index", title: "#", width: 4 },
-            { key: "Name", title: "Name", width: 50 },
-            { key: "Author", title: "Author", width: 30 },
-            { key: "Environment", title: "Environment", width: 25 },
-            { key: "QueueNickName", title: "Wish by", width: 50 }
+            {key: "Index", title: "#", width: 4},
+            {key: "Name", title: "Name", width: 50},
+            {key: "Author", title: "Author", width: 30},
+            {key: "Environment", title: "Environment", width: 25},
+            {key: "QueueNickName", title: "Wish by", width: 50}
         ]);
 
         window.setActions(["Drop"]);

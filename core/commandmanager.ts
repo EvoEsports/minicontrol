@@ -2,12 +2,18 @@ import ListWindow from "./ui/listwindow";
 import { escapeRegex, sleep } from "./utils";
 import fs from 'fs';
 
-export interface ChatCommand {
-    trigger: string;
-    help: string;
-    admin: boolean;
-    callback: CallableFunction;
+export interface CallableCommand {
+    (login: string, args: string[]): Promise<void>;
 }
+
+
+export interface ChatCommand {
+    admin: boolean;
+    callback: CallableCommand;
+    help: string;
+    trigger: string;
+}
+
 
 /**
  * CommandManager class
@@ -23,8 +29,8 @@ export default class CommandManager {
         this.addCommand("/help", async (login: string, args: string[]) => {
             let help = "Available: \n";
             for (let command in this.commands) {
-                if (this.commands[command].admin) continue;
-                help += `¤cmd¤${this.commands[command].trigger} ¤white¤${this.commands[command].help}, `;
+                if (this.commands[command]?.admin) continue;
+                help += `¤cmd¤${this.commands[command]?.trigger} ¤white¤${this.commands[command]?.help}, `;
             }
             tmc.chat(help, login);
         }, "Display help for command");
@@ -32,7 +38,7 @@ export default class CommandManager {
         this.addCommand("//help", async (login: string, args: string[]) => {
             let help = "Available: \n";
             for (let command in this.commands) {
-                if (!this.commands[command].admin) continue;
+                if (!this.commands[command]?.admin) continue;
                 help += `¤cmd¤${this.commands[command].trigger} ¤white¤${this.commands[command].help}, `;
             }
             tmc.chat(help, login);
@@ -166,9 +172,9 @@ export default class CommandManager {
         const window = new PluginManagerWindow(login);
         window.size = { width: 160, height: 95 };
         window.title = "Plugins";
-        let out = [];
-        let all = [];
-        let diff = [];
+        let out:any[] = [];
+        let all:string[] = [];
+        let diff:string[] = [];
         let plugins = fs.readdirSync(process.cwd() +"/core/plugins", { withFileTypes: true, recursive: true });
         plugins = plugins.concat(fs.readdirSync(process.cwd() + "/userdata/plugins", { withFileTypes: true, recursive: true }));
 
@@ -177,7 +183,7 @@ export default class CommandManager {
             if (plugin && plugin.isDirectory()) {
                 if (plugin.name.includes(".") || plugin.parentPath.includes(".")) continue;
                 if (plugin.name.includes("node_modules") || plugin.parentPath.includes("node_modules")) continue;
-                const path = plugin.path.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
+                const path = plugin.parentPath.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
                 let pluginName = plugin.name.replaceAll("\\", "/");
                 if (path != "") {
                     pluginName = (path.substring(1) +"/"+ plugin.name).replaceAll("\\", "/");
@@ -233,7 +239,7 @@ export default class CommandManager {
      * @param help help text
      * @param admin force admin
      */
-    addCommand(command: string, callback: CallableFunction, help: string = "", admin: boolean | undefined = undefined) {
+    addCommand(command: string, callback: CallableCommand, help: string = "", admin?:boolean) {
         if (admin === undefined) {
             admin = command.startsWith("//");
         }
@@ -254,7 +260,7 @@ export default class CommandManager {
      * @param command remove command
      */
     removeCommand(command: string) {
-        if (this.commands[command]) {
+        if (Object.keys(this.commands).indexOf(command) !== -1) {
             delete this.commands[command];
         }
     }
@@ -271,9 +277,11 @@ export default class CommandManager {
                     tmc.chat("¤error¤Not allowed.", login);
                     return;
                 }
-                const exp = new RegExp(`^${escapeRegex(command.trigger)}`, "i");
-                const cmd = exp.test(text);
-                if (cmd) {
+                if (!command) continue;
+                let prefix = "[/]";
+                if (command.trigger.startsWith("//")) prefix ="[/]{2}";
+                const exp = new RegExp(`^${prefix}\\b${escapeRegex(command.trigger.replaceAll("/", ""))}\\b`, "i");
+                if (exp.test(text)) {
                     const words = text.replace(command.trigger, "").trim();
                     let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s"]+/gi) || []).map((word) => word.replace(/^"(.+(?="$))"$/, '$1').replaceAll("\\", ""));
                     await command.callback(login, params);

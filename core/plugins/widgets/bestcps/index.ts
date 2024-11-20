@@ -1,7 +1,7 @@
-import tm from 'tm-essentials';
 import Plugin from '@core/plugins';
+import ListWindow from '@core/ui/listwindow';
 import Widget from '@core/ui/widget';
-import { formatTime, removeColors } from '@core/utils';
+import {formatTime, escape} from '@core/utils';
 
 interface Time {
     nickname: string;
@@ -19,27 +19,32 @@ export default class BestCps extends Plugin {
     async onLoad() {
         tmc.server.addListener("Trackmania.BeginMap", this.beginMap, this);
         tmc.server.addListener("TMC.PlayerCheckpoint", this.checkpoint, this);
+        tmc.chatCmd.addCommand("/checkpoints", this.cmdCheckpoints.bind(this), "Display best Checkpoints");
         this.widget = new Widget("core/plugins/widgets/bestcps/widget.twig");
-        this.widget.pos = { x: -160, y: 90 };
-        this.widget.size = { width: 240, height: 20 };
+        this.widget.pos = {x: -160, z: 0, y: 90};
+        this.widget.size = {width: 240, height: 20};
         const info = tmc.maps.currentMap;
         this.nbCheckpoints = info?.NbCheckpoints || -1;
-        this.reset();
         await this.display();
     }
 
     async onUnload() {
         tmc.server.removeListener("Trackmania.BeginMap", this.beginMap.bind(this));
         tmc.server.removeListener("TMC.PlayerCheckpoint", this.checkpoint.bind(this));
+        tmc.chatCmd.removeCommand("/checkpoints");
+
         this.widget?.destroy();
         this.widget = null;
     }
 
-    reset() {
-        this.bestTimes = [];
-        for (let i = 0; i < this.nbCheckpoints; i++) {
-            if (i >= this.maxCp) break;
-            this.bestTimes[i] = { time: 999999999, nickname: "", prettyTime: "" };
+    async onStart() {
+        const menu = tmc.storage["menu"];
+        if (menu) {
+            menu.addItem({
+                category: "Map",
+                title: "Show: Best Checkpoints",
+                action: "/checkpoints"
+            });
         }
     }
 
@@ -47,25 +52,52 @@ export default class BestCps extends Plugin {
         const login = data[0];
         const time = data[1];
         const nb = data[2];
-        if (nb >= this.maxCp) return;
-        if (nb >= this.nbCheckpoints - 1) return;
-        if (this.bestTimes[nb] && time < this.bestTimes[nb].time) {
-            this.bestTimes[nb] = { nickname: removeColors((await tmc.getPlayer(login)).nickname), time: time, prettyTime: formatTime(time) };
+        if (!this.bestTimes[nb - 1] && nb > 0) return;
+        if (!this.bestTimes[nb] || time < this.bestTimes[nb].time) {
+            this.bestTimes[nb] = {nickname: escape((await tmc.getPlayer(login)).nickname), time: time, prettyTime: formatTime(time)};
             await this.display();
         }
-
     }
 
     async beginMap(data: any) {
-        this.nbCheckpoints = Number.parseInt(data[0].NbCheckpoints);
-        this.reset();
+        this.bestTimes = [];
         await this.display();
     }
 
     async display() {
         this.widget?.setData({
+            maxCps: this.maxCp,
             checkpoints: this.bestTimes
         });
         this.widget?.display();
+    }
+
+    async cmdCheckpoints(login: string, args: string[]) {
+        if (this.bestTimes.length === 0) {
+            tmc.chat("¤error¤No Checkpoints found!", login);
+            return;
+        }
+        let checkpoints:any = [];
+        let checkpointNumber = 1;
+        for (const checkpoint of this.bestTimes) {
+            checkpoints.push(
+                {
+                    checkpoint: checkpointNumber,
+                    nickname: checkpoint.nickname,
+                    time: checkpoint.prettyTime
+                });
+            checkpointNumber++;
+        }
+        const window = new ListWindow(login);
+        window.size = {width: 100, height: 100};
+        window.title = `Best Checkpoints [${this.bestTimes.length}]`;
+        window.setItems(checkpoints);
+        window.setColumns([
+            {key: "checkpoint", title: "Checkpoint", width: 20},
+            {key: "nickname", title: "Nickname", width: 50},
+            {key: "time", title: "Time", width: 20},
+        ]);
+
+        await window.display();
     }
 }

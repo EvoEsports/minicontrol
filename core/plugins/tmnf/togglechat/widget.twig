@@ -1,5 +1,5 @@
 {% extends "core/templates/widget.twig" %}
 
 {% block content %}
-    <label pos="0 0" size="15 3" valign="center2" halign="center" textsize="0.5" textcolor="{{colors.title_fg}}" text="Toggle Chat" focusareacolor1="{{colors.title_bg}}9" focusareacolor2="{{colors.title_bg}}a" action="{{actions['openWidget']}}"/>
+    <label pos="{{size.width / 2}} -{{size.height / 2}}" z-index="2" size="{{size.width}} {{size.height}}" valign="center2" halign="center" textsize="0.5" textcolor="{{colors.title_fg}}" text="Toggle Chat" focusareacolor1="{{colors.title_bg}}" focusareacolor2="{{colors.title_bg}}9" action="{{actions['openWidget']}}"/>
 {% endblock %}
