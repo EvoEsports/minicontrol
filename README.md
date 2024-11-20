@@ -37,7 +37,7 @@ See [documentation](./documentation/index.md) for more info!
 # Migrating from PyPlanet?
 
 1. Export your old XAseco database with `mysqldump -u root -p databasename > pyplanet.sql`
-2. Move `xaseco.sql` to the main folder of MINIcontrol
+2. Move `pyplanet.sql` to the main folder of MINIcontrol
 3. Run in MINIControl folder: `tsx --env-file=.env pyplanet.ts pyplanet.sql`
 4. Start MINIcontrol
 
