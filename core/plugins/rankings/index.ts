@@ -39,7 +39,7 @@ export default class Players extends Plugin {
             `SELECT row_number() OVER (order by average) as rank, login, average as avg FROM (
             SELECT
                 login,
-                (1.0 * (SUM(player_rank) + (${mapCount} - COUNT(player_rank)) * ${maxRank}) / ${mapCount} * 10000) AS average,
+                (1.0 * (SUM(player_rank) + (? - COUNT(player_rank)) * ?) / ? * 10000) AS average,
                 COUNT(player_rank) AS ranked_records_count
                 FROM
                 (
@@ -48,16 +48,24 @@ export default class Players extends Plugin {
                         login,
                         time,
                         RANK() OVER (PARTITION BY mapUuid ORDER BY time ASC) AS player_rank
-                    FROM scores WHERE mapUuid in ("${mapUids.join('","')}")
+                    FROM scores WHERE mapUuid in (?)
                 ) AS ranked_records
-                WHERE player_rank <= ${maxRank}
+                WHERE player_rank <= ?
                 GROUP BY login
             ) grouped_ranks
-            WHERE ranked_records_count >= ${rankedRecordCount} order by average asc
+            WHERE ranked_records_count >= ? order by average asc
             `,
             {
                 type: QueryTypes.SELECT,
-                raw: true
+                raw: true,
+                replacements: [
+                    mapCount,
+                    maxRank,
+                    mapCount,
+                    mapUids,
+                    maxRank,
+                    rankedRecordCount
+                ],
             }
         );
         return rankings;

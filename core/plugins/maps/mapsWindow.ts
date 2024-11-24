@@ -37,17 +37,17 @@ export default class MapsWindow extends ListWindow {
         if (items[0].Rank) return items;
         const sequelize: Sequelize = tmc.storage['db'];
         if (sequelize) {
-            const uids = items.map((val) => val.UId).join('","');
+            const uids = items.map((val) => val.UId);
+            const login =this.recipient;
             const rankings: any[] = await sequelize.query(
-                `SELECT * FROM (SELECT
-            mapUuid as Uid,
-            login,
-            time,
-            RANK() OVER (PARTITION BY mapUuid ORDER BY time ASC) AS playerRank
-            FROM scores WHERE mapUuid in ("${uids}")) WHERE login = "${this.recipient}";`,
+                `SELECT * FROM (
+                SELECT mapUuid as Uid, login, time, RANK() OVER (PARTITION BY mapUuid ORDER BY time ASC) AS playerRank
+                FROM scores WHERE mapUuid in (?)
+                ) WHERE login = ?;`,
                 {
                     type: QueryTypes.SELECT,
-                    raw: true
+                    raw: true,
+                    replacements: [uids, login]
                 }
             );
             for (const item of items) {
@@ -66,5 +66,4 @@ export default class MapsWindow extends ListWindow {
             await tmc.chatCmd.execute(login, '/addqueue ' + item.UId);
         }
     }
-
 }
