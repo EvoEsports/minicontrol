@@ -1,14 +1,19 @@
 import Widget from './widget';
 import { escape } from '../utils';
 
+/**
+    @example
+    const confirm = new Confirm(login, "Confirm Remove", this.applyCommand.bind(this), [login, "//remove " + item.UId]);
+    await confirm.display();
+ */
 export default class Confirm extends Widget {
     callback: CallableFunction;
-    params: any;
+    params: string[];
     title = "Confirm required";
     size = { width: 90, height: 40 };
 
     constructor(login: string, question: string, callback: CallableFunction, params: any) {
-        super("core/templates/confirm.twig");
+        super("core/templates/confirm.xml.twig");
         this.recipient = login;
         this.pos = { x: 0, y: 20, z: 10 };
         this.callback = callback;        
@@ -25,7 +30,7 @@ export default class Confirm extends Widget {
         await super.destroy();
     }
 
-    async apply(login: string, answer: any, entries: string[]) {
+    async apply(_login: string, _answer: any, _entries: string[]) {
             await this.callback(...this.params);
             await super.destroy();
     }

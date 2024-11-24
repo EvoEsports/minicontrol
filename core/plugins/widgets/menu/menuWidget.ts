@@ -3,7 +3,7 @@ import { type Item } from "./index";
 
 export default class MenuWidget extends Widget {
 
-    constructor(login: string, path: string = "core/plugins/widgets/menu/menu.twig") {
+    constructor(login: string, path: string = "core/plugins/widgets/menu/menu.xml.twig") {
         super(path);
 
         const categories: Item[] = tmc.storage["menu"].getItems().map((i: Item) => i.category).filter((v: any, i: number, a: any) => a.indexOf(v) === i).sort( (a:string,b:string) => a.localeCompare(b));

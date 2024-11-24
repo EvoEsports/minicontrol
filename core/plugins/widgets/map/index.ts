@@ -8,7 +8,7 @@ export default class MapWidget extends Plugin {
     widget: Widget | null = null;
 
     async onLoad() {
-        this.widget = new Widget("core/plugins/widgets/map/widget.twig");
+        this.widget = new Widget("core/plugins/widgets/map/widget.xml.twig");
         this.widget.title ="MAP INFO";
         this.widget.pos = { x: 121, y: 90, z: 1 };
         this.widget.size = { width: 38, height: 10 };

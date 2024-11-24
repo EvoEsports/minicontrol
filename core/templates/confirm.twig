@@ -1,9 +1,0 @@
-{% extends "core/templates/window.twig" %}
-
-{% block content %}
-<label text="{{data.question}}" size="{{size.width}} 6" textsize="2" />
-<frame  pos="{{ (size.width) -6}} -{{ size.height - 7}}" z-index="1">
-    <label pos="-21 0" z-index="1" size="12 5" text="Apply" textsize="1.2" valign="center2" halign="center" focusareacolor1="{{colors.button_bg}}" focusareacolor2="{{colors.button_bg_hover}}" textcolor="{{colors.button_text}}" action="{{ actions.apply }}" />
-    <label pos="-7 0" z-index="1" size="12 5" text="Cancel" textsize="1.2" valign="center2" halign="center" focusareacolor1="{{colors.button_bg}}" focusareacolor2="{{colors.button_bg_hover}}" textcolor="{{colors.button_text}}" action="{{ actions.close }}" />
-</frame>
-{% endblock %}

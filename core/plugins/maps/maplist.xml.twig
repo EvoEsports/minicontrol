@@ -1,4 +1,4 @@
-{% extends "core/templates/window.twig" %}
+{% extends "core/templates/window.xml.twig" %}
 
 {% block content %}
     {% for item in data.items.items %}
@@ -7,6 +7,7 @@
         <frame pos="{{ posx }} -{{ posy }}" z-index="4">
             <label pos="1 -2.5" z-index="5" size="43 5" textfont="RobotoCondensed" text="${{colors.window_text}}{{ item['Index'] }}. {{ item['Name'] }}" halign="left" textsize="1.25" valign="center2"/>
             <label pos="1 -5.5" z-index="5" size="43 5" textfont="RobotoCondensed" text="${{colors.window_text}}by {{ item['AuthorName'] }}" halign="left" textsize="0.95" valign="center2"/>
+            <label pos="44 -5.5" z-index="5" size="43 5" textfont="RobotoCondensed" text="${{colors.window_text}}Rank: {{ item['Rank'] }}" halign="right" textsize="1" valign="center2"/>
             <label pos="1 -8.5" z-index="5" size="43 5" textfont="RobotoCondensed" text="${{colors.window_text}}{{ item['Environnement'] }} / {{ item['Vehicle'] }}" halign="left" textsize="0.9" valign="center2"/>
             <label pos="44 -8.5" z-index="5" size="43 5" textfont="RobotoCondensed" text="${{colors.window_text}}{{ item['ATime'] }}" halign="right" textsize="1" valign="center2"/>
 

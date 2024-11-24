@@ -22,7 +22,7 @@ export default class Favourite extends Plugin {
         widget.pos = { x: -138, y: 72.5, z: 5 };
         let link = `tmtp://#addfavourite=${tmc.server.login}`;
         if (tmc.game.Name=="ManiaPlanet") link = `maniaplanet://#addfavourite=${tmc.server.login}`
-        widget.template = 'core/plugins/widgets/favourite/widget.twig';
+        widget.template = 'core/plugins/widgets/favourite/widget.xml.twig';
         widget.setData({
             link: link
         });

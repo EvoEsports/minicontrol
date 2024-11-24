@@ -10,7 +10,7 @@ export default class MapLikesWidget extends Plugin {
 
     async onLoad() {
         tmc.server.addListener("Plugin.MapLikes.onSync", this.onSync, this);
-        this.widget = new Widget("core/plugins/widgets/maplikes/widget.twig");
+        this.widget = new Widget("core/plugins/widgets/maplikes/widget.xml.twig");
         this.widget.pos = { x: 121, y: 60, z: 1 };
         this.widget.size = { width: 38, height: 10 };
         this.widget.actions['like'] = tmc.ui.addAction(this.actionLike.bind(this), 1);

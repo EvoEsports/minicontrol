@@ -98,7 +98,7 @@ export default class RecordsWidget extends Plugin {
 
         if (!widget) {
             this.widgetType[login] = "server";
-            widget = new recordsWidget('core/plugins/widgets/records/widget.twig');
+            widget = new recordsWidget('core/plugins/widgets/records/widget.xml.twig');
             widget.title = "RECORDS";
             widget.recipient = login;
             widget.pos = { x: 121, y: 30, z: 0 };

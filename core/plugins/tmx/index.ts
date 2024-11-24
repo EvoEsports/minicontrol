@@ -110,19 +110,17 @@ export default class Tmx extends Plugin {
                 }
                 let id = data[0];
                 let site = "TMNF";
-                let baseUrl;
                 if (this.SITE_NAMES.includes(data[1].toUpperCase())) {
                     site = data[1].toUpperCase();
                 }
-                baseUrl = this.getBaseUrl(site);
-                const map: Map = { id, baseUrl, site };
+                let baseUrl = this.getBaseUrl(site);
+                const map: Map = {id, baseUrl, site};
                 await this.downloadMap(map, login);
             } else {
                 let id = mapId;
                 let site = "TMNF";
-                let baseUrl;
-                baseUrl = this.getBaseUrl(site);
-                const map: Map = { id, baseUrl, site };
+                let baseUrl = this.getBaseUrl(site);
+                const map: Map = {id, baseUrl, site};
                 await this.downloadMap(map, login);
             }
         } else {
@@ -134,7 +132,7 @@ export default class Tmx extends Plugin {
                 tmc.chat(`¤error¤The supplied ID ${mapId} is invalid.`, login);
                 return;
             }
-            const map: Map = { id: mapId, baseUrl: this.getBaseUrl() };
+            const map: Map = {id: mapId, baseUrl: this.getBaseUrl()};
             await this.downloadMap(map, login);
         }
     }
@@ -149,7 +147,7 @@ export default class Tmx extends Plugin {
         if (map.site) filePath += "_" + map.site;
         filePath += ext;
 
-        let res = await fetch(fileUrl, { keepalive: false });
+        let res = await fetch(fileUrl, {keepalive: false});
         if (!res) {
             tmc.chat(`Invalid http response for ID ${map.id}`, login);
             return;
@@ -213,7 +211,7 @@ export default class Tmx extends Plugin {
                 }
                 let id = data[0];
                 let site = "TMNF";
-                let baseUrl;
+                let baseUrl: string;
                 if (this.SITE_NAMES.includes(data[1].toUpperCase())) {
                     site = data[1].toUpperCase();
                 }
@@ -222,7 +220,7 @@ export default class Tmx extends Plugin {
             } else {
                 let id = packId;
                 let site = "TMNF";
-                let baseUrl;
+                let baseUrl: string;
                 baseUrl = this.getBaseUrl(site);
                 await this.downloadMapPack(id, baseUrl, login, site);
             }
@@ -250,7 +248,7 @@ export default class Tmx extends Plugin {
             return;
         }
 
-        const res = await fetch(url, { keepalive: false });
+        const res = await fetch(url, {keepalive: false});
         const json: any = await res.json();
         tmc.chat("Processing Map Pack ¤white¤" + packId);
         if (!json) {
@@ -264,7 +262,7 @@ export default class Tmx extends Plugin {
                 let mapName = tmc.game.Name === "TmForever" ? data.TrackName : data.GbxMapName;
                 let id = tmc.game.Name === "TmForever" ? data.TrackId : data.TrackID;
                 tmc.chat(`Downloading: ¤white¤${mapName}`);
-                const map: Map = { id, baseUrl, site };
+                const map: Map = {id, baseUrl, site};
                 await this.downloadMap(map, login);
             } catch (err: any) {
                 tmc.chat(`¤error¤Error: ${err.message}`);

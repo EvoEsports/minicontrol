@@ -133,7 +133,7 @@ export default class GenericDb extends Plugin {
     async syncPlayer(player: PlayerType) {
         let dbPlayer = await Player.findByPk(player.login);
         if (dbPlayer == null) {
-            dbPlayer = await Player.create({
+             await Player.create({
                 login: player.login,
                 nickname: player.nickname,
                 path: player.path
@@ -143,10 +143,6 @@ export default class GenericDb extends Plugin {
                 nickname: player.nickname,
                 path: player.path
             });
-        }
-        if (dbPlayer && dbPlayer.customNick) {
-            tmc.cli('Setting nickname to ' + dbPlayer.customNick);
-            player.set('nickname', dbPlayer.customNick);
         }
     }
 
