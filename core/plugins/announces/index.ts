@@ -43,7 +43,7 @@ export default class Announces extends Plugin {
         tmc.cli(msg);
     }
 
-    async onPlayerDisconnect(player: any) {
+    async onPlayerDisconnect(player: Player) {
         const msg = `¤white¤${player.nickname}¤info¤ leaves!`;
         tmc.chat(msg);
         tmc.cli(msg);
