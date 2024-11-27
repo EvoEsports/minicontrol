@@ -133,7 +133,7 @@ export default class PlayerManager {
 
     /**
      * get players objects
-     * @returns {Player[]} Returns clone of the current playerlist
+     * @returns {Player[]} Returns current playerlist
      */
     getAll(): Player[] {
         return Object.values(this.players);

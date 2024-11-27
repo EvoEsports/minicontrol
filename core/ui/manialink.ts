@@ -22,6 +22,7 @@ export default class Manialink {
     data: { [key: string]: any } = {};
     recipient: string | undefined = undefined;
     title: string = "";
+    displayDuration: number = 0;
     private _firstDisplay: boolean = true;
     _templateData: string = "";
 
