@@ -77,7 +77,6 @@ export function htmlEntities(str: string): string {
         .replaceAll(/[$][lh]\[.*?](.*?)([$][lh])?/ig, '$1')
         .replaceAll(/[$][lh]/gi, '')
         .replaceAll('--', '-&#45;');
-    console.log(val);
     return val;
 }
 
