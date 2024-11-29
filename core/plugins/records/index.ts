@@ -1,7 +1,7 @@
 import Plugin from '@core/plugins';
 import Score from '@core/schemas/scores.model';
 import Player from '@core/schemas/players.model';
-import { clone, escape, formatTime } from '@core/utils';
+import { clone, htmlEntities, formatTime } from '@core/utils';
 import RecordsWindow from './recordsWindow';
 import { Op } from 'sequelize';
 
@@ -53,7 +53,7 @@ export default class Records extends Plugin {
         for (const record of this.records) {
             records.push({
                 rank: record.rank,
-                nickname: escape(record?.player?.customNick ?? record?.player?.nickname ??''),
+                nickname: htmlEntities(record?.player?.customNick ?? record?.player?.nickname ??''),
                 login: record.login,
                 time: formatTime(record.time ?? 0)
             });

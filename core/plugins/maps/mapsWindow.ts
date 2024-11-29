@@ -1,5 +1,5 @@
 import ListWindow from '@core/ui/listwindow';
-import { formatTime, escape, clone, removeColors } from '@core/utils';
+import { formatTime, htmlEntities, clone, removeColors } from '@core/utils';
 import { QueryTypes, type Sequelize } from 'sequelize';
 
 export default class MapsWindow extends ListWindow {
@@ -23,8 +23,8 @@ export default class MapsWindow extends ListWindow {
                 maps.push(
                     Object.assign(map, {
                         Index: i++,
-                        Name: escape(map.Name),
-                        AuthorName: escape(map.AuthorNickname || map.Author || ''),
+                        Name: htmlEntities(map.Name),
+                        AuthorName: htmlEntities(map.AuthorNickname || map.Author || ''),
                         ATime: formatTime(map.AuthorTime || map.GoldTime)
                     })
                 );

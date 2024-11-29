@@ -1,6 +1,6 @@
 import Plugin from '@core/plugins';
 import Widget from '@core/ui/widget';
-import { formatTime, processColorString, escape } from '@core/utils';
+import { formatTime, processColorString, htmlEntities } from '@core/utils';
 
 export class Vote {
     type: string;
@@ -286,7 +286,7 @@ export default class VotesPlugin extends Plugin {
             vote: this.currentVote,
             total: total,
             yes_ratio: percent,
-            voteText: processColorString(escape(this.currentVote.question)),
+            voteText: processColorString(htmlEntities(this.currentVote.question)),
             time_percent: (this.currentVote.timeout - Date.now()) / (this.timeout * 1000),
             timer: formatTime(Math.floor(Math.abs(Date.now() - this.currentVote.timeout))).replace(/\.\d\d\d/, "")
         });

@@ -1,6 +1,6 @@
 import { Player } from '@core/playermanager';
 import Api from './api';
-import { clone, escape, formatTime } from '@core/utils';
+import { clone, htmlEntities, formatTime } from '@core/utils';
 import ListWindow from '@core/ui/listwindow';
 import Plugin from '@core/plugins';
 
@@ -81,7 +81,7 @@ export default class Dedimania extends Plugin {
             records.push(
                 {
                     rank: record.Rank,
-                    nickname: escape(record.NickName),
+                    nickname: htmlEntities(record.NickName),
                     time: "$o" + formatTime(record.Best),
                 });
             }

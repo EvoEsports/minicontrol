@@ -1,4 +1,4 @@
-import {clone, escape, formatTime} from '@core/utils';
+import {clone, htmlEntities, formatTime} from '@core/utils';
 import Plugin from '..';
 import QueueWindow from './queueWIndow';
 
@@ -207,10 +207,10 @@ export default class Jukebox extends Plugin {
             maps.push(
                 Object.assign(map, {
                     Index: i++,
-                    Name: escape(map.Name),
-                    Author: escape(map.Author),
+                    Name: htmlEntities(map.Name),
+                    Author: htmlEntities(map.Author),
                     AuthorTime: formatTime(map.AuthorTime),
-                    QueueNickName: escape(map.QueueNickName),
+                    QueueNickName: htmlEntities(map.QueueNickName),
                 })
             );
         }

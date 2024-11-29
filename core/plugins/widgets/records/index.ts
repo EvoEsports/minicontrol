@@ -2,7 +2,7 @@ import type { Player } from '@core/playermanager';
 import Plugin from '@core/plugins';
 import type { DediRecord } from '@core/plugins/tmnf/dedimania';
 import recordsWidget from '@core/plugins/widgets/records/recordsWidget';
-import { formatTime, escape } from '@core/utils';
+import { formatTime, htmlEntities } from '@core/utils';
 
 export default class RecordsWidget extends Plugin {
     static depends: string[] = ['records'];
@@ -177,7 +177,7 @@ export default class RecordsWidget extends Plugin {
         if (['live', 'server'].includes(this.widgetType[login])) {
             for (const rec of outRecords) {
                 rec.formattedTime = formatTime(rec.time);
-                rec.nickname = rec.player ? escape(rec.player?.customNick ?? rec.player?.nickname ??'') : 'Unknown';
+                rec.nickname = rec.player ? htmlEntities(rec.player?.customNick ?? rec.player?.nickname ??'') : 'Unknown';
             }
         }
 
@@ -185,7 +185,7 @@ export default class RecordsWidget extends Plugin {
             for (const rec of outRecords) {
                 rec.rank = rec.Rank;
                 rec.formattedTime = formatTime(rec.Best);
-                rec.nickname = escape(rec.NickName);
+                rec.nickname = htmlEntities(rec.NickName);
             }
         }
 

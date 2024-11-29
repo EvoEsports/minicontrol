@@ -1,4 +1,4 @@
-import { escape, formatTime } from '@core/utils';
+import { htmlEntities, formatTime } from '@core/utils';
 import Plugin from '@core/plugins';
 import Widget from '@core/ui/widget';
 
@@ -33,7 +33,7 @@ export default class MapWidget extends Plugin {
         data = data[0];
         this.widget?.setData({
             author: data.AuthorNickname ? data.AuthorNickname : data.Author,
-            mapname: escape(data.Name),
+            mapname: htmlEntities(data.Name),
             authortime: formatTime(data.AuthorTime),
         });
         this.widget?.display();

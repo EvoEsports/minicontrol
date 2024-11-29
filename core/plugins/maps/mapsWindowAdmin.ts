@@ -1,6 +1,6 @@
 import Confirm from '@core/ui/confirm';
 import ListWindow from '@core/ui/listwindow';
-import { formatTime, escape, clone, removeColors } from '@core/utils';
+import { formatTime, htmlEntities, clone, removeColors } from '@core/utils';
 
 export default class MapsWindowAdmin extends ListWindow {
     params: string[] = [];
@@ -20,8 +20,8 @@ export default class MapsWindowAdmin extends ListWindow {
                 maps.push(
                     Object.assign(map, {
                         Index: i++,
-                        Name: escape(map.Name),
-                        AuthorName: escape(map.AuthorNickname || map.Author || ""),
+                        Name: htmlEntities(map.Name),
+                        AuthorName: htmlEntities(map.AuthorNickname || map.Author || ""),
                         ATime: formatTime(map.AuthorTime || map.GoldTime),
                     })
                 );

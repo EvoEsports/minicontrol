@@ -1,4 +1,4 @@
-import {castType, escape} from "@core/utils";
+import {castType, htmlEntities} from "@core/utils";
 import ModeSettingsWindow from "./ModeSettingsWindow";
 import Plugin from "@core/plugins";
 import fs from "fs";
@@ -395,7 +395,7 @@ export default class AdminPlugin extends Plugin {
             let out:any = [];
             for (let file of fs.readdirSync(tmc.mapsPath, {withFileTypes: true, recursive: true, encoding: "utf8"})) {
                 if (file.name.toLowerCase().endsWith(".gbx")) {
-                    let name = escape(file.name.replaceAll(/[.](Map|Challenge)[.]Gbx/gi, ""));
+                    let name = htmlEntities(file.name.replaceAll(/[.](Map|Challenge)[.]Gbx/gi, ""));
                     let filename = fsPath.resolve(tmc.mapsPath, file.parentPath, file.name);
                     let path = file.parentPath.replace(tmc.mapsPath, "");
                     out.push({
