@@ -72,25 +72,16 @@ export default class AdminPlugin extends Plugin {
                 await tmc.server.call("SetScriptName", scripts[params[0]]);
             }
         }, "Sets gamemode");
-        tmc.addCommand("//setpass", async (login: string, params: string[]) => {
+        tmc.addCommand("//password", async (login: string, params: string[]) => {
             const newPass = params[0] || "";
             await tmc.server.call("SetServerPassword", newPass);
+            await tmc.server.call("SetServerPasswordForSpectator", newPass);
             if (newPass == "") {
                 tmc.chat(`¤info¤Password removed`, login);
             } else {
                 tmc.chat(`¤info¤Password set to "¤white¤${newPass}¤info¤"`, login);
             }
         }, "Sets server password");
-
-        tmc.addCommand("//setspecpass", async (login: string, params: string[]) => {
-            const newPass = params[0] || "";
-            await tmc.server.call("SetServerPasswordForSpectator", newPass);
-            if (newPass == "") {
-                tmc.chat(`¤info¤Spectator password removed`, login);
-            } else {
-                tmc.chat(`¤info¤Spectator password set to "¤white¤${newPass}¤info¤"`, login);
-            }
-        }, "Sets spectator password");
 
         tmc.addCommand("//warmup", async (login: string, params: string[]) => {
             if (!params[0] && isNaN(Number.parseInt(params[0]))) {
@@ -312,12 +303,55 @@ export default class AdminPlugin extends Plugin {
                 tmc.chat("¤error¤" + err.message, login);
             }
         }, "Send mode command");
+        tmc.addCommand("//cleanignorelist", async (login: string, params: string[]) => {
+            try {
+                await tmc.server.call("CleanIgnoreList");
+                tmc.chat("¤info¤Mutelist cleared", login);
+            } catch (e: any) {
+                tmc.chat("¤error¤" + e.message, login);
+            }
+        }, "Clears ignorelist");
+        tmc.addCommand("//cleanbanlist", async (login: string, params: string[]) => {
+            try {
+                await tmc.server.call("CleanBanList");
+                tmc.chat("¤info¤Banlist cleared", login);
+            } catch (e: any) {
+                tmc.chat("¤error¤" + e.message, login);
+            }
+        }, "Clears banlist");
+        tmc.addCommand("//cleanguestlist", async (login: string, params: string[]) => {
+            try {
+                await tmc.server.call("CleanGuestList");
+                tmc.chat("¤info¤Guestlist cleared", login);
+            } catch (e: any) {
+                tmc.chat("¤error¤" + e.message, login);
+            }
+        }, "Clears guestlist");
+        tmc.addCommand("//cleanblacklist", async (login: string, params: string[]) => {
+            try {
+                await tmc.server.call("ClearBlackList");
+                tmc.chat("¤info¤Blacklist cleared", login);
+            } catch (e: any) {
+                tmc.chat("¤error¤" + e.message, login);
+            }
+        }, "Clears blacklist");
+
         tmc.addCommand("//guestlist", this.cmdGuestlist.bind(this), "Manage Guestlist");
         tmc.addCommand("//blacklist", this.cmdBlacklist.bind(this), "Manage Blacklist");
+        tmc.addCommand("//ignorelist", this.cmdIgnoreList.bind(this), "Manage Ignorelist");
+        tmc.addCommand("//banlist", this.cmdBanlist.bind(this), "Manage Banlist");
         tmc.addCommand("//togglemute", this.cmdToggleMute.bind(this), "Toggle Mute");
     }
 
     async onUnload() {
+
+        tmc.removeCommand("//timeout");
+        tmc.removeCommand("//rlimit");
+        tmc.removeCommand("//usenewrules");
+        tmc.removeCommand("//cleanignorelist");
+        tmc.removeCommand("//cleanbanlist");
+        tmc.removeCommand("//cleanguestlist");
+        tmc.removeCommand("//cleanblacklist");
         tmc.removeCommand("//skip");
         tmc.removeCommand("//res");
         tmc.removeCommand("//kick");
@@ -500,10 +534,19 @@ export default class AdminPlugin extends Plugin {
 
     async cmdGuestlist(login: string, args: string[]) {
         if (args.length < 1) {
-            tmc.chat("Usage: ¤cmd¤//guestlist ¤white¤add <login>,remove <login>, show, list", login);
+            tmc.chat("Usage: ¤cmd¤//guestlist ¤white¤add <login>,remove <login>, clear, show, list", login);
             return;
         }
         switch (args[0]) {
+            case "clear": {
+                try {
+                    await tmc.server.call("CleanGuestList");
+                    tmc.chat("¤info¤Guestlist cleared", login);
+                } catch (e: any) {
+                    tmc.chat("¤error¤" + e.message, login);
+                }
+                return;
+            }
             case "add": {
                 try {
                     if (!args[1]) return tmc.chat("¤error¤Missing madatory argument: <login>", login);
@@ -550,13 +593,136 @@ export default class AdminPlugin extends Plugin {
             }
         }
     }
-
-    async cmdBlacklist(login: string, args: string[]) {
+    async cmdBanlist(login: string, args: string[]) {
         if (args.length < 1) {
-            tmc.chat("Usage: ¤cmd¤//blacklist ¤white¤add <login>,remove <login>, show, list", login);
+            tmc.chat("Usage: ¤cmd¤//banlist ¤white¤add <login>,remove <login>, clear, show, list", login);
             return;
         }
         switch (args[0]) {
+            case "clear": {
+                try {
+                    await tmc.server.call("CleanBanList");
+                    tmc.chat("¤info¤Banlist cleared", login);
+                } catch (e: any) {
+                    tmc.chat("¤error¤" + e.message, login);
+                }
+                return;
+            }
+            case "add": {
+                try {
+                    if (!args[1]) return tmc.chat("¤error¤Missing madatory argument: <login>", login);
+                    const res = await tmc.server.call("Ban", args[1]);
+                    if (!res) return tmc.chat(`¤error¤Unable to ban ¤white¤${args[1]}¤error¤`, login);
+                    return tmc.chat(`¤info¤Added to banlist: ¤white¤${args[1]}`, login);
+                } catch (e: any) {
+                    tmc.chat(`¤error¤${e.message}`, login);
+                    return;
+                }
+            }
+            case "remove": {
+                try {
+                    if (!args[1]) return tmc.chat("¤error¤Missing madatory argument: <login>", login);
+                    const res = await tmc.server.call("Unban", args[1]);
+                    if (!res) return tmc.chat(`¤error¤Unable to unban ¤white¤${args[1]}¤error¤`, login);
+                    return tmc.chat(`¤info¤Removed from banlist: ¤white¤${args[1]}`, login);
+                } catch (e: any) {
+                    tmc.chat(`¤error¤${e.message}`, login);
+                    return;
+                }
+            }
+            case "show":
+            case "list": {
+                const window = new PlayerListsWindow(login);
+                window.title = "BanList";
+                window.size = {width: 175, height: 95};
+                window.setItems(await tmc.server.call("GetBanList", -1, 0));
+                window.setColumns([
+                    {key: "Login", title: "Login", width: 100},
+
+                ]);
+                window.setActions(["UnBan"]);
+                await window.display();
+                return;
+            }
+            default: {
+                tmc.chat("Usage: ¤cmd¤//guestlist ¤white¤add <login>,remove <login>,clear, show, list", login);
+                return;
+            }
+        }
+    }
+    async cmdIgnorelist(login: string, args: string[]) {
+        if (args.length < 1) {
+            tmc.chat("Usage: ¤cmd¤//ignorelist ¤white¤add <login>,remove <login>, clear, show, list", login);
+            return;
+        }
+        switch (args[0]) {
+            case "clear": {
+                try {
+                    await tmc.server.call("CleanIgnoreList");
+                    tmc.chat("¤info¤Ignorelist cleared", login);
+                } catch (e: any) {
+                    tmc.chat("¤error¤" + e.message, login);
+                }
+                return;
+            }
+            case "add": {
+                try {
+                    if (!args[1]) return tmc.chat("¤error¤Missing madatory argument: <login>", login);
+                    const res = await tmc.server.call("Ignore", args[1]);
+                    if (!res) return tmc.chat(`¤error¤Unable to add ¤white¤${args[1]}¤error¤ as ignored player.`, login);
+                    return tmc.chat(`¤info¤Player ignored: ¤white¤${args[1]}`, login);
+                } catch (e: any) {
+                    tmc.chat(`¤error¤${e.message}`, login);
+                    return;
+                }
+            }
+            case "remove": {
+                try {
+                    if (!args[1]) return tmc.chat("¤error¤Missing madatory argument: <login>", login);
+                    const res = await tmc.server.call("UnIgnore", args[1]);
+                    if (!res) return tmc.chat(`¤error¤Unable to remove ¤white¤${args[1]}¤error¤ from ignored players`, login);
+                    return tmc.chat(`¤info¤Player unignored: ¤white¤${args[1]}`, login);
+                } catch (e: any) {
+                    tmc.chat(`¤error¤${e.message}`, login);
+                    return;
+                }
+            }
+            case "show":
+            case "list": {
+                const window = new PlayerListsWindow(login);
+                window.title = "Guestlist";
+                window.size = {width: 175, height: 95};
+                window.setItems(await tmc.server.call("GetIgnoreList", -1, 0));
+                window.setColumns([
+                    {key: "Login", title: "Login", width: 100},
+
+                ]);
+                window.setActions(["UnIgnore"]);
+                await window.display();
+                return;
+            }
+            default: {
+                tmc.chat("Usage: ¤cmd¤//guestlist ¤white¤add <login>,remove <login>, clear, show, list", login);
+                return;
+            }
+        }
+    }
+
+    async cmdBlacklist(login: string, args: string[]) {
+        if (args.length < 1) {
+            tmc.chat("Usage: ¤cmd¤//blacklist ¤white¤add <login>,remove <login>, clear, show, list", login);
+            return;
+        }
+        switch (args[0]) {
+            case "clear": {
+                try {
+                    await tmc.server.call("ClearBlackList");
+                    tmc.chat("¤info¤Blacklist cleared", login);
+                } catch (e: any) {
+                    tmc.chat("¤error¤" + e.message, login);
+                }
+                return;
+            }
             case "add": {
                 try {
                     if (!args[1]) return tmc.chat("¤error¤Missing madatory argument: <login>", login);
@@ -593,12 +759,12 @@ export default class AdminPlugin extends Plugin {
                     {key: "Login", title: "Login", width: 100},
 
                 ]);
-                window.setActions(["RemoveBan"]);
+                window.setActions(["RemoveBlacklist"]);
                 await window.display();
                 return;
             }
             default: {
-                tmc.chat("Usage: ¤cmd¤//blacklist ¤white¤add <login>,remove <login>, show, list", login);
+                tmc.chat("Usage: ¤cmd¤//blacklist ¤white¤add <login>,remove <login>, clear, show, list", login);
                 return;
             }
         }
