@@ -187,22 +187,20 @@ export default class AdminPlugin extends Plugin {
         );
 
         tmc.addCommand(
-            '//timelimit',
+            '//talimit',
             async (login: string, params: string[]) => {
                 if (!params[0]) {
                     return tmc.chat('¤cmd¤//talimit ¤info¤needs numeric value in seconds');
                 }
 
                 if (tmc.game.Name == 'TmForever') {
-                    // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
                     const mode = await tmc.server.call('GetGameMode');
-                    if (mode == 1) {
+                    if (mode == Mode.TimeAttack) {
                         tmc.server.send('SetTimeAttackLimit', Number.parseInt(params[0]) * 1000);
                         tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                         return;
                     }
-
-                    if (mode == 3) {
+                    if (mode == Mode.Laps) {
                         tmc.server.send('SetLapsTimeLimit', Number.parseInt(params[0]) * 1000);
                         tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                         return;
@@ -633,7 +631,7 @@ export default class AdminPlugin extends Plugin {
         tmc.removeCommand('//ignore');
         tmc.removeCommand('//unignore');
         tmc.removeCommand('//togglemute');
-        tmc.removeCommand('//timelimit');
+        tmc.removeCommand('//talimit');
         tmc.removeCommand('//jump');
         tmc.removeCommand('//wml');
         tmc.removeCommand('//rml');
