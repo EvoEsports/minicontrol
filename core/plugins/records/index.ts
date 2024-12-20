@@ -270,18 +270,6 @@ export default class Records extends Plugin {
                 if (this.records[i].login == login) {
                     outRecord = this.records[i];
                 }
-
-                /* if (i >= this.limit) {
-                    tmc.cli(`Deleting record ${i} because it's out of limit.`);
-                    await Score.destroy({
-                        where: {
-                            [Op.and]: {
-                                login: this.records[i].login,
-                                mapUuid: this.currentMapUid
-                            }
-                        }
-                    });
-                } */
             }
 
             this.records = this.records.slice(0, this.limit);

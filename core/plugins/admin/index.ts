@@ -261,7 +261,39 @@ export default class AdminPlugin extends Plugin {
                 tmc.server.callScript("Trackmania.WarmUp.ForceStop");
             }
         }, "end warmup");
-
+        tmc.addCommand("//timeout", async (login: string, params: string[]) => {
+            if (!params[0] && isNaN(Number.parseInt(params[0]))) {
+                return tmc.chat("¤cmd¤//timeout ¤info¤needs numeric value");
+            }
+            try {
+                tmc.server.send("SetFinishTimeout", Number.parseInt(params[0]) * 1000);
+                tmc.chat(`¤info¤Timeout set to ¤white¤${params[0]} ¤info¤seconds`);
+            } catch (err: any) {
+                tmc.chat(err.message, login);
+            }
+        }, "Set finish timeout for rounds");
+        tmc.addCommand("//rlimit", async (login: string, params: string[]) => {
+            if (!params[0] && isNaN(Number.parseInt(params[0]))) {
+                return tmc.chat("¤cmd¤//rlimit ¤info¤needs numeric value");
+            }
+            try {
+                tmc.server.send("SetRoundPointsLimit", Number.parseInt(params[0]));
+                tmc.chat(`¤info¤Rounds limit set to ¤white¤${params[0]}`, login);
+            } catch (err: any) {
+                tmc.chat(err.message, login);
+            }
+        }, "Set rounds point limit");
+        tmc.addCommand("//usenewrules", async (login: string, params: string[]) => {
+            if (params[0] == "true") {
+                tmc.server.send("UseNewRules", true);
+                tmc.chat(`¤info¤Using new rounds rules`, login);
+            } else if (params[0] == "false") {
+                tmc.server.send("UseNewRules", false);
+                tmc.chat(`¤info¤Using old rounds rules`, login);
+            } else {
+                tmc.chat("¤cmd¤//usenewrules ¤info¤needs a boolean value", login);
+            }
+        }, "Use new rounds rules");
 
         tmc.addCommand("//addlocal", this.cmdAddLocal.bind(this), "Adds local map to playlist");
         tmc.addCommand("//modecommand", async (login: string, params: string[]) => {

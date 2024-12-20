@@ -256,9 +256,7 @@ export default class UiManager {
      */
     async displayManialink(manialink: Manialink) {
         if (manialink.recipient == undefined) {
-            if (!this.publicManialinks[manialink.id]) {
-                this.publicManialinks[manialink.id] = manialink;
-            }
+            this.publicManialinks[manialink.id.toString()] = manialink;
         } else {
             if (this.playerManialinks[manialink.recipient] == undefined) this.playerManialinks[manialink.recipient] = {};
             if (manialink instanceof Window) {
@@ -295,9 +293,7 @@ export default class UiManager {
         let callArray: any = [];
         for (const manialink of manialinks) {
             if (manialink.recipient == undefined) {
-                if (!this.publicManialinks[manialink.id]) {
                     this.publicManialinks[manialink.id] = manialink;
-                }
             } else {
                 if (this.playerManialinks[manialink.recipient] == undefined) this.playerManialinks[manialink.recipient] = {};
                 if (manialink instanceof Window) {
