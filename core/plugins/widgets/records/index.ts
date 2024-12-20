@@ -28,6 +28,23 @@ export default class RecordsWidget extends Plugin {
         tmc.server.addListener('Plugin.Records.onNewRecord', this.onNewRecord, this);
     }
 
+    async onUnload() {
+        tmc.server.removeListener('TMC.PlayerConnect', this.onPlayerConnect);
+        tmc.server.removeListener('TMC.PlayerDisconnect', this.onPlayerDisconnect);
+        tmc.server.removeListener('Plugin.Records.onSync', this.onSync);
+        tmc.server.removeListener('Plugin.liveRecords.onSync', this.onLiveSync);
+        tmc.server.removeListener('Plugin.worldRecords.onSync', this.onWorldSync);
+        tmc.server.removeListener('Plugin.Dedimania.onSync', this.onDediSync);
+        tmc.server.removeListener('Plugin.Dedimania.onNewRecord', this.onDediUpdate);
+        tmc.server.removeListener('Plugin.Records.onRefresh', this.onSync);
+        tmc.server.removeListener('Plugin.Records.onUpdateRecord', this.onUpdateRecord);
+        tmc.server.removeListener('Plugin.Records.onNewRecord', this.onNewRecord);
+        for (const login of Object.keys(this.widgets)) {
+            this.widgets[login].destroy();
+            delete this.widgets[login];
+        }
+    }
+
     async onPlayerConnect(player: Player) {
         const login = player.login;
         await this.updateWidget(login);
@@ -43,11 +60,7 @@ export default class RecordsWidget extends Plugin {
         }
     }
 
-    async onUnload() {
-        for (const login of Object.keys(this.widgets)) {
-            delete this.widgets[login];
-        }
-    }
+
 
     async onSync(data: any) {
         this.records = data.records;
