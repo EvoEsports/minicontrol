@@ -103,27 +103,31 @@ export default class Dedimania extends Plugin {
         if (!this.enabled) return;
         const serverGameMode = await tmc.server.call('GetGameMode');
         const serverInfo = await tmc.server.call('GetServerOptions', 0);
-        await this.api.call(
-            'dedimania.UpdateServerPlayers',
-            'TMF',
-            serverGameMode,
-            {
-                SrvName: serverInfo.Name,
-                Comment: serverInfo.Comment,
-                Private: serverInfo.Password != '',
-                SrvIP: '127.0.0.1',
-                SrvPort: '2350',
-                XmlRpcPort: '5000',
-                NumPlayers: tmc.players.getAll().filter((pl: Player) => !pl.isSpectator).length,
-                MaxPlayers: serverInfo.CurrentMaxPlayers,
-                NumSpectators: tmc.players.getAll().filter((pl: Player) => pl.isSpectator).length,
-                MaxSpectators: serverInfo.CurrentMaxSpectators,
-                LadderMode: serverInfo.LadderMode,
-                NextFiveUID: ''
-            },
-            this.getDedimaniaPlayers()
-        );
-        tmc.debug('¤info¤Dedimania: Updated players.');
+        try {
+            await this.api.call(
+                'dedimania.UpdateServerPlayers',
+                'TMF',
+                serverGameMode,
+                {
+                    SrvName: serverInfo.Name,
+                    Comment: serverInfo.Comment,
+                    Private: serverInfo.Password != '',
+                    SrvIP: '127.0.0.1',
+                    SrvPort: '2350',
+                    XmlRpcPort: '5000',
+                    NumPlayers: tmc.players.getAll().filter((pl: Player) => !pl.isSpectator).length,
+                    MaxPlayers: serverInfo.CurrentMaxPlayers,
+                    NumSpectators: tmc.players.getAll().filter((pl: Player) => pl.isSpectator).length,
+                    MaxSpectators: serverInfo.CurrentMaxSpectators,
+                    LadderMode: serverInfo.LadderMode,
+                    NextFiveUID: ''
+                },
+                this.getDedimaniaPlayers()
+            );
+            tmc.debug('¤info¤Dedimania: Updated players.');
+        } catch (e: any) {
+            tmc.cli(`¤error¤Dedimania: ${e.message}`);
+        }
     }
 
     /**
@@ -134,19 +138,23 @@ export default class Dedimania extends Plugin {
         this.server = await tmc.server.call('GetDetailedPlayerInfo', this.serverInfo.Login);
         const packmask = await tmc.server.call('GetServerPackMask');
         const pass = process.env.DEDIMANIA_PASS || '';
+        try {
+            const res: any = await this.api.call('dedimania.Authenticate', {
+                Game: 'TMF',
+                Login: this.serverLogin,
+                Password: pass.toString(),
+                Tool: 'MINIcontrol',
+                Version: tmc.version,
+                Nation: this.server.Path,
+                Packmask: packmask,
+                PlayersGame: true
+            });
 
-        const res: any = await this.api.call('dedimania.Authenticate', {
-            Game: 'TMF',
-            Login: this.serverLogin,
-            Password: pass.toString(),
-            Tool: 'MINIcontrol',
-            Version: tmc.version,
-            Nation: this.server.Path,
-            Packmask: packmask,
-            PlayersGame: true
-        });
-
-        this.enabled = res ?? false;
+            this.enabled = res ? true : false;
+        } catch (e: any) {
+            tmc.cli(`¤error¤Dedimania: ${e.message}`);
+            this.enabled = false;
+        }
         return this.enabled;
     }
 
@@ -239,7 +247,7 @@ export default class Dedimania extends Plugin {
             );
             tmc.debug('¤info¤Dedimania: Sent scores.');
         } catch (e: any) {
-            tmc.cli(e);
+            tmc.cli(`¤error¤Dedimania: ${e.message}`);
         }
     }
 
@@ -262,34 +270,40 @@ export default class Dedimania extends Plugin {
         // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
         const serverGameMode = await tmc.server.call('GetGameMode');
         const serverInfo = await tmc.server.call('GetServerOptions', 0);
-        const res: any = await this.api.call(
-            'dedimania.CurrentChallenge',
-            map.UId,
-            map.Name,
-            map.Environnement,
-            map.Author,
-            'TMF',
-            serverGameMode,
-            {
-                SrvName: serverInfo.Name,
-                Comment: serverInfo.Comment,
-                Private: serverInfo.Password != '',
-                SrvIP: '127.0.0.1',
-                SrvPort: '2350',
-                XmlRpcPort: '5000',
-                NumPlayers: tmc.players.getAll().filter((pl: Player) => !pl.isSpectator).length,
-                MaxPlayers: serverInfo.CurrentMaxPlayers,
-                NumSpectators: tmc.players.getAll().filter((pl: Player) => pl.isSpectator).length,
-                MaxSpectators: serverInfo.CurrentMaxSpectators,
-                LadderMode: serverInfo.LadderMode,
-                NextFiveUID: ''
-            },
-            this.maxRank,
-            this.getDedimaniaPlayers()
-        );
-        this.records = res.Records ?? [];
-        tmc.debug('Dedimania: Got records.');
-        tmc.server.emit('Plugin.Dedimania.onSync', clone(this.records));
+        try {
+            const res: any = await this.api.call(
+                'dedimania.CurrentChallenge',
+                map.UId,
+                map.Name,
+                map.Environnement,
+                map.Author,
+                'TMF',
+                serverGameMode,
+                {
+                    SrvName: serverInfo.Name,
+                    Comment: serverInfo.Comment,
+                    Private: serverInfo.Password != '',
+                    SrvIP: '127.0.0.1',
+                    SrvPort: '2350',
+                    XmlRpcPort: '5000',
+                    NumPlayers: tmc.players.getAll().filter((pl: Player) => !pl.isSpectator).length,
+                    MaxPlayers: serverInfo.CurrentMaxPlayers,
+                    NumSpectators: tmc.players.getAll().filter((pl: Player) => pl.isSpectator).length,
+                    MaxSpectators: serverInfo.CurrentMaxSpectators,
+                    LadderMode: serverInfo.LadderMode,
+                    NextFiveUID: ''
+                },
+                this.maxRank,
+                this.getDedimaniaPlayers()
+            );
+            this.records = res.Records ?? [];
+            tmc.debug('Dedimania: Got records.');
+            tmc.server.emit('Plugin.Dedimania.onSync', clone(this.records));
+        } catch (e: any) {
+            this.records = [];
+            tmc.server.emit('Plugin.Dedimania.onSync', clone(this.records));
+            tmc.cli(`¤error¤Dedimania: ${e.message}`);
+        }
     }
 
     async getDedimaniaPlayers() {
