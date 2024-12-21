@@ -49,8 +49,8 @@ export default class CommandManager {
             tmc.chat(`MiniController version: ${tmc.version}`, login);
         }, "Display server versions");
         this.addCommand("//shutdown", async () => { process.exit() }, "Close MINIcontroller");
-        this.addCommand("//plugins", this.cmdPluginManager.bind(this), "Open plugin manager");
-        this.addCommand("//plugin", async (login: string, args: string[]) => {
+        //this.addCommand("//plugins", this.cmdPluginManager.bind(this), "Open plugin manager");
+        /*this.addCommand("//plugin", async (login: string, args: string[]) => {
             if (args.length < 1) {
                 tmc.chat("Valid options are: list, load, unload, reload", login);
                 return;
@@ -117,6 +117,7 @@ export default class CommandManager {
                 }
             }
         }, "Manage plugins");
+        */
         tmc.addCommand("//admin", async (login: string, args: string[]) => {
             if (args.length < 1) {
                 tmc.chat("¤white¤Valid options are: ¤cmd¤list¤white¤, ¤cmd¤add¤white¤, ¤cmd¤remove", login);
