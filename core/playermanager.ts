@@ -109,6 +109,11 @@ export default class PlayerManager {
         const login = data[0];
         if (login) {
             await sleep(100); // this is really needed to prevent fetch from server multiple times
+            if (this.players[login]) {
+                tmc.cli(`$888Player ${login} already connected, kicking player due a bug to allow them joining again.`);
+                await tmc.server.call("Kick", login);
+                return;
+            }
             const player = await this.getPlayer(login);
             tmc.server.emit("TMC.PlayerConnect", player);
         } else {
