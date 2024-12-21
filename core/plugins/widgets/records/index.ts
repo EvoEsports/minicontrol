@@ -247,7 +247,7 @@ export default class RecordsWidget extends Plugin {
             this.widgetType[login] = type;
             this.lastClick[login] = Date.now();
             await this.updateWidget(login);
-            tmc.ui.displayManialinks([this.widgets[login]]);
+            await this.widgets[login].display();
         }
     }
 

@@ -29,7 +29,7 @@
         "sqlite3": "5.1.7",
         "tm-essentials": "1.0.5",
         "tsx": "4.19.2",
-        "twig": "1.17.1",
+        "twing": "7.1.0-beta.2",
         "umzug": "3.8.2",
         "xmlrpc": "1.3.2"
     },

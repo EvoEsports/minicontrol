@@ -11,14 +11,17 @@ export default class DebugTool extends Plugin {
         if (process.env.DEBUG == "true") {
             this.widget = new Widget("core/plugins/debugtool/widget.xml.twig");
             this.widget.pos = { x: 159, y: -60, z: 0 };
-            tmc.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
-            tmc.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
+            if (tmc.game.Name != "TmForever") {
+                tmc.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
+                tmc.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
+            }
+            this.intervalId = setInterval(() => {
+                this.displayMemInfo();
+            }, 60000) as any;
         }
         tmc.addCommand("//mem", this.cmdMeminfo.bind(this));
         tmc.addCommand("//uptime", this.cmdUptime.bind(this));
-        this.intervalId = setInterval(() => {
-            this.displayMemInfo();
-        }, 60000) as any;
+
     }
 
     async onStart() {

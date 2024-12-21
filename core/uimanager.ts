@@ -1,9 +1,6 @@
-import Twig from 'twig';
 import type Manialink from './ui/manialink';
 import Window from './ui/window';
 import { chunkArray } from './utils';
-
-Twig.cache(false);
 
 export interface uiModule {
     id: string;
@@ -14,8 +11,8 @@ export interface uiModule {
 
 export default class UiManager {
     private actions: any = {};
-    private publicManialinks: any = {};
-    private playerManialinks: any = {};
+    private publicManialinks: { [key: string]: Manialink } = {};
+    private playerManialinks: { [key: string]: Manialink } = {};
     private manialinkUUID: number = 2;
     private hiddenManialinks: string[] = [];
     private uiProperties: uiModule[] = [];
@@ -209,6 +206,9 @@ export default class UiManager {
                 for (let id in this.publicManialinks) {
                     hide += `<manialink id="${id}"></manialink>`;
                 }
+                for (let id of Object.keys(this.playerManialinks[login])) {
+                    hide += `<manialink id="${id}"></manialink>`;
+                }
                 hide += '</manialinks>';
                 await tmc.server.call('SendDisplayManialinkPageToLogin', login, hide, 0, false);
             } else {
@@ -228,7 +228,12 @@ export default class UiManager {
 
         let multi = [['SendDisplayManialinkPage', this.convert(this.getGlobalManialink()), 0, false]];
         for (let manialink of Object.values(this.publicManialinks)) {
-            const render = (manialink as Manialink).render();
+            const render = await (manialink as Manialink).render();
+            const xml = `<manialinks>${this.convert(render)}</manialinks>`;
+            multi.push(['SendDisplayManialinkPageToLogin', login, xml, 0, false]);
+        }
+        for (let manialink of Object.values(this.playerManialinks[login])) {
+            const render = await (manialink as Manialink).render();
             const xml = `<manialinks>${this.convert(render)}</manialinks>`;
             multi.push(['SendDisplayManialinkPageToLogin', login, xml, 0, false]);
         }
@@ -255,10 +260,16 @@ export default class UiManager {
      * @param manialink
      */
     async displayManialink(manialink: Manialink) {
+        if (!manialink) return;
         if (manialink.recipient == undefined) {
+            if (this.publicManialinks[manialink.id] && !(this.publicManialinks[manialink.id] === manialink)) {
+                tmc.debug('¤error¤destroying old manialink: ¤white¤' + manialink.id);
+                this.publicManialinks[manialink.id].destroy();
+            }
             this.publicManialinks[manialink.id.toString()] = manialink;
         } else {
-            if (this.playerManialinks[manialink.recipient] == undefined) this.playerManialinks[manialink.recipient] = {};
+            if (this.playerManialinks[manialink.recipient] == undefined) this.playerManialinks[manialink.recipient] = {} as Manialink;
+
             if (manialink instanceof Window) {
                 for (let id in this.playerManialinks[manialink.recipient]) {
                     if (this.playerManialinks[manialink.recipient][id] instanceof Window) {
@@ -267,13 +278,21 @@ export default class UiManager {
                     }
                 }
             }
+
+            if (manialink && this.playerManialinks[manialink.recipient][manialink.id] && !(this.playerManialinks[manialink.recipient][manialink.id] === manialink)) {
+                tmc.debug('¤error¤destroying old manialink: ¤white¤' + manialink.id);
+                this.playerManialinks[manialink.recipient][manialink.id].destroy();
+            }
+
             this.playerManialinks[manialink.recipient][manialink.id.toString()] = manialink;
         }
-        const render = manialink.render();
+        const render = await manialink.render();
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
-            await tmc.server.send('SendDisplayManialinkPageToLogin', manialink.recipient, xml, 0, false);
+            if (!this.hiddenManialinks.includes(manialink.recipient)) {
+                await tmc.server.send('SendDisplayManialinkPageToLogin', manialink.recipient, xml, 0, false);
+            }
         } else {
             if (this.hiddenManialinks.length > 0) {
                 const logins = tmc.players.getAll().map((player) => player.login);
@@ -292,10 +311,15 @@ export default class UiManager {
     async displayManialinks(manialinks: Manialink[]) {
         let callArray: any = [];
         for (const manialink of manialinks) {
+            if (!manialink) continue;
             if (manialink.recipient == undefined) {
-                    this.publicManialinks[manialink.id] = manialink;
+                if (this.publicManialinks[manialink.id] && !(this.publicManialinks[manialink.id] === manialink)) {
+                    tmc.debug('¤error¤destroying old manialink: ¤white¤' + manialink.id);
+                    this.publicManialinks[manialink.id].destroy();
+                }
+                this.publicManialinks[manialink.id] = manialink;
             } else {
-                if (this.playerManialinks[manialink.recipient] == undefined) this.playerManialinks[manialink.recipient] = {};
+                if (this.playerManialinks[manialink.recipient] == undefined) this.playerManialinks[manialink.recipient] = {} as Manialink;
                 if (manialink instanceof Window) {
                     for (let id in this.playerManialinks[manialink.recipient]) {
                         if (this.playerManialinks[manialink.recipient][id] instanceof Window) {
@@ -304,13 +328,19 @@ export default class UiManager {
                         }
                     }
                 }
+                if (this.playerManialinks[manialink.recipient][manialink.id] && !(this.playerManialinks[manialink.recipient][manialink.id] === manialink)) {
+                    tmc.debug('¤error¤destroying old manialink: ¤white¤' + manialink.id);
+                    this.playerManialinks[manialink.recipient][manialink.id].destroy();
+                }
                 this.playerManialinks[manialink.recipient][manialink.id.toString()] = manialink;
             }
-            const render = manialink.render();
+            const render = await manialink.render();
             const xml = `<?xml version="1.0" encoding="UTF-8"?>
             <manialinks>${this.convert(render)}</manialinks>`;
             if (manialink.recipient !== undefined) {
-                callArray.push(['SendDisplayManialinkPageToLogin', manialink.recipient, xml, 0, false]);
+                if (!this.hiddenManialinks.includes(manialink.recipient)) {
+                    callArray.push(['SendDisplayManialinkPageToLogin', manialink.recipient, xml, 0, false]);
+                }
             } else {
                 if (this.hiddenManialinks.length > 0) {
                     const logins = tmc.players.getAll().map((player) => player.login);
@@ -331,7 +361,7 @@ export default class UiManager {
      * @param manialink
      */
     async refreshManialink(manialink: Manialink) {
-        const render = manialink.render();
+        const render = await manialink.render();
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
