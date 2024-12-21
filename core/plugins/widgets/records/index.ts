@@ -114,7 +114,11 @@ export default class RecordsWidget extends Plugin {
             widget = new recordsWidget('core/plugins/widgets/records/widget.xml.twig');
             widget.title = "RECORDS";
             widget.recipient = login;
-            widget.pos = { x: 121, y: 30, z: 0 };
+            if (tmc.game.Name == 'TmForever') {
+                widget.pos = { x: -159, y: 40, z: 0 };
+            } else {
+                widget.pos = { x: 121, y: 30, z: 0 };
+            }
             widget.size = { width: 38, height: 45 };
             widget.setOpenAction(this.widgetClick.bind(this));
             widget.setLiveAction(this.liveAction.bind(this));
@@ -123,7 +127,6 @@ export default class RecordsWidget extends Plugin {
         }
 
         if (this.widgetType[login] == 'live') {
-            // widget.title = 'LIVE RECORDS';
             outRecords = this.liveRecords.slice(0, 5);
             this.myIndex = this.liveRecords.findIndex((val: any) => val.login == login);
             let addRecords = true;
@@ -138,7 +141,6 @@ export default class RecordsWidget extends Plugin {
                 outRecords = [...outRecords, ...this.liveRecords.slice(5, 10)];
             }
         } else if (this.widgetType[login] == 'world') {
-            // widget.title = 'WORLD RECORDS';
             outRecords = this.worldRecords.slice(0, 5);
             let myName = (await tmc.players.getPlayer(login)).nickname;
             this.myIndex = this.worldRecords.findIndex((val: any) => val.nickname == myName);
@@ -154,8 +156,6 @@ export default class RecordsWidget extends Plugin {
                 outRecords = [...outRecords, ...this.worldRecords.slice(5, 10)];
             }
         } else if (this.widgetType[login] == 'server') {
-            //  widget.title = 'SERVER RECORDS';
-
             outRecords = this.records.slice(0, 5);
             this.myIndex = this.records.findIndex((val: any) => val.login == login);
             let addRecords = true;

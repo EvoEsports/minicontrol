@@ -9,8 +9,7 @@ export default class MapWidget extends Plugin {
 
     async onLoad() {
         this.widget = new Widget("core/plugins/widgets/map/widget.xml.twig");
-        this.widget.title ="MAP INFO";
-        this.widget.pos = { x: 121, y: 90, z: 1 };
+        this.widget.pos = { x: 121, y: 89, z: 1 };
         this.widget.size = { width: 38, height: 10 };
         this.widget.setOpenAction(this.buttonClick.bind(this));
         tmc.server.addListener("Trackmania.BeginMap", this.beginMap, this);
