@@ -551,55 +551,6 @@ export default class AdminPlugin extends Plugin {
             },
             'Send mode command'
         );
-        tmc.addCommand(
-            '//cleanignorelist',
-            async (login: string, params: string[]) => {
-                try {
-                    await tmc.server.call('CleanIgnoreList');
-                    tmc.chat('¤info¤Mutelist cleared', login);
-                } catch (e: any) {
-                    tmc.chat('¤error¤' + e.message, login);
-                }
-            },
-            'Clears ignorelist'
-        );
-        tmc.addCommand(
-            '//cleanbanlist',
-            async (login: string, params: string[]) => {
-                try {
-                    await tmc.server.call('CleanBanList');
-                    tmc.chat('¤info¤Banlist cleared', login);
-                } catch (e: any) {
-                    tmc.chat('¤error¤' + e.message, login);
-                }
-            },
-            'Clears banlist'
-        );
-        tmc.addCommand(
-            '//cleanguestlist',
-            async (login: string, params: string[]) => {
-                try {
-                    await tmc.server.call('CleanGuestList');
-                    tmc.chat('¤info¤Guestlist cleared', login);
-                } catch (e: any) {
-                    tmc.chat('¤error¤' + e.message, login);
-                }
-            },
-            'Clears guestlist'
-        );
-        tmc.addCommand(
-            '//cleanblacklist',
-            async (login: string, params: string[]) => {
-                try {
-                    await tmc.server.call('ClearBlackList');
-                    tmc.chat('¤info¤Blacklist cleared', login);
-                } catch (e: any) {
-                    tmc.chat('¤error¤' + e.message, login);
-                }
-            },
-            'Clears blacklist'
-        );
-
         tmc.addCommand('//guestlist', this.cmdGuestlist.bind(this), 'Manage Guestlist');
         tmc.addCommand('//blacklist', this.cmdBlacklist.bind(this), 'Manage Blacklist');
         tmc.addCommand('//ignorelist', this.cmdIgnoreList.bind(this), 'Manage Ignorelist');
@@ -613,10 +564,6 @@ export default class AdminPlugin extends Plugin {
         tmc.removeCommand('//pointlimit');
         tmc.removeCommand('//usenewrules');
         tmc.removeCommand('//laps');
-        tmc.removeCommand('//cleanignorelist');
-        tmc.removeCommand('//cleanbanlist');
-        tmc.removeCommand('//cleanguestlist');
-        tmc.removeCommand('//cleanblacklist');
         tmc.removeCommand('//skip');
         tmc.removeCommand('//res');
         tmc.removeCommand('//kick');
