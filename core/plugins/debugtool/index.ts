@@ -17,7 +17,7 @@ export default class DebugTool extends Plugin {
             }
             this.intervalId = setInterval(() => {
                 this.displayMemInfo();
-            }, 60000) as any;
+            }, 30000) as any;
         }
         tmc.addCommand("//mem", this.cmdMeminfo.bind(this));
         tmc.addCommand("//uptime", this.cmdUptime.bind(this));

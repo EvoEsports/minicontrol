@@ -128,7 +128,7 @@ export function castType(value: string, type?: string): any {
 }
 
 let prevValueMem: number = -1;
-let startValueMem: number = process.memoryUsage().rss / 1048576;
+let startValueMem: number = 0;
 
 /**
  * @ignore
@@ -144,7 +144,7 @@ export function memInfo(section = '') {
         prefix = '$0f0-';
     }
     section = section != '' ? `¤info¤${section} ` : '';
-    const out = section + ' ¤white¤Start:' + startValueMem.toFixed(1) + 'Mb  Curr:' + memMB.toFixed(1) + 'Mb  Diff:' + prefix + Math.abs(memMB - startValueMem).toFixed(1) + 'Mb';
+    const out = section + ' Mem:' + memMB.toFixed(1) + 'Mb  Diff:' + prefix + Math.abs(memMB - startValueMem).toFixed(1) + 'Mb';
     prevValueMem = memMB;
     return processColorString(out);
 }

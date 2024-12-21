@@ -27,7 +27,7 @@ import UiManager from './uimanager';
 import MapManager from './mapmanager';
 import CommandManager, {type CallableCommand} from './commandmanager';
 import SettingsManager from './settingsmanager';
-import {getCallerName, processColorString, setMemStart} from './utils';
+import {clone, getCallerName, processColorString, setMemStart} from './utils';
 import log from './log';
 import fs from 'fs';
 import Plugin from './plugins/index';
@@ -394,7 +394,6 @@ class MiniControl {
         await this.players.init();
         await this.ui.init();
         await this.beforeInit();
-        setMemStart();
     }
 
     /**
@@ -457,19 +456,24 @@ class MiniControl {
             if (plugin == undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
                 this.cli(msg);
+                cls = undefined;
                 continue;
             }
 
             if (!(plugin.prototype instanceof Plugin)) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ is not a valid plugin.`;
                 this.cli(msg);
+                cls = undefined;
+                plugin = undefined;
                 continue;
             }
 
             this.pluginDependecies.addNode(name);
             if (Reflect.has(plugin, 'depends')) {
-                dependencyByPlugin[name] = plugin.depends;
+                dependencyByPlugin[name] = clone(plugin.depends);
             }
+            cls = undefined;
+            plugin = undefined;
         }
 
         for (const name in dependencyByPlugin) {
@@ -485,9 +489,9 @@ class MiniControl {
         }
         dependencyByPlugin = null;
 
-        for (const plugin of this.pluginDependecies.overallOrder()) {
-            if (loadList.includes(plugin)) {
-                await this.loadPlugin(plugin);
+        for (const pluginName of this.pluginDependecies.overallOrder()) {
+            if (loadList.includes(pluginName)) {
+                await this.loadPlugin(pluginName);
             }
         }
 
@@ -504,15 +508,19 @@ class MiniControl {
         this.players.afterInit();
         await this.chatCmd.afterInit();
         await this.ui.afterInit();
+
         const msg = `¤info¤Welcome to ${this.brand} ¤info¤version ¤white¤${this.version}¤info¤!`;
         this.chat(msg);
         this.cli(msg);
         this.startComplete = true;
+        setMemStart();
+        if (gc) gc();
         for (const plugin of Object.values(this.plugins)) {
             await plugin?.onStart();
         }
         console.timeEnd('Startup');
         tmc.cli('¤success¤MiniControl started successfully.');
+
     }
 }
 
