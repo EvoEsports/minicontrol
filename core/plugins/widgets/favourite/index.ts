@@ -1,6 +1,5 @@
 import Plugin from '@core/plugins';
 import Widget from '@core/ui/widget';
-import { htmlEntities, removeColors } from '@core/utils';
 
 export default class Favourite extends Plugin {
     static depends: string[] = [];

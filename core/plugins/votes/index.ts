@@ -1,6 +1,7 @@
 import Plugin from '@core/plugins';
 import Widget from '@core/ui/widget';
-import { formatTime, processColorString, htmlEntities } from '@core/utils';
+import { processColorString, htmlEntities } from '@core/utils';
+
 
 export class Vote {
     type: string;
@@ -9,7 +10,7 @@ export class Vote {
     timeout: number;
     votes: Map<string, boolean>;
     starter: string;
-    vote_ratio: number = 0.5;
+    voteRatio: number = 0.5;
 
     constructor(login: string, type: string, question: string, timeout: number, value: number) {
         this.starter = login;
@@ -196,7 +197,7 @@ export default class VotesPlugin extends Plugin {
             return;
         }
         this.currentVote = new Vote(login, type, question, Date.now() + this.timeout * 1000, value);
-        this.currentVote.vote_ratio = this.ratio;
+        this.currentVote.voteRatio = this.ratio;
         await this.vote(login, true);
         this.widget = new Widget("core/plugins/votes/widget.xml.twig");
         this.widget.pos = { x: 0, y: 60, z: 10 };
@@ -286,9 +287,9 @@ export default class VotesPlugin extends Plugin {
             vote: this.currentVote,
             total: total,
             yes_ratio: percent,
-            voteText: processColorString(htmlEntities(this.currentVote.question)),
+            voteText: htmlEntities(processColorString((this.currentVote.question))),
             time_percent: (this.currentVote.timeout - Date.now()) / (this.timeout * 1000),
-            timer: formatTime(Math.floor(Math.abs(Date.now() - this.currentVote.timeout))).replace(/\.\d\d\d/, "")
+            timer: Math.round((this.currentVote.timeout - Date.now()) / 1000)
         });
         await this.widget.display();
     }

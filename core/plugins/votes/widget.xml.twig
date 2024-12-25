@@ -2,12 +2,12 @@
 {% block content %}
 <frame scale="0.7">
 <frame pos="-35 0" z-index="5">
-    <label pos="{{ data.vote['vote_ratio'] * 70 }} 2"  z-index="5" size="25 5" text="{{ data.vote.vote_ratio }}" textfont="GameFontRegular" textsize="1" halign="center" valign="center2" />
-    <quad pos="{{ data.vote['vote_ratio'] * 70 }} -2" size="0.3 6" z-index="5" bgcolor="fff" opacity="1" valign="center" halign="center" />
+    <label pos="{{ data.vote.voteRatio * 70 }} 2"  z-index="5" size="25 5" text="{{ data.vote.voteRatio }}" textfont="GameFontRegular" textsize="1" halign="center" valign="center2" />
+    <quad pos="{{ data.vote.voteRatio * 70 }} -2" size="0.5 6" z-index="5" bgcolor="fff" valign="center" halign="center" />
     <quad pos="0 -2" z-index="2" size="{{ (data.yes_ratio * 70) }} 4" bgcolor="090" opacity="1" valign="center" halign="left" />
     <quad pos="0 -2" z-index="1" size="70 4" bgcolor="900" opacity="1" valign="center" halign="left" />
     <quad pos="35 -5.5" z-index="2" size="{{(data.time_percent * 70)}} 0.5" bgcolor="0af" opacity="0.7" halign="center" valign="top" />
-    <label pos="35 -7.5" z-index="3" size="20 5" text="{{ data.timer }}" valign="center" textsize="1" textfont="GameFontSemiBold" halign="center" />
+    <label pos="35 -7.5" z-index="3" size="20 5" text="{{ data.timer }}" valign="center" textsize="1.2" textfont="GameFontSemiBold" halign="center" />
 </frame>
 
 <frame pos="0 -2" z-index="6">
