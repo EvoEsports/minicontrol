@@ -115,7 +115,7 @@ export default class RecordsWidget extends Plugin {
             widget.title = "RECORDS";
             widget.recipient = login;
             if (tmc.game.Name == 'TmForever') {
-                widget.pos = { x: -159, y: 40, z: 0 };
+                widget.pos = { x: -159, y: 38, z: 0 };
             } else {
                 widget.pos = { x: 121, y: 30, z: 0 };
             }
