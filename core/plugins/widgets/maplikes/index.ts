@@ -12,7 +12,7 @@ export default class MapLikesWidget extends Plugin {
         tmc.server.addListener("Plugin.MapLikes.onSync", this.onSync, this);
         this.widget = new Widget("core/plugins/widgets/maplikes/widget.xml.twig");
         if (tmc.game.Name === "TmForever") {
-            this.widget.pos = { x: -159, y: 60.5, z: 1 };
+            this.widget.pos = { x: -159, y: 55, z: 1 };
         }
         else {
             this.widget.pos = { x: 121, y: 60, z: 1 };
