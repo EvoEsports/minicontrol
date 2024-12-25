@@ -14,8 +14,9 @@ export default class TAlimitPlugin extends Plugin {
     async onBeginRound() {
         this.startTime = Date.now();
         const gamemode = await tmc.server.call("GetGameMode"); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
+        const warmup = await tmc.server.call("GetWarmUp");
 
-        this.active = gamemode === 1;
+        this.active = gamemode === 1 && !warmup;
         if (this.extend) {
             this.extend = false;
             this.timeLimit = Number.parseInt(process.env.TALIMIT || "300");
