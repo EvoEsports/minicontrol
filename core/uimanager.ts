@@ -232,6 +232,7 @@ export default class UiManager {
             const xml = `<manialinks>${this.convert(render)}</manialinks>`;
             multi.push(['SendDisplayManialinkPageToLogin', login, xml, 0, false]);
         }
+        if (this.playerManialinks[login] == undefined) this.playerManialinks[login] = {} as Manialink;
         for (let manialink of Object.values(this.playerManialinks[login])) {
             const render = await (manialink as Manialink).render();
             const xml = `<manialinks>${this.convert(render)}</manialinks>`;
