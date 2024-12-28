@@ -38,14 +38,14 @@ export default class Freezone extends Plugin {
     mlHash: string = "6f116833b419fe7cb9c912fdaefb774845f60e79"
     mlUrl: string = "ws.trackmania.com"
     mlVersion: string = "239"
-    heartbeatInterval: any | null = null;
+    heartbeatInterval: any = null;
 
     onLoad = async () => {
         if (!this.password) {
             tmc.chat("¤error¤Freezone: Cannot enable plugin - Freezone password was not set, please check your .env file.")
             await tmc.unloadPlugin("tmnf/freezone");
         }
-        const status: true | Error = await this.sendHeartbeat();
+        const status = await this.sendHeartbeat();
         if (status instanceof Error) {
             tmc.chat(`¤error¤Freezone: ${status.message}`)
             await tmc.unloadPlugin("tmnf/freezone");

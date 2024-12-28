@@ -20,7 +20,7 @@ export default class Server {
     name: string = '';
 
     constructor() {
-        this.events.setMaxListeners(50);
+        this.events.setMaxListeners(100);
         this.gbx = new GbxClient(this);
     }
 

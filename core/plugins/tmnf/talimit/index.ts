@@ -14,8 +14,9 @@ export default class TAlimitPlugin extends Plugin {
     async onBeginRound() {
         this.startTime = Date.now();
         const gamemode = await tmc.server.call("GetGameMode"); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
+        const warmup = await tmc.server.call("GetWarmUp");
 
-        this.active = gamemode === 1;
+        this.active = gamemode === 1 && !warmup;
         if (this.extend) {
             this.extend = false;
             this.timeLimit = Number.parseInt(process.env.TALIMIT || "300");
@@ -28,10 +29,9 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async onLoad() {
-        this.widget = new Widget("core/plugins/tmnf/talimit/widget.twig");
-        this.widget.pos = { x: 121, y: 45, z: 1 };
+        this.widget = new Widget("core/plugins/tmnf/talimit/widget.xml.twig");
+        this.widget.pos = { x: 128, y: 45, z: 1 };
         this.widget.size = { width: 38, height: 10 };
-        this.widget.title = "TIME LEFT";
         this.timeLimit = Number.parseInt(process.env.TALIMIT || "300");
         this.startTime = Date.now();
         tmc.server.addListener("Trackmania.BeginRound", this.onBeginRound, this);

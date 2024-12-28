@@ -1,0 +1,10 @@
+{
+    "npm.exclude": "",
+    "search.exclude": {
+        "**/node_modules/**": true
+    },
+    "files.exclude": {
+        "**/node_modules/**": true
+    },
+    "prettier.printWidth": 180
+}

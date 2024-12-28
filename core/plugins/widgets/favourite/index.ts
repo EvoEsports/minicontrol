@@ -20,9 +20,8 @@ export default class Favourite extends Plugin {
         const widget = new Widget();
         widget.size = { width: 10, height: 10 };
         widget.pos = { x: -138, y: 72.5, z: 5 };
-        let link = `tmtp://#addfavourite=${tmc.server.login}`;
-        if (tmc.game.Name=="ManiaPlanet") link = `maniaplanet://#addfavourite=${tmc.server.login}`
-        widget.template = 'core/plugins/widgets/favourite/widget.twig';
+        let link = `http://reaby.kapsi.fi/trackmania/favourite.php?server=${encodeURIComponent(tmc.server.login)}`;
+        widget.template = 'core/plugins/widgets/favourite/widget.xml.twig';
         widget.setData({
             link: link
         });

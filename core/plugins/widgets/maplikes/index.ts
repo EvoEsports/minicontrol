@@ -10,8 +10,14 @@ export default class MapLikesWidget extends Plugin {
 
     async onLoad() {
         tmc.server.addListener("Plugin.MapLikes.onSync", this.onSync, this);
-        this.widget = new Widget("core/plugins/widgets/maplikes/widget.twig");
-        this.widget.pos = { x: 121, y: 60, z: 1 };
+        this.widget = new Widget("core/plugins/widgets/maplikes/widget.xml.twig");
+        if (tmc.game.Name === "TmForever") {
+            this.widget.pos = { x: -159, y: 54, z: 1 };
+        }
+        else {
+            this.widget.pos = { x: 121, y: 60, z: 1 };
+        }
+
         this.widget.size = { width: 38, height: 10 };
         this.widget.actions['like'] = tmc.ui.addAction(this.actionLike.bind(this), 1);
         this.widget.actions['dislike'] = tmc.ui.addAction(this.actionLike.bind(this), -1);

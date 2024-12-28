@@ -73,12 +73,10 @@ class MapManager {
      * Sync the maplist with the server
      */
     async syncMaplist() {
-        this.maps = {};
-
         const chunckedMaps: any = chunkArray(await tmc.server.call("GetMapList", -1, 0), 100);
         let method = "GetMapInfo";
         if (tmc.game.Name == "TmForever") method = "GetChallengeInfo";
-
+        let newMaps = {};
         for (const infos of chunckedMaps) {
             let out:any[] = [];
 
@@ -88,9 +86,10 @@ class MapManager {
             const res:any = await tmc.server.multicall(out) || [];
 
             for (const map of res) {
-                this.maps[map.UId] = map;
+                newMaps[map.UId] = map;
             }
         }
+        this.maps = newMaps;
     }
     /**
      * add map

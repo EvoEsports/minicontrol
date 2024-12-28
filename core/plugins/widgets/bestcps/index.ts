@@ -1,7 +1,7 @@
 import Plugin from '@core/plugins';
 import ListWindow from '@core/ui/listwindow';
 import Widget from '@core/ui/widget';
-import {formatTime, escape} from '@core/utils';
+import {formatTime, htmlEntities} from '@core/utils';
 
 interface Time {
     nickname: string;
@@ -20,7 +20,7 @@ export default class BestCps extends Plugin {
         tmc.server.addListener("Trackmania.BeginMap", this.beginMap, this);
         tmc.server.addListener("TMC.PlayerCheckpoint", this.checkpoint, this);
         tmc.chatCmd.addCommand("/checkpoints", this.cmdCheckpoints.bind(this), "Display best Checkpoints");
-        this.widget = new Widget("core/plugins/widgets/bestcps/widget.twig");
+        this.widget = new Widget("core/plugins/widgets/bestcps/widget.xml.twig");
         this.widget.pos = {x: -160, z: 0, y: 90};
         this.widget.size = {width: 240, height: 20};
         const info = tmc.maps.currentMap;
@@ -54,7 +54,7 @@ export default class BestCps extends Plugin {
         const nb = data[2];
         if (!this.bestTimes[nb - 1] && nb > 0) return;
         if (!this.bestTimes[nb] || time < this.bestTimes[nb].time) {
-            this.bestTimes[nb] = {nickname: escape((await tmc.getPlayer(login)).nickname), time: time, prettyTime: formatTime(time)};
+            this.bestTimes[nb] = {nickname: htmlEntities((await tmc.getPlayer(login)).nickname), time: time, prettyTime: formatTime(time)};
             await this.display();
         }
     }

@@ -6,9 +6,8 @@ export default class TmnfUi extends Plugin {
     widget: Widget | null = null;
 
     async onLoad() {
-        this.widget = new Widget("core/plugins/tmnf/ui/widget.twig");
-        this.widget.title = "RUN INFO";
-        this.widget.pos = {x: 121, y: 75, z: -20};
+        this.widget = new Widget("core/plugins/tmnf/ui/widget.xml.twig");
+        this.widget.pos = {x: 121, y: 72.5, z: -20};
         this.widget.size = {width: 38, height: 10};
         await this.widget.display();
     }

@@ -1,0 +1,50 @@
+{% extends "core/templates/widget.xml.twig" %}
+
+{% block content %}
+   <frame pos="0 0" z-index="10" halign="right" valign="bottom">
+        <frame id="quickButtons" pos="-70 90" z-index="5">
+        {% for category in data.categories %}
+        {% if data.activeCategory == category %}
+            <frame id="button_{{loop.index0}}" pos="0 -{{loop.index0 * 10}}">
+                <label pos="5 -5" z-index="2" size="10 10" textsize="1" halign="center" valign="center" text="{{category}}" textcolor="{{colors.title_bg}}" textfont="GameFontSemiBold"/>
+                <quad pos="5 -5" z-index="1" size="10 10" text=" " halign="center" valign="center" bgcolor="bbb" />
+            </frame>
+        {% else %}
+            <frame id="button_{{loop.index0}}" pos="0 -{{loop.index0 * 10}}">
+                <label pos="5 -5" z-index="2" size="10 10" textsize="1" halign="center" valign="center" text="{{category}}" textcolor="bbb" textfont="GameFontSemiBold"/>
+                <label pos="5 -5" z-index="1" size="10 10" text=" " halign="center" valign="center" focusareacolor1="{{colors.title_bg}}" focusareacolor2="{{colors.title_bg_light}}" action="{{ actions['cat_' ~ category] }}"/>
+            </frame>
+        {% endif %}
+        {% endfor %}
+        <quad pos="0 0" z-index="-2" size="10 90" bgcolor="{{colors.title_bg}}"  halign="left" valign="top" />
+        </frame>
+        <frame id="items" pos="-60 90" z-index="2">
+            <frame id="content" pos="3 -3">
+                <label pos="0 0" class="text" text="{{data.activeCategory}}" />
+              <!--  <quad pos="0 -5.5" z-index="2" size="50 0.2" halign="left" valign="center2" bgcolor="eee" /> -->
+                <frame pos="5 -6">
+                    {% for item in data.items %}
+                            <frame pos="{{loop.index0 % 2 * 22 }} -{{ 10+(loop.index0 // 2) * 12 }}">
+                              <!--  <label pos="10 0" z-index="3" size="10 10" halign="center" valign="center2" text="" textcolor="fff"/> -->
+                                {% if item.admin %}
+                                    <quad pos="10 5" z-index="2" size="20 0.2" halign="center" valign="center2" bgcolor="e00" />
+                                    <quad pos="0 0" z-index="2" size="0.2 10" halign="center" valign="center2" bgcolor="e00" />
+                                    <quad pos="10 -5" z-index="2" size="20 0.2" halign="center" valign="center2" bgcolor="e00" />
+                                    <quad pos="20 0" z-index="2" size="0.2 10" halign="center" valign="center2" bgcolor="e00" />
+                                {% else %}
+                                    <quad pos="10 5" z-index="2" size="20 0.2" halign="center" valign="center2" bgcolor="eee" />
+                                    <quad pos="0 0" z-index="2" size="0.2 10" halign="center" valign="center2" bgcolor="eee" />
+                                    <quad pos="10 -5" z-index="2" size="20 0.2" halign="center" valign="center2" bgcolor="eee" />
+                                    <quad pos="20 0" z-index="2" size="0.2 10" halign="center" valign="center2" bgcolor="eee" />
+                                {% endif %}
+
+                                <label pos="10 0" z-index="1" size="40 10" halign="center" valign="center2" text="{{item.title}}" textcolor="fff" scale="0.5" textfont="GameFontSemiBold"/>
+                                <label pos="10 0" z-index="0" size="20 10" text=" " halign="center" valign="center2" focusareacolor1="012" focusareacolor2="345" action="{{ actions['item_' ~ item.title] }}" />
+                            </frame>
+                    {% endfor %}
+                </frame>
+            </frame>
+        </frame>
+        <quad pos="0 0" z-index="-5" size="70 90" bgcolor="{{colors.window_bg}}" halign="right" valign="bottom"/>
+   </frame>
+{% endblock %}

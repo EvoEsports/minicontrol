@@ -1,6 +1,6 @@
 import Plugin from "@core/plugins";
 import Player from "@core/schemas/players.model";
-import { clone, escape, formatTime } from "@core/utils";
+import { clone, htmlEntities, formatTime } from "@core/utils";
 import RecordsWindow from "@core/plugins/records/recordsWindow";
 
 interface LiveRecord {
@@ -57,7 +57,7 @@ export default class LiveRecords extends Plugin {
         for (const record of this.liveRecords) {
             liveRecords.push({
                 rank: record.rank,
-                nickname: escape(record.player?.nickname ?? ""),
+                nickname: htmlEntities(record.player?.nickname ?? ""),
                 login: record.login,
                 time: formatTime(record.time ?? 0),
             });

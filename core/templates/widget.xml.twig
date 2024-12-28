@@ -1,0 +1,22 @@
+<manialink id="{{ id }}" version="3">
+    <frame pos="{{ pos.x }} {{ pos.y }}" z-index="{{ pos.z | default(1) }}">
+    {% if title != "" %}
+    <frame pos="0 0" z-index="3">
+        <label pos="{{ size.width / 2 }} -2" z-index="1" size="{{ size.width }} 5" textsize="0.8" textfont="RobotoCondensed" text="$o{{ title }}" focusareacolor1="0000"
+               focusareacolor2="000" textcolor="{{ colors.title_fg }}" halign="center" valign="center2" action="{{ actions['openWidget'] }}"/>
+        <quad pos="0 0" z-index="0" size="{{ size.width }} 4" bgcolor="{{ colors.title_bg }}e" halign="left" valign="top"/>
+        <quad pos="0 -4" z-index="3" size="{{ size.width }} 0.3" bgcolor="{{ colors.highlight }}" halign="left" valign="top"/>
+    </frame>
+    <frame pos="0 -4.5" z-index="1">
+        {% else %}
+        <frame pos="0 0" z-index="1">
+            {% endif %}
+            {% block content %}{% endblock %}
+            {% if title != "" or (actions['openWidget'] is defined and actions['openWidget'] is not null) %}
+                <label pos="0 0" text=" " z-index="0" size="{{ size.width }} {{ size.height }}" valign="top" halign="left" focusareacolor1="{{ colors.widget_bg }}9"
+                       focusareacolor2="0009" action="{{ actions['openWidget'] }}"/>
+            {% endif %}
+        </frame>
+    </frame>
+    {% block maniascript %}{% endblock %}
+</manialink>

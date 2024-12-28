@@ -31,7 +31,7 @@ export default class Pay2Play extends Plugin {
         widget.size = { width: 10, height: 10 };
         widget.pos = { x: -160 + index * (widget.size.width + 1), y: 72.5, z: 5 };
 
-        widget.template = 'core/plugins/pay2play/widget.twig';
+        widget.template = 'core/plugins/pay2play/widget.xml.twig';
         widget.setData({
             text: text,
             amount: amount

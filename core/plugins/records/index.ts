@@ -1,7 +1,7 @@
 import Plugin from '@core/plugins';
 import Score from '@core/schemas/scores.model';
 import Player from '@core/schemas/players.model';
-import { clone, escape, formatTime } from '@core/utils';
+import { clone, htmlEntities, formatTime } from '@core/utils';
 import RecordsWindow from './recordsWindow';
 import { Op } from 'sequelize';
 
@@ -53,7 +53,7 @@ export default class Records extends Plugin {
         for (const record of this.records) {
             records.push({
                 rank: record.rank,
-                nickname: escape(record?.player?.customNick ?? record?.player?.nickname ??''),
+                nickname: htmlEntities(record?.player?.customNick ?? record?.player?.nickname ??''),
                 login: record.login,
                 time: formatTime(record.time ?? 0)
             });
@@ -270,18 +270,6 @@ export default class Records extends Plugin {
                 if (this.records[i].login == login) {
                     outRecord = this.records[i];
                 }
-
-                /* if (i >= this.limit) {
-                    tmc.cli(`Deleting record ${i} because it's out of limit.`);
-                    await Score.destroy({
-                        where: {
-                            [Op.and]: {
-                                login: this.records[i].login,
-                                mapUuid: this.currentMapUid
-                            }
-                        }
-                    });
-                } */
             }
 
             this.records = this.records.slice(0, this.limit);

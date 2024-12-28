@@ -1,4 +1,4 @@
-import { escape, formatTime } from '@core/utils';
+import { htmlEntities, formatTime } from '@core/utils';
 import Plugin from '@core/plugins';
 import Widget from '@core/ui/widget';
 
@@ -8,9 +8,8 @@ export default class MapWidget extends Plugin {
     widget: Widget | null = null;
 
     async onLoad() {
-        this.widget = new Widget("core/plugins/widgets/map/widget.twig");
-        this.widget.title ="MAP INFO";
-        this.widget.pos = { x: 121, y: 90, z: 1 };
+        this.widget = new Widget("core/plugins/widgets/map/widget.xml.twig");
+        this.widget.pos = { x: 121, y: 89, z: 1 };
         this.widget.size = { width: 38, height: 10 };
         this.widget.setOpenAction(this.buttonClick.bind(this));
         tmc.server.addListener("Trackmania.BeginMap", this.beginMap, this);
@@ -33,7 +32,7 @@ export default class MapWidget extends Plugin {
         data = data[0];
         this.widget?.setData({
             author: data.AuthorNickname ? data.AuthorNickname : data.Author,
-            mapname: escape(data.Name),
+            mapname: htmlEntities(data.Name),
             authortime: formatTime(data.AuthorTime),
         });
         this.widget?.display();

@@ -1,11 +1,10 @@
-import ListWindow from "./ui/listwindow";
-import { escapeRegex, sleep } from "./utils";
+import ListWindow from './ui/listwindow';
+import { escapeRegex, sleep } from './utils';
 import fs from 'fs';
 
 export interface CallableCommand {
     (login: string, args: string[]): Promise<void>;
 }
-
 
 export interface ChatCommand {
     admin: boolean;
@@ -13,7 +12,6 @@ export interface ChatCommand {
     help: string;
     trigger: string;
 }
-
 
 /**
  * CommandManager class
@@ -26,31 +24,49 @@ export default class CommandManager {
      * @ignore
      */
     async beforeInit() {
-        this.addCommand("/help", async (login: string, args: string[]) => {
-            let help = "Available: \n";
-            for (let command in this.commands) {
-                if (this.commands[command]?.admin) continue;
-                help += `¤cmd¤${this.commands[command]?.trigger} ¤white¤${this.commands[command]?.help}, `;
-            }
-            tmc.chat(help, login);
-        }, "Display help for command");
+        this.addCommand(
+            '/help',
+            async (login: string, args: string[]) => {
+                let help = 'Available: \n';
+                for (let command in this.commands) {
+                    if (this.commands[command]?.admin) continue;
+                    help += `¤cmd¤${this.commands[command]?.trigger} ¤white¤${this.commands[command]?.help}, `;
+                }
+                tmc.chat(help, login);
+            },
+            'Display help for command'
+        );
 
-        this.addCommand("//help", async (login: string, args: string[]) => {
-            let help = "Available: \n";
-            for (let command in this.commands) {
-                if (!this.commands[command]?.admin) continue;
-                help += `¤cmd¤${this.commands[command].trigger} ¤white¤${this.commands[command].help}, `;
-            }
-            tmc.chat(help, login);
-        }, "Display help for command");
+        this.addCommand(
+            '//help',
+            async (login: string, args: string[]) => {
+                let help = 'Available: \n';
+                for (let command in this.commands) {
+                    if (!this.commands[command]?.admin) continue;
+                    help += `¤cmd¤${this.commands[command].trigger} ¤white¤${this.commands[command].help}, `;
+                }
+                tmc.chat(help, login);
+            },
+            'Display help for command'
+        );
 
-        this.addCommand("/serverlogin", async () => { }, "Display server login");
-        this.addCommand("/version", async (login: string) => {
-            tmc.chat(`MiniController version: ${tmc.version}`, login);
-        }, "Display server versions");
-        this.addCommand("//shutdown", async () => { process.exit() }, "Close MINIcontroller");
-        this.addCommand("//plugins", this.cmdPluginManager.bind(this), "Open plugin manager");
-        this.addCommand("//plugin", async (login: string, args: string[]) => {
+        this.addCommand('/serverlogin', async () => {}, 'Display server login');
+        this.addCommand(
+            '/version',
+            async (login: string) => {
+                tmc.chat(`MiniController version: ${tmc.version}`, login);
+            },
+            'Display server versions'
+        );
+        this.addCommand(
+            '//shutdown',
+            async () => {
+                process.exit();
+            },
+            'Close MINIcontroller'
+        );
+        //this.addCommand("//plugins", this.cmdPluginManager.bind(this), "Open plugin manager");
+        /*this.addCommand("//plugin", async (login: string, args: string[]) => {
             if (args.length < 1) {
                 tmc.chat("Valid options are: list, load, unload, reload", login);
                 return;
@@ -117,76 +133,80 @@ export default class CommandManager {
                 }
             }
         }, "Manage plugins");
-        tmc.addCommand("//admin", async (login: string, args: string[]) => {
-            if (args.length < 1) {
-                tmc.chat("¤white¤Valid options are: ¤cmd¤list¤white¤, ¤cmd¤add¤white¤, ¤cmd¤remove", login);
-                return;
-            }
-            const action = args[0];
-            switch (action) {
-                case "list": {
-                    let admins = "Admins: ";
-                    for (let admin of tmc.admins) {
-                        admins += `¤cmd¤${admin}¤white¤, `;
-                    }
-                    tmc.chat(admins, login);
-                    break;
+        */
+        tmc.addCommand(
+            '//admin',
+            async (login: string, args: string[]) => {
+                if (args.length < 1) {
+                    tmc.chat('¤white¤Valid options are: ¤cmd¤list¤white¤, ¤cmd¤add¤white¤, ¤cmd¤remove', login);
+                    return;
                 }
-                case "add": {
-                    if (args.length < 2) {
-                        tmc.chat("¤info¤Please specify a login.", login);
-                        return;
+                const action = args[0];
+                switch (action) {
+                    case 'list': {
+                        let admins = 'Admins: ';
+                        for (let admin of tmc.admins) {
+                            admins += `¤cmd¤${admin}¤white¤, `;
+                        }
+                        tmc.chat(admins, login);
+                        break;
                     }
-                    const admin = args[1];
-                    if (tmc.admins.includes(admin)) {
-                        tmc.chat(`¤info¤Admin ¤white¤${admin}¤info¤ already exists.`, login);
-                        return;
+                    case 'add': {
+                        if (args.length < 2) {
+                            tmc.chat('¤info¤Please specify a login.', login);
+                            return;
+                        }
+                        const admin = args[1];
+                        if (tmc.admins.includes(admin)) {
+                            tmc.chat(`¤info¤Admin ¤white¤${admin}¤info¤ already exists.`, login);
+                            return;
+                        }
+                        tmc.settingsMgr.addAdmin(admin);
+                        tmc.chat(`¤info¤Admin ¤white¤${admin}¤info¤ added.`, login);
+                        break;
                     }
-                    tmc.settingsMgr.addAdmin(admin);
-                    tmc.chat(`¤info¤Admin ¤white¤${admin}¤info¤ added.`, login);
-                    break;
+                    case 'remove': {
+                        if (args.length < 2) {
+                            tmc.chat('¤info¤Please specify a login.', login);
+                            return;
+                        }
+                        const admin = args[1];
+                        if (!tmc.admins.includes(admin)) {
+                            tmc.chat(`¤info¤Admin ¤white¤${admin} ¤info¤does not exist.`, login);
+                            return;
+                        }
+                        tmc.settingsMgr.removeAdmin(admin);
+                        tmc.chat(`¤info¤Admin ¤white¤${admin} ¤info¤removed.`, login);
+                        break;
+                    }
+                    default: {
+                        tmc.chat('¤white¤Valid options are: ¤cmd¤list¤white¤, ¤cmd¤add¤white¤, ¤cmd¤remove', login);
+                    }
                 }
-                case "remove": {
-                    if (args.length < 2) {
-                        tmc.chat("¤info¤Please specify a login.", login);
-                        return;
-                    }
-                    const admin = args[1];
-                    if (!tmc.admins.includes(admin)) {
-                        tmc.chat(`¤info¤Admin ¤white¤${admin} ¤info¤does not exist.`, login);
-                        return;
-                    }
-                    tmc.settingsMgr.removeAdmin(admin);
-                    tmc.chat(`¤info¤Admin ¤white¤${admin} ¤info¤removed.`, login);
-                    break;
-                }
-                default: {
-                    tmc.chat("¤white¤Valid options are: ¤cmd¤list¤white¤, ¤cmd¤add¤white¤, ¤cmd¤remove", login);
-                }
-            }
-        }, "Manage admins");
+            },
+            'Manage admins'
+        );
     }
-
 
     async cmdPluginManager(login: string, args: string[]) {
         const window = new PluginManagerWindow(login);
         window.size = { width: 160, height: 95 };
-        window.title = "Plugins";
-        let out:any[] = [];
-        let all:string[] = [];
-        let diff:string[] = [];
-        let plugins = fs.readdirSync(process.cwd() +"/core/plugins", { withFileTypes: true, recursive: true });
-        plugins = plugins.concat(fs.readdirSync(process.cwd() + "/userdata/plugins", { withFileTypes: true, recursive: true }));
+        window.title = 'Plugins';
+        let out: any[] = [];
+        let all: string[] = [];
+        let diff: string[] = [];
+        let plugins = fs.readdirSync(process.cwd() + '/core/plugins', { withFileTypes: true, recursive: true });
+        plugins = plugins.concat(fs.readdirSync(process.cwd() + '/userdata/plugins', { withFileTypes: true, recursive: true }));
 
         for (const i in plugins) {
             const plugin = plugins[i];
             if (plugin && plugin.isDirectory()) {
-                if (plugin.name.includes(".") || plugin.parentPath.includes(".")) continue;
-                if (plugin.name.includes("node_modules") || plugin.parentPath.includes("node_modules")) continue;
-                const path = plugin.parentPath.replace(process.cwd() + "/core/plugins", "").replace(process.cwd() + "/userdata/plugins", "");
-                let pluginName = plugin.name.replaceAll("\\", "/");
-                if (path != "") {
-                    pluginName = (path.substring(1) +"/"+ plugin.name).replaceAll("\\", "/");
+                if (plugin.name.includes('.') || plugin.parentPath.includes('.')) continue;
+                if (plugin.name.includes('node_modules') || plugin.parentPath.includes('node_modules')) continue;
+                const path = plugin.parentPath.replace(process.cwd() + '/core/plugins', '').replace(process.cwd() + '/userdata/plugins', '');
+                let pluginName = plugin.name.replaceAll('\\', '/');
+                if (path != '') {
+                    pluginName = (path.substring(1) + '/' + plugin.name).replaceAll('\\', '/');
                 }
                 all.push(pluginName);
             }
@@ -197,16 +217,16 @@ export default class CommandManager {
             const deps = tmc.pluginDependecies.dependenciesOf(name);
             out.push({
                 pluginName: name,
-                depends: deps.join(", "),
-                active: tmc.plugins[name] ? "$0f0Yes" : "$f00No"
+                depends: deps.join(', '),
+                active: tmc.plugins[name] ? '$0f0Yes' : '$f00No'
             });
         }
 
         for (const name of all.filter((value) => !diff.includes(value))) {
             out.push({
                 pluginName: name,
-                depends: "",
-                active: tmc.plugins[name] ? "$0f0Yes" : "$f00No"
+                depends: '',
+                active: tmc.plugins[name] ? '$0f0Yes' : '$f00No'
             });
         }
         out = out.sort((a: any, b: any) => {
@@ -215,21 +235,19 @@ export default class CommandManager {
 
         window.setItems(out);
         window.setColumns([
-            { key: "active", title: "Running", width: 25, action: "toggle" },
-            { key: "pluginName", title: "Plugin", width: 50 },
-            { key: "depends", title: "Dependencies", width: 50 }
+            { key: 'active', title: 'Running', width: 25, action: 'toggle' },
+            { key: 'pluginName', title: 'Plugin', width: 50 },
+            { key: 'depends', title: 'Dependencies', width: 50 }
         ]);
 
         await window.display();
-
     }
-
 
     /**
      * @ignore
      */
     async afterInit() {
-        tmc.server.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
+        tmc.server.addListener('Trackmania.PlayerChat', this.onPlayerChat, this);
     }
 
     /**
@@ -239,21 +257,19 @@ export default class CommandManager {
      * @param help help text
      * @param admin force admin
      */
-    addCommand(command: string, callback: CallableCommand, help: string = "", admin?:boolean) {
+    addCommand(command: string, callback: CallableCommand, help: string = '', admin?: boolean) {
         if (admin === undefined) {
-            admin = command.startsWith("//");
+            admin = command.startsWith('//');
         }
-        if (!this.commands[command]) {
-            this.commands[command] = {
-                trigger: command,
-                callback: callback,
-                admin: admin,
-                help: help,
-            }
+        if (this.commands[command]) {
+            tmc.cli(`¤white¤Command $fd0${command} ¤white¤already exists, overriding it.`);
         }
-        else {
-            tmc.cli(`¤white¤Command $fd0${command} ¤white¤already exists.`);
-        }
+        this.commands[command] = {
+            trigger: command,
+            callback: callback,
+            admin: admin,
+            help: help
+        };
     }
     /**
      * removes command from the command manager
@@ -271,19 +287,21 @@ export default class CommandManager {
      * @param text
      */
     async execute(login: string, text: string) {
-        if (text.startsWith("/")) {
+        if (text.startsWith('/')) {
             for (let command of Object.values(this.commands)) {
-                if (text.startsWith("//") && !tmc.admins.includes(login)) {
-                    tmc.chat("¤error¤Not allowed.", login);
+                if (text.startsWith('//') && !tmc.admins.includes(login)) {
+                    tmc.chat('¤error¤Not allowed.', login);
                     return;
                 }
                 if (!command) continue;
-                let prefix = "[/]";
-                if (command.trigger.startsWith("//")) prefix ="[/]{2}";
-                const exp = new RegExp(`^${prefix}\\b${escapeRegex(command.trigger.replaceAll("/", ""))}\\b`, "i");
+                let prefix = '[/]';
+                if (command.trigger.startsWith('//')) prefix = '[/]{2}';
+                const exp = new RegExp(`^${prefix}\\b${escapeRegex(command.trigger.replaceAll('/', ''))}\\b`, 'i');
                 if (exp.test(text)) {
-                    const words = text.replace(command.trigger, "").trim();
-                    let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s"]+/gi) || []).map((word) => word.replace(/^"(.+(?="$))"$/, '$1').replaceAll("\\", ""));
+                    const words = text.replace(command.trigger, '').trim();
+                    let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s"]+/gi) || []).map((word) =>
+                        word.replace(/^"(.+(?="$))"$/, '$1').replaceAll('\\', '')
+                    );
                     await command.callback(login, params);
                     return;
                 }
@@ -307,13 +325,13 @@ export default class CommandManager {
 
 class PluginManagerWindow extends ListWindow {
     async onAction(login: string, action: string, item: any) {
-        if (action == "toggle") {
+        if (action == 'toggle') {
             if (tmc.plugins[item.pluginName]) {
-                await tmc.chatCmd.execute(login, "//plugin unload " + item.pluginName);
+                await tmc.chatCmd.execute(login, '//plugin unload ' + item.pluginName);
             } else {
-                await tmc.chatCmd.execute(login, "//plugin load " + item.pluginName);
+                await tmc.chatCmd.execute(login, '//plugin load ' + item.pluginName);
             }
-            await tmc.chatCmd.execute(login, "//plugins");
+            await tmc.chatCmd.execute(login, '//plugins');
             return;
         }
     }

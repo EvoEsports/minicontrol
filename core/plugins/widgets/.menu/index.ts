@@ -56,7 +56,7 @@ export default class MenuPlugin extends Plugin {
             this.menuButton = null;
         }
 
-        this.menuButton = new Widget("core/plugins/widgets/menu/menuButton.twig");
+        this.menuButton = new Widget("core/plugins/widgets/menu/menuButton.xml.twig");
         this.menuButton.pos = {x: 125, y: -35, z: 10};
         this.menuButton.size = {width: 10, height: 10};
         this.menuButton.setOpenAction(this.toggleMenu.bind(this));
@@ -74,7 +74,7 @@ export default class MenuPlugin extends Plugin {
 
     async toggleMenu(login: string) {
         if (!this.menuInstances[login]) {
-            const menu = new MenuWidget(login, "core/plugins/widgets/menu/menu.twig");
+            const menu = new MenuWidget(login, "core/plugins/widgets/menu/menu.xml.twig");
             menu.pos = {x: 125, y: -45, z: 1};
             menu.size = {width: 300, height: 400};
             this.menuInstances[login] = menu;

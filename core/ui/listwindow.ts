@@ -23,7 +23,7 @@ interface PaginationResult<T> {
 
 export default class ListWindow extends Window {
     items: any = [];
-    template = "core/templates/list.twig";
+    template = "core/templates/list.xml.twig";
     pageSize: number = 15;
     private currentPage: number;
     private sortColumn: string = "";

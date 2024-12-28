@@ -2,7 +2,7 @@ import type { Player } from '@core/playermanager';
 import Plugin from '@core/plugins';
 import type { DediRecord } from '@core/plugins/tmnf/dedimania';
 import recordsWidget from '@core/plugins/widgets/records/recordsWidget';
-import { formatTime, escape } from '@core/utils';
+import { formatTime, htmlEntities } from '@core/utils';
 
 export default class RecordsWidget extends Plugin {
     static depends: string[] = ['records'];
@@ -28,6 +28,23 @@ export default class RecordsWidget extends Plugin {
         tmc.server.addListener('Plugin.Records.onNewRecord', this.onNewRecord, this);
     }
 
+    async onUnload() {
+        tmc.server.removeListener('TMC.PlayerConnect', this.onPlayerConnect);
+        tmc.server.removeListener('TMC.PlayerDisconnect', this.onPlayerDisconnect);
+        tmc.server.removeListener('Plugin.Records.onSync', this.onSync);
+        tmc.server.removeListener('Plugin.liveRecords.onSync', this.onLiveSync);
+        tmc.server.removeListener('Plugin.worldRecords.onSync', this.onWorldSync);
+        tmc.server.removeListener('Plugin.Dedimania.onSync', this.onDediSync);
+        tmc.server.removeListener('Plugin.Dedimania.onNewRecord', this.onDediUpdate);
+        tmc.server.removeListener('Plugin.Records.onRefresh', this.onSync);
+        tmc.server.removeListener('Plugin.Records.onUpdateRecord', this.onUpdateRecord);
+        tmc.server.removeListener('Plugin.Records.onNewRecord', this.onNewRecord);
+        for (const login of Object.keys(this.widgets)) {
+            this.widgets[login].destroy();
+            delete this.widgets[login];
+        }
+    }
+
     async onPlayerConnect(player: Player) {
         const login = player.login;
         await this.updateWidget(login);
@@ -43,11 +60,7 @@ export default class RecordsWidget extends Plugin {
         }
     }
 
-    async onUnload() {
-        for (const login of Object.keys(this.widgets)) {
-            delete this.widgets[login];
-        }
-    }
+
 
     async onSync(data: any) {
         this.records = data.records;
@@ -98,10 +111,14 @@ export default class RecordsWidget extends Plugin {
 
         if (!widget) {
             this.widgetType[login] = "server";
-            widget = new recordsWidget('core/plugins/widgets/records/widget.twig');
+            widget = new recordsWidget('core/plugins/widgets/records/widget.xml.twig');
             widget.title = "RECORDS";
             widget.recipient = login;
-            widget.pos = { x: 121, y: 30, z: 0 };
+            if (tmc.game.Name == 'TmForever') {
+                widget.pos = { x: -159, y: 38, z: 0 };
+            } else {
+                widget.pos = { x: 121, y: 30, z: 0 };
+            }
             widget.size = { width: 38, height: 45 };
             widget.setOpenAction(this.widgetClick.bind(this));
             widget.setLiveAction(this.liveAction.bind(this));
@@ -110,7 +127,6 @@ export default class RecordsWidget extends Plugin {
         }
 
         if (this.widgetType[login] == 'live') {
-            // widget.title = 'LIVE RECORDS';
             outRecords = this.liveRecords.slice(0, 5);
             this.myIndex = this.liveRecords.findIndex((val: any) => val.login == login);
             let addRecords = true;
@@ -125,7 +141,6 @@ export default class RecordsWidget extends Plugin {
                 outRecords = [...outRecords, ...this.liveRecords.slice(5, 10)];
             }
         } else if (this.widgetType[login] == 'world') {
-            // widget.title = 'WORLD RECORDS';
             outRecords = this.worldRecords.slice(0, 5);
             let myName = (await tmc.players.getPlayer(login)).nickname;
             this.myIndex = this.worldRecords.findIndex((val: any) => val.nickname == myName);
@@ -141,8 +156,6 @@ export default class RecordsWidget extends Plugin {
                 outRecords = [...outRecords, ...this.worldRecords.slice(5, 10)];
             }
         } else if (this.widgetType[login] == 'server') {
-            //  widget.title = 'SERVER RECORDS';
-
             outRecords = this.records.slice(0, 5);
             this.myIndex = this.records.findIndex((val: any) => val.login == login);
             let addRecords = true;
@@ -177,7 +190,7 @@ export default class RecordsWidget extends Plugin {
         if (['live', 'server'].includes(this.widgetType[login])) {
             for (const rec of outRecords) {
                 rec.formattedTime = formatTime(rec.time);
-                rec.nickname = rec.player ? escape(rec.player?.customNick ?? rec.player?.nickname ??'') : 'Unknown';
+                rec.nickname = rec.player ? htmlEntities(rec.player?.customNick ?? rec.player?.nickname ??'') : 'Unknown';
             }
         }
 
@@ -185,7 +198,7 @@ export default class RecordsWidget extends Plugin {
             for (const rec of outRecords) {
                 rec.rank = rec.Rank;
                 rec.formattedTime = formatTime(rec.Best);
-                rec.nickname = escape(rec.NickName);
+                rec.nickname = htmlEntities(rec.NickName);
             }
         }
 
@@ -234,7 +247,7 @@ export default class RecordsWidget extends Plugin {
             this.widgetType[login] = type;
             this.lastClick[login] = Date.now();
             await this.updateWidget(login);
-            tmc.ui.displayManialinks([this.widgets[login]]);
+            await this.widgets[login].display();
         }
     }
 

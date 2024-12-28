@@ -1,6 +1,8 @@
-import Twig from 'twig';
-import fs from 'fs';
-Twig.cache(false);
+import { createEnvironment, createFilesystemLoader, type TwingTemplate } from 'twing';
+import * as fs from 'fs';
+
+const loader = createFilesystemLoader(fs);
+const environment = createEnvironment(loader, { charset: 'utf-8', parserOptions: { level: 3 } });
 
 export interface MlSize {
     width: number;
@@ -17,16 +19,17 @@ export default class Manialink {
     id: string = tmc.ui.uuid();
     size: MlSize = { width: 160, height: 90 };
     pos: MlPos = { x: 0, y: 20, z: 1 };
-    template: string = "core/templates/manialink.twig";
+    template: string = 'core/templates/manialink.xml.twig';
     actions: { [key: string]: string } = {};
     data: { [key: string]: any } = {};
     recipient: string | undefined = undefined;
-    title: string = "";
+    title: string = '';
+    displayDuration: number = 0;
     private _firstDisplay: boolean = true;
-    _templateData: string = "";
+    _templateData: TwingTemplate | undefined = undefined;
 
     constructor(login: string | undefined = undefined) {
-        this.recipient = login
+        this.recipient = login;
     }
 
     async display() {
@@ -43,6 +46,7 @@ export default class Manialink {
     }
 
     async destroy() {
+        delete this._templateData;
         await tmc.ui.destroyManialink(this);
     }
 
@@ -50,20 +54,8 @@ export default class Manialink {
      * render manialink template
      * @returns
      */
-    render(): string {
-        if (this._templateData == "") {
-            this._templateData = fs.readFileSync(process.cwd() + "/" + this.template, 'utf-8');
-        }
-        const template = Twig.twig({
-            base: process.cwd() + "/",
-            path: process.cwd() + "/",
-            data: this._templateData,
-            async: false,
-            options: {
-                autoescape: true
-            }
-        });
-        return template.render({
+    async render(): Promise<string> {
+        const obj = {
             id: this.id,
             size: this.size,
             pos: this.pos,
@@ -72,6 +64,25 @@ export default class Manialink {
             data: this.data,
             title: this.title,
             recipient: this.recipient
-        });
+        };
+
+        if (!this._templateData) {
+            try {
+                const template = await environment.loadTemplate(process.cwd() + '/' + this.template, 'utf-8');
+                this._templateData = template;
+                return this._templateData.render(environment, obj);
+            } catch (e:any) {
+                tmc.cli('Manialink error: ¤error¤ ' + e.message);
+                throw new Error('Failed to load template: ' + e.message);
+            }
+        } else {
+            try {
+                return (await this._templateData?.render(environment, obj)) ?? '';
+            } catch (e:any) {
+                tmc.cli('Manialink error: ¤error¤ ' + e.message);
+                throw new Error('Failed to render template: ' + e.message);
+            }
+        }
+        return '';
     }
 }

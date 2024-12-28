@@ -1,6 +1,0 @@
-{% extends "core/templates/widget.twig" %}
-
-{% block content %}
-    <label pos="{{size.width / 2}} -{{ 0.5 * size.width + 2}}" z-index="2" size="{{size.width}} 4" text="${{colors.widget_text}}{{ data.text }}" halign="center" valign="center2" textcolor="000" textfont="RobotoCondensed" textsize="1.5" />
-	<label pos="{{size.width / 2}} -{{ 0.5 * size.width - 1.5}}" z-index="2" size="{{size.width}} 4" text="${{colors.widget_text}}{{ data.amount }}" style="TextRaceChrono" halign="center" valign="center2" scale="0.3" />
-{% endblock %}

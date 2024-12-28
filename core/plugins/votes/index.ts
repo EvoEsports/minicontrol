@@ -1,6 +1,7 @@
 import Plugin from '@core/plugins';
 import Widget from '@core/ui/widget';
-import { formatTime, processColorString, escape } from '@core//utils';
+import { processColorString, htmlEntities } from '@core/utils';
+
 
 export class Vote {
     type: string;
@@ -9,7 +10,7 @@ export class Vote {
     timeout: number;
     votes: Map<string, boolean>;
     starter: string;
-    vote_ratio: number = 0.5;
+    voteRatio: number = 0.5;
 
     constructor(login: string, type: string, question: string, timeout: number, value: number) {
         this.starter = login;
@@ -136,7 +137,7 @@ export default class VotesPlugin extends Plugin {
         this.extendCounter = 1;
     }
 
-    async passVote(login: string, args: string[]) {
+    async passVote(_login: string, _args: string[]) {
         if (!this.currentVote) {
             tmc.chat("There is no vote in progress.");
             return;
@@ -144,7 +145,7 @@ export default class VotesPlugin extends Plugin {
         await this.endVote(true);
     }
 
-    overrideCancel(login: string, args: string[]) {
+    overrideCancel(login: string, _args: string[]) {
         if (this.currentVote) {
             tmc.chat("Vote cancelled by admin.");
             this.cancelVote(login);
@@ -153,7 +154,7 @@ export default class VotesPlugin extends Plugin {
         return false;
     }
 
-    cancelVote(login: string) {
+    cancelVote(_login: string) {
         tmc.server.emit("TMC.Vote.Cancel", { vote: this.currentVote });
         this.currentVote = null;
         this.hideWidget();
@@ -169,7 +170,7 @@ export default class VotesPlugin extends Plugin {
         await this.startVote(login, type, question);
     }
 
-    async cmdSkip(login: string, args: string[]) {
+    async cmdSkip(login: string, _args: string[]) {
         await this.startVote(login, "Skip", "¤info¤Skip map?");
     }
 
@@ -196,24 +197,24 @@ export default class VotesPlugin extends Plugin {
             return;
         }
         this.currentVote = new Vote(login, type, question, Date.now() + this.timeout * 1000, value);
-        this.currentVote.vote_ratio = this.ratio;
+        this.currentVote.voteRatio = this.ratio;
         await this.vote(login, true);
-        this.widget = new Widget("core/plugins/votes/widget.twig");
+        this.widget = new Widget("core/plugins/votes/widget.xml.twig");
         this.widget.pos = { x: 0, y: 60, z: 10 };
         this.widget.actions['yes'] = tmc.ui.addAction(this.vote.bind(this), true);
         this.widget.actions['no'] = tmc.ui.addAction(this.vote.bind(this), false);
         await this.checkVote();
     }
 
-    async cmdYes(login: string, args: string[]) {
+    async cmdYes(login: string, _args: string[]) {
         await this.vote(login, true);
     }
 
-    async cmdNo(login: string, args: string[]) {
+    async cmdNo(login: string, _args: string[]) {
         await this.vote(login, false);
     }
 
-    async cmdPassVote(login: string, args: string[]) {
+    async cmdPassVote(login: string, _args: string[]) {
         await this.endVote(true);
     }
 
@@ -286,9 +287,9 @@ export default class VotesPlugin extends Plugin {
             vote: this.currentVote,
             total: total,
             yes_ratio: percent,
-            voteText: processColorString(escape(this.currentVote.question)),
+            voteText: htmlEntities(processColorString((this.currentVote.question))),
             time_percent: (this.currentVote.timeout - Date.now()) / (this.timeout * 1000),
-            timer: formatTime(Math.floor(Math.abs(Date.now() - this.currentVote.timeout))).replace(/\.\d\d\d/, "")
+            timer: Math.round((this.currentVote.timeout - Date.now()) / 1000)
         });
         await this.widget.display();
     }
@@ -319,11 +320,11 @@ export default class VotesPlugin extends Plugin {
         }
     }
 
-    onVoteDeny(data: VoteStruct) {
+    onVoteDeny(_data: VoteStruct) {
 
     }
 
-    onVoteCancel(data: VoteStruct) {
+    onVoteCancel(_data: VoteStruct) {
 
     }
 }

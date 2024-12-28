@@ -1,7 +1,0 @@
-{% extends "core/templates/widget.twig" %}
-
-{% block content %}
-    <label pos="{{ size.width /2 }} -3" z-index="2" size="{{size.width-2}} 4" text="${{colors.widget_text}}{{ data.mapname }}" halign="center" valign="center2" textcolor="000" textfont="RobotoCondensedBold" textsize="2"/>
-	<label pos="1 -8" z-index="2" size="{{size.width - 10 }} 4" text="${{colors.widget_text}}{{ data.author }}" halign="left" valign="center2" textcolor="000" textfont="RobotoCondensed" textsize="1"/>
-	<label pos="{{ size.width -1 }} -8" z-index="2" size="10 4" text="${{colors.widget_text}}{{ data.authortime }}" halign="right" valign="center2" textcolor="000" textfont="RobotoCondensed" textsize="0.8"/>
-{% endblock %}
