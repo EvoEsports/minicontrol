@@ -71,6 +71,7 @@ export class Player {
     set(key: string, value: any) {
         this[key] = value;
     }
+
 }
 /**
  * PlayerManager class
@@ -164,7 +165,7 @@ export default class PlayerManager {
         if (this.players[login]) return this.players[login];
 
         try {
-            tmc.debug(`$888Player ${login} not found, fetching from server.`);
+            tmc.debug(`$888Player "${login}" not found, fetching from server.`);
             const data = await tmc.server.call('GetDetailedPlayerInfo', login);
             const player = new Player();
             await player.syncFromDetailedPlayerInfo(data);
@@ -187,7 +188,10 @@ export default class PlayerManager {
         if (this.players[data.Login]) {
             this.players[data.Login].syncFromPlayerInfo(data);
         } else {
-            await this.getPlayer(data.Login);
+            // if player is joined, fetch detailed info
+            if (Math.floor(data.Flags / 100000000) % 10 === 1) {
+                await this.getPlayer(data.Login);
+            }
         }
     }
 }
