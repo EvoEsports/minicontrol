@@ -102,7 +102,7 @@ export default class Tmx extends Plugin {
                         if (tag.Name) return color + tag.Name;
                         return this.TM1X_TAGS[tag];
                     }).join('$fff, ') || 'n/a',
-                awards: '$fe0' + data.Awards || data.AwardCount || '-',
+                awards: "$fe0" + (data.Awards || data.AwardCount || '0'),
                 unlimiter: data.UnlimiterVersion ? "$o$f00" + this.TM1X_UNLIMITER[data.UnlimiterVersion] : ''
             });
         }
