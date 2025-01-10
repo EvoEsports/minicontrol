@@ -10,6 +10,7 @@ export default class MapsWindow extends ListWindow {
     constructor(login: string, params: string[]) {
         super(login);
         this.params = params;
+        this.recipient = login;
         let maps: any = [];
         let i = 1;
         for (const map of clone(tmc.maps.get())) {
@@ -17,8 +18,7 @@ export default class MapsWindow extends ListWindow {
                 !this.params[0] ||
                 removeColors(map.Name).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
                 removeColors(map.AuthorName).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
-                removeColors(map.Environnement).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
-                removeColors(map.Vehicle).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1
+                removeColors(map.Environnement).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1
             ) {
                 maps.push(
                     Object.assign(map, {
@@ -34,11 +34,12 @@ export default class MapsWindow extends ListWindow {
     }
 
     async onPageItemsUpdate(items: any) {
-        if (items[0].Rank) return items;
+        if (items.length == 0) return items;
+        if (items[0]?.Rank) return items;
         const sequelize: Sequelize = tmc.storage['db'];
         if (sequelize) {
             const uids = items.map((val) => val.UId);
-            const login =this.recipient;
+            const login = this.recipient;
             const rankings: any[] = await sequelize.query(
                 `SELECT * FROM (
                 SELECT mapUuid as Uid, login, time, RANK() OVER (PARTITION BY mapUuid ORDER BY time ASC) AS playerRank
