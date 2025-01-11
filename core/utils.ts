@@ -73,7 +73,7 @@ export function escape(str: string): string {
 
 export function htmlEntities(str: string): string {
     const val = (str || '')
-        .replace(/[\u00A0-\u9999<>\&"]/g, i => '&#'+i.charCodeAt(0)+';')
+        .replace(/[\u00A0-\u9999<>\&"']/g, i => '&#'+i.charCodeAt(0)+';')
         .replaceAll(/[$][lh]\[.*?](.*?)([$][lh])?/ig, '$1')
         .replaceAll(/[$][lh]/gi, '')
         .replaceAll('--', '-&#45;');

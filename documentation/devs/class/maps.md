@@ -25,7 +25,6 @@ export interface Map {
 }
 ```
 
-
 ```ts
 class MapManager {
     previousMap?: Map;

@@ -1,5 +1,5 @@
 import Plugin from "@core/plugins";
-import Player from "@core/schemas/players.model";
+import type { Player } from "@core/playermanager";
 import { clone, htmlEntities, formatTime } from "@core/utils";
 import RecordsWindow from "@core/plugins/records/recordsWindow";
 
@@ -137,7 +137,7 @@ export default class LiveRecords extends Plugin {
 
             this.playerCheckpoints[login].push(data[1].toString());
 
-            const player = await Player.findOne({ where: { login } });
+            const player = await tmc.getPlayer(login);
             const newLiveRecord: LiveRecord = {
                 login,
                 time: finishTime,
