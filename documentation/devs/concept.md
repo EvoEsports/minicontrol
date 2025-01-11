@@ -16,24 +16,25 @@ Furthermode, this isn't reaby's or our first attempt to build a server controlle
 
 The core of the controller itself doesn't do much, it provides a framework for plugin developers to work with.
 
-#### Overview of the folder structure
+### Overview of the folder structure
 
 * 📂 **minicontrol**
-    * 📁 **core**  - core contains all built-in classes and also plugins MINIcontrol ships with
-        * 📄 minicontrol.ts - entry for controller
-        * 📄 billmanager.ts - [BillManager class](./class/billmanager.md)
-        * 📄 commandmanager.ts - [CommandManager class](./class/chatcmd.md)
-        * 📄 mapmanager.ts - [MapManager class](./class/maps.md)
-        * 📄 playermanager.ts - [PlayerManager class](./class/playermanager.md)
-        * 📄 settingsmanager.ts - [SettingsManager class](./class/settingsmanager.md)
-        * 📄 uimanager.ts - [UIManager class](./class/uimanager.md)
-        * 📄 utils.ts - [UIManager class](./class/utils.md)
-    * 📁 **documentation**  - this folder
-    * 📁 **docker** - Dockerfile and example Docker Compose
-    * 📁 **userdata** - contains all user data, e.g. the db migrations and schemata, the .sqlite file and user-installed plugins
-    * 📄 .env - environmental variables for config
+  * 📁 **core**  - core contains all built-in classes and also plugins MINIcontrol ships with
+    * 📄 minicontrol.ts - entry for controller
+    * 📄 billmanager.ts - [BillManager class](./class/billmanager.md)
+    * 📄 commandmanager.ts - [CommandManager class](./class/chatcmd.md)
+    * 📄 mapmanager.ts - [MapManager class](./class/maps.md)
+    * 📄 playermanager.ts - [PlayerManager class](./class/playermanager.md)
+    * 📄 settingsmanager.ts - [SettingsManager class](./class/settingsmanager.md)
+    * 📄 uimanager.ts - [UIManager class](./class/uimanager.md)
+    * 📄 utils.ts - [UIManager class](./class/utils.md)
+  * 📁 **documentation**  - this folder
+  * 📁 **docker** - Dockerfile and example Docker Compose
+  * 📁 **userdata** - contains all user data, e.g. the db migrations and schemata, the .sqlite file and user-installed plugins
+  * 📄 .env - environmental variables for config
 
 ## Trackmania Mini Control - the `tmc` global variable
+
  `tmc` is available for everywhere and should be always used to interact with the dedicated server, plugins, database and such.
 
 ### Public variables

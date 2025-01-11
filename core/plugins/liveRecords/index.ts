@@ -1,7 +1,7 @@
-import Plugin from "@core/plugins";
-import Player from "@core/schemas/players.model";
-import { clone, htmlEntities, formatTime } from "@core/utils";
-import RecordsWindow from "@core/plugins/records/recordsWindow";
+import Plugin from '@core/plugins';
+import type { Player } from '@core/playermanager';
+import { clone, htmlEntities, formatTime } from '@core/utils';
+import RecordsWindow from '@core/plugins/records/recordsWindow';
 
 interface LiveRecord {
     login: string;
@@ -13,30 +13,30 @@ interface LiveRecord {
 
 export default class LiveRecords extends Plugin {
     liveRecords: LiveRecord[] = [];
-    currentMapUid: string = "";
+    currentMapUid: string = '';
     private playerCheckpoints: { [login: string]: string[] } = {};
 
     async onLoad() {
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
-        tmc.server.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
-        tmc.chatCmd.addCommand("/liverecords", this.cmdRecords.bind(this), "Display Live Records");
+        tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
+        tmc.server.addListener('TMC.PlayerFinish', this.onPlayerFinish, this);
+        tmc.server.addListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint, this);
+        tmc.chatCmd.addCommand('/liverecords', this.cmdRecords.bind(this), 'Display Live Records');
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
-        tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish.bind(this));
-        tmc.server.removeListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint.bind(this));
-        tmc.chatCmd.removeCommand("/liverecords");
+        tmc.server.removeListener('Trackmania.BeginMap', this.onBeginMap.bind(this));
+        tmc.server.removeListener('TMC.PlayerFinish', this.onPlayerFinish.bind(this));
+        tmc.server.removeListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint.bind(this));
+        tmc.chatCmd.removeCommand('/liverecords');
     }
 
     async onStart() {
-        const menu = tmc.storage["menu"];
+        const menu = tmc.storage['menu'];
         if (menu) {
             menu.addItem({
-                category: "Records",
-                title: "Show: Live Records",
-                action: "/liverecords"
+                category: 'Records',
+                title: 'Show: Live Records',
+                action: '/liverecords'
             });
         }
         if (!tmc.maps.currentMap?.UId) return;
@@ -47,19 +47,19 @@ export default class LiveRecords extends Plugin {
         const map = data[0];
         this.currentMapUid = map.UId;
         this.liveRecords = [];
-        tmc.server.emit("Plugin.liveRecords.onSync", {
+        tmc.server.emit('Plugin.liveRecords.onSync', {
             records: clone(this.liveRecords)
         });
     }
 
     async cmdRecords(login: string, _args: string[]) {
-        let liveRecords:any = [];
+        let liveRecords: any = [];
         for (const record of this.liveRecords) {
             liveRecords.push({
                 rank: record.rank,
-                nickname: htmlEntities(record.player?.nickname ?? ""),
+                nickname: htmlEntities(record.player?.nickname ?? ''),
                 login: record.login,
-                time: formatTime(record.time ?? 0),
+                time: formatTime(record.time ?? 0)
             });
         }
 
@@ -68,16 +68,16 @@ export default class LiveRecords extends Plugin {
         window.title = `Live Records [${this.liveRecords.length}]`;
         window.setItems(liveRecords);
         window.setColumns([
-            { key: "rank", title: "Rank", width: 10 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "time", title: "Time", width: 20 },
+            { key: 'rank', title: 'Rank', width: 10 },
+            { key: 'nickname', title: 'Nickname', width: 50 },
+            { key: 'time', title: 'Time', width: 20 }
         ]);
 
-        window.setActions(["View"]);
+        window.setActions(['View']);
 
         if (tmc.admins.includes(login)) {
             window.size.width = 115;
-            window.setActions(["View", "Delete"]);
+            window.setActions(['View', 'Delete']);
         }
 
         await window.display();
@@ -85,11 +85,11 @@ export default class LiveRecords extends Plugin {
 
     async deleteRecord(login: string, data: any) {
         if (!tmc.admins.includes(login)) return;
-        const msg = (`¤info¤Deleting live record for ¤white¤${data.nickname} ¤info¤(¤white¤${data.login}¤info¤)`);
+        const msg = `¤info¤Deleting live record for ¤white¤${data.nickname} ¤info¤(¤white¤${data.login}¤info¤)`;
         tmc.cli(msg);
         tmc.chat(msg, login);
         try {
-            const recordIndex = this.liveRecords.findIndex(record => record.login === login);
+            const recordIndex = this.liveRecords.findIndex((record) => record.login === login);
             if (recordIndex !== -1) {
                 this.liveRecords.splice(recordIndex, 1);
             }
@@ -99,9 +99,8 @@ export default class LiveRecords extends Plugin {
                 rank += 1;
             }
             await this.cmdRecords(login, []);
-        }
-        catch (err: any) {
-            const msg = (`Error deleting record: ${err.message}`);
+        } catch (err: any) {
+            const msg = `Error deleting record: ${err.message}`;
             tmc.cli(msg);
             tmc.chat(msg, login);
         }
@@ -119,11 +118,10 @@ export default class LiveRecords extends Plugin {
         this.playerCheckpoints[login].push(raceTime.toString());
         const nbCp = tmc.maps.currentMap?.NbCheckpoints || 1;
 
-        if (checkpointIndex%nbCp == 0) {
-            this.playerCheckpoints[login].push(";");
-        }
-        else {
-            this.playerCheckpoints[login].push(",");
+        if (checkpointIndex % nbCp == 0) {
+            this.playerCheckpoints[login].push(';');
+        } else {
+            this.playerCheckpoints[login].push(',');
         }
     }
 
@@ -137,23 +135,22 @@ export default class LiveRecords extends Plugin {
 
             this.playerCheckpoints[login].push(data[1].toString());
 
-            const player = await Player.findOne({ where: { login } });
+            const player = await tmc.getPlayer(login);
             const newLiveRecord: LiveRecord = {
                 login,
                 time: finishTime,
                 player,
-                checkpoints: this.playerCheckpoints[login].join(""),
+                checkpoints: this.playerCheckpoints[login].join('')
             };
-            const existingLiveRecordIndex = this.liveRecords.findIndex(record => record.login === login);
+            const existingLiveRecordIndex = this.liveRecords.findIndex((record) => record.login === login);
 
             if (existingLiveRecordIndex === -1) {
                 this.liveRecords.push({ ...newLiveRecord });
-            }
-            else {
+            } else {
                 const existingLiveRecord = this.liveRecords[existingLiveRecordIndex];
                 if (newLiveRecord.time < existingLiveRecord.time) {
                     existingLiveRecord.time = newLiveRecord.time;
-                    existingLiveRecord.checkpoints = this.playerCheckpoints[login].join("");
+                    existingLiveRecord.checkpoints = this.playerCheckpoints[login].join('');
                 }
             }
 
@@ -163,11 +160,10 @@ export default class LiveRecords extends Plugin {
                 record.rank = index + 1;
             });
 
-            tmc.server.emit("Plugin.liveRecords.onSync", {
+            tmc.server.emit('Plugin.liveRecords.onSync', {
                 records: clone(this.liveRecords)
             });
-        }
-        catch (e: any) {
+        } catch (e: any) {
             tmc.cli(e);
         }
     }

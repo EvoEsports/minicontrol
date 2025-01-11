@@ -2,7 +2,7 @@ import ListWindow from "@core/ui/listwindow";
 import Confirm from "@core/ui/confirm";
 import Score from "@core/schemas/scores.model";
 import Player from "@core/schemas/players.model";
-import { formatTime } from '@core/utils';
+import { formatTime, htmlEntities } from '@core/utils';
 import { Op } from "sequelize";
 import WorldRecords from "@core/plugins/worldrecords";
 import Records from "@core/plugins/records";
@@ -129,8 +129,9 @@ class DetailsWindow extends ListWindow {
 
     constructor(login: string, record: any) {
         super(login);
+        this.size = { width: 160, height: 95 };
         this.record = record;
-        this.title = `Record Details for ${this.record?.nickname || 'Unknown'}`;
+        this.title = `Record Details for ${htmlEntities(this.record?.nickname || 'Unknown')}`;
     }
 
     async display() {
@@ -140,7 +141,7 @@ class DetailsWindow extends ListWindow {
 
         const items: { key: string, value: string }[] = [
             { key: "Rank", value: `${this.record.rank}` },
-            { key: "Nickname", value: this.record.nickname },
+            { key: "Nickname", value: htmlEntities(this.record.nickname) },
             { key: "Time", value: formatTime(this.record.time).replace("0:", "") },
         ];
 

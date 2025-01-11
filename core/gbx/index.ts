@@ -254,9 +254,9 @@ export class GbxClient {
     }
 
     private async query(xml: string, wait: boolean = true) {
-        // if request is more than 4mb
-        if (xml.length + 8 > 4 * 1024 * 1024) {
-            throw new Error('transport error - request too large (' + Math.fround(xml.length/1024/1024) + ' Mb)');
+        // if request is more than 7mb
+        if (xml.length + 8 > 7 * 1024 * 1024) {
+            throw new Error('transport error - request too large (' + (xml.length/1024/1024).toFixed(2) + ' Mb)');
         }
         this.reqHandle++;
         if (this.reqHandle >= 0xffffff00) this.reqHandle = 0x80000000;

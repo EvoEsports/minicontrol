@@ -7,7 +7,7 @@ It can be broken into 3 sets:
 2. Assing callbacks for the bill for events
 3. Send bill
 
-## An example on how to use:
+## An example on how to use
 
 ```ts
 // create bill, note: 'SendBill, Donate, Pay' are the options for first parameter
