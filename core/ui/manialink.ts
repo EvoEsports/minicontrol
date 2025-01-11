@@ -17,7 +17,7 @@ export interface MlPos {
 
 export default class Manialink {
     id: string = tmc.ui.uuid();
-    size: MlSize = { width: 160, height: 90 };
+    size: MlSize = { width: 160, height: 95 };
     pos: MlPos = { x: 0, y: 20, z: 1 };
     template: string = 'core/templates/manialink.xml.twig';
     actions: { [key: string]: string } = {};

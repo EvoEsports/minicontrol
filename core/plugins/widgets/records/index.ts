@@ -45,6 +45,10 @@ export default class RecordsWidget extends Plugin {
         }
     }
 
+    async onStart() {
+        await this.updateWidgets();
+    }
+
     async onPlayerConnect(player: Player) {
         const login = player.login;
         await this.updateWidget(login);
@@ -59,8 +63,6 @@ export default class RecordsWidget extends Plugin {
             delete this.widgets[login];
         }
     }
-
-
 
     async onSync(data: any) {
         this.records = data.records;
@@ -110,9 +112,9 @@ export default class RecordsWidget extends Plugin {
         let outRecords: any[] = [];
 
         if (!widget) {
-            this.widgetType[login] = "server";
+            this.widgetType[login] = 'server';
             widget = new recordsWidget('core/plugins/widgets/records/widget.xml.twig');
-            widget.title = "RECORDS";
+            widget.title = 'RECORDS';
             widget.recipient = login;
             if (tmc.game.Name == 'TmForever') {
                 widget.pos = { x: -159, y: 38, z: 0 };
@@ -190,7 +192,7 @@ export default class RecordsWidget extends Plugin {
         if (['live', 'server'].includes(this.widgetType[login])) {
             for (const rec of outRecords) {
                 rec.formattedTime = formatTime(rec.time);
-                rec.nickname = rec.player ? htmlEntities(rec.player?.customNick ?? rec.player?.nickname ??'') : 'Unknown';
+                rec.nickname = rec.player ? htmlEntities(rec.player?.customNick ?? rec.player?.nickname ?? '') : 'Unknown';
             }
         }
 
