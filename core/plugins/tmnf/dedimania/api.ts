@@ -38,37 +38,37 @@ export default class DedimaniaClient {
         if (this.sessionID !== '') {
             headers['Cookie'] = this.sessionID;
         }
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                body: new Uint8Array(await this.compress(body)),
+                headers: {
+                    'Content-Type': 'text/xml',
+                    'Content-Encoding': 'gzip',
+                    Connection: 'Keep-Alive'
+                },
+                keepalive: true
+            });
 
-        const res = await fetch(url, {
-            method: 'POST',
-            body: new Uint8Array(await this.compress(body)),
-            headers: {
-                'Content-Type': 'text/xml',
-                'Content-Encoding': 'gzip',
-                Connection: 'Keep-Alive'
-            },
-            keepalive: true
-        });
-
-        if (method === 'dedimania.Authenticate') {
-            if (res.headers.getSetCookie()) {
-                const header = res.headers
-                    .getSetCookie()[0]
-                    ?.split(';')
-                    .map((x: string) => x.trim());
-                if (header) {
-                    for (let cookie of header) {
-                        if (cookie.startsWith('PHPSESSID')) {
-                            this.sessionID = cookie;
+            if (method === 'dedimania.Authenticate') {
+                if (res.headers.getSetCookie()) {
+                    const header = res.headers
+                        .getSetCookie()[0]
+                        ?.split(';')
+                        .map((x: string) => x.trim());
+                    if (header) {
+                        for (let cookie of header) {
+                            if (cookie.startsWith('PHPSESSID')) {
+                                this.sessionID = cookie;
+                            }
                         }
                     }
                 }
             }
-        }
 
-        let data = await res.text();
-        data = data.replaceAll('<int></int>', '<int>-1</int>');
-        try {
+            let data = await res.text();
+            data = data.replaceAll('<int></int>', '<int>-1</int>');
+
             const answer: any = await new Promise((resolve, reject) => {
                 try {
                     const deserializer = new Deserializer();
