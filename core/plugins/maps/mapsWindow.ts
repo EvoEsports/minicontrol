@@ -38,13 +38,13 @@ export default class MapsWindow extends ListWindow {
         if (items[0]?.Rank) return items;
         const sequelize: Sequelize = tmc.storage['db'];
         if (sequelize) {
-            const uids = items.map((val) => val.UId);
+            const uids = items.map((val: any) => val.UId);
             const login = this.recipient;
             const rankings: any[] = await sequelize.query(
                 `SELECT * FROM (
                 SELECT mapUuid as Uid, login, time, RANK() OVER (PARTITION BY mapUuid ORDER BY time ASC) AS playerRank
                 FROM scores WHERE mapUuid in (?)
-                ) WHERE login = ?;`,
+                ) AS t WHERE login = ?`,
                 {
                     type: QueryTypes.SELECT,
                     raw: true,
