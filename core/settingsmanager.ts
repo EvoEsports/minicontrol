@@ -26,9 +26,10 @@ export default class SettingsManager {
         warning: "fa0",
         error: "f00",
     };
+    colors: { [key: string]: string } = this._defaultColors;
+
     admins: string[] = [];
     masterAdmins: string[] = (process.env.ADMINS || "").split(",").map((a) => a.trim());
-    colors: { [key: string]: string } = this._defaultColors;
 
     load() {
         this.admins = this.masterAdmins;
@@ -56,6 +57,7 @@ export default class SettingsManager {
         if (existsSync(import.meta.dirname + "/../userdata/settings.json")) {
             try {
                 this.settings = Object.assign({}, this._defaultSettings, JSON.parse(readFileSync(import.meta.dirname+ "/../userdata/settings.json", "utf-8")) || {});
+                console.log(this.settings);
             } catch (e: any) {
                 tmc.cli("$f00Error loading settings.json");
                 tmc.cli(e.message);
@@ -103,11 +105,11 @@ export default class SettingsManager {
 
     register(key: string, value: any) {
         this._defaultSettings[key] = value;
-        this.settings[key] = value;
+        if (!Object.keys(this.settings).includes(key)) this.settings[key] = value;
     }
 
     get(key: string) {
-        return this.settings[key] || this._defaultSettings[key];
+        return this.settings[key];
     }
 
     getDefault(key: string) {
@@ -123,6 +125,12 @@ export default class SettingsManager {
         return this.colors[key] || "fff";
     }
 
+    getSettings(): { settings: { [key: string]: any }, defaults: { [key: string]: any } } {
+        return {
+            settings: this.settings,
+            defaults: this._defaultSettings,
+        };
+    }
 
     getDefaultColor(key: string) {
         return this._defaultColors[key];
@@ -147,7 +155,7 @@ export default class SettingsManager {
             tmc.cli("¤error¤Cannot remove master admin!");
             return;
         }
-        
+
         let index = this.admins.indexOf(login);
         while (index > -1) {
             this.admins.splice(index, 1);
@@ -156,8 +164,9 @@ export default class SettingsManager {
         this.save();
     }
 
-    async delete(key: string) {
+    reset(key: string) {
         delete this.settings[key];
         this.save();
+        this.settings[key] = this._defaultSettings[key];
     }
 }

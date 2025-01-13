@@ -1,4 +1,4 @@
-import { removeColors } from "../utils.ts";
+import { castType, removeColors } from "../utils.ts";
 import Window from "./window";
 
 /**
@@ -8,7 +8,7 @@ interface Column {
     title: string;
     key: string;
     width: number;
-    type?: string;
+    type?: "entry";
     action?: string;
 }
 
@@ -38,6 +38,15 @@ export default class ListWindow extends Window {
         this.actions['pg_next'] = tmc.ui.addAction(this.uiPaginate.bind(this), "next");
         this.actions['pg_end'] = tmc.ui.addAction(this.uiPaginate.bind(this), "end");
         this.currentPage = 0;
+    }
+
+    parseEntries(entries: any): void {
+        if (!entries || entries.length == 0) return; // no entries
+        for (let entry of entries) {
+            let variable_name = entry['Name'].split("_")[0];
+            let index = Number.parseInt(entry['Name'].split("_")[1]) - 1;
+            this.items[index][variable_name] = castType(entry.Value, this.items[index].type);
+        }
     }
 
     setColumns(columns: Column[]): void {
@@ -167,9 +176,10 @@ export default class ListWindow extends Window {
         this.actions['cancel'] = tmc.ui.addAction(this.hide.bind(this), "");
     }
 
-    uiAction(login: string, answer: any): void {
+    uiAction(login: string, answer: any, entries: any[]): void {
         const action = answer[0];
         const item = answer[1];
+        this.parseEntries(entries);
         this.onAction(login, action, item);
     }
 

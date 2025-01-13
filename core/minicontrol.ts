@@ -79,10 +79,6 @@ class MiniControl {
      */
     ui: UiManager;
     /**
-     * The settings
-     */
-    settings: any = {};
-    /**
      * The settings manager.
      */
     settingsMgr: SettingsManager;
@@ -114,7 +110,6 @@ class MiniControl {
         this.billMgr = new BillManager();
         this.settingsMgr = new SettingsManager();
         this.settingsMgr.load();
-        this.settings = this.settingsMgr.settings;
         this.colors = this.settingsMgr.colors;
         this.admins = this.settingsMgr.admins;
         this.game = {Name: ''};

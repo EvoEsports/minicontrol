@@ -108,7 +108,7 @@ export function castType(value: string, type?: string): any {
         else if (type == 'number') {
             if (value.indexOf('.') !== undefined) return Number.parseFloat(value);
             else return Number.parseInt(value);
-        } else if (type == 'bool' || type == 'boolean') return value == 'true';
+        } else if (type == 'bool' || type == 'boolean') return value == 'true' || value == '1';
         else if (type == 'array') return value.split(',');
         else {
             console.log('Unknown type: ' + type);

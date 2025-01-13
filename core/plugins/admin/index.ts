@@ -6,8 +6,10 @@ import LocalMapsWindow from './LocalMapsWindow';
 import PlayerListsWindow from './PlayerListsWindow';
 import fsPath from 'path';
 import { type Map } from '@core/mapmanager.ts';
+import SettingsWindow from './SettingsWindow';
+import { de } from '@faker-js/faker';
 
-enum Mode {
+enum TmnfMode {
     Rounds = 0,
     TimeAttack = 1,
     Team = 2,
@@ -16,11 +18,22 @@ enum Mode {
     Cup = 5
 }
 
+interface Setting {
+    key: string;
+    value: any;
+    default: any;
+    type: "string" | "number" | "boolean";
+}
+
 export default class AdminPlugin extends Plugin {
+    currentSetting: { [key: string]: Setting|undefined} = {};
+
     async onLoad() {
         if (tmc.game.Name != 'TmForever') {
             tmc.addCommand('//modesettings', this.cmdModeSettings.bind(this), 'Display mode settings');
         }
+        tmc.addCommand('//settings', this.cmdSettings.bind(this), 'Display settings');
+        tmc.addCommand('//set', this.cmdSetSetting.bind(this), 'Set setting value');
         tmc.addCommand('//skip', async () => await tmc.server.call('NextMap'), 'Skips Map');
         tmc.addCommand('//res', async () => await tmc.server.call('RestartMap'), 'Restarts Map');
         tmc.addCommand(
@@ -195,12 +208,12 @@ export default class AdminPlugin extends Plugin {
 
                 if (tmc.game.Name == 'TmForever') {
                     const mode = await tmc.server.call('GetGameMode');
-                    if (mode == Mode.TimeAttack) {
+                    if (mode == TmnfMode.TimeAttack) {
                         tmc.server.send('SetTimeAttackLimit', Number.parseInt(params[0]) * 1000);
                         tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                         return;
                     }
-                    if (mode == Mode.Laps) {
+                    if (mode == TmnfMode.Laps) {
                         tmc.server.send('SetLapsTimeLimit', Number.parseInt(params[0]) * 1000);
                         tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                         return;
@@ -434,17 +447,17 @@ export default class AdminPlugin extends Plugin {
                 try {
                     const mode = await tmc.server.call('GetGameMode');
                     switch (mode) {
-                        case Mode.Team: {
+                        case TmnfMode.Team: {
                             tmc.server.send('SetTeamPointsLimit', Number.parseInt(params[0]));
                             tmc.chat(`¤info¤Team points limit set to ¤white¤${params[0]}`, login);
                             break;
                         }
-                        case Mode.Rounds: {
+                        case TmnfMode.Rounds: {
                             tmc.server.send('SetRoundPointsLimit', Number.parseInt(params[0]));
                             tmc.chat(`¤info¤Rounds limit set to ¤white¤${params[0]}`, login);
                             break;
                         }
-                        case Mode.Cup: {
+                        case TmnfMode.Cup: {
                             tmc.server.send('SetCupPointsLimit', Number.parseInt(params[0]));
                             tmc.chat(`¤info¤Cup points limit set to ¤white¤${params[0]}`, login);
                             break;
@@ -501,12 +514,12 @@ export default class AdminPlugin extends Plugin {
                 const mode = await tmc.server.call('GetGameMode');
 
                 if (params[0] == 'true') {
-                    if (mode == Mode.Rounds) tmc.server.send('SetUseNewRulesRound', true);
-                    if (mode == Mode.Team) tmc.server.send('SetUseNewRulesTeam', true);
+                    if (mode == TmnfMode.Rounds) tmc.server.send('SetUseNewRulesRound', true);
+                    if (mode == TmnfMode.Team) tmc.server.send('SetUseNewRulesTeam', true);
                     tmc.chat(`¤info¤Using new rounds rules`, login);
                 } else if (params[0] == 'false') {
-                    if (mode == Mode.Rounds) tmc.server.send('SetUseNewRulesRound', false);
-                    if (mode == Mode.Team) tmc.server.send('SetUseNewRulesTeam', false);
+                    if (mode == TmnfMode.Rounds) tmc.server.send('SetUseNewRulesRound', false);
+                    if (mode == TmnfMode.Team) tmc.server.send('SetUseNewRulesTeam', false);
                     tmc.chat(`¤info¤Using old rounds rules`, login);
                 } else {
                     tmc.chat('¤cmd¤//usenewrules ¤info¤needs a boolean value', login);
@@ -726,9 +739,10 @@ export default class AdminPlugin extends Plugin {
         }
     }
 
-    async cmdSetSetting(login: any, args: string[]) {
+
+    async cmdSetModeSetting(login: any, args: string[]) {
         if (args.length < 2) {
-            tmc.chat('Usage: ¤cmd¤//set ¤white¤<setting> <value>', login);
+            tmc.chat('Usage: ¤cmd¤//setscript ¤white¤<setting> <value>', login);
             return;
         }
         const setting = args[0];
@@ -742,6 +756,8 @@ export default class AdminPlugin extends Plugin {
         }
         tmc.chat(`Set ${setting} to ${value}`, login);
     }
+
+
 
     async cmdGuestlist(login: string, args: string[]) {
         if (args.length < 1) {
@@ -967,5 +983,66 @@ export default class AdminPlugin extends Plugin {
                 return;
             }
         }
+    }
+
+    async cmdSetSetting(login: any, args: string[]) {
+        if (this.currentSetting[login] == undefined) {
+            tmc.chat('¤info¤No setting selected.', login);
+            return;
+        }
+        if (args.length < 1) {
+            tmc.chat('¤info¤Usage: ¤cmd¤//set ¤white¤<value>', login);
+            return;
+        }
+        const setting = this.currentSetting[login];
+
+        const value: any  = castType(args[0], setting.type);
+
+        if (typeof value != setting.type) {
+            tmc.chat('¤error¤Invalid value', login);
+            return;
+        }
+
+        try {
+           tmc.settingsMgr.set(setting.key, value);
+        } catch (e: any) {
+            tmc.chat('Error: ' + e.message, login);
+            return;
+        }
+        tmc.chat(`¤info¤Set $fff${setting.key} ¤info¤to $fff"${value}"`, login);
+        this.currentSetting[login] = undefined;
+        await this.cmdSettings(login, []);
+    }
+
+    async cmdSettings(login: string, args: string[]) {
+        const window = new SettingsWindow(login);
+        window.size = { width: 160, height: 95 };
+        window.title = 'Settings';
+        const settings = tmc.settingsMgr.getSettings();
+        let out: any = [];
+        for (const data in settings.defaults) {
+            let value = settings.settings[data];
+            let defaultValue = settings.defaults[data];
+            if (typeof settings.defaults[data] == 'boolean') {
+                value = value  ? 'true' : 'false';
+                defaultValue = defaultValue ? 'true' : 'false';
+            }
+
+            out.push({
+                key: data,
+                default: defaultValue,
+                value: value,
+                type: typeof settings.defaults[data]
+            });
+        }
+        window.setItems(out);
+        window.setColumns([
+            { key: 'type', title: 'Type', width: 20 },
+            { key: 'key', title: 'Setting', width: 60 },
+            { key: 'default', title: 'Default Value', width: 20 },
+            { key: 'value', title: 'Value', width: 20 },
+        ]);
+        window.setActions(['Select', "Reset"]);
+        await window.display();
     }
 }

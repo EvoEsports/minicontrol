@@ -183,6 +183,7 @@ export default class Records extends Plugin {
 
             if (this.records.length == 0) {
                 let ranking = await this.getRankingsForLogin(data);
+                if (ranking.BestTime <= 0) return;
                 await Score.create({
                     login: login,
                     time: ranking.BestTime,
@@ -214,6 +215,7 @@ export default class Records extends Plugin {
             const lastRecord = this.records[lastIndex - 1];
 
             let ranking = await this.getRankingsForLogin(data);
+            if (ranking.BestTime <= 0) return;
 
             if (lastIndex >= this.limit && lastRecord && typeof lastRecord.time === 'number' && ranking.BestTime >= lastRecord.time) return;
             const time = ranking.BestTime;
