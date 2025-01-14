@@ -1,5 +1,28 @@
 import { GbxClient } from './gbx';
 import EventEmitter from 'node:events';
+
+export interface ServerOptions {
+    Name: string;
+    Comment: string;
+    Password: string;
+    PasswordForSpectator: string;
+    CurrentMaxPlayers: string;
+    NextMaxPlayers: number;
+    CurrentMaxSpectators: number;
+    NextMaxSpectators: number;
+    IsP2PUpload: boolean;
+    IsP2PDownload: boolean;
+    CurrentLadderMode: number;
+    NextLadderMode: number;
+    CurrentVehicleNetQuality: number;
+    NextVehicleNetQuality: number;
+    CurrentCallVoteTimeOut: number;
+    NextCallVoteTimeOut: number;
+    CallVoteRatio: number;
+    AllowChallengeDownload: boolean;
+    AutoSaveReplays: boolean;
+}
+
 /**
  * Server class
  */
@@ -18,6 +41,8 @@ export default class Server {
 
     login: string = '';
     name: string = '';
+    packmask: string = '';
+    serverOptions: ServerOptions = {} as ServerOptions;
 
     constructor() {
         this.events.setMaxListeners(100);
@@ -220,7 +245,13 @@ export default class Server {
     async fetchServerInfo(): Promise<void> {
         let serverPlayerInfo = await this.gbx.call('GetMainServerPlayerInfo');
         let serverOptions = await this.gbx.call('GetServerOptions');
+        let version = await this.gbx.call('GetVersion');
+        this.packmask ='Stadium';
+        if (version.Name != 'Trackmania') {
+            this.packmask = await this.gbx.call('GetServerPackMask');
+        }
         this.login = serverPlayerInfo.Login;
         this.name = serverOptions.Name;
+        this.serverOptions = serverOptions;
     }
 }

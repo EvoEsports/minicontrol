@@ -3,21 +3,28 @@ import type AdminPlugin from '.';
 
 export default class SettingsWindow extends ListWindow {
     async onAction(login: string, action: string, item: any) {
-        if (action == 'Select') {
-            if (tmc.game.Name == 'TmForever') {
-                (tmc.plugins['admin'] as AdminPlugin).currentSetting[login] = item;
-                tmc.chat(`¤info¤type ¤cmd¤//set <value> ¤info¤to change $fff${item.key}`, login);
+        if (action == 'Toggle') {
+            if (item.type == 'boolean') {
+                const value = !tmc.settingsMgr.get(item.key);
+                tmc.settingsMgr.set(item.key, value);
+                await tmc.chatCmd.execute(login, '//settings');
                 return;
             } else {
-                tmc.settingsMgr.set(item.key, item.value);
+                tmc.chat(`¤error¤Setting $fff${item.key} ¤error¤is not a boolean.`, login);
+                return;
             }
-            await tmc.chatCmd.execute(login, '//settings');
+        }
+        if (action == 'Select') {
+            (tmc.plugins['admin'] as AdminPlugin).currentSetting[login] = item;
+            tmc.chat(`¤info¤type ¤cmd¤//set <value> ¤info¤to change $fff${item.key}`, login);
+            return;
         }
         if (action == 'Reset') {
             tmc.settingsMgr.reset(item.key);
             if (this.recipient) delete (tmc.plugins['admin'] as AdminPlugin).currentSetting[this.recipient];
             tmc.chat(`¤info¤Setting $fff${item.key} ¤info¤reset to default value.`, login);
             await tmc.chatCmd.execute(login, '//settings');
+            return;
         }
     }
     async hide(): Promise<void> {

@@ -22,11 +22,11 @@ interface Setting {
     key: string;
     value: any;
     default: any;
-    type: "string" | "number" | "boolean";
+    type: 'string' | 'number' | 'boolean';
 }
 
 export default class AdminPlugin extends Plugin {
-    currentSetting: { [key: string]: Setting|undefined} = {};
+    currentSetting: { [key: string]: Setting | undefined } = {};
 
     async onLoad() {
         if (tmc.game.Name != 'TmForever') {
@@ -739,7 +739,6 @@ export default class AdminPlugin extends Plugin {
         }
     }
 
-
     async cmdSetModeSetting(login: any, args: string[]) {
         if (args.length < 2) {
             tmc.chat('Usage: ¤cmd¤//setscript ¤white¤<setting> <value>', login);
@@ -756,8 +755,6 @@ export default class AdminPlugin extends Plugin {
         }
         tmc.chat(`Set ${setting} to ${value}`, login);
     }
-
-
 
     async cmdGuestlist(login: string, args: string[]) {
         if (args.length < 1) {
@@ -996,7 +993,7 @@ export default class AdminPlugin extends Plugin {
         }
         const setting = this.currentSetting[login];
 
-        const value: any  = castType(args[0], setting.type);
+        const value: any = castType(args[0], setting.type);
 
         if (typeof value != setting.type) {
             tmc.chat('¤error¤Invalid value', login);
@@ -1004,7 +1001,7 @@ export default class AdminPlugin extends Plugin {
         }
 
         try {
-           tmc.settingsMgr.set(setting.key, value);
+            tmc.settingsMgr.set(setting.key, value);
         } catch (e: any) {
             tmc.chat('Error: ' + e.message, login);
             return;
@@ -1016,7 +1013,7 @@ export default class AdminPlugin extends Plugin {
 
     async cmdSettings(login: string, args: string[]) {
         const window = new SettingsWindow(login);
-        window.size = { width: 160, height: 95 };
+        window.size = { width: 165, height: 95 };
         window.title = 'Settings';
         const settings = tmc.settingsMgr.getSettings();
         let out: any = [];
@@ -1024,7 +1021,7 @@ export default class AdminPlugin extends Plugin {
             let value = settings.settings[data];
             let defaultValue = settings.defaults[data];
             if (typeof settings.defaults[data] == 'boolean') {
-                value = value  ? 'true' : 'false';
+                value = value ? 'true' : 'false';
                 defaultValue = defaultValue ? 'true' : 'false';
             }
 
@@ -1040,9 +1037,9 @@ export default class AdminPlugin extends Plugin {
             { key: 'type', title: 'Type', width: 20 },
             { key: 'key', title: 'Setting', width: 60 },
             { key: 'default', title: 'Default Value', width: 20 },
-            { key: 'value', title: 'Value', width: 20 },
+            { key: 'value', title: 'Value', width: 20, action: 'Toggle' }
         ]);
-        window.setActions(['Select', "Reset"]);
+        window.setActions(['Select', 'Toggle', 'Reset']);
         await window.display();
     }
 }
