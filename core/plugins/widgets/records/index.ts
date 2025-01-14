@@ -8,7 +8,7 @@ export default class RecordsWidget extends Plugin {
     static depends: string[] = ['records'];
     widgets: { [key: string]: recordsWidget } = {};
     records: any[] = [];
-    liveRecords: any[] = [];
+    liverankings: any[] = [];
     worldRecords: any[] = [];
     dediRecords: DediRecord[] = [];
     myIndex: number | undefined;
@@ -19,8 +19,8 @@ export default class RecordsWidget extends Plugin {
         tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
         tmc.server.addListener('TMC.PlayerDisconnect', this.onPlayerDisconnect, this);
         tmc.server.addListener('Plugin.Records.onSync', this.onSync, this);
-        tmc.server.addListener('Plugin.liveRecords.onSync', this.onLiveSync, this);
-        tmc.server.addListener('Plugin.worldRecords.onSync', this.onWorldSync, this);
+        tmc.server.addListener('Plugin.LiveRankings.onSync', this.onLiveSync, this);
+        tmc.server.addListener('Plugin.WorldRecords.onSync', this.onWorldSync, this);
         tmc.server.addListener('Plugin.Dedimania.onSync', this.onDediSync, this);
         tmc.server.addListener('Plugin.Dedimania.onNewRecord', this.onDediUpdate, this);
         tmc.server.addListener('Plugin.Records.onRefresh', this.onSync, this);
@@ -32,8 +32,8 @@ export default class RecordsWidget extends Plugin {
         tmc.server.removeListener('TMC.PlayerConnect', this.onPlayerConnect);
         tmc.server.removeListener('TMC.PlayerDisconnect', this.onPlayerDisconnect);
         tmc.server.removeListener('Plugin.Records.onSync', this.onSync);
-        tmc.server.removeListener('Plugin.liveRecords.onSync', this.onLiveSync);
-        tmc.server.removeListener('Plugin.worldRecords.onSync', this.onWorldSync);
+        tmc.server.removeListener('Plugin.LiveRankings.onSync', this.onLiveSync);
+        tmc.server.removeListener('Plugin.WorldRecords.onSync', this.onWorldSync);
         tmc.server.removeListener('Plugin.Dedimania.onSync', this.onDediSync);
         tmc.server.removeListener('Plugin.Dedimania.onNewRecord', this.onDediUpdate);
         tmc.server.removeListener('Plugin.Records.onRefresh', this.onSync);
@@ -70,7 +70,7 @@ export default class RecordsWidget extends Plugin {
     }
 
     async onLiveSync(data: any) {
-        this.liveRecords = data.records;
+        this.liverankings = data.records;
         await this.updateWidgets();
     }
 
@@ -129,18 +129,18 @@ export default class RecordsWidget extends Plugin {
         }
 
         if (this.widgetType[login] == 'live') {
-            outRecords = this.liveRecords.slice(0, 5);
-            this.myIndex = this.liveRecords.findIndex((val: any) => val.login == login);
+            outRecords = this.liverankings.slice(0, 5);
+            this.myIndex = this.liverankings.findIndex((val: any) => val.login == login);
             let addRecords = true;
 
             if (this.myIndex !== -1) {
                 if (this.myIndex >= 10) {
                     addRecords = false;
-                    outRecords = [...outRecords, ...this.liveRecords.slice(this.myIndex - 3, this.myIndex + 2)];
+                    outRecords = [...outRecords, ...this.liverankings.slice(this.myIndex - 3, this.myIndex + 2)];
                 }
             }
             if (addRecords) {
-                outRecords = [...outRecords, ...this.liveRecords.slice(5, 10)];
+                outRecords = [...outRecords, ...this.liverankings.slice(5, 10)];
             }
         } else if (this.widgetType[login] == 'world') {
             outRecords = this.worldRecords.slice(0, 5);
@@ -215,7 +215,7 @@ export default class RecordsWidget extends Plugin {
 
     async widgetClick(login: string) {
         if (this.widgetType[login] === 'live') {
-            await tmc.chatCmd.execute(login, '/liverecords');
+            await tmc.chatCmd.execute(login, '/liverankings');
         } else if (this.widgetType[login] === 'world') {
             await tmc.chatCmd.execute(login, '/worldrecords');
         } else if (this.widgetType[login] === 'server') {

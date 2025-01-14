@@ -11,8 +11,8 @@ interface LiveRecord {
     rank?: number;
 }
 
-export default class LiveRecords extends Plugin {
-    liveRecords: LiveRecord[] = [];
+export default class liverankings extends Plugin {
+    liverankings: LiveRecord[] = [];
     currentMapUid: string = '';
     private playerCheckpoints: { [login: string]: string[] } = {};
 
@@ -20,14 +20,14 @@ export default class LiveRecords extends Plugin {
         tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
         tmc.server.addListener('TMC.PlayerFinish', this.onPlayerFinish, this);
         tmc.server.addListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint, this);
-        tmc.chatCmd.addCommand('/liverecords', this.cmdRecords.bind(this), 'Display Live Records');
+        tmc.chatCmd.addCommand('/liverankings', this.cmdRecords.bind(this), 'Display Live Records');
     }
 
     async onUnload() {
         tmc.server.removeListener('Trackmania.BeginMap', this.onBeginMap.bind(this));
         tmc.server.removeListener('TMC.PlayerFinish', this.onPlayerFinish.bind(this));
         tmc.server.removeListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint.bind(this));
-        tmc.chatCmd.removeCommand('/liverecords');
+        tmc.chatCmd.removeCommand('/liverankings');
     }
 
     async onStart() {
@@ -36,7 +36,7 @@ export default class LiveRecords extends Plugin {
             menu.addItem({
                 category: 'Records',
                 title: 'Show: Live Records',
-                action: '/liverecords'
+                action: '/liverankings'
             });
         }
         if (!tmc.maps.currentMap?.UId) return;
@@ -46,16 +46,16 @@ export default class LiveRecords extends Plugin {
     async onBeginMap(data: any) {
         const map = data[0];
         this.currentMapUid = map.UId;
-        this.liveRecords = [];
-        tmc.server.emit('Plugin.liveRecords.onSync', {
-            records: clone(this.liveRecords)
+        this.liverankings = [];
+        tmc.server.emit('Plugin.LiveRankings.onSync', {
+            records: clone(this.liverankings)
         });
     }
 
     async cmdRecords(login: string, _args: string[]) {
-        let liveRecords: any = [];
-        for (const record of this.liveRecords) {
-            liveRecords.push({
+        let liverankings: any = [];
+        for (const record of this.liverankings) {
+            liverankings.push({
                 rank: record.rank,
                 nickname: htmlEntities(record.player?.nickname ?? ''),
                 login: record.login,
@@ -65,8 +65,8 @@ export default class LiveRecords extends Plugin {
 
         const window = new RecordsWindow(login, this);
         window.size = { width: 100, height: 100 };
-        window.title = `Live Records [${this.liveRecords.length}]`;
-        window.setItems(liveRecords);
+        window.title = `Live Rankings [${this.liverankings.length}]`;
+        window.setItems(liverankings);
         window.setColumns([
             { key: 'rank', title: 'Rank', width: 10 },
             { key: 'nickname', title: 'Nickname', width: 50 },
@@ -89,12 +89,12 @@ export default class LiveRecords extends Plugin {
         tmc.cli(msg);
         tmc.chat(msg, login);
         try {
-            const recordIndex = this.liveRecords.findIndex((record) => record.login === login);
+            const recordIndex = this.liverankings.findIndex((record) => record.login === login);
             if (recordIndex !== -1) {
-                this.liveRecords.splice(recordIndex, 1);
+                this.liverankings.splice(recordIndex, 1);
             }
             let rank = 1;
-            for (const score of this.liveRecords) {
+            for (const score of this.liverankings) {
                 score.rank = rank;
                 rank += 1;
             }
@@ -142,26 +142,26 @@ export default class LiveRecords extends Plugin {
                 player,
                 checkpoints: this.playerCheckpoints[login].join('')
             };
-            const existingLiveRecordIndex = this.liveRecords.findIndex((record) => record.login === login);
+            const existingLiveRecordIndex = this.liverankings.findIndex((record) => record.login === login);
 
             if (existingLiveRecordIndex === -1) {
-                this.liveRecords.push({ ...newLiveRecord });
+                this.liverankings.push({ ...newLiveRecord });
             } else {
-                const existingLiveRecord = this.liveRecords[existingLiveRecordIndex];
+                const existingLiveRecord = this.liverankings[existingLiveRecordIndex];
                 if (newLiveRecord.time < existingLiveRecord.time) {
                     existingLiveRecord.time = newLiveRecord.time;
                     existingLiveRecord.checkpoints = this.playerCheckpoints[login].join('');
                 }
             }
 
-            this.liveRecords.sort((a, b) => a.time - b.time);
+            this.liverankings.sort((a, b) => a.time - b.time);
 
-            this.liveRecords.forEach((record, index) => {
+            this.liverankings.forEach((record, index) => {
                 record.rank = index + 1;
             });
 
-            tmc.server.emit('Plugin.liveRecords.onSync', {
-                records: clone(this.liveRecords)
+            tmc.server.emit('Plugin.LiveRankings.onSync', {
+                records: clone(this.liverankings)
             });
         } catch (e: any) {
             tmc.cli(e);

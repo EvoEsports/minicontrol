@@ -193,7 +193,7 @@ export default class worldRecords extends Plugin {
                 formattedTime: formatTime(entry.score)
             }));
 
-            tmc.server.emit('Plugin.worldRecords.onSync', {
+            tmc.server.emit('Plugin.WorldRecords.onSync', {
                 records: clone(worldRecords)
             });
         } catch (error) {
