@@ -34,7 +34,7 @@ export default class Chat extends Plugin {
         try {
             await tmc.server.call('ChatEnableManualRouting', false, false);
         } catch (e: any) {
-            console.log(e.message);
+            tmc.chat(e.message);
         }
         tmc.removeCommand('//chat');
         tmc.server.removeListener('Trackmania.PlayerChat', this.onPlayerChat);

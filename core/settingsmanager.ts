@@ -58,7 +58,6 @@ export default class SettingsManager {
         if (existsSync(import.meta.dirname + '/../userdata/settings.json')) {
             try {
                 this.settings = Object.assign({}, this._defaultSettings, JSON.parse(readFileSync(import.meta.dirname + '/../userdata/settings.json', 'utf-8')) || {});
-                console.log(this.settings);
             } catch (e: any) {
                 tmc.cli('$f00Error loading settings.json');
                 tmc.cli(e.message);

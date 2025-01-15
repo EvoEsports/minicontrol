@@ -27,6 +27,6 @@ class PlayerManager {
 
 // example usage
 const player = await tmc.players.getPlayer(login);
-console.log(player.nickname);
+tmc.cli(player.nickname);
 
 ```

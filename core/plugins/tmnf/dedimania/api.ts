@@ -89,8 +89,8 @@ export default class DedimaniaClient {
                 }
             });
             return answer;
-        } catch (e) {
-            console.log(e);
+        } catch (e: any) {
+            tmc.debug(`Dedimania error: ` + e.message);
             return undefined;
         }
     }
