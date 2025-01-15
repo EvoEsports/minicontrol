@@ -77,6 +77,11 @@ export default class MapWidget extends Plugin {
             }
         }
 
+        let tmxUrl = data.TmxUrl + "mapshow/" + data.TmxId;
+        if (tmc.game.Name == 'TmForever') {
+            tmxUrl = data.TmxUrl.replace("https://", "http://") + "trackshow/" + data.TmxId;
+        }
+
         this.widget?.setData({
             author: htmlEntities(data.AuthorNickname ? data.AuthorNickname : data.Author),
             mapname: htmlEntities(data.Name),
@@ -84,6 +89,7 @@ export default class MapWidget extends Plugin {
             wrTime: formatTime(data.wrTime),
             wrHolder: htmlEntities(data.wrHolder || 'n/a'),
             tmx: this.getTmxLogo(),
+            tmxUrl: tmxUrl,
             info: data.Style ? data.Style + ' $fff/ ' + data.Difficulty : 'No TMX info'
         });
 

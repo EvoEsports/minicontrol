@@ -1054,7 +1054,7 @@ export default class AdminPlugin extends Plugin {
             { key: 'type', title: 'Type', width: 20 },
             //  { key: 'key', title: 'Setting', width: 60 },
             //   { key: 'default', title: 'Default Value', width: 20 },
-            { key: 'value', title: 'Value', width: 100, action: 'Toggle' }
+            { key: 'value', title: 'Value', width: 125, action: 'Toggle' }
         ]);
         window.setActions(['Reset']);
         await window.display();

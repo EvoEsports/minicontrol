@@ -352,10 +352,10 @@ export default class Tmx extends Plugin {
 
     async getTmxInfo(uid: string, envir: string | undefined) {
         let maps = 'maps';
-        let wr = 'OnlineWR';
+        let wr = 'OnlineWR,MapId';
         if (tmc.game.Name === 'TmForever') {
             maps = 'tracks';
-            wr = 'WRReplay.ReplayTime,WRReplay.User.Name';
+            wr = 'WRReplay.ReplayTime,WRReplay.User.Name,TrackId';
         }
         const url: string = this.getBaseUrl(envir) + `api/${maps}?fields=${encodeURIComponent(wr + ',Difficulty,Tags')}&uid=${encodeURIComponent(uid)}`;
 
@@ -383,6 +383,8 @@ export default class Tmx extends Plugin {
             });
             if (result.Tags?.length === 0) result.Tags = ['Normal'];
             result.Style = result.Tags[0] || 'Normal';
+            result.TmxId = result.MapId || result.TrackId;
+            result.TmxUrl = this.getBaseUrl(envir);
             result.wrHolder = result.OnlineWR?.DisplayName || result.WRReplay?.User?.Name || 'n/a';
             result.wrTime = result.OnlineWR?.RecordTime || result.WRReplay?.ReplayTime || undefined;
             if (tmc.game.Name === 'TmForever') {

@@ -74,7 +74,7 @@ export default class Dedimania extends Plugin {
                             tmc.cli(`¤error¤Dedimania: ${e.message}`);
                         }
                     }, 180 * 1000);
-                    this.updatePlayers().then(() => this.getRecords(tmc.maps.currentMap));
+                    this.updatePlayers().then(async () => await this.getRecords(tmc.maps.currentMap));
                 } else {
                     tmc.cli('¤error¤Dedimania: Failed to authenticate.');
                 }
@@ -113,14 +113,12 @@ export default class Dedimania extends Plugin {
         const serverGameMode = await tmc.server.call('GetGameMode');
         const serverInfo = await tmc.server.call('GetServerOptions', 0);
         try {
-            let answer = false;
             if (this.authError) {
-                answer = await this.authenticate();
-            }
-
-            if (!answer) {
-                tmc.cli('¤error¤Dedimania: Failed to authenticate.');
-                return;
+                let answer = await this.authenticate();
+                if (!answer) {
+                    tmc.cli('¤error¤Dedimania: Failed to authenticate.');
+                    return;
+                }
             }
 
             await this.api.call(
@@ -173,6 +171,7 @@ export default class Dedimania extends Plugin {
                 tmc.cli('¤info¤Dedimania: Account validated.');
             }
             if (res && res2.Status) {
+                this.enabled = true;
                 this.authError = false;
                 return true;
             }
