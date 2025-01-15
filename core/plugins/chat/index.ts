@@ -12,7 +12,10 @@ export default class Chat extends Plugin {
             this.pluginEnabled = (await tmc.server.call('ChatEnableManualRouting', true, false)) as boolean;
             tmc.server.addListener('Trackmania.PlayerChat', this.onPlayerChat, this);
             tmc.addCommand('//chat', this.cmdChat.bind(this), 'Controls chat');
+            tmc.settings.register('chat.color', 'ff0', null, 'Chat color');
+
             if (tmc.game.Name == 'TmForever') {
+                tmc.settings.register('chat.useEmotes', false, null, 'Enable emote replacements in chat (see: http://bit.ly/Celyans_emotes_sheet)');
                 tmc.chatCmd.addCommand(
                     '/emotes',
                     async (login: string) => {
@@ -77,12 +80,13 @@ export default class Chat extends Plugin {
         const player = await tmc.getPlayer(data[1]);
         const nick = player.nickname.replaceAll(/\$[iwozs]/gi, '');
         let text = data[2];
-        if (tmc.game.Name == 'TmForever' && process.env.CHAT_USE_EMOTES == 'true') {
+        if (tmc.game.Name == 'TmForever' && tmc.settings.get("chat.useEmotes")) {
             for (const data of emotesMap) {
                 text = text.replaceAll(new RegExp('\\b(' + data.emote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')\\b', 'g'), '$z$fff' + data.glyph + '$s$ff0');
             }
         }
-        const msg = `${nick}$z$s$fff »$ff0 ${text}`;
+        const chatColor = tmc.settings.get('chat.color');
+        const msg = `${nick}$z$s$fff »$${chatColor} ${text}`;
         tmc.server.send('ChatSendServerMessage', msg);
         tmc.cli(msg);
     }

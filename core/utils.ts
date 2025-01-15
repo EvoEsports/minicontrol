@@ -14,8 +14,8 @@ export function processColorString(str: string, prefix: string = ''): string {
     const matches = str.matchAll(/¤(\w+)¤/g);
     for (let match of matches) {
         const code = match[1].toString().toLowerCase();
-        if (tmc.colors[code]) {
-            str = str.replaceAll(match[0], `${prefix}$${tmc.colors[code]}`);
+        if (tmc.settings.colors[code]) {
+            str = str.replaceAll(match[0], `${prefix}$${tmc.settings.colors[code]}`);
         }
     }
     return str;

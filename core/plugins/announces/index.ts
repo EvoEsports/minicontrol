@@ -13,11 +13,11 @@ export default class Announces extends Plugin {
         tmc.server.addListener('Plugin.Records.onSync', this.onSyncRecord, this);
         tmc.server.addListener('Plugin.Dedimania.onNewRecord', this.onDediRecord, this);
         tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
-        tmc.settingsMgr.register('announce.brand', true);
-        tmc.settingsMgr.register('announce.playerconnect', true);
-        tmc.settingsMgr.register('announce.records', true);
-        tmc.settingsMgr.register('announce.dedimania', true);
-        tmc.settingsMgr.register('announce.map', true);
+        tmc.settings.register('announce.brand', true, null, "Announce MINIcontrol on player connect");
+        tmc.settings.register('announce.playerconnect', true, null, "Announce player connect and disconnects");
+        tmc.settings.register('announce.records', true, null,  "Announce server records");
+        tmc.settings.register('announce.dedimania', true, null, "Announce dedimania records");
+        tmc.settings.register('announce.map', true, null, "Announce map info on map start");
     }
 
     async onStart() {
@@ -37,25 +37,25 @@ export default class Announces extends Plugin {
     async onBeginMap(data: any) {
         const info = tmc.maps.getMap(data[0].UId) || data[0];
         const msg = `¤info¤${info.Environnement} map ¤white¤${info?.Name.replaceAll(/\$s/gi, '')}¤info¤ by ¤white¤${info.AuthorNickname ? info.AuthorNickname : info.Author}`;
-        if (tmc.settingsMgr.get('announce.map')) tmc.chat(msg);
+        if (tmc.settings.get('announce.map')) tmc.chat(msg);
         tmc.cli(msg);
     }
 
     async onPlayerConnect(player: Player) {
-        if (tmc.settingsMgr.get('announce.brand')) tmc.chat(`${tmc.brand} ¤info¤version ¤white¤${tmc.version}`, player.login);
+        if (tmc.settings.get('announce.brand')) tmc.chat(`${tmc.brand} ¤info¤version ¤white¤${tmc.version}`, player.login);
         const msg = `¤white¤${player.nickname}¤info¤ from ¤white¤${player.path.replace('World|', '').replaceAll('|', ', ')} ¤info¤joins!`;
-        if (tmc.settingsMgr.get('announce.playerconnect')) tmc.chat(msg);
+        if (tmc.settings.get('announce.playerconnect')) tmc.chat(msg);
         tmc.cli(msg);
     }
 
     async onPlayerDisconnect(player: Player) {
         const msg = `¤white¤${player.nickname}¤info¤ leaves!`;
-        if (tmc.settingsMgr.get('announce.playerconnect')) tmc.chat(msg);
+        if (tmc.settings.get('announce.playerconnect')) tmc.chat(msg);
         tmc.cli(msg);
     }
 
     async onDediRecord(data: any) {
-        if (!tmc.settingsMgr.get('announce.dedimania')) return;
+        if (!tmc.settings.get('announce.dedimania')) return;
         const newRecord: DediRecord = data.record;
         const oldRecord: DediRecord = data.oldRecord;
 
@@ -74,14 +74,14 @@ export default class Announces extends Plugin {
     }
 
     async onNewRecord(data: any, _records: any[]) {
-        if (!tmc.settingsMgr.get('announce.records')) return;
+        if (!tmc.settings.get('announce.records')) return;
         const newRecord = data.record;
         const nick = newRecord.player.customNick ?? newRecord.player.nickname;
         tmc.chat(`¤white¤${nick}¤rec¤ has set a new $fff1. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`);
     }
 
     async onUpdateRecord(data: any, _records: any[]) {
-        if (!tmc.settingsMgr.get('announce.records')) return;
+        if (!tmc.settings.get('announce.records')) return;
         const newRecord = data.record;
         const oldRecord = data.oldRecord;
         let extrainfo = '';
@@ -105,7 +105,7 @@ export default class Announces extends Plugin {
 
     async onSyncRecord(data: any) {
         // const map = tmc.maps.getMap(data.mapUid);
-        if (!tmc.settingsMgr.get('announce.records')) return;
+        if (!tmc.settings.get('announce.records')) return;
         const records: any[] = data.records;
         if (records.length === 0) {
             return;

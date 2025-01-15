@@ -9,7 +9,7 @@ export default class MapWidget extends Plugin {
     tmxInfo: any;
 
     async onLoad() {
-        tmc.settingsMgr.register('widget.maps.fetchTmxInfo', true);
+        tmc.settings.register('widget.maps.fetchTmxInfo', true, null, "Fetch TMX info for the map widget");
 
         this.widget = new Widget('core/plugins/widgets/map/widget.xml.twig');
         this.widget.pos = { x: 121, y: 89, z: 1 };
@@ -69,7 +69,7 @@ export default class MapWidget extends Plugin {
     async display(data: any) {
         data = data[0];
         if (Object.keys(tmc.plugins).includes('tmx')) {
-            if (tmc.settingsMgr.get('widget.maps.fetchTmxInfo')) {
+            if (tmc.settings.get('widget.maps.fetchTmxInfo')) {
                 this.tmxInfo = await this.getTmxData();
                 if (this.tmxInfo) {
                     data = { ...data, ...this.tmxInfo };

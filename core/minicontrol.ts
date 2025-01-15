@@ -81,11 +81,7 @@ class MiniControl {
     /**
      * The settings manager.
      */
-    settingsMgr: SettingsManager;
-    /**
-     * The colors
-     */
-    colors: { [key: string]: string } = {};
+    settings: SettingsManager;
     /**
      * The plugins.
      */
@@ -108,10 +104,9 @@ class MiniControl {
         this.ui = new UiManager();
         this.chatCmd = new CommandManager();
         this.billMgr = new BillManager();
-        this.settingsMgr = new SettingsManager();
-        this.settingsMgr.load();
-        this.colors = this.settingsMgr.colors;
-        this.admins = this.settingsMgr.admins;
+        this.settings = new SettingsManager();
+        this.settings.load();
+        this.admins = this.settings.admins;
         this.game = {Name: ''};
     }
 

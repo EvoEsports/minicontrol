@@ -32,8 +32,8 @@ export interface VoteStruct {
 
 export default class VotesPlugin extends Plugin {
     static depends: string[] = [];
-    timeout: number = process.env.VOTE_TIMEOUT ? parseInt(process.env.VOTE_TIMEOUT) : 30;
-    ratio: number = process.env.VOTE_RATIO ? parseFloat(process.env.VOTE_RATIO) : 0.55;
+    timeout: number = 30;
+    ratio: number = 0.55;
     currentVote: Vote | null = null;
     widget: Widget | null = null;
     readonly origTimeLimit = Number.parseInt(process.env.TALIMIT || "300");
@@ -58,6 +58,10 @@ export default class VotesPlugin extends Plugin {
         tmc.addCommand("//extend", this.cmdAdmExtend.bind(this), "Extend timelimit");
         tmc.addCommand("/yes", this.cmdYes.bind(this), "Vote yes");
         tmc.addCommand("/no", this.cmdNo.bind(this), "Vote no");
+        tmc.settings.register("votes.timeout", 30, (value) => this.timeout = value, "Vote timeout in seconds");
+        tmc.settings.register("votes.ratio", 0.55, (value) => this.ratio = value, "Vote ratio to pass");
+        this.timeout = tmc.settings.get("votes.timeout");
+        this.ratio = tmc.settings.get("votes.ratio");
     }
 
     async onUnload() {

@@ -1,5 +1,5 @@
 import ListWindow from './ui/listwindow';
-import { escapeRegex, sleep } from './utils';
+import { escapeRegex } from './utils';
 import fs from 'fs';
 
 export interface CallableCommand {
@@ -161,7 +161,7 @@ export default class CommandManager {
                             tmc.chat(`¤info¤Admin ¤white¤${admin}¤info¤ already exists.`, login);
                             return;
                         }
-                        tmc.settingsMgr.addAdmin(admin);
+                        tmc.settings.addAdmin(admin);
                         tmc.chat(`¤info¤Admin ¤white¤${admin}¤info¤ added.`, login);
                         break;
                     }
@@ -175,7 +175,7 @@ export default class CommandManager {
                             tmc.chat(`¤info¤Admin ¤white¤${admin} ¤info¤does not exist.`, login);
                             return;
                         }
-                        tmc.settingsMgr.removeAdmin(admin);
+                        tmc.settings.removeAdmin(admin);
                         tmc.chat(`¤info¤Admin ¤white¤${admin} ¤info¤removed.`, login);
                         break;
                     }

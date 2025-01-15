@@ -1,4 +1,4 @@
-import { castType, htmlEntities } from '@core/utils';
+import { processColorString, castType, htmlEntities } from '@core/utils';
 import ModeSettingsWindow from './ModeSettingsWindow';
 import Plugin from '@core/plugins';
 import fs from 'fs';
@@ -7,7 +7,6 @@ import PlayerListsWindow from './PlayerListsWindow';
 import fsPath from 'path';
 import { type Map } from '@core/mapmanager.ts';
 import SettingsWindow from './SettingsWindow';
-import { de } from '@faker-js/faker';
 
 enum TmnfMode {
     Rounds = 0,
@@ -993,15 +992,15 @@ export default class AdminPlugin extends Plugin {
         }
         const setting = this.currentSetting[login];
 
-        const value: any = castType(args[0], setting.type);
+        const value: any = castType(args.join(' ').trim(), setting.type);
 
-        if (typeof value != setting.type) {
+        if (typeof value != setting.type || value == undefined || (setting.type == 'number' && isNaN(value))) {
             tmc.chat('¤error¤Invalid value', login);
             return;
         }
 
         try {
-            tmc.settingsMgr.set(setting.key, value);
+            tmc.settings.set(setting.key, value);
         } catch (e: any) {
             tmc.chat('Error: ' + e.message, login);
             return;
@@ -1015,31 +1014,49 @@ export default class AdminPlugin extends Plugin {
         const window = new SettingsWindow(login);
         window.size = { width: 165, height: 95 };
         window.title = 'Settings';
-        const settings = tmc.settingsMgr.getSettings();
+        const settings = tmc.settings.getSettings();
         let out: any = [];
         for (const data in settings.defaults) {
             let value = settings.settings[data];
             let defaultValue = settings.defaults[data];
+            let description = settings.descriptions[data];
+
             if (typeof settings.defaults[data] == 'boolean') {
-                value = value ? 'true' : 'false';
-                defaultValue = defaultValue ? 'true' : 'false';
+                value = value ? '$0f0true' : '$f00false';
+                defaultValue = defaultValue ? '$0f0true' : '$f00false';
+            }
+            if (typeof settings.defaults[data] == 'number') {
+                value = '$df0' + value;
+                defaultValue = '$df0' + defaultValue;
+            }
+            if (typeof settings.defaults[data] == 'string') {
+                value = `${value}`;
+                defaultValue = `${defaultValue}`;
             }
 
+            const changed = value !== defaultValue;
+            let prefix = '';
+            let postfix = '';
+            if (changed) {
+                prefix = '$o';
+                postfix = ' $z(changed)';
+            }
             out.push({
                 key: data,
-                default: defaultValue,
-                value: value,
-                type: typeof settings.defaults[data]
+                default: htmlEntities(defaultValue),
+                value: htmlEntities(prefix + value),
+                type: typeof settings.defaults[data],
+                description: htmlEntities(description + postfix)
             });
         }
         window.setItems(out);
         window.setColumns([
             { key: 'type', title: 'Type', width: 20 },
-            { key: 'key', title: 'Setting', width: 60 },
-            { key: 'default', title: 'Default Value', width: 20 },
-            { key: 'value', title: 'Value', width: 20, action: 'Toggle' }
+            //  { key: 'key', title: 'Setting', width: 60 },
+            //   { key: 'default', title: 'Default Value', width: 20 },
+            { key: 'value', title: 'Value', width: 100, action: 'Toggle' }
         ]);
-        window.setActions(['Select', 'Toggle', 'Reset']);
+        window.setActions(['Reset']);
         await window.display();
     }
 }

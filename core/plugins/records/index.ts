@@ -9,8 +9,6 @@ export default class Records extends Plugin {
     static depends: string[] = ['database'];
     records: Score[] = [];
     currentMapUid: string = '';
-    maxRecords = parseInt(process.env['MAX_RECORDS'] || '100', 10);
-    limit: number = this.maxRecords > 1 ? this.maxRecords : 100;
     private playerCheckpoints: { [login: string]: string[] } = {};
 
     async onLoad() {
@@ -19,6 +17,7 @@ export default class Records extends Plugin {
         tmc.server.addListener('TMC.PlayerFinish', this.onPlayerFinish, this);
         tmc.server.addListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint, this);
         tmc.chatCmd.addCommand('/records', this.cmdRecords.bind(this), 'Display Records');
+        tmc.settings.register('records.maxRecords', 100, this.settingMaxRecords.bind(this), 'Maximum number of records to store and display');
     }
 
     async onUnload() {
@@ -46,6 +45,10 @@ export default class Records extends Plugin {
         const map = data[0];
         this.currentMapUid = map.UId;
         await this.syncRecords(map.UId);
+    }
+
+    async settingMaxRecords(value: any) {
+        await this.syncRecords(this.currentMapUid);
     }
 
     async cmdRecords(login: string, _args: string[]) {
@@ -86,7 +89,7 @@ export default class Records extends Plugin {
                 ['time', 'ASC'],
                 ['updatedAt', 'ASC']
             ],
-            limit: this.limit,
+            limit: tmc.settings.get('records.maxRecords'),
             include: [Player]
         });
 
@@ -173,6 +176,7 @@ export default class Records extends Plugin {
 
     async onPlayerFinish(data: any) {
         const login = data[0];
+        const limit = tmc.settings.get('records.maxRecords') || 100;
 
         try {
             if (!this.playerCheckpoints[login]) {
@@ -211,13 +215,13 @@ export default class Records extends Plugin {
                 return;
             }
 
-            const lastIndex = this.records.length > this.limit ? this.limit : this.records.length;
+            const lastIndex = this.records.length > limit ? limit : this.records.length;
             const lastRecord = this.records[lastIndex - 1];
 
             let ranking = await this.getRankingsForLogin(data);
             if (ranking.BestTime <= 0) return;
 
-            if (lastIndex >= this.limit && lastRecord && typeof lastRecord.time === 'number' && ranking.BestTime >= lastRecord.time) return;
+            if (lastIndex >= limit && lastRecord && typeof lastRecord.time === 'number' && ranking.BestTime >= lastRecord.time) return;
             const time = ranking.BestTime;
             const record = this.records.find((r) => r.login === login);
             let oldRecord = clone(record);
@@ -274,7 +278,7 @@ export default class Records extends Plugin {
                 }
             }
 
-            this.records = this.records.slice(0, this.limit);
+            this.records = this.records.slice(0, limit);
 
             tmc.server.emit('Plugin.Records.onUpdateRecord', {
                 oldRecord: oldRecord || {},
