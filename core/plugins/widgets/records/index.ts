@@ -81,10 +81,12 @@ export default class RecordsWidget extends Plugin {
 
     async onDediSync(data: any) {
         this.dediRecords = data;
+        await this.updateWidgets();
     }
 
     async onDediUpdate(data: any) {
         this.dediRecords = data.records;
+        await this.updateWidgets();
     }
 
     async onNewRecord(data: any) {
