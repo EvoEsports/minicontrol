@@ -13,6 +13,8 @@ export default class Chat extends Plugin {
             tmc.server.addListener('Trackmania.PlayerChat', this.onPlayerChat, this);
             tmc.addCommand('//chat', this.cmdChat.bind(this), 'Controls chat');
             tmc.settings.register('chat.color', 'ff0', null, 'Chat: Public chat color');
+            tmc.settings.register('chat.badge.admin', 'f00', null, 'Chat: Admin badge color');
+            tmc.settings.register('chat.badge.player', 'fff', null, 'Chat: Player badge color');
 
             if (tmc.game.Name == 'TmForever') {
                 tmc.settings.register('chat.useEmotes', false, null, 'Chat: Enable emote replacements in chat $z(see: http://bit.ly/Celyans_emotes_sheet)');
@@ -81,12 +83,13 @@ export default class Chat extends Plugin {
         const nick = player.nickname.replaceAll(/\$[iwozs]/gi, '');
         let text = data[2];
         if (tmc.game.Name == 'TmForever' && tmc.settings.get("chat.useEmotes")) {
-            for (const data of emotesMap) {
-                text = text.replaceAll(new RegExp('\\b(' + data.emote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')\\b', 'g'), '$z$fff' + data.glyph + '$s$ff0');
+            for (const emoteData of emotesMap) {
+                text = text.replaceAll(new RegExp('\\b(' + emoteData.emote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')\\b', 'g'), '$z$fff' + emoteData.glyph + '$s$ff0');
             }
         }
         const chatColor = tmc.settings.get('chat.color');
-        const msg = `${nick}$z$s$fff »$${chatColor} ${text}`;
+        const adminColor = tmc.admins.includes(data[1]) ? tmc.settings.get('chat.badge.admin') : tmc.settings.get('chat.badge.player');
+        const msg = `${nick}$z$s$${adminColor} »$${chatColor} ${text}`;
         tmc.server.send('ChatSendServerMessage', msg);
         tmc.cli(msg);
     }
