@@ -360,7 +360,12 @@ export default class Tmx extends Plugin {
         const url: string = this.getBaseUrl(envir) + `api/${maps}?fields=${encodeURIComponent(wr + ',Difficulty,Tags')}&uid=${encodeURIComponent(uid)}`;
 
         try {
-            const res = await fetch(url, { keepalive: false });
+            const controller = new AbortController();
+            const { signal } = controller;
+            const timeoutID = setTimeout(() => controller.abort(), 1000);
+            const res = await fetch(url, { keepalive: false, signal: signal});
+            clearTimeout(timeoutID);
+            if (res.ok === false) return {};
             const json: any = await res.json();
             if (!json || !json.Results) return {};
             let result: any = {};

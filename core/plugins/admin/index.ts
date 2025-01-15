@@ -1049,7 +1049,7 @@ export default class AdminPlugin extends Plugin {
                 description: htmlEntities(description)
             });
         }
-        window.setItems(out);
+        window.setItems(out.sort((a: any, b: any) => a.key.localeCompare(b.key)));
         window.setColumns([
             { key: 'type', title: 'Type', width: 20 },
             //  { key: 'key', title: 'Setting', width: 60 },

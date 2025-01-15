@@ -63,27 +63,25 @@ export default class Dedimania extends Plugin {
             });
         }
 
-        try {
-            const res = await this.authenticate();
-            if (res) {
-                tmc.cli('¤info¤Dedimania: Authenticated.');
-
-                this.intervalId = setInterval(async () => {
-                    try {
-                        await this.updatePlayers();
-                    } catch (e: any) {
-                        tmc.cli(`¤error¤Dedimania: ${e.message}`);
-                    }
-                }, 180 * 1000);
-
-                await this.updatePlayers();
-                await this.getRecords(tmc.maps.currentMap);
-            } else {
-                tmc.cli('¤error¤Dedimania: Failed to authenticate.');
-            }
-        } catch (e: any) {
-            tmc.cli(e);
-        }
+        this.authenticate()
+            .then((res) => {
+                if (res) {
+                    tmc.cli('¤info¤Dedimania: Authenticated.');
+                    this.intervalId = setInterval(async () => {
+                        try {
+                            await this.updatePlayers();
+                        } catch (e: any) {
+                            tmc.cli(`¤error¤Dedimania: ${e.message}`);
+                        }
+                    }, 180 * 1000);
+                    this.updatePlayers().then(() => this.getRecords(tmc.maps.currentMap));
+                } else {
+                    tmc.cli('¤error¤Dedimania: Failed to authenticate.');
+                }
+            })
+            .catch((e) => {
+                tmc.cli(`¤error¤Dedimania: ${e.message}`);
+            });
     }
 
     async cmdDediRecords(login: string, _args: string[]) {
