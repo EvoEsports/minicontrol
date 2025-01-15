@@ -9,7 +9,7 @@ export default class SettingsWindow extends ListWindow {
         if (action == 'Toggle') {
             if (item.type == 'boolean') {
                 const value = !tmc.settings.get(item.key);
-                tmc.settings.set(item.key, value);
+                await tmc.settings.set(item.key, value);
                 await tmc.chatCmd.execute(login, '//settings');
                 return;
             } else {
@@ -24,7 +24,7 @@ export default class SettingsWindow extends ListWindow {
             return;
         }
         if (action == 'Reset') {
-            tmc.settings.reset(item.key);
+            await tmc.settings.reset(item.key);
             if (this.recipient) delete (tmc.plugins['admin'] as AdminPlugin).currentSetting[this.recipient];
             tmc.chat(`¤info¤Setting $fff${item.key} ¤info¤reset to default value.`, login);
             await tmc.chatCmd.execute(login, '//settings');

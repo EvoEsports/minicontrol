@@ -17,7 +17,7 @@ export default class Records extends Plugin {
         tmc.server.addListener('TMC.PlayerFinish', this.onPlayerFinish, this);
         tmc.server.addListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint, this);
         tmc.chatCmd.addCommand('/records', this.cmdRecords.bind(this), 'Display Records');
-        tmc.settings.register('records.maxRecords', 100, this.settingMaxRecords.bind(this), 'Maximum number of records to store and display');
+        tmc.settings.register('records.maxRecords', 100, this.settingMaxRecords.bind(this), 'LocalRecords: Maximum number of records');
     }
 
     async onUnload() {

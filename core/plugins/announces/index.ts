@@ -13,11 +13,11 @@ export default class Announces extends Plugin {
         tmc.server.addListener('Plugin.Records.onSync', this.onSyncRecord, this);
         tmc.server.addListener('Plugin.Dedimania.onNewRecord', this.onDediRecord, this);
         tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
-        tmc.settings.register('announce.brand', true, null, "Announce MINIcontrol on player connect");
-        tmc.settings.register('announce.playerconnect', true, null, "Announce player connect and disconnects");
-        tmc.settings.register('announce.records', true, null,  "Announce server records");
-        tmc.settings.register('announce.dedimania', true, null, "Announce dedimania records");
-        tmc.settings.register('announce.map', true, null, "Announce map info on map start");
+        tmc.settings.register('announce.brand', true, null, "Announces: MINIcontrol on player connect");
+        tmc.settings.register('announce.playerconnect', true, null, "Announces: player connect and disconnects");
+        tmc.settings.register('announce.records', true, null,  "Announces: Server records");
+        tmc.settings.register('announce.dedimania', true, null, "Announces: Dedimania records");
+        tmc.settings.register('announce.map', true, null, "Announces: Map info on map start");
     }
 
     async onStart() {

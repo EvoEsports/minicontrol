@@ -19,9 +19,9 @@ const requiredEnvVars = ['SERVER_LOGIN', 'SERVER_PASS', 'CONTACT_INFO', 'IDENTIF
 export default class worldRecords extends Plugin {
     static depends: string[] = ['game:Trackmania'];
 
-    maxRecords = parseInt(process.env['WORLD_RECORDS'] || '100', 10);
+    maxRecords = 100; // Amount of World Records to be displayed in /worldrecords. Increasing this might get your Account banned (too many API calls).
     length: number = this.maxRecords > 1 ? this.maxRecords : 100;
-    updateRecords = parseInt(process.env['UPDATE_RECORDS'] || '60', 10);
+    updateRecords = 60; // Interval of World Records being updated in seconds (min. 30). Decreasing this might get your Account banned (too many API calls).
     interval: number = this.updateRecords >= 30 ? this.updateRecords * 1000 : 60000;
     private api: API = new API();
     private cachedLeaderboard: LeaderboardEntry[] = [];

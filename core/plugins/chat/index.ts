@@ -12,10 +12,10 @@ export default class Chat extends Plugin {
             this.pluginEnabled = (await tmc.server.call('ChatEnableManualRouting', true, false)) as boolean;
             tmc.server.addListener('Trackmania.PlayerChat', this.onPlayerChat, this);
             tmc.addCommand('//chat', this.cmdChat.bind(this), 'Controls chat');
-            tmc.settings.register('chat.color', 'ff0', null, 'Chat color');
+            tmc.settings.register('chat.color', 'ff0', null, 'Chat: Public chat color');
 
             if (tmc.game.Name == 'TmForever') {
-                tmc.settings.register('chat.useEmotes', false, null, 'Enable emote replacements in chat (see: http://bit.ly/Celyans_emotes_sheet)');
+                tmc.settings.register('chat.useEmotes', false, null, 'Chat: Enable emote replacements in chat $z(see: http://bit.ly/Celyans_emotes_sheet)');
                 tmc.chatCmd.addCommand(
                     '/emotes',
                     async (login: string) => {

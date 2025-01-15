@@ -192,9 +192,16 @@ export default class SettingsManager {
         this.save();
     }
 
-    reset(key: string) {
+    async reset(key: string) {
+        const oldValue = clone(this.settings[key]);
+        const newValue = clone(this._defaultSettings[key]);
+
         delete this.settings[key];
         this.save();
-        this.settings[key] = this._defaultSettings[key];
+        this.settings[key] = newValue;
+
+        if (this.callbacks[key]) {
+            await this.callbacks[key](newValue, oldValue);
+        }
     }
 }

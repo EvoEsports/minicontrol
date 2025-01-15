@@ -58,10 +58,12 @@ export default class VotesPlugin extends Plugin {
         tmc.addCommand("//extend", this.cmdAdmExtend.bind(this), "Extend timelimit");
         tmc.addCommand("/yes", this.cmdYes.bind(this), "Vote yes");
         tmc.addCommand("/no", this.cmdNo.bind(this), "Vote no");
-        tmc.settings.register("votes.timeout", 30, (value) => this.timeout = value, "Vote timeout in seconds");
-        tmc.settings.register("votes.ratio", 0.55, (value) => this.ratio = value, "Vote ratio to pass");
+        tmc.settings.register("votes.timeout", 30, (value) => this.timeout = value, "Votes: Vote Timeout in seconds");
+        tmc.settings.register("votes.ratio", 0.55, (value) => this.ratio = value, "Votes: Vote ratio to pass");
+        tmc.settings.register("votes.native.timeout", 0, (value) => tmc.server.send('SetCallVoteTimeOut', value), "Votes: Native vote timeout $z(milliseconds, 0 to disable)");
         this.timeout = tmc.settings.get("votes.timeout");
         this.ratio = tmc.settings.get("votes.ratio");
+        tmc.server.send('SetCallVoteTimeOut', tmc.settings.get("votes.native.timeout"));
     }
 
     async onUnload() {

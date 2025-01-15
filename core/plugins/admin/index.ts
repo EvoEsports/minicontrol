@@ -1046,7 +1046,7 @@ export default class AdminPlugin extends Plugin {
                 default: htmlEntities(defaultValue),
                 value: htmlEntities(prefix + value),
                 type: typeof settings.defaults[data],
-                description: htmlEntities(description + postfix)
+                description: htmlEntities(description)
             });
         }
         window.setItems(out);
