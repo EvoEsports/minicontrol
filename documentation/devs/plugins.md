@@ -3,6 +3,7 @@
 ## Listeners
 
 To make plugins work across all generations of Trackmania games, we took some creative liberties to make our lives easier.
+
 * Callbacks starting with: `TrackMania.` and  `ManiaPlanet.` are all renamed to start with `Trackmania.`.
 * All script callbacks will be redirected as events.
 
@@ -82,6 +83,7 @@ async myOverride(data: any) {
 ## Sending chat messages
 
 Sending public and private chat messages.
+
 ```ts
 // For sending chat messages, await is not needed.
 tmc.chat(`Hello World!`);
