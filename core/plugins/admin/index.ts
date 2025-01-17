@@ -392,7 +392,7 @@ export default class AdminPlugin extends Plugin {
             '//timeout',
             async (login: string, params: string[]) => {
                 if (!params[0] && isNaN(Number.parseInt(params[0]))) {
-                    return tmc.chat('¤cmd¤//timeout ¤info¤needs numeric value');
+                    return tmc.chat('¤cmd¤//timeout ¤info¤needs numeric value', login);
                 }
                 try {
                     tmc.server.send('SetFinishTimeout', Number.parseInt(params[0]) * 1000);
@@ -407,7 +407,7 @@ export default class AdminPlugin extends Plugin {
             '//cupwinners',
             async (login: string, params: string[]) => {
                 if (!params[0] && isNaN(Number.parseInt(params[0]))) {
-                    return tmc.chat('¤cmd¤//cupwinners ¤info¤needs numeric value');
+                    return tmc.chat('¤cmd¤//cupwinners ¤info¤needs numeric value', login);
                 }
                 try {
                     tmc.server.send('SetCupNbWinners', Number.parseInt(params[0]));
@@ -441,7 +441,7 @@ export default class AdminPlugin extends Plugin {
             '//pointlimit',
             async (login: string, params: string[]) => {
                 if (!params[0] && isNaN(Number.parseInt(params[0]))) {
-                    return tmc.chat('¤cmd¤//pointlimit ¤info¤needs numeric value');
+                    return tmc.chat('¤cmd¤//pointlimit ¤info¤needs numeric value', login);
                 }
                 try {
                     const mode = await tmc.server.call('GetGameMode');
@@ -472,7 +472,7 @@ export default class AdminPlugin extends Plugin {
             '//maxpoints',
             async (login: string, params: string[]) => {
                 if (!params[0]) {
-                    return tmc.chat('¤cmd¤//maxpoints ¤info¤needs value');
+                    return tmc.chat('¤cmd¤//maxpoints ¤info¤needs value', login);
                 }
                 try {
                     tmc.server.send('SetMaxPointsTeam', Number.parseInt(params[0]));
@@ -485,11 +485,11 @@ export default class AdminPlugin extends Plugin {
         );
         tmc.addCommand('//rpoints', async (login: string, params: string[]) => {
             if (!params[0]) {
-                return tmc.chat('¤cmd¤//rpoints ¤info¤needs value');
+                return tmc.chat('¤cmd¤//rpoints ¤info¤needs value', login);
             }
             const array = params[0].split(',');
-            if (array.length != 2) {
-                return tmc.chat('¤cmd¤//rpoints ¤info¤needs atleast 2 values');
+            if (array.length < 2) {
+                return tmc.chat('¤cmd¤//rpoints ¤info¤needs atleast 2 values', login);
             }
             let newArray: number[] = [];
             for (let number of array) {
@@ -530,7 +530,7 @@ export default class AdminPlugin extends Plugin {
             '//laps',
             async (login: string, params: string[]) => {
                 if (!params[0] && isNaN(Number.parseInt(params[0]))) {
-                    return tmc.chat('¤cmd¤//laps ¤info¤needs numeric value');
+                    return tmc.chat('¤cmd¤//laps ¤info¤needs numeric value', login);
                 }
                 try {
                     tmc.server.send('SetNbLaps', Number.parseInt(params[0]));
