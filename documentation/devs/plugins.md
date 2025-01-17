@@ -46,8 +46,6 @@ tmc.server.addListener("Trackmania.*", this.callback, this);
 tmc.addCommand("/mycommand", this.myCommand.bind(this), "description");
 ```
 
-
-
 ## Interacting with the dedicated server
 
 To interact with the dedicated server, you usually subscribe to Dedicated Server callbacks and act upon them.
@@ -102,4 +100,3 @@ tmc.cli("trackmania colorCoded string");
 // To log a debug message, shows only when debug is enabled in `.env`
 tmc.debug("trackmania colorCoded string");
 ```
-
