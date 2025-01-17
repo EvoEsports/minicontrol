@@ -449,7 +449,7 @@ export default class UiManager {
             <challenge_info visible="false"/>
             <net_infos visible="true"/>
             <chat visible="true"/>
-            <checkpoint_list visible="true"/>
+            <checkpoint_list visible="false"/>
             <round_scores visible="true"/>
             <scoretable visible="true"/>
             <multilap_infos visible="true"/>

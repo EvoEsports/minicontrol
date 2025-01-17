@@ -7,6 +7,8 @@ import PlayerListsWindow from './PlayerListsWindow';
 import fsPath from 'path';
 import { type Map } from '@core/mapmanager.ts';
 import SettingsWindow from './SettingsWindow';
+import type { Player } from '@core/playermanager';
+import AdminWidget from './AdminWidget';
 
 enum TmnfMode {
     Rounds = 0,
@@ -31,6 +33,9 @@ export default class AdminPlugin extends Plugin {
         if (tmc.game.Name != 'TmForever') {
             tmc.addCommand('//modesettings', this.cmdModeSettings.bind(this), 'Display mode settings');
         }
+
+        tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
+
         tmc.addCommand('//settings', this.cmdSettings.bind(this), 'Display settings');
         tmc.addCommand('//set', this.cmdSetSetting.bind(this), 'Set setting value');
         tmc.addCommand('//skip', async () => await tmc.server.call('NextMap'), 'Skips Map');
@@ -610,6 +615,11 @@ export default class AdminPlugin extends Plugin {
     }
 
     async onStart(): Promise<void> {
+
+        for (const player of tmc.players.getAll()) {
+            await this.onPlayerConnect(player);
+        }
+
         const menu = tmc.storage['menu'];
         if (menu) {
             menu.addItem({
@@ -651,6 +661,15 @@ export default class AdminPlugin extends Plugin {
                     admin: true
                 });
             }
+        }
+    }
+
+    async onPlayerConnect(player: Player) {
+        if (tmc.admins.includes(player.login)) {
+            const widget = new AdminWidget(player.login);
+            widget.size = { width: 60, height: 5 };
+            widget.pos = { x: 35, y: -86, z: 1 };
+            await widget.display();
         }
     }
 
