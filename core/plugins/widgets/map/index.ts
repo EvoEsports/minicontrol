@@ -9,7 +9,7 @@ export default class MapWidget extends Plugin {
     tmxInfo: any;
 
     async onLoad() {
-        tmc.settings.register('widget.maps.fetchTmxInfo', true, null, "Widgets: Fetch TMX info for map widget");
+        tmc.settings.register('widget.maps.fetchTmxInfo', true, null, 'Widgets: Fetch TMX info for map widget');
 
         this.widget = new Widget('core/plugins/widgets/map/widget.xml.twig');
         this.widget.pos = { x: 121, y: 89, z: 1 };
@@ -47,22 +47,22 @@ export default class MapWidget extends Plugin {
             case 'TmForever':
                 return {
                     url: 'http://images.mania.exchange/logos/tm1x/long.png',
-                    size: "10 5",
+                    size: '10 5'
                 };
             case 'ManiaPlanet':
                 return {
                     url: 'http://images.mania.exchange/logos/mx/long_sm.png',
-                    size: "22 4",
+                    size: '22 4'
                 };
             case 'Trackmania':
                 return {
                     url: 'http://images.mania.exchange/logos/tmx/long_sm.png',
-                    size: "22 4",
+                    size: '22 4'
                 };
         }
         return {
             url: 'http://images.mania.exchange/logos/mx/long_w_sm.png',
-            size: "22 4",
+            size: '22 4'
         };
     }
 
@@ -77,11 +77,13 @@ export default class MapWidget extends Plugin {
             }
         }
 
-        let tmxUrl = data.TmxUrl + "mapshow/" + data.TmxId;
-        if (tmc.game.Name == 'TmForever') {
-            tmxUrl = data.TmxUrl.replace("https://", "http://") + "trackshow/" + data.TmxId;
+        let tmxUrl = '';
+        if (data.TmxId) {
+            tmxUrl = data.TmxUrl + 'mapshow/' + data.TmxId;
+            if (data.TmxId && tmc.game.Name == 'TmForever') {
+                tmxUrl = data.TmxUrl.replace('https://', 'http://') + 'trackshow/' + data.TmxId;
+            }
         }
-        if (!data.TmxId) tmxUrl = "";
 
         this.widget?.setData({
             author: htmlEntities(data.AuthorNickname ? data.AuthorNickname : data.Author),
