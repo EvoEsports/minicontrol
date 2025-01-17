@@ -81,6 +81,7 @@ export default class MapWidget extends Plugin {
         if (tmc.game.Name == 'TmForever') {
             tmxUrl = data.TmxUrl.replace("https://", "http://") + "trackshow/" + data.TmxId;
         }
+        if (!data.TmxId) tmxUrl = "";
 
         this.widget?.setData({
             author: htmlEntities(data.AuthorNickname ? data.AuthorNickname : data.Author),

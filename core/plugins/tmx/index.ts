@@ -381,16 +381,16 @@ export default class Tmx extends Plugin {
                 if (tag.Name) return color + tag.Name;
                 return this.TM1X_TAGS[tag];
             });
-            if (result.Tags?.length === 0) result.Tags = ['Normal'];
+            if (result.Tags == null || result.Tags?.length == 0) result.Tags = ['Normal'];
             result.Style = result.Tags[0] || 'Normal';
             result.TmxId = result.MapId || result.TrackId;
             result.TmxUrl = this.getBaseUrl(envir);
             result.wrHolder = result.OnlineWR?.DisplayName || result.WRReplay?.User?.Name || 'n/a';
             result.wrTime = result.OnlineWR?.RecordTime || result.WRReplay?.ReplayTime || undefined;
             if (tmc.game.Name === 'TmForever') {
-                result.Difficulty = this.TMX1X_DIFFICULTY[result.Difficulty] || 'n/a';
+                result.Difficulty = this.TMX1X_DIFFICULTY[result.Difficulty] || 'Difficulty not set';
             } else {
-                result.Difficulty = this.TMX_DIFFICULTY[result.Difficulty] || 'n/a';
+                result.Difficulty = this.TMX_DIFFICULTY[result.Difficulty] || 'Difficulty not set';
             }
             return result;
         } catch (e: any) {
