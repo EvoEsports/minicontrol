@@ -84,7 +84,7 @@ export default class Chat extends Plugin {
         let text = data[2];
         if (tmc.game.Name == 'TmForever' && tmc.settings.get("chat.useEmotes")) {
             for (const emoteData of emotesMap) {
-                text = text.replaceAll(new RegExp('\\b(' + emoteData.emote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')\\b', 'g'), '$z$fff' + emoteData.glyph + '$s$ff0');
+                text = text.replaceAll(new RegExp(':\\b(' + emoteData.emote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')\\b:', 'gi'), '$z$fff' + emoteData.glyph + '$s$ff0');
             }
         }
         const chatColor = tmc.settings.get('chat.color');

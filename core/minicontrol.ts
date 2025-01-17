@@ -15,24 +15,24 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import {require} from 'tsx/cjs/api';
+import { require } from 'tsx/cjs/api';
 import * as SentryType from '@sentry/node';
 
 const Sentry = require('./sentry', import.meta.url);
 
-import PlayerManager, {Player} from './playermanager';
+import PlayerManager, { Player } from './playermanager';
 import BillManager from './billmanager';
 import Server from './server';
 import UiManager from './uimanager';
 import MapManager from './mapmanager';
-import CommandManager, {type CallableCommand} from './commandmanager';
+import CommandManager, { type CallableCommand } from './commandmanager';
 import SettingsManager from './settingsmanager';
-import {clone, getCallerName, processColorString, setMemStart} from './utils';
+import { clone, getCallerName, processColorString, setMemStart } from './utils';
 import log from './log';
 import fs from 'fs';
 import Plugin from './plugins/index';
 import path from 'path';
-import {DepGraph} from 'dependency-graph';
+import { DepGraph } from 'dependency-graph';
 import semver from 'semver';
 
 export interface GameStruct {
@@ -105,9 +105,8 @@ class MiniControl {
         this.chatCmd = new CommandManager();
         this.billMgr = new BillManager();
         this.settings = new SettingsManager();
-        this.settings.load();
         this.admins = this.settings.admins;
-        this.game = {Name: ''};
+        this.game = { Name: '' };
     }
 
     /**
@@ -171,9 +170,9 @@ class MiniControl {
             let plugin: any;
             const epoch = new Date().getTime();
             if (process.platform === 'win32') {
-                plugin = await import('file:///' + process.cwd() + '/' + pluginPath + "?stamp="+epoch);
+                plugin = await import('file:///' + process.cwd() + '/' + pluginPath + '?stamp=' + epoch);
             } else {
-                plugin = await import(process.cwd() + '/' + pluginPath+ "?stamp="+epoch);
+                plugin = await import(process.cwd() + '/' + pluginPath + '?stamp=' + epoch);
             }
 
             if (plugin.default == undefined) {
@@ -339,8 +338,8 @@ class MiniControl {
         const port = Number.parseInt(process.env.XMLRPC_PORT || '5000');
         this.cli(`¤info¤Starting ¤white¤MINIcontrol ${this.version}`);
         this.cli(`¤info¤Using Node ¤white¤${process.version}`);
-        if (semver.gt("21.5.0", process.version)) {
-            this.cli("¤error¤Your Node version is too old. Must be atleast 21.5.0, please upgrade!");
+        if (semver.gt('21.5.0', process.version)) {
+            this.cli('¤error¤Your Node version is too old. Must be atleast 21.5.0, please upgrade!');
             process.exit(1);
         }
         this.cli('¤info¤Connecting to Trackmania Dedicated server at ¤white¤' + (process.env.XMLRPC_HOST ?? '127.0.0.1') + ':' + port);
@@ -373,13 +372,13 @@ class MiniControl {
             this.mapsPath = await this.server.call('GetMapsDirectory');
             await this.server.callScript('XmlRpc.EnableCallbacks', 'true');
             try {
-                const settings = {S_UseLegacyXmlRpcCallbacks: false};
+                const settings = { S_UseLegacyXmlRpcCallbacks: false };
                 tmc.server.send('SetModeScriptSettings', settings);
             } catch (e: any) {
                 tmc.cli(e.message);
             }
         }
-
+        this.settings.load();
         await this.maps.init();
         await this.players.init();
         await this.ui.init();
@@ -393,8 +392,8 @@ class MiniControl {
     async beforeInit() {
         await this.chatCmd.beforeInit();
         // load plugins
-        let plugins = fs.readdirSync(process.cwd().replaceAll('\\', '/') + '/core/plugins', {withFileTypes: true, recursive: true});
-        plugins = plugins.concat(fs.readdirSync(process.cwd().replaceAll('\\', '/') + '/userdata/plugins', {withFileTypes: true, recursive: true}));
+        let plugins = fs.readdirSync(process.cwd().replaceAll('\\', '/') + '/core/plugins', { withFileTypes: true, recursive: true });
+        plugins = plugins.concat(fs.readdirSync(process.cwd().replaceAll('\\', '/') + '/userdata/plugins', { withFileTypes: true, recursive: true }));
         const exclude = process.env.EXCLUDED_PLUGINS?.split(',') || [];
         let loadList: string[] = [];
         for (const plugin of plugins) {
@@ -468,7 +467,7 @@ class MiniControl {
 
         for (const name in dependencyByPlugin) {
             for (const dependency of dependencyByPlugin[name]) {
-                if (!dependency.startsWith("game:")) {
+                if (!dependency.startsWith('game:')) {
                     try {
                         this.pluginDependecies.addDependency(name, dependency);
                     } catch (error) {
@@ -510,7 +509,6 @@ class MiniControl {
         }
         console.timeEnd('Startup');
         tmc.cli('¤success¤MiniControl started successfully.');
-
     }
 }
 
@@ -535,7 +533,7 @@ declare global {
 process.on('SIGINT', function () {
     tmc.server.send('SendHideManialinkPage', 0, false);
     Sentry.close(2000).then(() => {
-        console.log("MINIcontrol exits successfully.");
+        console.log('MINIcontrol exits successfully.');
         process.exit(0);
     });
 });
@@ -543,7 +541,7 @@ process.on('SIGINT', function () {
 process.on('SIGTERM', () => {
     tmc.server.send('SendHideManialinkPage', 0, false);
     Sentry.close(2000).then(() => {
-        console.log("MINIcontrol exits succesfully.");
+        console.log('MINIcontrol exits succesfully.');
         process.exit(0);
     });
 });

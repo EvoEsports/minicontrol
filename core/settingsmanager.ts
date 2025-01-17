@@ -1,5 +1,6 @@
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { clone, modLightness } from './utils';
+import type { init } from '@sentry/node';
 
 export default class SettingsManager {
     _defaultSettings: { [key: string]: any } = {};
@@ -32,7 +33,12 @@ export default class SettingsManager {
     admins: string[] = [];
     masterAdmins: string[] = (process.env.ADMINS || '').split(',').map((a) => a.trim());
 
+    adminsFile: string = '/../userdata/admins.json';
+    colorsFile: string = '/../userdata/colors.json';
+    settingsFile: string = '/../userdata/settings.json';
+
     load() {
+        tmc.cli('¤info¤Loading settings...');
         this.admins = this.masterAdmins;
         this.settings = this._defaultSettings;
         /** load colors from environment variables */
@@ -44,39 +50,47 @@ export default class SettingsManager {
         this.colors['button_bg_dark'] = modLightness(this.colors['button_bg'], -15);
         this.colors['window_bg_light'] = modLightness(this.colors['window_bg'], 5);
         this.colors['window_bg_dark'] = modLightness(this.colors['window_bg'], -5);
+        this.adminsFile = '/../userdata/admins_' + tmc.server.login + '.json';
+        this.colorsFile = '/../userdata/colors_' + tmc.server.login + '.json';
+        this.settingsFile = '/../userdata/settings_' + tmc.server.login + '.json';
 
-        if (existsSync(import.meta.dirname + '/../userdata/admins.json')) {
+        this.init(this.adminsFile, []);
+        this.init(this.colorsFile, {});
+        this.init(this.settingsFile, {});
+
+        try {
+            const admins = JSON.parse(readFileSync(import.meta.dirname + this.adminsFile, 'utf-8')) || [];
+            this.admins = admins.concat(this.masterAdmins);
+            tmc.admins = this.admins;
+        } catch (e: any) {
+            tmc.cli('$f00Error while loading admins');
+            tmc.cli(e.message);
+            process.exit();
+        }
+
+        if (existsSync(import.meta.dirname + this.settingsFile)) {
             try {
-                const admins = JSON.parse(readFileSync(import.meta.dirname + '/../userdata/admins.json', 'utf-8')) || [];
-                this.admins = admins.concat(this.masterAdmins);
+                this.settings = Object.assign({}, this._defaultSettings, JSON.parse(readFileSync(import.meta.dirname + this.settingsFile, 'utf-8')) || {});
             } catch (e: any) {
-                tmc.cli('$f00Error while loading admins.json');
+                tmc.cli('$f00Error loading settings');
                 tmc.cli(e.message);
                 process.exit();
             }
         }
-        if (existsSync(import.meta.dirname + '/../userdata/settings.json')) {
+        if (existsSync(import.meta.dirname + this.colorsFile)) {
             try {
-                this.settings = Object.assign({}, this._defaultSettings, JSON.parse(readFileSync(import.meta.dirname + '/../userdata/settings.json', 'utf-8')) || {});
-            } catch (e: any) {
-                tmc.cli('$f00Error loading settings.json');
-                tmc.cli(e.message);
-                process.exit();
-            }
-        }
-        if (existsSync(import.meta.dirname + '/../userdata/colors.json')) {
-            try {
-                const colors = JSON.parse(readFileSync(import.meta.dirname + '/../userdata/colors.json', 'utf-8')) || {};
+                const colors = JSON.parse(readFileSync(import.meta.dirname + this.colorsFile, 'utf-8')) || {};
                 this.colors = Object.assign({}, this._defaultColors);
                 for (const color in colors) {
                     this.colors[color] = colors[color];
                 }
             } catch (e: any) {
-                tmc.cli('$f00Error loading colors.json');
+                tmc.cli('$f00Error loading colors');
                 tmc.cli(e.message);
                 process.exit();
             }
         }
+        tmc.cli('¤info¤Settings loaded!');
     }
 
     save() {
@@ -87,18 +101,30 @@ export default class SettingsManager {
                     outSettings[key] = this.settings[key];
                 }
             }
-            writeFileSync(import.meta.dirname + '/../userdata/settings.json', JSON.stringify(outSettings));
+            writeFileSync(import.meta.dirname + this.settingsFile, JSON.stringify(outSettings));
             const colors: any = {};
             for (const color in this.colors) {
                 if (this.colors[color] !== this._defaultColors[color]) {
                     colors[color] = this.colors[color];
                 }
             }
-            writeFileSync(import.meta.dirname + '/../userdata/colors.json', JSON.stringify(colors));
-            writeFileSync(import.meta.dirname + '/../userdata/admins.json', JSON.stringify(this.admins.filter((a) => !this.masterAdmins.includes(a))));
+            writeFileSync(import.meta.dirname + this.colorsFile, JSON.stringify(colors));
+            writeFileSync(import.meta.dirname + this.adminsFile, JSON.stringify(this.admins.filter((a) => !this.masterAdmins.includes(a))));
         } catch (e: any) {
             tmc.cli('¤error¤Error while saving settings!');
             tmc.cli(e.message);
+        }
+    }
+
+    init(file: string, data: any) {
+        if (!existsSync(import.meta.dirname + file)) {
+            try {
+                writeFileSync(import.meta.dirname + file, JSON.stringify(data));
+            } catch (e: any) {
+                tmc.cli('$f00Error while creating ' + file);
+                tmc.cli(e.message);
+                process.exit(1);
+            }
         }
     }
 
@@ -133,7 +159,7 @@ export default class SettingsManager {
         const oldValue = clone(this.settings[key]);
         const newValue = clone(value);
 
-        if (!this.settings.hasOwnProperty(key)){
+        if (!this.settings.hasOwnProperty(key)) {
             throw new Error(`Key ${key} does not exist in settings`);
         }
 
@@ -174,6 +200,7 @@ export default class SettingsManager {
             return;
         }
         this.admins.push(login);
+        tmc.admins = this.admins;
         this.save();
     }
 
@@ -188,6 +215,7 @@ export default class SettingsManager {
             this.admins.splice(index, 1);
             index = this.admins.indexOf(login);
         }
+        tmc.admins = this.admins;
         this.save();
     }
 
