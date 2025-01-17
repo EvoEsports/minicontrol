@@ -28,13 +28,15 @@ interface Setting {
 
 export default class AdminPlugin extends Plugin {
     currentSetting: { [key: string]: Setting | undefined } = {};
+    adminWidget: { [key: string]: AdminWidget } = {};
 
     async onLoad() {
         if (tmc.game.Name != 'TmForever') {
             tmc.addCommand('//modesettings', this.cmdModeSettings.bind(this), 'Display mode settings');
         }
-
+        tmc.settings.register('admin.panel', true, this.adminPanelChange.bind(this), 'Admin: Enable admin panel');
         tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
+        tmc.server.addListener('TMC.PlayerDisconnect', this.onPlayerDisconnect, this);
 
         tmc.addCommand('//settings', this.cmdSettings.bind(this), 'Display settings');
         tmc.addCommand('//set', this.cmdSetSetting.bind(this), 'Set setting value');
@@ -614,8 +616,13 @@ export default class AdminPlugin extends Plugin {
         tmc.removeCommand('//blacklist');
     }
 
-    async onStart(): Promise<void> {
+    async adminPanelChange(value: any) {
+        for (const player of tmc.players.getAll()) {
+            await this.onPlayerConnect(player);
+        }
+    }
 
+    async onStart(): Promise<void> {
         for (const player of tmc.players.getAll()) {
             await this.onPlayerConnect(player);
         }
@@ -665,11 +672,22 @@ export default class AdminPlugin extends Plugin {
     }
 
     async onPlayerConnect(player: Player) {
-        if (tmc.admins.includes(player.login)) {
+        if (!tmc.admins.includes(player.login)) return;
+        if (tmc.settings.get('admin.panel')) {
             const widget = new AdminWidget(player.login);
             widget.size = { width: 60, height: 5 };
             widget.pos = { x: 35, y: -86, z: 1 };
             await widget.display();
+            this.adminWidget[player.login] = widget;
+        } else if (this.adminWidget[player.login]) {
+            await this.adminWidget[player.login].destroy();
+            delete this.adminWidget[player.login];
+        }
+    }
+
+    async onPlayerDisconnect(player: Player) {
+        if (this.adminWidget[player.login]) {
+            delete this.adminWidget[player.login];
         }
     }
 
