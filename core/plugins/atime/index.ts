@@ -31,7 +31,7 @@ export default class ATime extends Plugin {
 
         if (newLimit < min) newLimit = min;
         if (newLimit > max) newLimit = max;
-        process.env['TALIMIT'] = newLimit.toString();
+        tmc.storage['minicontrol.taTimeLimit'] = newLimit;
 
         const time = formatTime(newLimit * 1000);
         const goldTime = formatTime(tmc.maps.currentMap.GoldTime);

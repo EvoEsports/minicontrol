@@ -25,7 +25,8 @@ export default class MapsWindow extends ListWindow {
                         Index: i++,
                         Name: htmlEntities(map.Name),
                         AuthorName: htmlEntities(map.AuthorNickname || map.Author || ''),
-                        ATime: formatTime(map.AuthorTime || map.GoldTime)
+                        ATime: formatTime(map.AuthorTime || map.GoldTime),
+                        Vehicle: map.Vehicle ? htmlEntities(" / " + map.Vehicle) : ''
                     })
                 );
             }

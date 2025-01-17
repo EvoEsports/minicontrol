@@ -66,6 +66,10 @@ export default class VotesPlugin extends Plugin {
         tmc.server.send('SetCallVoteTimeOut', tmc.settings.get("votes.native.timeout"));
     }
 
+    async onStart() {
+        this.newLimit = tmc.storage['minicontrol.taTimeLimit'] || this.origTimeLimit || 300;
+    }
+
     async onUnload() {
         tmc.server.removeOverride("CancelVote");
         tmc.server.removeListener("TMC.Vote.Cancel", this.onVoteCancel);
@@ -126,7 +130,6 @@ export default class VotesPlugin extends Plugin {
     } */
 
     async onEndMatch() {
-        this.newLimit = this.origTimeLimit;
         this.currentVote = null;
         this.hideWidget();
         tmc.server.emit("TMC.Vote.Cancel", { vote: this.currentVote });
@@ -135,10 +138,10 @@ export default class VotesPlugin extends Plugin {
 
     async onBeginRound() {
         this.currentVote = null;
-        this.newLimit = this.origTimeLimit;
+        this.newLimit = tmc.storage['minicontrol.taTimeLimit'] || this.origTimeLimit;
         this.hideWidget();
         if (this.extendCounter > 1) {
-            tmc.server.send("SetTimeAttackLimit", this.origTimeLimit * 1000);
+            tmc.server.send("SetTimeAttackLimit", this.newLimit * 1000);
         }
         this.extendCounter = 1;
     }
@@ -307,7 +310,7 @@ export default class VotesPlugin extends Plugin {
 
     async cmdAdmExtend(_login: string, params: string[]) {
         this.extendCounter += 1;
-        const seconds = params[0] ? parseInt(params[0]) : this.origTimeLimit;
+        const seconds = params[0] ? parseInt(params[0]) : tmc.storage['minicontrol.taTimeLimit'] || this.origTimeLimit;
         this.newLimit += seconds;
         tmc.server.send("SetTimeAttackLimit", this.newLimit * 1000);
         tmc.chat(`¤info¤Time limit extended by ¤white¤${seconds} ¤info¤seconds.`);
