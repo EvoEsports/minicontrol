@@ -480,7 +480,7 @@ export default class UiManager {
         <?xml version="1.0" encoding="UTF-8"?>
         <manialinks><custom_ui>`;
             for (let key in this.tmnfCustomUi) {
-                xml += `<${key} visible="${this.tmnfCustomUi[key] ? 'true' : 'false'} />`;
+                xml += `<${key} visible="${this.tmnfCustomUi[key] ? 'true' : 'false'}" />`;
             }
             xml += `</custom_ui></manialinks>`;
             tmc.server.send('SendDisplayManialinkPage', xml, 0, false);
