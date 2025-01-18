@@ -1,3 +1,4 @@
+import { sign } from 'crypto';
 import ListWindow from './ui/listwindow';
 import { escapeRegex } from './utils';
 import fs from 'fs';
@@ -27,12 +28,23 @@ export default class CommandManager {
         this.addCommand(
             '/help',
             async (login: string, args: string[]) => {
-                let help = 'Available: \n';
+                let outCommands: any = [];
                 for (let command in this.commands) {
                     if (this.commands[command]?.admin) continue;
-                    help += `¤cmd¤${this.commands[command]?.trigger} ¤white¤${this.commands[command]?.help}, `;
+                    outCommands.push({
+                        command: this.commands[command].trigger,
+                        help: this.commands[command].help
+                    });
                 }
-                tmc.chat(help, login);
+                const window = new ListWindow(login);
+                window.size = { width: 160, height: 95 };
+                window.title = 'Commands';
+                window.setItems(outCommands.sort((a: any, b: any) => a.command.localeCompare(b.command)));
+                window.setColumns([
+                    { key: 'command', title: 'Command', width: 50 },
+                    { key: 'help', title: 'Help', width: 100 }
+                ]);
+                await window.display();
             },
             'Display help for command'
         );
@@ -40,12 +52,23 @@ export default class CommandManager {
         this.addCommand(
             '//help',
             async (login: string, args: string[]) => {
-                let help = 'Available: \n';
+                let outCommands: any = [];
                 for (let command in this.commands) {
                     if (!this.commands[command]?.admin) continue;
-                    help += `¤cmd¤${this.commands[command].trigger} ¤white¤${this.commands[command].help}, `;
+                    outCommands.push({
+                        command: this.commands[command].trigger,
+                        help: this.commands[command].help
+                    });
                 }
-                tmc.chat(help, login);
+                const window = new ListWindow(login);
+                window.size = { width: 160, height: 95 };
+                window.title = 'Admin commands';
+                window.setItems(outCommands.sort((a: any, b: any) => a.command.localeCompare(b.command)));
+                window.setColumns([
+                    { key: 'command', title: 'Command', width: 50 },
+                    { key: 'help', title: 'Help', width: 100 }
+                ]);
+                await window.display();
             },
             'Display help for command'
         );
@@ -134,7 +157,7 @@ export default class CommandManager {
             }
         }, "Manage plugins");
         */
-        tmc.addCommand(
+        this.addCommand(
             '//admin',
             async (login: string, args: string[]) => {
                 if (args.length < 1) {
@@ -185,6 +208,83 @@ export default class CommandManager {
                 }
             },
             'Manage admins'
+        );
+        this.addCommand(
+            '//call',
+            async (login: string, params: string[]) => {
+                const method = params.shift();
+                if (method === undefined) {
+                    const methods = await tmc.server.call('system.listMethods');
+                    let multicall: any = [];
+                    for (let method of methods) {
+                        multicall.push(['system.methodHelp', method]);
+                    }
+
+                    let multicall2: any = [];
+                    for (let method of methods) {
+                        multicall2.push(['system.methodSignature', method]);
+                    }
+
+                    let methodHelp = await tmc.server.multicall(multicall);
+                    let methodSignature = await tmc.server.multicall(multicall2);
+                    let out: any = [];
+                    for (const i in methods) {
+                        if (methods[i].startsWith('system.')) continue;
+                        let type = [];
+                        for (let j in methodSignature[i]) {
+                            const temp = methodSignature[i][j].map((x: any) => {
+                                switch (x) {
+                                    case 'string':
+                                        return 'string';
+                                    case 'int':
+                                        return '$df0int';
+                                    case 'boolean':
+                                        return '$0f0boolean';
+                                    case 'double':
+                                        return '$df0double';
+                                    case 'array':
+                                        return '$d00array';
+                                }
+                                return x;
+                            });
+                            type = type.concat(temp);
+                        }
+                        const returnvalue = type.shift();
+                        out.push({
+                            method: methods[i] + "(" + type.join('$fff, ') + "$fff)",
+                            value: returnvalue,
+                            help: methodHelp[i].replace(/Only available to (Super)?Admin./, '')
+                        });
+                    }
+
+                    const window = new ListWindow(login);
+
+                    window.title = 'Methods';
+                    window.setItems(out.sort((a: any, b: any) => a.method.localeCompare(b.method)));
+                    window.setColumns([
+                        { key: 'method', title: 'Method', width: 60 },
+                        { key: 'value', title: 'Return', width: 15 },
+                        { key: 'help', title: 'Help', width: 150 }
+                    ]);
+                    window.size = { width: 230, height: 95 };
+                    await window.display();
+                    return;
+                }
+                try {
+                    let out: any = [];
+                    for (let i = 0; i < params.length; i++) {
+                        if (params[i].toLowerCase() == 'true') out[i] = true;
+                        else if (params[i].toLowerCase() == 'false') out[i] = false;
+                        else if (!isNaN(Number.parseInt(params[i]))) out[i] = Number.parseInt(params[i]);
+                        else out[i] = params[i];
+                    }
+                    const answer = await tmc.server.call(method, ...out);
+                    tmc.chat(answer.toString(), login);
+                } catch (err: any) {
+                    tmc.chat(err.message, login);
+                }
+            },
+            'Calls server method'
         );
     }
 

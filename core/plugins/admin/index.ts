@@ -351,30 +351,6 @@ export default class AdminPlugin extends Plugin {
             },
             'Removes map from playlist'
         );
-
-        tmc.addCommand(
-            '//call',
-            async (login: string, params: string[]) => {
-                const method = params.shift();
-                if (method === undefined) {
-                    return tmc.chat('¤cmd¤//call ¤info¤needs a method', login);
-                }
-                try {
-                    let out: any = [];
-                    for (let i = 0; i < params.length; i++) {
-                        if (params[i].toLowerCase() == 'true') out[i] = true;
-                        else if (params[i].toLowerCase() == 'false') out[i] = false;
-                        else if (!isNaN(Number.parseInt(params[i]))) out[i] = Number.parseInt(params[i]);
-                        else out[i] = params[i];
-                    }
-                    const answer = await tmc.server.call(method, ...out);
-                    tmc.chat(answer.toString(), login);
-                } catch (err: any) {
-                    tmc.chat(err.message, login);
-                }
-            },
-            'Calls server method'
-        );
         tmc.addCommand(
             '//wu',
             async (login: string, params: string[]) => {
