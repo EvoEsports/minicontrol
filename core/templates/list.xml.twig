@@ -61,11 +61,11 @@
 {% endfor %}
 
 <frame pos="{{ (size.width / 2) -17 }} -{{ size.height - 12 }}">
-    <quad pos="-3 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowFirst"  halign="center" valign="center" action="{% if data.items.currentPage <= 0 %}{{actions.pg_start}}{% endif %}" />
-    <quad pos="3 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowPrev"  halign="center" valign="center" action="{% if data.items.currentPage <= 0 %}{{actions.pg_prev}}{% endif %}" />
+    <quad pos="-3 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowFirst"  halign="center" valign="center" action="{% if data.items.currentPage > 0 %}{{actions.pg_start}}{% endif %}" />
+    <quad pos="3 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowPrev"  halign="center" valign="center" action="{% if data.items.currentPage > 0 %}{{actions.pg_prev}}{% endif %}" />
     <label pos="12 -2.5" z-index="1" size="6 6" text="${{colors.window_text}}$o{{ data.items.currentPage + 1 }}/{{ data.items.totalPages }}" halign="center" textsize="1" valign="center2"/>
-    <quad pos="22 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowNext" halign="center"  valign="center" action="{% if data.items.currentPage >= data.items.totalPages %}{{actions.pg_next}}{% endif %}" />
-    <quad pos="28 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowLast"  halign="center" valign="center" action="{% if data.items.currentPage >= data.items.totalPages %}{{actions.pg_end}}{% endif %}"/>
+    <quad pos="22 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowNext" halign="center"  valign="center" action="{% if data.items.currentPage + 1 < data.items.totalPages %}{{actions.pg_next}}{% endif %}" />
+    <quad pos="28 -2.5" z-index="1" size="6 6" style="Icons64x64_1" substyle="ArrowLast"  halign="center" valign="center" action="{% if data.items.currentPage + 1 < data.items.totalPages %}{{actions.pg_end}}{% endif %}"/>
 </frame>
 
 {% if actions.apply is defined %}
