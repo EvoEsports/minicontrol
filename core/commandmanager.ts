@@ -1,6 +1,6 @@
 import { sign } from 'crypto';
 import ListWindow from './ui/listwindow';
-import { escapeRegex } from './utils';
+import { escapeRegex, htmlEntities } from './utils';
 import fs from 'fs';
 
 export interface CallableCommand {
@@ -32,8 +32,8 @@ export default class CommandManager {
                 for (let command in this.commands) {
                     if (this.commands[command]?.admin) continue;
                     outCommands.push({
-                        command: this.commands[command].trigger,
-                        help: this.commands[command].help
+                        command: htmlEntities(this.commands[command].trigger),
+                        help: htmlEntities(this.commands[command].help)
                     });
                 }
                 const window = new ListWindow(login);
@@ -56,8 +56,8 @@ export default class CommandManager {
                 for (let command in this.commands) {
                     if (!this.commands[command]?.admin) continue;
                     outCommands.push({
-                        command: this.commands[command].trigger,
-                        help: this.commands[command].help
+                        command: htmlEntities(this.commands[command].trigger),
+                        help: htmlEntities(this.commands[command].help)
                     });
                 }
                 const window = new ListWindow(login);
@@ -251,9 +251,9 @@ export default class CommandManager {
                         }
                         const returnvalue = type.shift();
                         out.push({
-                            method: methods[i] + "(" + type.join('$fff, ') + "$fff)",
-                            value: returnvalue,
-                            help: methodHelp[i].replace(/Only available to (Super)?Admin./, '')
+                            method: htmlEntities(methods[i] + '(' + type.join('$fff, ') + '$fff)'),
+                            value: htmlEntities(returnvalue ?? ''),
+                            help: htmlEntities(methodHelp[i].replace(/Only available to (Super)?Admin./, ''))
                         });
                     }
 
