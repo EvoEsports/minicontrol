@@ -15,15 +15,16 @@
 
 # Quick  Start
 
-### With Node.js
+## With Node.js
+
 1. Clone the repository or download the files from the `main` branch
 2. Run `npm install`
 3. Copy `.env.example` to `.env` and fill out all necessary information in the `.env` file.
 4. Run `npm start`
 
-### With Docker
+## With Docker
 
-* See `docker/compose.yml` for an example Docker Compose file.
+- See `docker/compose.yml` for an example Docker Compose file.
 
 See [documentation](./documentation/index.md) for more info!
 
@@ -41,13 +42,20 @@ See [documentation](./documentation/index.md) for more info!
 3. Run in MINIControl folder: `tsx --env-file=.env pyplanet.ts pyplanet.sql`
 4. Start MINIcontrol
 
+# Migrating from Trakman?
+
+1. Start trakman from docker
+2. Run in MINIControl folder: `tsx --env-file=.env trakman.ts`
+3. Start MINIcontrol
+
 # Contributing
+
 See the documentation in `documentation/devs` to read more about the core concept of MINIcontrol and how plugins work.
 
 If you want to contribute changes or plugins to MINIcontrol, please open up an `Issue` first before you start working on things, so we can discuss the details of implementation, etc.
 
 We will not respond to random pull requests.
 
-### If you want to test your core changes in Docker:
+## If you want to test your core changes in Docker
 
-* Build a local docker image: `docker build -t minicontrol:test -f docker/Dockerfile . `
+- Build a local docker image: `docker build -t minicontrol:test -f docker/Dockerfile . `
