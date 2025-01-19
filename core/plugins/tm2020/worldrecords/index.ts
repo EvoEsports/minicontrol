@@ -187,16 +187,22 @@ export default class worldRecords extends Plugin {
             const accountIds = this.cachedLeaderboard.map((entry) => entry.accountId);
             await this.getDisplayNames(accountIds);
 
-            const worldRecords = this.cachedLeaderboard.map((entry) => ({
-                rank: entry.position,
-                nickname: this.displayNamesCache[entry.accountId] || 'Unknown',
-                formattedTime: formatTime(entry.score)
-            }));
+            const worldRecords: any = [];
+            for (const entry of this.cachedLeaderboard) {
+                worldRecords.push({
+                    rank: entry.position,
+                    nickname: this.displayNamesCache[entry.accountId] || 'Unknown',
+                    formattedTime: formatTime(entry.score)
+                });
+            }
 
             tmc.server.emit('Plugin.WorldRecords.onSync', {
                 records: clone(worldRecords)
             });
         } catch (error) {
+            tmc.server.emit('Plugin.WorldRecords.onSync', {
+                records: []
+            });
             console.error(`Error fetching world records: ${error}`);
         }
     }
