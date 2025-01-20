@@ -11,8 +11,10 @@ interface Map {
 
 export default class Tmx extends Plugin {
     readonly SITE_NAMES = ['TMN', 'TMO', 'TMS', 'TMUF', 'TMNF'];
-    readonly TM1X_TAGS = ["Normal", "Stunt", "Maze", "Offroad", "Laps", "Fullspeed", "LOL", "Tech", "Speedtech", "RPG", "PressForward", "Trial", "Grass"];
-    readonly TM1X_UNLIMITER = ["none", "0.4", "0.6", "0.7", "1.1", "1.2", "1.3", "2.0"];
+    readonly TM1X_TAGS = ['Normal', 'Stunt', 'Maze', 'Offroad', 'Laps', 'Fullspeed', 'LOL', 'Tech', 'Speedtech', 'RPG', 'PressForward', 'Trial', 'Grass'];
+    readonly TM1X_UNLIMITER = ['none', '0.4', '0.6', '0.7', '1.1', '1.2', '1.3', '2.0'];
+    readonly TMX1X_DIFFICULTY = ['Beginner', 'Intermediate', 'Expert', 'Lunatic'];
+    readonly TMX_DIFFICULTY = ['Beginner', 'Intermediate', 'Advanced', 'Expert', 'Lunatic', 'Impossible'];
     readonly BASE_URL_NATIONS = 'https://nations.tm-exchange.com/';
     readonly BASE_URL_ORIGINAL = 'https://original.tm-exchange.com/';
     readonly BASE_URL_SUNRISE = 'https://sunrise.tm-exchange.com/';
@@ -102,8 +104,8 @@ export default class Tmx extends Plugin {
                         if (tag.Name) return color + tag.Name;
                         return this.TM1X_TAGS[tag];
                     }).join('$fff, ') || 'n/a',
-                awards: "$fe0" + (data.Awards || data.AwardCount || '0'),
-                unlimiter: data.UnlimiterVersion ? "$o$f00" + this.TM1X_UNLIMITER[data.UnlimiterVersion] : ''
+                awards: '$fe0' + (data.Awards || data.AwardCount || '0'),
+                unlimiter: data.UnlimiterVersion ? '$o$f00' + this.TM1X_UNLIMITER[data.UnlimiterVersion] : ''
             });
         }
 
@@ -125,8 +127,7 @@ export default class Tmx extends Plugin {
                 { key: 'tags', title: 'Tags', width: 40 },
                 { key: 'length', title: 'Length', width: 12 },
                 { key: 'unlimiter', title: 'Unlimiter', width: 10 },
-                { key: 'awards', title: 'Awards', width: 10 },
-
+                { key: 'awards', title: 'Awards', width: 10 }
             ]);
         }
 
@@ -318,7 +319,7 @@ export default class Tmx extends Plugin {
     async downloadMapPack(packId: string, baseUrl: string, login: string, site?: string) {
         let url = baseUrl;
         if (tmc.game.Name === 'TmForever') {
-            url += `api/tracks?packid=${packId}&fields=${encodeURI('TrackId,TrackName')}`;
+            url += `api/tracks?packid=${packId}&fields=${encodeURIComponent('TrackId,TrackName')}`;
         } else if (tmc.game.Name === 'ManiaPlanet' || tmc.game.Name === 'Trackmania') {
             url += `api/mappack/get_mappack_tracks/${packId}`;
         } else {
@@ -347,5 +348,54 @@ export default class Tmx extends Plugin {
             }
         }
         tmc.chat('¤white¤Done!');
+    }
+
+    async getTmxInfo(uid: string, envir: string | undefined) {
+        let maps = 'maps';
+        let wr = 'OnlineWR,MapId';
+        if (tmc.game.Name === 'TmForever') {
+            maps = 'tracks';
+            wr = 'WRReplay.ReplayTime,WRReplay.User.Name,TrackId';
+        }
+        const url: string = this.getBaseUrl(envir) + `api/${maps}?fields=${encodeURIComponent(wr + ',Difficulty,Tags')}&uid=${encodeURIComponent(uid)}`;
+
+        try {
+            const controller = new AbortController();
+            const { signal } = controller;
+            const timeoutID = setTimeout(() => controller.abort(), 1000);
+            const res = await fetch(url, { keepalive: false, signal: signal});
+            clearTimeout(timeoutID);
+            if (res.ok === false) return {};
+            const json: any = await res.json();
+            if (!json || !json.Results) return {};
+            let result: any = {};
+            if (json.Results.length > 0) {
+                result = json.Results[0];
+            }
+            result.Tags = result.Tags?.map((tag: any) => {
+                let color = '';
+                if (tag.Color) {
+                    const matches = tag.Color.match(/.{2}/g);
+                    color = '$' + matches.map((c: string) => Math.floor(parseInt(c, 16) / 17).toString(16)).join('');
+                }
+                if (tag.Name) return color + tag.Name;
+                return this.TM1X_TAGS[tag];
+            });
+            if (result.Tags == null || result.Tags?.length == 0) result.Tags = ['Normal'];
+            result.Style = result.Tags[0] || 'Normal';
+            result.TmxId = result.MapId || result.TrackId;
+            result.TmxUrl = this.getBaseUrl(envir);
+            result.wrHolder = result.OnlineWR?.DisplayName || result.WRReplay?.User?.Name || 'n/a';
+            result.wrTime = result.OnlineWR?.RecordTime || result.WRReplay?.ReplayTime || undefined;
+            if (tmc.game.Name === 'TmForever') {
+                result.Difficulty = this.TMX1X_DIFFICULTY[result.Difficulty] || 'Difficulty not set';
+            } else {
+                result.Difficulty = this.TMX_DIFFICULTY[result.Difficulty] || 'Difficulty not set';
+            }
+            return result;
+        } catch (e: any) {
+            tmc.debug(`TmxInfo Error: ${e.message}`);
+            return {};
+        }
     }
 }

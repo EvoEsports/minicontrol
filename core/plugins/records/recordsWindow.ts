@@ -4,9 +4,9 @@ import Score from "@core/schemas/scores.model";
 import Player from "@core/schemas/players.model";
 import { formatTime, htmlEntities } from '@core/utils';
 import { Op } from "sequelize";
-import WorldRecords from "@core/plugins/worldrecords";
+import WorldRecords from "@core/plugins/tm2020/worldrecords";
 import Records from "@core/plugins/records";
-import LiveRecords from "@core/plugins/liveRecords";
+import liverankings from "@core/plugins/liverankings";
 
 interface Column {
     title: string;
@@ -14,7 +14,7 @@ interface Column {
     width: number;
 }
 
-type AppType = Records | LiveRecords | WorldRecords;
+type AppType = Records | liverankings | WorldRecords;
 
 export default class RecordsWindow extends ListWindow {
     app: AppType;
@@ -100,14 +100,14 @@ export default class RecordsWindow extends ListWindow {
         }
         else if (this.title.includes("Live Records")) {
             try {
-                const liveRecord = (this.app as LiveRecords).liveRecords.find(record => record.login === login);
+                const liveRecord = (this.app as liverankings).liverankings.find(record => record.login === login);
 
                 if (!liveRecord) {
                     return null;
                 }
 
                 return {
-                    rank: (this.app as LiveRecords).liveRecords.indexOf(liveRecord) + 1,
+                    rank: (this.app as liverankings).liverankings.indexOf(liveRecord) + 1,
                     nickname: liveRecord.player?.nickname || liveRecord.login,
                     time: liveRecord.time,
                     checkpoints: liveRecord.checkpoints

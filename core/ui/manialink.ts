@@ -60,7 +60,7 @@ export default class Manialink {
             size: this.size,
             pos: this.pos,
             actions: this.actions,
-            colors: tmc.colors,
+            colors: tmc.settings.colors,
             data: this.data,
             title: this.title,
             recipient: this.recipient

@@ -3,6 +3,7 @@
 ## Listeners
 
 To make plugins work across all generations of Trackmania games, we took some creative liberties to make our lives easier.
+
 * Callbacks starting with: `TrackMania.` and  `ManiaPlanet.` are all renamed to start with `Trackmania.`.
 * All script callbacks will be redirected as events.
 
@@ -45,8 +46,6 @@ tmc.server.addListener("Trackmania.*", this.callback, this);
 tmc.addCommand("/mycommand", this.myCommand.bind(this), "description");
 ```
 
-
-
 ## Interacting with the dedicated server
 
 To interact with the dedicated server, you usually subscribe to Dedicated Server callbacks and act upon them.
@@ -82,6 +81,7 @@ async myOverride(data: any) {
 ## Sending chat messages
 
 Sending public and private chat messages.
+
 ```ts
 // For sending chat messages, await is not needed.
 tmc.chat(`Hello World!`);
@@ -100,4 +100,3 @@ tmc.cli("trackmania colorCoded string");
 // To log a debug message, shows only when debug is enabled in `.env`
 tmc.debug("trackmania colorCoded string");
 ```
-

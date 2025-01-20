@@ -1,4 +1,4 @@
-import { castType, htmlEntities } from '@core/utils';
+import { processColorString, castType, htmlEntities } from '@core/utils';
 import ModeSettingsWindow from './ModeSettingsWindow';
 import Plugin from '@core/plugins';
 import fs from 'fs';
@@ -6,8 +6,11 @@ import LocalMapsWindow from './LocalMapsWindow';
 import PlayerListsWindow from './PlayerListsWindow';
 import fsPath from 'path';
 import { type Map } from '@core/mapmanager.ts';
+import SettingsWindow from './SettingsWindow';
+import type { Player } from '@core/playermanager';
+import AdminWidget from './AdminWidget';
 
-enum Mode {
+enum TmnfMode {
     Rounds = 0,
     TimeAttack = 1,
     Team = 2,
@@ -16,11 +19,27 @@ enum Mode {
     Cup = 5
 }
 
+interface Setting {
+    key: string;
+    value: any;
+    default: any;
+    type: 'string' | 'number' | 'boolean';
+}
+
 export default class AdminPlugin extends Plugin {
+    currentSetting: { [key: string]: Setting | undefined } = {};
+    adminWidget: { [key: string]: AdminWidget } = {};
+
     async onLoad() {
         if (tmc.game.Name != 'TmForever') {
             tmc.addCommand('//modesettings', this.cmdModeSettings.bind(this), 'Display mode settings');
         }
+        tmc.settings.register('admin.panel', true, this.adminPanelChange.bind(this), 'Admin: Enable admin panel');
+        tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
+        tmc.server.addListener('TMC.PlayerDisconnect', this.onPlayerDisconnect, this);
+
+        tmc.addCommand('//settings', this.cmdSettings.bind(this), 'Display settings');
+        tmc.addCommand('//set', this.cmdSetSetting.bind(this), 'Set setting value');
         tmc.addCommand('//skip', async () => await tmc.server.call('NextMap'), 'Skips Map');
         tmc.addCommand('//res', async () => await tmc.server.call('RestartMap'), 'Restarts Map');
         tmc.addCommand(
@@ -195,12 +214,12 @@ export default class AdminPlugin extends Plugin {
 
                 if (tmc.game.Name == 'TmForever') {
                     const mode = await tmc.server.call('GetGameMode');
-                    if (mode == Mode.TimeAttack) {
+                    if (mode == TmnfMode.TimeAttack) {
                         tmc.server.send('SetTimeAttackLimit', Number.parseInt(params[0]) * 1000);
                         tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                         return;
                     }
-                    if (mode == Mode.Laps) {
+                    if (mode == TmnfMode.Laps) {
                         tmc.server.send('SetLapsTimeLimit', Number.parseInt(params[0]) * 1000);
                         tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                         return;
@@ -332,30 +351,6 @@ export default class AdminPlugin extends Plugin {
             },
             'Removes map from playlist'
         );
-
-        tmc.addCommand(
-            '//call',
-            async (login: string, params: string[]) => {
-                const method = params.shift();
-                if (method === undefined) {
-                    return tmc.chat('¤cmd¤//call ¤info¤needs a method', login);
-                }
-                try {
-                    let out: any = [];
-                    for (let i = 0; i < params.length; i++) {
-                        if (params[i].toLowerCase() == 'true') out[i] = true;
-                        else if (params[i].toLowerCase() == 'false') out[i] = false;
-                        else if (!isNaN(Number.parseInt(params[i]))) out[i] = Number.parseInt(params[i]);
-                        else out[i] = params[i];
-                    }
-                    const answer = await tmc.server.call(method, ...out);
-                    tmc.chat(answer.toString(), login);
-                } catch (err: any) {
-                    tmc.chat(err.message, login);
-                }
-            },
-            'Calls server method'
-        );
         tmc.addCommand(
             '//wu',
             async (login: string, params: string[]) => {
@@ -380,7 +375,7 @@ export default class AdminPlugin extends Plugin {
             '//timeout',
             async (login: string, params: string[]) => {
                 if (!params[0] && isNaN(Number.parseInt(params[0]))) {
-                    return tmc.chat('¤cmd¤//timeout ¤info¤needs numeric value');
+                    return tmc.chat('¤cmd¤//timeout ¤info¤needs numeric value', login);
                 }
                 try {
                     tmc.server.send('SetFinishTimeout', Number.parseInt(params[0]) * 1000);
@@ -395,7 +390,7 @@ export default class AdminPlugin extends Plugin {
             '//cupwinners',
             async (login: string, params: string[]) => {
                 if (!params[0] && isNaN(Number.parseInt(params[0]))) {
-                    return tmc.chat('¤cmd¤//cupwinners ¤info¤needs numeric value');
+                    return tmc.chat('¤cmd¤//cupwinners ¤info¤needs numeric value', login);
                 }
                 try {
                     tmc.server.send('SetCupNbWinners', Number.parseInt(params[0]));
@@ -429,22 +424,22 @@ export default class AdminPlugin extends Plugin {
             '//pointlimit',
             async (login: string, params: string[]) => {
                 if (!params[0] && isNaN(Number.parseInt(params[0]))) {
-                    return tmc.chat('¤cmd¤//pointlimit ¤info¤needs numeric value');
+                    return tmc.chat('¤cmd¤//pointlimit ¤info¤needs numeric value', login);
                 }
                 try {
                     const mode = await tmc.server.call('GetGameMode');
                     switch (mode) {
-                        case Mode.Team: {
+                        case TmnfMode.Team: {
                             tmc.server.send('SetTeamPointsLimit', Number.parseInt(params[0]));
                             tmc.chat(`¤info¤Team points limit set to ¤white¤${params[0]}`, login);
                             break;
                         }
-                        case Mode.Rounds: {
+                        case TmnfMode.Rounds: {
                             tmc.server.send('SetRoundPointsLimit', Number.parseInt(params[0]));
                             tmc.chat(`¤info¤Rounds limit set to ¤white¤${params[0]}`, login);
                             break;
                         }
-                        case Mode.Cup: {
+                        case TmnfMode.Cup: {
                             tmc.server.send('SetCupPointsLimit', Number.parseInt(params[0]));
                             tmc.chat(`¤info¤Cup points limit set to ¤white¤${params[0]}`, login);
                             break;
@@ -460,7 +455,7 @@ export default class AdminPlugin extends Plugin {
             '//maxpoints',
             async (login: string, params: string[]) => {
                 if (!params[0]) {
-                    return tmc.chat('¤cmd¤//maxpoints ¤info¤needs value');
+                    return tmc.chat('¤cmd¤//maxpoints ¤info¤needs value', login);
                 }
                 try {
                     tmc.server.send('SetMaxPointsTeam', Number.parseInt(params[0]));
@@ -473,11 +468,11 @@ export default class AdminPlugin extends Plugin {
         );
         tmc.addCommand('//rpoints', async (login: string, params: string[]) => {
             if (!params[0]) {
-                return tmc.chat('¤cmd¤//rpoints ¤info¤needs value');
+                return tmc.chat('¤cmd¤//rpoints ¤info¤needs value', login);
             }
             const array = params[0].split(',');
-            if (array.length != 2) {
-                return tmc.chat('¤cmd¤//rpoints ¤info¤needs atleast 2 values');
+            if (array.length < 2) {
+                return tmc.chat('¤cmd¤//rpoints ¤info¤needs atleast 2 values', login);
             }
             let newArray: number[] = [];
             for (let number of array) {
@@ -501,12 +496,12 @@ export default class AdminPlugin extends Plugin {
                 const mode = await tmc.server.call('GetGameMode');
 
                 if (params[0] == 'true') {
-                    if (mode == Mode.Rounds) tmc.server.send('SetUseNewRulesRound', true);
-                    if (mode == Mode.Team) tmc.server.send('SetUseNewRulesTeam', true);
+                    if (mode == TmnfMode.Rounds) tmc.server.send('SetUseNewRulesRound', true);
+                    if (mode == TmnfMode.Team) tmc.server.send('SetUseNewRulesTeam', true);
                     tmc.chat(`¤info¤Using new rounds rules`, login);
                 } else if (params[0] == 'false') {
-                    if (mode == Mode.Rounds) tmc.server.send('SetUseNewRulesRound', false);
-                    if (mode == Mode.Team) tmc.server.send('SetUseNewRulesTeam', false);
+                    if (mode == TmnfMode.Rounds) tmc.server.send('SetUseNewRulesRound', false);
+                    if (mode == TmnfMode.Team) tmc.server.send('SetUseNewRulesTeam', false);
                     tmc.chat(`¤info¤Using old rounds rules`, login);
                 } else {
                     tmc.chat('¤cmd¤//usenewrules ¤info¤needs a boolean value', login);
@@ -518,7 +513,7 @@ export default class AdminPlugin extends Plugin {
             '//laps',
             async (login: string, params: string[]) => {
                 if (!params[0] && isNaN(Number.parseInt(params[0]))) {
-                    return tmc.chat('¤cmd¤//laps ¤info¤needs numeric value');
+                    return tmc.chat('¤cmd¤//laps ¤info¤needs numeric value', login);
                 }
                 try {
                     tmc.server.send('SetNbLaps', Number.parseInt(params[0]));
@@ -597,7 +592,17 @@ export default class AdminPlugin extends Plugin {
         tmc.removeCommand('//blacklist');
     }
 
+    async adminPanelChange(value: any) {
+        for (const player of tmc.players.getAll()) {
+            await this.onPlayerConnect(player);
+        }
+    }
+
     async onStart(): Promise<void> {
+        for (const player of tmc.players.getAll()) {
+            await this.onPlayerConnect(player);
+        }
+
         const menu = tmc.storage['menu'];
         if (menu) {
             menu.addItem({
@@ -639,6 +644,26 @@ export default class AdminPlugin extends Plugin {
                     admin: true
                 });
             }
+        }
+    }
+
+    async onPlayerConnect(player: Player) {
+        if (!tmc.admins.includes(player.login)) return;
+        if (tmc.settings.get('admin.panel')) {
+            const widget = new AdminWidget(player.login);
+            widget.size = { width: 60, height: 5 };
+            widget.pos = { x: 35, y: -86, z: 1 };
+            await widget.display();
+            this.adminWidget[player.login] = widget;
+        } else if (this.adminWidget[player.login]) {
+            await this.adminWidget[player.login].destroy();
+            delete this.adminWidget[player.login];
+        }
+    }
+
+    async onPlayerDisconnect(player: Player) {
+        if (this.adminWidget[player.login]) {
+            delete this.adminWidget[player.login];
         }
     }
 
@@ -726,9 +751,9 @@ export default class AdminPlugin extends Plugin {
         }
     }
 
-    async cmdSetSetting(login: any, args: string[]) {
+    async cmdSetModeSetting(login: any, args: string[]) {
         if (args.length < 2) {
-            tmc.chat('Usage: ¤cmd¤//set ¤white¤<setting> <value>', login);
+            tmc.chat('Usage: ¤cmd¤//setscript ¤white¤<setting> <value>', login);
             return;
         }
         const setting = args[0];
@@ -967,5 +992,84 @@ export default class AdminPlugin extends Plugin {
                 return;
             }
         }
+    }
+
+    async cmdSetSetting(login: any, args: string[]) {
+        if (this.currentSetting[login] == undefined) {
+            tmc.chat('¤info¤No setting selected.', login);
+            return;
+        }
+        if (args.length < 1) {
+            tmc.chat('¤info¤Usage: ¤cmd¤//set ¤white¤<value>', login);
+            return;
+        }
+        const setting = this.currentSetting[login];
+
+        const value: any = castType(args.join(' ').trim(), setting.type);
+
+        if (typeof value != setting.type || value == undefined || (setting.type == 'number' && isNaN(value))) {
+            tmc.chat('¤error¤Invalid value', login);
+            return;
+        }
+
+        try {
+            tmc.settings.set(setting.key, value);
+        } catch (e: any) {
+            tmc.chat('Error: ' + e.message, login);
+            return;
+        }
+        tmc.chat(`¤info¤Set $fff${setting.key} ¤info¤to $fff"${value}"`, login);
+        this.currentSetting[login] = undefined;
+        await this.cmdSettings(login, []);
+    }
+
+    async cmdSettings(login: string, args: string[]) {
+        const window = new SettingsWindow(login);
+        window.size = { width: 165, height: 95 };
+        window.title = 'Settings';
+        const settings = tmc.settings.getSettings();
+        let out: any = [];
+        for (const data in settings.defaults) {
+            let value = settings.settings[data];
+            let defaultValue = settings.defaults[data];
+            let description = settings.descriptions[data];
+
+            if (typeof settings.defaults[data] == 'boolean') {
+                value = value ? '$0f0true' : '$f00false';
+                defaultValue = defaultValue ? '$0f0true' : '$f00false';
+            }
+            if (typeof settings.defaults[data] == 'number') {
+                value = '$df0' + value;
+                defaultValue = '$df0' + defaultValue;
+            }
+            if (typeof settings.defaults[data] == 'string') {
+                value = `${value}`;
+                defaultValue = `${defaultValue}`;
+            }
+
+            const changed = value !== defaultValue;
+            let prefix = '';
+            let postfix = '';
+            if (changed) {
+                prefix = '$o';
+                postfix = ' $z(changed)';
+            }
+            out.push({
+                key: data,
+                default: htmlEntities(defaultValue),
+                value: htmlEntities(prefix + value),
+                type: typeof settings.defaults[data],
+                description: htmlEntities(description)
+            });
+        }
+        window.setItems(out.sort((a: any, b: any) => a.key.localeCompare(b.key)));
+        window.setColumns([
+            { key: 'type', title: 'Type', width: 20 },
+            //  { key: 'key', title: 'Setting', width: 60 },
+            //   { key: 'default', title: 'Default Value', width: 20 },
+            { key: 'value', title: 'Value', width: 125, action: 'Toggle' }
+        ]);
+        window.setActions(['Reset']);
+        await window.display();
     }
 }

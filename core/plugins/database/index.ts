@@ -206,22 +206,23 @@ export default class GenericDb extends Plugin {
                             .parse()
                             .then((file) => map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || '' }))
                             .catch(async (error) => {
-                                tmc.cli(`¤error¤Failed to parse "¤white¤${fileName}¤error¤" file, falling back to the map environment...`);
+                                tmc.debug(`¤error¤Failed to parse "¤white¤${fileName}¤error¤" file, falling back to the map environment...`);
                                 tmc.debug(error);
 
                                 await map.update({ playerModel: mapInfo.Environnement || '' });
                             })
                             .catch((error) => {
-                                tmc.cli(`¤error¤Failed to update player model to map environment for "¤white¤${fileName}¤error¤" file, skipping...`);
+                                tmc.debug(`¤error¤Failed to update player model to map environment for "¤white¤${fileName}¤error¤" file, skipping...`);
                                 tmc.debug(error);
                             });
                     } else {
-                        tmc.cli(`¤error¤ "¤white¤${fileName}¤error¤" not found.`);
+                        tmc.debug(`¤error¤ "¤white¤${fileName}¤error¤" not found.`);
                     }
                 }
             }
             let car = strToCar[map.playerModel ?? ''] || strToCar[map.environment ?? ''];
             if (mapInfo) mapInfo.Vehicle = car || '';
         }
+        tmc.cli('¤success¤Done!');
     }
 }

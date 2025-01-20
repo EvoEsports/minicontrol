@@ -6,18 +6,36 @@ export default class Pay2Play extends Plugin {
     static depends: string[] = [];
     widgets: Widget[] = [];
 
-    skipAmount = parseInt(process.env.SKIP_AMOUNT ?? '150');
-    resAmount = parseInt(process.env.RES_AMOUNT ?? '50');
+    skipAmount = 150;
+    resAmount = 50;
 
     async onStart() {
         if (tmc.game.Name == 'Trackmania') return;
-        this.widgets.push(this.createWidget(0, 'SKIP', this.skipAmount, this.skip.bind(this)));
+        tmc.settings.register('pay2play.skipAmount', 150, this.updateSkipWidget.bind(this), 'Pay2Play: Skip map amount');
+        tmc.settings.register('pay2play.resAmount', 50, this.updateResWidget.bind(this), 'Pay2Play: Restart map amount');
+        this.skipAmount = tmc.settings.get('pay2play.skipAmount');
+        this.resAmount = tmc.settings.get('pay2play.resAmount');
+
+        this.widgets.push(this.createWidget(0, 'SKIP',this.skipAmount, this.skip.bind(this)));
         this.widgets.push(this.createWidget(1, 'RES', this.resAmount, this.res.bind(this)));
 
         for (let widget of this.widgets) {
             await widget.display();
         }
     }
+
+    async updateSkipWidget(value: any) {
+        this.skipAmount = parseInt(value);
+        this.widgets[0].data.amount = this.skipAmount;
+        await this.widgets[0].display();
+    }
+
+    async updateResWidget(value: any) {
+        this.resAmount = parseInt(value);
+        this.widgets[1].data.amount = this.resAmount;
+        await this.widgets[1].display();
+    }
+
 
     async onUnload() {
         for (let widget of this.widgets) {
@@ -41,6 +59,11 @@ export default class Pay2Play extends Plugin {
     }
 
     async skip(login: string, _data: any) {
+        if (this.skipAmount <= 0) {
+            tmc.chat('¤error¤Skip amount is set to 0', login);
+            return;
+        }
+
         try {
             const bill = tmc.billMgr.createTransaction('SendBill', login, login, this.skipAmount, `Pay ${this.skipAmount} to skip map?`);
             bill.onPayed = async (bill) => {
@@ -55,6 +78,10 @@ export default class Pay2Play extends Plugin {
     }
 
     async res(login: string, _data: any) {
+        if (this.resAmount <= 0) {
+            tmc.chat('¤error¤Res amount is set to 0', login);
+            return;
+        }
         try {
             const bill = tmc.billMgr.createTransaction('SendBill', login, login, this.resAmount, `Pay ${this.resAmount} to restart map?`);
             bill.onPayed = async (bill) => {

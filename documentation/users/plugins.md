@@ -121,7 +121,7 @@ Provides live / local world records for the server
 | Command             | Description |
 |:---                 |:---         |
 |`/records` | show local records |
-|`/liverecords` | show live records |
+|`/liverankings` | show live records |
 |`/worldrecords` | show world records |
 
 ## Checkpoints

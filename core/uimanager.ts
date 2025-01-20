@@ -9,6 +9,20 @@ export interface uiModule {
     visible: boolean;
 }
 
+interface CustomUI {
+    notice: boolean;
+    challenge_info: boolean;
+    net_infos: boolean;
+    chat: boolean;
+    checkpoint_list: boolean;
+    round_scores: boolean;
+    scoretable: boolean;
+    multilap_infos: boolean;
+    speed_and_distance: boolean;
+    player_ranking: boolean;
+    global: boolean;
+}
+
 export default class UiManager {
     private actions: any = {};
     private publicManialinks: { [key: string]: Manialink } = {};
@@ -17,6 +31,19 @@ export default class UiManager {
     private hiddenManialinks: string[] = [];
     private uiProperties: uiModule[] = [];
     private scriptCalls: string[] = [];
+    tmnfCustomUi: CustomUI = {
+        notice: false,
+        challenge_info: false,
+        net_infos: true,
+        chat: true,
+        checkpoint_list: false,
+        round_scores: true,
+        scoretable: true,
+        multilap_infos: true,
+        speed_and_distance: false,
+        player_ranking: false,
+        global: true
+    };
 
     /**
      * @ignore
@@ -37,7 +64,7 @@ export default class UiManager {
      */
     async afterInit() {
         if (tmc.game.Name == 'TmForever') {
-            tmc.server.send('SendDisplayManialinkPage', this.getTmufCustomUi(), 0, false);
+            await this.sendTmnfCustomUI();
         }
         if (tmc.game.Name == 'Trackmania') {
             this.setUiProperty('Race_RespawnHelper', 'visible', false);
@@ -241,7 +268,7 @@ export default class UiManager {
         await tmc.server.gbx.multicall(multi);
 
         if (tmc.game.Name == 'TmForever') {
-            tmc.server.send('SendDisplayManialinkPageToLogin', login, this.getTmufCustomUi(), 0, false);
+            this.sendTmnfCustomUI();
         }
     }
 
@@ -438,25 +465,26 @@ export default class UiManager {
         tmc.server.send('SendDisplayManialinkPageToLogin', login, xml, 1000, false);
     }
 
-    /**
-     * @ignore
-     */
-    getTmufCustomUi(): string {
-        return `
+    setCustomUI(key: string, value: boolean) {
+        if (this.tmnfCustomUi[key]) {
+            this.tmnfCustomUi[key] = value;
+            this.sendTmnfCustomUI();
+        } else {
+            tmc.cli('¤error¤invalid key: ¤white¤' + key + '¤error¤ for custom ui');
+        }
+    }
+
+    sendTmnfCustomUI() {
+        if (tmc.game.Name == 'TmForever') {
+            let xml = `
         <?xml version="1.0" encoding="UTF-8"?>
-        <manialinks><custom_ui>
-            <notice visible="false"/>
-            <challenge_info visible="false"/>
-            <net_infos visible="true"/>
-            <chat visible="true"/>
-            <checkpoint_list visible="true"/>
-            <round_scores visible="true"/>
-            <scoretable visible="true"/>
-            <multilap_infos visible="true"/>
-            <speed_and_distance visible="false"/>
-            <player_ranking visible="false"/>
-            <global visible="true"/>
-        </custom_ui></manialinks>`;
+        <manialinks><custom_ui>`;
+            for (let key in this.tmnfCustomUi) {
+                xml += `<${key} visible="${this.tmnfCustomUi[key] ? 'true' : 'false'}" />`;
+            }
+            xml += `</custom_ui></manialinks>`;
+            tmc.server.send('SendDisplayManialinkPage', xml, 0, false);
+        }
     }
 
     getGlobalManialink() {

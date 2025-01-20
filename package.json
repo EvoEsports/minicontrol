@@ -1,5 +1,5 @@
 {
-    "version": "0.8.1",
+    "version": "0.9.0",
     "scripts": {
         "dev": "tsx --env-file=.env --watch ./core/minicontrol.ts",
         "start": "tsx --expose-gc --env-file=.env ./core/minicontrol.ts",
