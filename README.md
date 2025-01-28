@@ -13,7 +13,7 @@
 - (optional) MySQL or PostgreSQL database
 - Windows, Linux or MacOS host
 
-# Quick  Start
+# Quick Start
 
 ## With Node.js
 
@@ -22,9 +22,13 @@
 3. Copy `.env.example` to `.env` and fill out all necessary information in the `.env` file.
 4. Run `npm start`
 
-## With Docker
+## With Docker + TMNF server
 
-- See `docker/compose.yml` for an example Docker Compose file.
+1. Run `chmod -R 777 tracks`
+2. Run `chmod -R 777 userdata`
+3. Run `cp docker-compose.yml.example docker-compose.yml`
+4. Edit `docker-compose.yml`
+5. Run `docker compose up -d`
 
 See [documentation](./documentation/index.md) for more info!
 
