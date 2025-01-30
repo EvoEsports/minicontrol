@@ -2,7 +2,7 @@ import Plugin from '@core/plugins';
 import { formatTime } from '@core/utils';
 import fs from 'fs';
 import SearchWindow from './searchWindow';
-
+import Menu from '@core/plugins/menu/menu';
 interface Map {
     id: string;
     baseUrl: string;
@@ -56,6 +56,13 @@ export default class Tmx extends Plugin {
             'Cancel pack download'
         );
         tmc.addCommand('//search', this.searchMaps.bind(this), 'Search maps on TMX');
+
+        Menu.getInstance().addItem({
+            category: 'Map',
+            title: 'Search Tmx',
+            action: '//search',
+            admin: true
+        });
     }
 
     async onUnload() {
@@ -363,7 +370,7 @@ export default class Tmx extends Plugin {
             const controller = new AbortController();
             const { signal } = controller;
             const timeoutID = setTimeout(() => controller.abort(), 1000);
-            const res = await fetch(url, { keepalive: false, signal: signal});
+            const res = await fetch(url, { keepalive: false, signal: signal });
             clearTimeout(timeoutID);
             if (res.ok === false) return {};
             const json: any = await res.json();

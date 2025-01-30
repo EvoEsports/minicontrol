@@ -10,6 +10,7 @@ import SettingsWindow from './SettingsWindow';
 import ColorsWindow from './ColorsWindow';
 import type { Player } from '@core/playermanager';
 import AdminWidget from './AdminWidget';
+import Menu from '@core/plugins/menu/menu';
 
 enum TmnfMode {
     Rounds = 0,
@@ -607,36 +608,38 @@ export default class AdminPlugin extends Plugin {
             await this.onPlayerConnect(player);
         }
 
-        const menu = tmc.storage['menu'];
-        if (menu) {
+        const menu = Menu.getInstance();
+
             menu.addItem({
                 category: 'Map',
-                title: 'Adm: Add',
+                title: 'Add Local Maps',
                 action: '//addlocal',
                 admin: true
             });
             menu.addItem({
                 category: 'Map',
-                title: 'Adm: Shuffle',
+                title: 'Shuffle Maplist',
                 action: '//shuffle',
                 admin: true
             });
             menu.addItem({
                 category: 'Map',
-                title: 'Adm: Write list',
+                title: 'Write Maplist',
                 action: '//wml',
                 admin: true
             });
+
             menu.addItem({
-                category: 'Map',
-                title: 'Adm: Skip',
-                action: '//skip',
+                category: 'Server',
+                title: 'Settings',
+                action: '//settings',
                 admin: true
             });
+
             menu.addItem({
-                category: 'Map',
-                title: 'Adm: Restart',
-                action: '//res',
+                category: 'Server',
+                title: 'Colors',
+                action: '//colors',
                 admin: true
             });
 
@@ -648,7 +651,7 @@ export default class AdminPlugin extends Plugin {
                     admin: true
                 });
             }
-        }
+
     }
 
     async onPlayerConnect(player: Player) {

@@ -1,37 +1,36 @@
 import Plugin from '@core/plugins';
 
 export default class FunCommands extends Plugin {
-
     async onLoad() {
-        tmc.addCommand("/afk", this.command_afk.bind(this), "Go AFK");
-        tmc.addCommand("/bootme", this.command_bootme.bind(this), "Boot yourself");
-        tmc.addCommand("/ragequit", this.command_rq.bind(this), "Rage quit");
-        tmc.addCommand("/bwoah", this.command_bwoah.bind(this), "Bwoah");
-        tmc.addCommand("/gg", this.command_gg.bind(this), "Good game");
-        tmc.addCommand("/ty", this.command_ty.bind(this), "Thank you");
-        tmc.addCommand("/gn", this.command_gn.bind(this), "Good night");
-        tmc.addCommand("/bb", this.command_bb.bind(this), "Bye bye");
-        tmc.addCommand("/go", this.command_go.bind(this), "Go go go");
-        tmc.addCommand("/n1", this.command_n1.bind(this), "Nice one");
-        tmc.addCommand("/nt", this.command_nt.bind(this), "Nice time");
-        tmc.addCommand("/posture", this.command_posture.bind(this), "Posture check");
-        tmc.addCommand("/hydrate", this.command_hydrate.bind(this), "Hydrate check");
+        tmc.addCommand('/afk', this.command_afk.bind(this), 'Go AFK');
+        tmc.addCommand('/bootme', this.command_bootme.bind(this), 'Boot yourself');
+        tmc.addCommand('/ragequit', this.command_rq.bind(this), 'Rage quit');
+        tmc.addCommand('/bwoah', this.command_bwoah.bind(this), 'Bwoah');
+        tmc.addCommand('/gg', this.command_gg.bind(this), 'Good game');
+        tmc.addCommand('/ty', this.command_ty.bind(this), 'Thank you');
+        tmc.addCommand('/gn', this.command_gn.bind(this), 'Good night');
+        tmc.addCommand('/bb', this.command_bb.bind(this), 'Bye bye');
+        tmc.addCommand('/go', this.command_go.bind(this), 'Go go go');
+        tmc.addCommand('/n1', this.command_n1.bind(this), 'Nice one');
+        tmc.addCommand('/nt', this.command_nt.bind(this), 'Nice time');
+        tmc.addCommand('/posture', this.command_posture.bind(this), 'Posture check');
+        tmc.addCommand('/hydrate', this.command_hydrate.bind(this), 'Hydrate check');
     }
 
     async onUnload() {
-        tmc.removeCommand("/afk");
-        tmc.removeCommand("/bootme");
-        tmc.removeCommand("/ragequit");
-        tmc.removeCommand("/bwoah");
-        tmc.removeCommand("/gg");
-        tmc.removeCommand("/ty");
-        tmc.removeCommand("/gn");
-        tmc.removeCommand("/bb");
-        tmc.removeCommand("/go");
-        tmc.removeCommand("/n1");
-        tmc.removeCommand("/nt");
-        tmc.removeCommand("/posture");
-        tmc.removeCommand("/hydrate");
+        tmc.removeCommand('/afk');
+        tmc.removeCommand('/bootme');
+        tmc.removeCommand('/ragequit');
+        tmc.removeCommand('/bwoah');
+        tmc.removeCommand('/gg');
+        tmc.removeCommand('/ty');
+        tmc.removeCommand('/gn');
+        tmc.removeCommand('/bb');
+        tmc.removeCommand('/go');
+        tmc.removeCommand('/n1');
+        tmc.removeCommand('/nt');
+        tmc.removeCommand('/posture');
+        tmc.removeCommand('/hydrate');
     }
 
     async command_afk(login: string, _data: any) {
@@ -39,7 +38,6 @@ export default class FunCommands extends Plugin {
         tmc.chat(`¤white¤${player.nickname} ¤info¤is now away from keyboard.`);
         tmc.server.send(`ForceSpectator`, login, 1);
         tmc.server.send(`ForceSpectator`, login, 0);
-
     }
 
     async command_bootme(login: string, _data: any) {

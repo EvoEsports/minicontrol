@@ -1,6 +1,7 @@
 import Plugin from '@core/plugins';
 import PlayerWindow from './PlayerWindow';
 import { htmlEntities } from '@core/utils';
+import Menu from '@core/plugins/menu/menu';
 
 export default class Players extends Plugin {
     async onLoad() {
@@ -9,17 +10,14 @@ export default class Players extends Plugin {
 
     async onUnload() {
         tmc.removeCommand('/players');
-        tmc.storage['menu']?.removeItem('Players');
     }
 
     async onStart() {
-        if (tmc.storage['menu']) {
-            tmc.storage['menu'].addItem({
-                category: 'Players',
-                title: 'Players List',
-                action: '/players'
-            });
-        }
+        Menu.getInstance().addItem({
+            category: 'Players',
+            title: 'Players List',
+            action: '/players'
+        });
     }
 
     async cmdPlayers(login: any, _args: string[]) {
