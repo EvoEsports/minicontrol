@@ -1097,7 +1097,7 @@ export default class AdminPlugin extends Plugin {
     }
 
     async cmdColors(login: string, args: string[]) {
-        const window = new SettingsWindow(login);
+        const window = new ColorsWindow(login);
         window.size = { width: 165, height: 95 };
         window.title = 'Colors';
         const settings = tmc.settings.getColors();
