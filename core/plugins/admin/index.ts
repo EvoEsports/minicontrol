@@ -7,6 +7,7 @@ import PlayerListsWindow from './PlayerListsWindow';
 import fsPath from 'path';
 import { type Map } from '@core/mapmanager.ts';
 import SettingsWindow from './SettingsWindow';
+import ColorsWindow from './ColorsWindow';
 import type { Player } from '@core/playermanager';
 import AdminWidget from './AdminWidget';
 
@@ -19,11 +20,11 @@ enum TmnfMode {
     Cup = 5
 }
 
-interface Setting {
+export interface Setting {
     key: string;
     value: any;
     default: any;
-    type: 'string' | 'number' | 'boolean';
+    type: 'string' | 'number' | 'boolean' | 'color';
 }
 
 export default class AdminPlugin extends Plugin {
@@ -35,10 +36,13 @@ export default class AdminPlugin extends Plugin {
             tmc.addCommand('//modesettings', this.cmdModeSettings.bind(this), 'Display mode settings');
         }
         tmc.settings.register('admin.panel', true, this.adminPanelChange.bind(this), 'Admin: Enable admin panel');
+        tmc.server.addListener("TMC.AdminsChanged", this.adminPanelChange, this);
+
         tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
         tmc.server.addListener('TMC.PlayerDisconnect', this.onPlayerDisconnect, this);
 
-        tmc.addCommand('//settings', this.cmdSettings.bind(this), 'Display settings');
+        tmc.addCommand('//settings', this.cmdSettings.bind(this), 'Set settings');
+        tmc.addCommand('//colors', this.cmdColors.bind(this), 'Set colors');
         tmc.addCommand('//set', this.cmdSetSetting.bind(this), 'Set setting value');
         tmc.addCommand('//skip', async () => await tmc.server.call('NextMap'), 'Skips Map');
         tmc.addCommand('//res', async () => await tmc.server.call('RestartMap'), 'Restarts Map');
@@ -1003,7 +1007,26 @@ export default class AdminPlugin extends Plugin {
             tmc.chat('¤info¤Usage: ¤cmd¤//set ¤white¤<value>', login);
             return;
         }
+
         const setting = this.currentSetting[login];
+
+        if (setting.type === "color") {
+            const color = args[0];
+            if (!color.match(/^([A-Fa-f0-9]{3})$/)) {
+                tmc.chat('¤error¤Invalid color value', login);
+                return;
+            }
+            try {
+                tmc.settings.setColor(setting.key, color);
+            } catch (e: any) {
+                tmc.chat('Error: ' + e.message, login);
+                return;
+            }
+            tmc.chat(`¤info¤Set $fff${setting.key} ¤info¤to $fff"$${color}${color}$fff"`, login);
+            this.currentSetting[login] = undefined;
+            await this.cmdColors(login, []);
+            return;
+        }
 
         const value: any = castType(args.join(' ').trim(), setting.type);
 
@@ -1072,4 +1095,43 @@ export default class AdminPlugin extends Plugin {
         window.setActions(['Reset']);
         await window.display();
     }
+
+    async cmdColors(login: string, args: string[]) {
+        const window = new SettingsWindow(login);
+        window.size = { width: 165, height: 95 };
+        window.title = 'Colors';
+        const settings = tmc.settings.getColors();
+        let out: any = [];
+        for (const data in settings.defaults) {
+            let value = settings.colors[data];
+            let defaultValue = settings.defaults[data];
+            let description = settings.descriptions[data];
+
+            const changed = value !== defaultValue;
+
+            let prefix = '';
+            let postfix = '';
+            if (changed) {
+                prefix = '$o';
+                postfix = ' $z(changed)';
+            }
+            out.push({
+                key: data,
+                default: htmlEntities(defaultValue),
+                value: htmlEntities(prefix + value),
+                type: "color",
+                description: htmlEntities(`$<$${value}Color$> for ${data}`)
+            });
+        }
+        window.setItems(out.sort((a: any, b: any) => a.key.localeCompare(b.key)));
+        window.setColumns([
+            { key: 'type', title: 'Type', width: 20 },
+            //  { key: 'key', title: 'Setting', width: 60 },
+            //   { key: 'default', title: 'Default Value', width: 20 },
+            { key: 'value', title: 'Value', width: 125, action: 'Toggle' }
+        ]);
+        window.setActions(['Reset']);
+        await window.display();
+    }
+
 }
