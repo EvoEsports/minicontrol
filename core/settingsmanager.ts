@@ -220,7 +220,7 @@ export default class SettingsManager {
         const idx = 'color.' + key;
 
         if (this.callbacks[idx]) {
-            await this.callbacks[idx](value, oldValue);
+            await this.callbacks[idx](value, oldValue, key);
         }
         tmc.server.emit('TMC.ColorsChanged', {});
     }
@@ -274,7 +274,7 @@ export default class SettingsManager {
         this.save();
         this.colors[key] = newValue;
         if (this.callbacks[key]) {
-            await this.callbacks[key](newValue, oldValue);
+            await this.callbacks[key](newValue, oldValue, key);
         }
         tmc.server.emit('TMC.ColorsChanged', {});
     }
