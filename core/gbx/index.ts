@@ -53,7 +53,6 @@ export class GbxClient {
     async connect(host?: string, port?: number): Promise<boolean> {
         host = host || '127.0.0.1';
         port = port || 5000;
-        const that = this;
         const socket = new Socket();
         const timeout = 5000;
         this.socket = socket;
@@ -65,19 +64,25 @@ export class GbxClient {
             },
             () => {
                 socket.on('connect', () => {
-                    clearTimeout(that.timeoutHandler);
+                    if (this.timeoutHandler) {
+                        clearTimeout(this.timeoutHandler);
+                        this.timeoutHandler = null;
+                    }
                 });
                 socket.on('end', () => {
-                    that.isConnected = false;
-                    that.server.onDisconnect('end');
+                    this.isConnected = false;
+                    this.server.onDisconnect('end');
                 });
                 socket.on('error', (error: any) => {
-                    that.isConnected = false;
-                    that.server.onDisconnect(error.message);
+                    this.isConnected = false;
+                    this.server.onDisconnect(error.message);
                 });
                 socket.on('data', (data: Buffer) => {
-                    clearTimeout(that.timeoutHandler);
-                    that.handleData(data);
+                    if (this.timeoutHandler) {
+                        clearTimeout(this.timeoutHandler);
+                        this.timeoutHandler = null;
+                    }
+                    this.handleData(data);
                 });
                 socket.on('timeout', () => {
                     tmc.cli('¤error¤XMLRPC Connection timeout');
@@ -88,7 +93,7 @@ export class GbxClient {
         this.timeoutHandler = setTimeout(() => {
             tmc.cli('¤error¤[ERROR] Attempt at connection exceeded timeout value.');
             socket.end();
-            process.exit(1);
+            this.promiseCallbacks['onConnect']?.reject(new Error('Connection timeout'));
         }, timeout);
         const res: boolean = await new Promise((resolve, reject) => {
             this.promiseCallbacks['onConnect'] = { resolve, reject };
@@ -246,7 +251,7 @@ export class GbxClient {
 
         const xml = Serializer.serializeMethodCall('system.multicall', [params]);
 
-        const out:any = [];
+        const out: any = [];
         for (let answer of await this.query(xml, true)) {
             out.push(answer[0]);
         }
@@ -256,7 +261,7 @@ export class GbxClient {
     private async query(xml: string, wait: boolean = true) {
         // if request is more than 7mb
         if (xml.length + 8 > 7 * 1024 * 1024) {
-            throw new Error('transport error - request too large (' + (xml.length/1024/1024).toFixed(2) + ' Mb)');
+            throw new Error('transport error - request too large (' + (xml.length / 1024 / 1024).toFixed(2) + ' Mb)');
         }
         this.reqHandle++;
         if (this.reqHandle >= 0xffffff00) this.reqHandle = 0x80000000;

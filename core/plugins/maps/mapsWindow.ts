@@ -1,3 +1,4 @@
+import type { Map } from '@core/mapmanager';
 import ListWindow from '@core/ui/listwindow';
 import { formatTime, htmlEntities, clone, removeColors } from '@core/utils';
 import { QueryTypes, type Sequelize } from 'sequelize';
@@ -13,7 +14,7 @@ export default class MapsWindow extends ListWindow {
         this.recipient = login;
         let maps: any = [];
         let i = 1;
-        for (const map of clone(tmc.maps.get())) {
+        for (const map of clone(tmc.maps.get()) as Map[]) {
             if (
                 !this.params[0] ||
                 removeColors(map.Name).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
@@ -23,7 +24,7 @@ export default class MapsWindow extends ListWindow {
                 maps.push(
                     Object.assign(map, {
                         Index: i++,
-                        Name: htmlEntities(map.Name),
+                        Name: htmlEntities(map.Name.trim()),
                         AuthorName: htmlEntities(map.AuthorNickname || map.Author || ''),
                         ATime: formatTime(map.AuthorTime || map.GoldTime),
                         Vehicle: map.Vehicle ? htmlEntities(" / " + map.Vehicle) : ''

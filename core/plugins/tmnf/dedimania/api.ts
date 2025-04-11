@@ -35,9 +35,12 @@ export default class DedimaniaClient {
             'Content-Length': Buffer.byteLength(outData)
         };
 
+        /*
         if (this.sessionID !== '') {
             headers['Cookie'] = this.sessionID;
         }
+        */
+
         try {
             const res = await fetch(url, {
                 method: 'POST',
@@ -50,7 +53,7 @@ export default class DedimaniaClient {
                 keepalive: true
             });
 
-            if (method === 'dedimania.Authenticate') {
+            /* if (method === 'dedimania.Authenticate') {
                 if (res.headers.getSetCookie()) {
                     const header = res.headers
                         .getSetCookie()[0]
@@ -64,7 +67,7 @@ export default class DedimaniaClient {
                         }
                     }
                 }
-            }
+            } */
 
             let data = await res.text();
             data = data.replaceAll('<int></int>', '<int>-1</int>');
@@ -91,6 +94,7 @@ export default class DedimaniaClient {
             return answer;
         } catch (e: any) {
             tmc.debug(`Dedimania error: ` + e.message);
+            this.sessionID = '';
             return undefined;
         }
     }

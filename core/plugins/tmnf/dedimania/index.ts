@@ -324,7 +324,7 @@ export default class Dedimania extends Plugin {
                 this.maxRank,
                 this.getDedimaniaPlayers()
             );
-            this.records = res.Records ?? [];
+            this.records = res?.Records ?? [];
             tmc.debug('Dedimania: Got records.');
             tmc.server.emit('Plugin.Dedimania.onSync', clone(this.records));
         } catch (e: any) {
