@@ -114,6 +114,7 @@ export default class Dedimania extends Plugin {
         const serverInfo = await tmc.server.call('GetServerOptions', 0);
         try {
             if (this.authError) {
+                tmc.cli('¤info¤Dedimania: Re-authenticating.');
                 let answer = await this.authenticate();
                 if (!answer) {
                     tmc.cli('¤error¤Dedimania: Failed to authenticate.');
@@ -144,6 +145,7 @@ export default class Dedimania extends Plugin {
             tmc.debug('¤info¤Dedimania: Updated players.');
         } catch (e: any) {
             tmc.cli(`¤error¤Dedimania: ${e.message}`);
+            this.authError = true;
         }
     }
 
@@ -167,15 +169,16 @@ export default class Dedimania extends Plugin {
                 PlayersGame: true
             });
             const res2 = await this.api.call('dedimania.ValidateAccount');
-            if (res2.Status) {
+            if (res2 && res2.Status) {
                 tmc.cli('¤info¤Dedimania: Account validated.');
             }
-            if (res && res2.Status) {
+            if (res) {
                 this.enabled = true;
                 this.authError = false;
                 return true;
             }
         } catch (e: any) {
+            console.log(e);
             tmc.cli(`¤error¤Dedimania: ${e.message}`);
             this.authError = true;
         }
@@ -326,6 +329,7 @@ export default class Dedimania extends Plugin {
             tmc.server.emit('Plugin.Dedimania.onSync', clone(this.records));
         } catch (e: any) {
             this.records = [];
+            this.authError = true;
             tmc.server.emit('Plugin.Dedimania.onSync', clone(this.records));
             tmc.cli(`¤error¤Dedimania: ${e.message}`);
         }
@@ -348,14 +352,18 @@ export default class Dedimania extends Plugin {
     }
 
     async onBeginMap(data: any) {
-        const map: any = data[0];
         if (!this.enabled) return;
+        const map: any = data[0];
+
         try {
             await this.getRecords(map);
         } catch (e: any) {
-            tmc.cli(e);
-            await this.authenticate();
-            await this.getRecords(map);
+            tmc.cli(e.message);
+            this.authenticate().then(async (res) => {
+                if (res) {
+                    await this.getRecords(map);
+                }
+            });
         }
     }
 }

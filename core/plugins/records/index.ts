@@ -56,7 +56,7 @@ export default class Records extends Plugin {
         for (const record of this.records) {
             records.push({
                 rank: record.rank,
-                nickname: htmlEntities(record?.player?.customNick ?? record?.player?.nickname ??''),
+                nickname: htmlEntities(record?.player?.customNick ?? record?.player?.nickname ?? ''),
                 login: record.login,
                 time: formatTime(record.time ?? 0)
             });
@@ -224,7 +224,8 @@ export default class Records extends Plugin {
             if (lastIndex >= limit && lastRecord && typeof lastRecord.time === 'number' && ranking.BestTime >= lastRecord.time) return;
             const time = ranking.BestTime;
             const record = this.records.find((r) => r.login === login);
-            let oldRecord = clone(record);
+            let oldRecord: Score = clone(record);
+
             if (record) {
                 if (typeof record.time === 'number') {
                     if (ranking.BestTime >= record.time) return;
@@ -269,7 +270,7 @@ export default class Records extends Plugin {
                 return timeA - timeB;
             });
 
-            let outRecord = {};
+            let outRecord: Score = {} as Score;
             for (let i = 0; i < this.records.length; i++) {
                 this.records[i].rank = i + 1;
 
@@ -280,11 +281,18 @@ export default class Records extends Plugin {
 
             this.records = this.records.slice(0, limit);
 
-            tmc.server.emit('Plugin.Records.onUpdateRecord', {
-                oldRecord: oldRecord || {},
-                record: clone(outRecord),
-                records: clone(this.records)
-            });
+            if (!oldRecord) {
+                tmc.server.emit('Plugin.Records.onNewRecord', {
+                    record: clone(outRecord),
+                    records: clone(this.records)
+                });
+            } else {
+                tmc.server.emit('Plugin.Records.onUpdateRecord', {
+                    oldRecord: oldRecord || {},
+                    record: clone(outRecord),
+                    records: clone(this.records)
+                });
+            }
         } catch (e: any) {
             tmc.cli(e);
         }

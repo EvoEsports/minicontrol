@@ -73,14 +73,14 @@ export default class Announces extends Plugin {
         tmc.chat(`¤white¤${newRecord.NickName}¤rec¤ improved ¤white¤${newRecord.Rank}. ¤rec¤dedimania record ¤white¤${formatTime(newRecord.Best)}¤rec¤ ${extrainfo}!`, recipient);
     }
 
-    async onNewRecord(data: any, _records: any[]) {
+    async onNewRecord(data: any) {
         if (!tmc.settings.get('announce.records')) return;
         const newRecord = data.record;
         const nick = newRecord.player.customNick ?? newRecord.player.nickname;
-        tmc.chat(`¤white¤${nick}¤rec¤ has set a new $fff1. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`);
+        tmc.chat(`¤white¤${nick}¤rec¤ has set a new $fff${newRecord.rank} ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`);
     }
 
-    async onUpdateRecord(data: any, _records: any[]) {
+    async onUpdateRecord(data: any) {
         if (!tmc.settings.get('announce.records')) return;
         const newRecord = data.record;
         const oldRecord = data.oldRecord;
@@ -100,11 +100,10 @@ export default class Announces extends Plugin {
             return;
         }
 
-        tmc.chat(`¤white¤${nick}¤rec¤ improved ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤ ${extrainfo}!`, recipient);
+        tmc.chat(`¤white¤${nick}¤rec¤ gained ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤ ${extrainfo}!`, recipient);
     }
 
     async onSyncRecord(data: any) {
-        // const map = tmc.maps.getMap(data.mapUid);
         if (!tmc.settings.get('announce.records')) return;
         const records: any[] = data.records;
         if (records.length === 0) {

@@ -30,6 +30,8 @@ export default class SettingsManager {
     colors: { [key: string]: string } = this._defaultColors;
     callbacks: { [key: string]: null | ((newValue: any, oldValue: any, _key: string) => Promise<void>) } = {};
     descriptions: { [key: string]: string } = {};
+    colorDescriptions: { [key: string]: string } = {};
+
     admins: string[] = [];
     masterAdmins: string[] = (process.env.ADMINS || '').split(',').map((a) => a.trim());
 
@@ -80,10 +82,7 @@ export default class SettingsManager {
         if (existsSync(import.meta.dirname + this.colorsFile)) {
             try {
                 const colors = JSON.parse(readFileSync(import.meta.dirname + this.colorsFile, 'utf-8')) || {};
-                this.colors = Object.assign({}, this._defaultColors);
-                for (const color in colors) {
-                    this.colors[color] = colors[color];
-                }
+                this.colors = Object.assign({}, this._defaultColors, colors);
             } catch (e: any) {
                 tmc.cli('$f00Error loading colors');
                 tmc.cli(e.message);
@@ -171,6 +170,22 @@ export default class SettingsManager {
         if (this.callbacks[key]) {
             await this.callbacks[key](newValue, oldValue, key);
         }
+        tmc.server.emit('TMC.SettingsChanged', {});
+    }
+
+    /**
+     * Register a color, with a default value, a callback function and a description
+     * Callback function is called when the setting is changed, use null if no callback is needed
+     * @param key
+     * @param value
+     * @param callback
+     * @param description
+     */
+    registerColor(key: string, value: any, callback: null | ((value: any, oldValue: any) => Promise<void>), description: string = '') {
+        this._defaultColors[key] = value;
+        this.callbacks['color.' + key] = callback;
+        this.colorDescriptions[key] = description;
+        if (!Object.keys(this.colors).includes(key)) this.colors[key] = value;
     }
 
     getColor(key: string) {
@@ -185,13 +200,29 @@ export default class SettingsManager {
         };
     }
 
+    getColors(): { colors: { [key: string]: string }; defaults: { [key: string]: string }; descriptions: { [key: string]: string } } {
+        return {
+            colors: this.colors,
+            defaults: this._defaultColors,
+            descriptions: this.colorDescriptions
+        };
+    }
+
     getDefaultColor(key: string) {
         return this._defaultColors[key];
     }
 
-    setColor(key: string, value: any) {
-        this.settings[key] = value;
+    async setColor(key: string, value: any) {
+        const oldValue = clone(this.colors[key]);
+        this.colors[key] = value;
         this.save();
+
+        const idx = 'color.' + key;
+
+        if (this.callbacks[idx]) {
+            await this.callbacks[idx](value, oldValue);
+        }
+        tmc.server.emit('TMC.ColorsChanged', {});
     }
 
     addAdmin(login: string) {
@@ -202,6 +233,7 @@ export default class SettingsManager {
         this.admins.push(login);
         tmc.admins = this.admins;
         this.save();
+        tmc.server.emit('TMC.AdminsChanged', {});
     }
 
     removeAdmin(login: string) {
@@ -217,6 +249,7 @@ export default class SettingsManager {
         }
         tmc.admins = this.admins;
         this.save();
+        tmc.server.emit('TMC.AdminsChanged', {});
     }
 
     async reset(key: string) {
@@ -230,5 +263,19 @@ export default class SettingsManager {
         if (this.callbacks[key]) {
             await this.callbacks[key](newValue, oldValue, key);
         }
+        tmc.server.emit('TMC.SettingsChanged', {});
+    }
+
+    async resetColor(key: string) {
+        const oldValue = clone(this.colors[key]);
+        const newValue = clone(this._defaultColors[key]);
+        delete this.colors[key];
+
+        this.save();
+        this.colors[key] = newValue;
+        if (this.callbacks[key]) {
+            await this.callbacks[key](newValue, oldValue);
+        }
+        tmc.server.emit('TMC.ColorsChanged', {});
     }
 }

@@ -11,7 +11,7 @@ if (!process.env['SENTRY_INIT']) {
             profilesSampleRate: 1.0
         });
         console.log('Sending error reports to Sentry.io: ENABLED');
-        console.log('\nIf you wish not to send error reports, set environment:\nOPT_OUT_ERROR_REPORTING=true\n');
+        console.log('\nIf you wish not to send error reports, set environment:\nERROR_REPORTING=false\n');
     } else {
         console.log('Sending error reports to Sentry.io: DISABLED');
     }
