@@ -52,11 +52,19 @@ export default class UiManager {
         tmc.server.addListener('Trackmania.PlayerManialinkPageAnswer', this.onManialinkAnswer, this);
         tmc.server.addListener('Trackmania.PlayerConnect', this.onPlayerConnect, this);
         tmc.server.addListener('Trackmania.PlayerDisconnect', this.onPlayerDisconnect, this);
-
         if (tmc.game.Name == 'Trackmania') {
             tmc.server.addListener('Common.UIModules.Properties', this.onCallbackArray, this);
             await this.getUiProperties();
         }
+
+        if ((tmc.game.Name = 'TmForever')) {
+            tmc.settings.register('tmf.hud.round_scores', true, this.uiSettingsChange.bind(this), 'TmForever HUD: Show round scores');
+            tmc.settings.register('tmf.hud.checkpoint_list', false, this.uiSettingsChange.bind(this), 'TmForever HUD: Show checkpoint list');
+            tmc.settings.register('tmf.hud.net_infos', true, this.uiSettingsChange.bind(this), 'TmForever HUD: Show net infos');
+            tmc.settings.register('tmf.hud.challenge_info', false, this.uiSettingsChange.bind(this), 'TmForever HUD: Show challenge info');
+            tmc.settings.register('tmf.hud.notice', false, this.uiSettingsChange.bind(this), 'TmForever HUD: Show notice');
+        }
+
     }
 
     /**
@@ -64,7 +72,7 @@ export default class UiManager {
      */
     async afterInit() {
         if (tmc.game.Name == 'TmForever') {
-            await this.sendTmnfCustomUI();
+            await this.syncTmfHudSettings();
         }
         if (tmc.game.Name == 'Trackmania') {
             this.setUiProperty('Race_RespawnHelper', 'visible', false);
@@ -472,6 +480,27 @@ export default class UiManager {
         } else {
             tmc.cli('¤error¤invalid key: ¤white¤' + key + '¤error¤ for custom ui');
         }
+    }
+    getCustomUI() {
+        return this.tmnfCustomUi;
+    }
+
+    async uiSettingsChange(value: string, oldValue: boolean, _key: string) {
+        let key = _key.replace('tmf.hud.', '');
+        if (Object.keys(this.tmnfCustomUi).includes(key)) {
+            this.tmnfCustomUi[key] = value;
+            this.sendTmnfCustomUI();
+        }
+    }
+
+    async syncTmfHudSettings() {
+        const keys = Object.keys(this.tmnfCustomUi);
+        for (let key of keys) {
+            const value = tmc.settings.get('tmf.hud.' + key);
+            if (value === undefined) continue;
+            this.tmnfCustomUi[key] = value;
+        }
+        this.sendTmnfCustomUI();
     }
 
     sendTmnfCustomUI() {

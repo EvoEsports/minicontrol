@@ -28,7 +28,7 @@ export default class SettingsManager {
         error: 'f00'
     };
     colors: { [key: string]: string } = this._defaultColors;
-    callbacks: { [key: string]: null | ((value: any, oldValue: any) => Promise<void>) } = {};
+    callbacks: { [key: string]: null | ((newValue: any, oldValue: any, _key: string) => Promise<void>) } = {};
     descriptions: { [key: string]: string } = {};
     admins: string[] = [];
     masterAdmins: string[] = (process.env.ADMINS || '').split(',').map((a) => a.trim());
@@ -136,7 +136,7 @@ export default class SettingsManager {
      * @param callback
      * @param description
      */
-    register(key: string, value: any, callback: null | ((value: any, oldValue: any) => Promise<void>), description: string = '') {
+    register(key: string, value: any, callback: null | ((value: any, oldValue: any, _key:string) => Promise<void>), description: string = '') {
         this._defaultSettings[key] = value;
         this.callbacks[key] = callback;
         this.descriptions[key] = description;
@@ -169,7 +169,7 @@ export default class SettingsManager {
         this.save();
 
         if (this.callbacks[key]) {
-            await this.callbacks[key](newValue, oldValue);
+            await this.callbacks[key](newValue, oldValue, key);
         }
     }
 
@@ -228,7 +228,7 @@ export default class SettingsManager {
         this.settings[key] = newValue;
 
         if (this.callbacks[key]) {
-            await this.callbacks[key](newValue, oldValue);
+            await this.callbacks[key](newValue, oldValue, key);
         }
     }
 }
