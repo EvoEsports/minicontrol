@@ -80,7 +80,6 @@ export default class TAlimitPlugin extends Plugin {
 
     async overrideSetLimit(args: string) {
         const newlimit = Number.parseInt(args) / 1000;
-        tmc.storage['minicontrol.taTimeLimit'] = newlimit;
         this.timeLimit = newlimit;
         await this.hideWidget();
     }
