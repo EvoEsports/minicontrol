@@ -37,7 +37,7 @@ export default class DedimaniaClient {
 
         /*
         if (this.sessionID !== '') {
-            headers['Cookie'] = this.sessionID;
+        headers['Cookie'] = this.sessionID;
         }
         */
 
@@ -54,19 +54,19 @@ export default class DedimaniaClient {
             });
 
             /* if (method === 'dedimania.Authenticate') {
-                if (res.headers.getSetCookie()) {
-                    const header = res.headers
-                        .getSetCookie()[0]
-                        ?.split(';')
-                        .map((x: string) => x.trim());
-                    if (header) {
-                        for (let cookie of header) {
-                            if (cookie.startsWith('PHPSESSID')) {
-                                this.sessionID = cookie;
-                            }
-                        }
-                    }
-                }
+            if (res.headers.getSetCookie()) {
+            const header = res.headers
+            .getSetCookie()[0]
+            ?.split(';')
+            .map((x: string) => x.trim());
+            if (header) {
+            for (let cookie of header) {
+            if (cookie.startsWith('PHPSESSID')) {
+            this.sessionID = cookie;
+            }
+            }
+            }
+            }
             } */
 
             let data = await res.text();

@@ -398,7 +398,7 @@ export default class CommandManager {
                 if (command.trigger.startsWith('//')) prefix = '[/]{2}';
                 const exp = new RegExp(`^${prefix}\\b${escapeRegex(command.trigger.replaceAll('/', ''))}\\b`, 'i');
                 if (exp.test(text)) {
-                    const words = text.replace(command.trigger, '').trim();
+                    const words = text.replace(new RegExp(escapeRegex(command.trigger), 'i'), '').trim();
                     let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s"]+/gi) || []).map((word) =>
                         word.replace(/^"(.+(?="$))"$/, '$1').replaceAll('\\', '')
                     );
