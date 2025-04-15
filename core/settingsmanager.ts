@@ -9,8 +9,6 @@ export default class SettingsManager {
         white: 'fff',
         gray: 'abc',
         black: '000',
-        primary: '9f0',
-        secondary: 'f90',
         highlight: "f07",
         title_fg: 'fff',
         title_bg: '000',
