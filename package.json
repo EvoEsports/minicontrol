@@ -13,7 +13,7 @@
     },
     "dependencies": {
         "@faker-js/faker": "9.4.0",
-        "@sentry/node": "8.52.0",
+        "@sentry/node": "9.12.0",
         "dependency-graph": "1.0.0",
         "gbx": "1.0.0-rc8",
         "lzo-ts": "0.2.3",
@@ -26,10 +26,11 @@
         "sequelize-typescript": "2.1.6",
         "sqlite3": "5.1.7",
         "tm-essentials": "1.0.5",
-        "tsx": "4.19.2",
+        "tsx": "4.19.3",
         "twing": "7.1.0-beta.2",
         "umzug": "3.8.2",
-        "xmlrpc": "1.3.2"
+        "xmlrpc": "1.3.2",
+        "tar-fs": ">=2.1.2"
     },
     "devDependencies": {
         "@types/better-sqlite3": "7.6.12",
