@@ -9,5 +9,5 @@
 
     <quad pos="1 -16" z-index="2" size="{{data.tmx.size}}" image="{{ data.tmx.url }}" halign="left" valign="center" keepratio="Fit" url="{{ data.tmxUrl }}"/>
     <label pos="{{ size.width -1 }} -16" z-index="2" size="10 4" text="${{colors.widget_text}}{{ data.wrTime }}" halign="right" valign="center2" textcolor="fff" textfont="RobotoCondensed" textsize="1" />
-
+    <label pos="0 0" z-index="0" size="{{size.width}} {{size.height}}" text=" " focusareacolor1="{{ colors.widget_bg }}9" focusareacolor2="{{colors.highlight}}e" action="{{ actions['openWidget'] }}" />
 {% endblock %}
