@@ -1,5 +1,5 @@
 import sqlite3 from 'sqlite3';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync} from 'fs';
 import { Sequelize, UpdatedAt } from 'sequelize-typescript';
 import { removeColors, chunkArray } from './core/utils';
 import log from './core/log';
@@ -90,19 +90,21 @@ async function main() {
     await init();
     let sql = readFileSync(process.argv[2], 'utf-8');
     sql = sql
-        .replaceAll(/mediumint.*? NOT NULL AUTO_INCREMENT/g, 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT')
-        .replaceAll(/int.*? NOT NULL AUTO_INCREMENT/g, 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT')
-        .replaceAll(/PRIMARY KEY \(`.*?`\),/g, '');
+        .replaceAll(/UNSIGNED /ig, '')
+        .replaceAll(/PRIMARY KEY \(`.*?`\),/g, '')
+        .replaceAll(/PRIMARY KEY /g, '')
+        .replaceAll(/mediumint.*? NOT NULL AUTO_INCREMENT/gi, 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT')
+        .replaceAll(/int.*? NOT NULL AUTO_INCREMENT/gi, 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT');
+
     sql = sql.replaceAll(/UNIQUE KEY `.*?` \((.*?)\),?/g, 'UNIQUE ($1)').replaceAll(/KEY `(.*?)` \(`.*?`\),?/g, '');
     sql = sql
         .replaceAll(/(UN)?LOCK TABLES.*?;/g, '')
         .replaceAll(/ENGINE=.*?;/g, ';')
         .replaceAll(/[\\]'(?!,)/g, '`')
-        .replaceAll('unsigned', '');
     sql = sql
         .replaceAll(/CHARACTER SET (.*?) COLLATE (.*?) /g, '')
-        .replaceAll(/COMMENT .*?,/g, ',')
-        .replaceAll("enum('true','false')", 'text');
+        .replaceAll(/COMMENT ('.*?'),?/gi, ',')
+        .replaceAll(/enum\(.*?\)/gi, 'text');
     sql = sql
         .replaceAll(/,(\s*?)(\)|$)/g, '$2')
         .replaceAll(/,(\s*?)$/g, '')
