@@ -2,7 +2,7 @@ import type { Player } from '@core/playermanager';
 import Plugin from '@core/plugins';
 import type { DediRecord } from '@core/plugins/tmnf/dedimania';
 import Widget from '@core/ui/widget';
-import { formatTime, escape, removeColors } from '@core/utils';
+import { formatTime, removeColors, htmlEntities } from '@core/utils';
 
 
 export default class DedimaniaWidget extends Plugin {
@@ -65,7 +65,7 @@ export default class DedimaniaWidget extends Plugin {
             widget = new Widget("core/plugins/widgets/dedimania/widget.xml.twig");
             widget.title = "DEDIMANIA";
             widget.recipient = login;
-            widget.pos = { x: -158, y: 30 };
+            widget.pos = { x: 121, y: 35, z: 0 };
             widget.size = { width: 38, height: 45 };
             widget.setOpenAction(this.widgetClick.bind(this));
         }
@@ -85,8 +85,9 @@ export default class DedimaniaWidget extends Plugin {
         }
 
         for (const rec of outRecords) {
+            rec.rank = rec.Rank;
             rec.formattedTime = formatTime(rec.Best);
-            rec.nickname = escape(rec.NickName);
+            rec.nickname = htmlEntities(rec.NickName);
         }
 
         widget.setData({ records: outRecords });

@@ -18,7 +18,7 @@ export default class MapsWindow extends ListWindow {
             if (
                 !this.params[0] ||
                 removeColors(map.Name).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
-                removeColors(map.AuthorName).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
+                removeColors(map.AuthorNickname || map.Author || '').toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
                 removeColors(map.Environnement).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1
             ) {
                 maps.push(
