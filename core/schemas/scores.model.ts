@@ -20,7 +20,7 @@ class Score extends Model {
 
     @NotNull
     @AllowNull(false)
-    @Column(DataType.STRING)
+    @Column(DataType.INTEGER)
     time: number | undefined;
 
     @Column(DataType.STRING)

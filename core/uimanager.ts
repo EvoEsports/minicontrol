@@ -154,7 +154,7 @@ export default class UiManager {
      * @param text
      * @returns
      */
-    private convert(text: string): string {
+    convert(text: string): string {
         if (tmc.game.Name !== 'TmForever') return text;
 
         let lines = text.split('\n');
