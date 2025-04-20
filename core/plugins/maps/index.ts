@@ -36,15 +36,17 @@ export default class Maps extends Plugin {
             { key: 'AuthorName', title: 'Author', width: 30 },
             { key: 'ATime', title: 'Author Time', width: 20 },
             { key: 'Environnement', title: 'Environment', width: 15 },
-            { key: 'Vehicle', title: 'Vehicle', width: 15 }
+            { key: 'Vehicle', title: 'Vehicle', width: 20 },
+            { key: 'Rank', title: 'Rank', width: 10 }
         ]);
         window.title = 'Maps [' + tmc.maps.getMapCount() + ']';
+        window.setActions(['Queue']);
         await window.display();
     }
 
     async cmdAdmMaps(login: any, params: string[]) {
         const window = new MapsWindowAdmin(login, params);
-        window.size = { width: 155, height: 95 };
+        window.size = { width: 155, height: 120 };
         window.setColumns([
             { key: 'Index', title: '#', width: 4 },
             { key: 'Name', title: 'Name', width: 50, action: 'Queue' },

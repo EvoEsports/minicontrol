@@ -4,6 +4,7 @@ import { formatTime, htmlEntities, clone, removeColors } from '@core/utils';
 
 export default class MapsWindowAdmin extends ListWindow {
     params: string[] = [];
+    pageSize = 20;
 
     constructor(login: string, params: string[]) {
         super(login);
