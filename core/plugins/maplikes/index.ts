@@ -47,11 +47,11 @@ export default class MapLikes extends Plugin {
         const login = data[1];
         const text = data[2];
 
-        if (text === "++") {
+        if (text === "++" || text === "+++") {
             await this.updateVote(login, 1);
         }
 
-        if (text === "--") {
+        if (text === "--" || text === "---") {
             await this.updateVote(login, -1);
         }
     }
