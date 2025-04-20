@@ -3,10 +3,10 @@ import SectorRec from '@core/schemas/sectors.model';
 import Player from '@core/schemas/players.model';
 import { clone, htmlEntities, formatTime } from '@core/utils';
 import { Op } from 'sequelize';
-import { FileWatcherEventKind } from 'typescript';
 import ListWindow from '@core/ui/listwindow';
+import Confirm from '@core/ui/confirm';
 
-export interface SecRecord {
+export interface TopRecord {
     login: string;
     time: number;
     date: string;
@@ -17,7 +17,8 @@ export default class RecordsSector extends Plugin {
     static depends: string[] = ['database'];
 
     private sectorRecords: { [login: string]: number[] } = {};
-    private topRecord: SecRecord[] = [];
+    private lastCheckpoint: { [login: string]: number } = {};
+    private topRecord: TopRecord[] = [];
     private recordCache: { [login: string]: SectorRec } = {};
 
     async onLoad() {
@@ -28,17 +29,27 @@ export default class RecordsSector extends Plugin {
         tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
         tmc.server.addListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint, this);
         tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
-        tmc.addCommand('sectors', this.cmdSecRecs.bind(this), 'Show sector records');
+        tmc.server.addListener('TMC.PlayerFinish', this.onPlayerFinish, this);
+        tmc.addCommand('/sectors', this.cmdSecRecs.bind(this), 'Show sector records');
+        tmc.addCommand('//sectors', this.cmdAdminSecRecs.bind(this), 'Sector record admin commands');
         await this.onBeginMap();
     }
 
     getSectorTime(login: string, checkpoint: number, racetime: number): number {
-        if (this.sectorRecords[login] === undefined) return racetime;
-        if (this.sectorRecords[login][checkpoint] === undefined) return racetime;
-
-        const prev = this.sectorRecords[login][checkpoint - 1];
-        if (!prev) return racetime;
+        if (checkpoint == 0) return racetime;
+        const prev = this.lastCheckpoint[login];
         return racetime - prev;
+    }
+
+    getBestSectorTime(checkpoint: number, racetime: number): number {
+        if (checkpoint == 0) return racetime;
+        const prev = this.topRecord[checkpoint - 1]?.time;
+        return racetime - prev;
+    }
+
+    async onPlayerFinish(data: any) {
+        const login = data[0];
+        this.lastCheckpoint[login] = Number.NaN;
     }
 
     async onPlayerConnect(player: any) {
@@ -69,6 +80,8 @@ export default class RecordsSector extends Plugin {
         this.sectorRecords = {};
         this.topRecord = [];
         this.recordCache = {};
+        this.lastCheckpoint = {};
+
         let filter: string[] = [];
         for (let player of tmc.players.getAll()) {
             if (player.login) {
@@ -102,7 +115,7 @@ export default class RecordsSector extends Plugin {
             const data = JSON.parse(bestRecord.jsonData ?? '[]');
             if (data.length === 0) return;
 
-            const playerLogins = data.map((record: SecRecord) => record.login);
+            const playerLogins = data.map((record: TopRecord) => record.login);
             const playerInfos = await Player.findAll({
                 where: {
                     login: {
@@ -132,173 +145,196 @@ export default class RecordsSector extends Plugin {
 
     async onPlayerCheckpoint(data: any) {
         const login = data[0];
-
         const checkpointIndex = data[2];
         const nbCp = tmc.maps.currentMap?.NbCheckpoints || 1;
         const checkpoint = checkpointIndex % nbCp;
-        const racetime = this.getSectorTime(login, checkpoint, data[1]);
+        const sectorTime = this.getSectorTime(login, checkpoint, data[1]);
+        const bestSectorTime = this.getBestSectorTime(checkpoint, data[1]);
 
-        const playerInfo = await tmc.players.getPlayer(login);
+        const player = await tmc.players.getPlayer(login);
 
         if (this.sectorRecords[login] === undefined) {
             this.sectorRecords[login] = [];
         }
 
-        // process pb
-        if (this.sectorRecords[login][checkpoint] === undefined || this.sectorRecords[login][checkpoint] > racetime) {
-            const oldRecord = this.sectorRecords[login][checkpoint] || -1;
-
-            this.sectorRecords[login][checkpoint] = racetime;
-
-            try {
-                if (this.recordCache[login]) {
-                    this.recordCache[login].jsonData = JSON.stringify(this.sectorRecords[login]);
-                    this.recordCache[login].save();
-                } else {
-                    this.recordCache[login] = await SectorRec.create({
-                        mapUuid: tmc.maps.currentMap?.UId,
-                        login: login,
-                        jsonData: JSON.stringify(this.sectorRecords[login])
-                    });
-                }
-            } catch (err: any) {
-                console.log(err);
-                tmc.cli(`¤error¤Error saving sector records for login ${login}: ` + err.message);
-            }
-
-            tmc.server.emit('Plugin.secRecords.newPB', [playerInfo, checkpoint, racetime, oldRecord]);
-        } else {
-            const oldRecord = this.sectorRecords[login][checkpoint] || -1;
-            tmc.server.emit('Plugin.secRecords.diffPB', [playerInfo, checkpoint, racetime, oldRecord]);
+        let update = true;
+        if (!this.lastCheckpoint[login] && checkpoint != 0) {
+            update = false;
         }
 
-        // process best records
-        if (this.topRecord[checkpoint] === undefined || this.topRecord[checkpoint].time > racetime) {
-            const oldRecord = clone(this.topRecord[checkpoint] || {});
+        if (update) {
+            // process pb
+            if (this.sectorRecords[login][checkpoint] === undefined) {
+                this.sectorRecords[login][checkpoint] = sectorTime;
+            }
 
-            this.topRecord[checkpoint] = {
-                nickname: playerInfo.nickname,
-                login: login,
-                time: racetime,
-                date: new Date().toISOString()
-            };
+            if (sectorTime !== Number.NaN && sectorTime > 0 && sectorTime < this.sectorRecords[login][checkpoint]) {
+                const oldRecord = this.sectorRecords[login][checkpoint] || -1;
+                this.sectorRecords[login][checkpoint] = sectorTime;
 
-            let out: any[] = [];
+                try {
+                    if (this.recordCache[login]) {
+                        this.recordCache[login].jsonData = JSON.stringify(this.sectorRecords[login]);
+                        this.recordCache[login].save();
+                    } else {
+                        this.recordCache[login] = await SectorRec.create({
+                            mapUuid: tmc.maps.currentMap?.UId,
+                            login: login,
+                            jsonData: JSON.stringify(this.sectorRecords[login])
+                        });
+                    }
+                } catch (err: any) {
+                    console.log(err);
+                    tmc.cli(`¤error¤Error saving sector records for login ${login}: ` + err.message);
+                }
 
-            for (let i in this.topRecord) {
-                const rec = this.topRecord[i];
-                out[i] = {
-                    login: rec.login,
-                    time: rec.time,
-                    date: rec.date
+                tmc.server.emit('Plugin.secRecords.newPB', [player, checkpoint, sectorTime, oldRecord]);
+            } else {
+                const oldRecord = this.sectorRecords[login][checkpoint] || -1;
+                tmc.server.emit('Plugin.secRecords.diffPB', [player, checkpoint, sectorTime, oldRecord]);
+            }
+
+            // process best records
+            if (this.topRecord[checkpoint] === undefined) {
+                this.topRecord[checkpoint] = {
+                    nickname: player.nickname,
+                    login: login,
+                    time: bestSectorTime,
+                    date: new Date().toISOString()
                 };
             }
+            if (bestSectorTime !== Number.NaN && bestSectorTime > 0 && this.topRecord[checkpoint]?.time > bestSectorTime) {
+                const oldRecord = clone(this.topRecord[checkpoint] || {});
 
-            try {
-                if (this.recordCache['*Best Records*']) {
-                    this.recordCache['*Best Records*'].jsonData = JSON.stringify(out);
-                    this.recordCache['*Best Records*'].updatedAt = new Date();
-                    this.recordCache['*Best Records*'].save();
-                } else {
-                    this.recordCache['*Best Records*'] = await SectorRec.create({
-                        mapUuid: tmc.maps.currentMap?.UId,
-                        login: '*Best Records*',
-                        jsonData: JSON.stringify(out)
-                    });
-                }
-            } catch (err: any) {
-                console.log(err);
-                tmc.cli('¤error¤Error saving best sector records: ' + err.message);
-            }
-
-            tmc.server.emit('Plugin.secRecords.newBest', [playerInfo, checkpoint, clone(this.topRecord[checkpoint]), oldRecord]);
-        } else if (this.topRecord[checkpoint].time < racetime) {
-            tmc.server.emit('Plugin.secRecords.diffBest', [
-                playerInfo,
-                checkpoint,
-                {
-                    nickname: playerInfo.nickname,
+                this.topRecord[checkpoint] = {
+                    nickname: player.nickname,
                     login: login,
-                    time: racetime,
+                    time: bestSectorTime,
                     date: new Date().toISOString()
-                },
-                clone(this.topRecord[checkpoint])
-            ]);
+                };
+
+                let out: any[] = [];
+
+                for (let i in this.topRecord) {
+                    const rec = this.topRecord[i];
+                    out[i] = {
+                        login: rec.login,
+                        time: rec.time,
+                        date: rec.date
+                    };
+                }
+
+                try {
+                    if (this.recordCache['*Best Records*']) {
+                        this.recordCache['*Best Records*'].jsonData = JSON.stringify(out);
+                        this.recordCache['*Best Records*'].updatedAt = new Date();
+                        this.recordCache['*Best Records*'].save();
+                        tmc.debug('Best record updated.');
+                    } else {
+                        this.recordCache['*Best Records*'] = await SectorRec.create({
+                            mapUuid: tmc.maps.currentMap?.UId,
+                            login: '*Best Records*',
+                            jsonData: JSON.stringify(out)
+                        });
+                        tmc.debug('Best record created.');
+                    }
+                } catch (err: any) {
+                    console.log(err);
+                    tmc.cli('¤error¤Error saving best sector records: ' + err.message);
+                }
+
+                tmc.server.emit('Plugin.secRecords.newBest', [player, checkpoint, clone(this.topRecord[checkpoint]), oldRecord]);
+            } else if (this.topRecord[checkpoint]) {
+                tmc.server.emit('Plugin.secRecords.diffBest', [
+                    player,
+                    checkpoint,
+                    {
+                        nickname: player.nickname,
+                        login: login,
+                        time: bestSectorTime,
+                        date: new Date().toISOString()
+                    },
+                    clone(this.topRecord[checkpoint])
+                ]);
+            }
         }
+        this.lastCheckpoint[login] = data[1];
     }
 
     async cmdSecRecs(login: string, args: string[]) {
         const window = new ListWindow(login);
         window.title = 'Sector Records';
         window.setColumns([
-                {
-                    key: 'cp',
-                    title: 'CP',
-                    width: 5,
-                },
-                {
-                    key: 'nickname',
-                    title: 'Nickname',
-                    width: 40,
-                },
-                {
-                    key: 'time',
-                    title: 'Time',
-                    width: 20,
-                },
-                {
-                    key: 'diff',
-                    title: 'Difference',
-                    width: 20,
-                },
-                {
-                    key: 'myTime',
-                    title: 'My Time',
-                    width: 20,
-                },
-                {
-                    key: 'date',
-                    title: 'Date',
-                    width: 50,
-                }
+            {
+                key: 'cp',
+                title: 'CP',
+                width: 5
+            },
+            {
+                key: 'nickname',
+                title: 'Nickname',
+                width: 40
+            },
+            {
+                key: 'time',
+                title: 'Time',
+                width: 20
+            },
+            {
+                key: 'diff',
+                title: 'Difference',
+                width: 20
+            },
+            {
+                key: 'myTime',
+                title: 'My Time',
+                width: 20
+            },
+            {
+                key: 'date',
+                title: 'Date',
+                width: 50
+            }
         ]);
 
-        let items:any = [];
+        let items: any = [];
         for (let i in this.topRecord) {
             const rec = this.topRecord[i];
             if (!rec) {
                 items[i] = {
-                    cp: Number.parseInt(i)+1,
-                    nickname: "-",
-                    time: "-",
-                    diff: "-",
-                    date: "-"
+                    cp: Number.parseInt(i) + 1,
+                    nickname: '-',
+                    time: '-',
+                    diff: '-',
+                    date: '-'
                 };
                 continue;
             }
 
-            let diff = "";
-            let color = "$00f";
-            let myTime = "-";
+            let diff = '';
+            let color = '$f00';
+            let myTime = '-';
             if (this.sectorRecords[login] && this.sectorRecords[login][i]) {
                 const playerTime = this.sectorRecords[login][i];
                 myTime = formatTime(playerTime);
                 diff = formatTime(playerTime - rec.time);
                 if (playerTime < rec.time) {
-                    diff = "+" + diff;
-                    color = "$f00";
+                    color = '$00f';
+                } else {
+                    diff = '+' + diff;
                 }
+
                 if (playerTime === rec.time) {
-                    diff = "PB";
-                    color="$0f0"
+                    diff = 'PB';
+                    color = '$0f0';
                 }
             }
 
             let formattedDate = new Date(rec.date).toLocaleString('en-GB');
 
             items[i] = {
-                cp: Number.parseInt(i)+1,
-                nickname: htmlEntities(rec.nickname ?? "-"),
+                cp: Number.parseInt(i) + 1,
+                nickname: htmlEntities(rec.nickname ?? '-'),
                 time: formatTime(rec.time),
                 myTime: myTime,
                 diff: color + diff,
@@ -306,9 +342,51 @@ export default class RecordsSector extends Plugin {
             };
         }
 
-
         window.setItems(items);
-
         await window.display();
+    }
+
+    // admin command
+    async cmdAdminSecRecs(login: string, args: string[]) {
+        if (args.length < 1) {
+            tmc.chat('¤info¤Usage: ¤cmd¤//sectors delmap, delall', login);
+            return;
+        }
+
+        if (args[0] === 'delmap') {
+            const confirm = new Confirm(
+                login,
+                'Delete all sector records for this map (no undo)?',
+                async () => {
+                    await SectorRec.destroy({
+                        where: {
+                            mapUuid: tmc.maps.currentMap?.UId
+                        }
+                    });
+                    tmc.chat('¤info¤Sector records deleted for this map', login);
+                    await this.onBeginMap();
+                },
+                []
+            );
+            await confirm.display();
+            return;
+        }
+
+        if (args[0] === 'delall') {
+            const confirm = new Confirm(
+                login,
+                'Delete all sector records (no undo)?',
+                async () => {
+                    const rec = await SectorRec.truncate();
+                    tmc.chat('¤info¤All sector records deleted.', login);
+                    await this.onBeginMap();
+                },
+                []
+            );
+            await confirm.display();
+            return;
+        }
+
+        tmc.chat('¤info¤Usage: ¤cmd¤//sectors delmap, delall', login);
     }
 }

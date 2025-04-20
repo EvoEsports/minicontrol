@@ -1,6 +1,6 @@
 import Plugin from '@core/plugins';
 import { clone, htmlEntities, formatTime } from '@core/utils';
-import type { SecRecord } from '@core/plugins/secrecords';
+import type { TopRecord } from '@core/plugins/secrecords';
 import type { Player } from '@core/playermanager';
 
 export default class SecRecordsWidget extends Plugin {
@@ -29,8 +29,8 @@ export default class SecRecordsWidget extends Plugin {
     async onBest(data: any, isNew: boolean) {
         const player: Player = data[0];
         const checkpoint: number = data[1];
-        const newRecord: SecRecord = data[2];
-        const oldRecord: SecRecord = data[3];
+        const newRecord: TopRecord = data[2];
+        const oldRecord: TopRecord = data[3];
         let time = newRecord.time - oldRecord.time;
         let color = '$f00';
         let outTime = formatTime(time);
