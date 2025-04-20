@@ -233,7 +233,10 @@ export default class RecordsSector extends Plugin {
                     if (this.recordCache['*Best Records*']) {
                         this.recordCache['*Best Records*'].jsonData = JSON.stringify(out);
                         this.recordCache['*Best Records*'].updatedAt = new Date();
-                        this.recordCache['*Best Records*'].save();
+                        this.recordCache['*Best Records*'].save().catch((err: any) => {
+                            if (process.env.debug == 'true') console.log(err);
+                            tmc.cli('¤error¤Error saving best sector records: ' + err.message);
+                        });
                         tmc.debug('Best sector record updated.');
                     } else {
                         this.recordCache['*Best Records*'] = await SectorRec.create({
