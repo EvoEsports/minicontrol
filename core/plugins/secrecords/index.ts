@@ -41,12 +41,6 @@ export default class RecordsSector extends Plugin {
         return racetime - prev;
     }
 
-    getBestSectorTime(checkpoint: number, racetime: number): number {
-        if (checkpoint == 0) return racetime;
-        const prev = this.topRecord[checkpoint - 1]?.time;
-        return racetime - prev;
-    }
-
     async onPlayerFinish(data: any) {
         const login = data[0];
         this.lastCheckpoint[login] = Number.NaN;
@@ -149,7 +143,6 @@ export default class RecordsSector extends Plugin {
         const nbCp = tmc.maps.currentMap?.NbCheckpoints || 1;
         const checkpoint = checkpointIndex % nbCp;
         const sectorTime = this.getSectorTime(login, checkpoint, data[1]);
-        const bestSectorTime = this.getBestSectorTime(checkpoint, data[1]);
 
         const player = await tmc.players.getPlayer(login);
 
@@ -199,17 +192,17 @@ export default class RecordsSector extends Plugin {
                 this.topRecord[checkpoint] = {
                     nickname: player.nickname,
                     login: login,
-                    time: bestSectorTime,
+                    time:sectorTime,
                     date: new Date().toISOString()
                 };
             }
-            if (bestSectorTime !== Number.NaN && bestSectorTime > 0 && this.topRecord[checkpoint]?.time > bestSectorTime) {
+            if (sectorTime !== Number.NaN && sectorTime > 0 && sectorTime < this.topRecord[checkpoint]?.time) {
                 const oldRecord = clone(this.topRecord[checkpoint] || {});
 
                 this.topRecord[checkpoint] = {
                     nickname: player.nickname,
                     login: login,
-                    time: bestSectorTime,
+                    time: sectorTime,
                     date: new Date().toISOString()
                 };
 
@@ -251,7 +244,7 @@ export default class RecordsSector extends Plugin {
                     {
                         nickname: player.nickname,
                         login: login,
-                        time: bestSectorTime,
+                        time: sectorTime,
                         date: new Date().toISOString()
                     },
                     clone(this.topRecord[checkpoint])
