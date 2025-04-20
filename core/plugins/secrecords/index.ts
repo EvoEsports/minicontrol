@@ -227,14 +227,14 @@ export default class RecordsSector extends Plugin {
                         this.recordCache['*Best Records*'].jsonData = JSON.stringify(out);
                         this.recordCache['*Best Records*'].updatedAt = new Date();
                         this.recordCache['*Best Records*'].save();
-                        tmc.debug('Best record updated.');
+                        tmc.debug('Best sector record updated.');
                     } else {
                         this.recordCache['*Best Records*'] = await SectorRec.create({
                             mapUuid: tmc.maps.currentMap?.UId,
                             login: '*Best Records*',
                             jsonData: JSON.stringify(out)
                         });
-                        tmc.debug('Best record created.');
+                        tmc.debug('Best sector record created.');
                     }
                 } catch (err: any) {
                     console.log(err);

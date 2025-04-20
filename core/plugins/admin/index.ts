@@ -221,11 +221,13 @@ export default class AdminPlugin extends Plugin {
                     const mode = await tmc.server.call('GetGameMode');
                     if (mode == TmnfMode.TimeAttack) {
                         tmc.server.send('SetTimeAttackLimit', Number.parseInt(params[0]) * 1000);
+                        tmc.storage['minicontrol.taTimeLimit'] = Number.parseInt(params[0]);
                         tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                         return;
                     }
                     if (mode == TmnfMode.Laps) {
                         tmc.server.send('SetLapsTimeLimit', Number.parseInt(params[0]) * 1000);
+                        tmc.storage['minicontrol.taTimeLimit'] = Number.parseInt(params[0]);
                         tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                         return;
                     }
@@ -234,6 +236,7 @@ export default class AdminPlugin extends Plugin {
                 }
 
                 if (tmc.game.Name == 'Trackmania' || tmc.game.Name == 'ManiaPlanet') {
+                    tmc.storage['minicontrol.taTimeLimit'] = Number.parseInt(params[0]);
                     const settings = { S_TimeLimit: Number.parseInt(params[0]) };
                     tmc.server.send('SetModeScriptSettings', settings);
                     tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
