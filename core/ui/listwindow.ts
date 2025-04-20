@@ -25,8 +25,8 @@ export default class ListWindow extends Window {
     items: any = [];
     template = "core/templates/list.xml.twig";
     pageSize: number = 15;
+    sortColumn: string = "";
     private currentPage: number;
-    private sortColumn: string = "";
     private sortDirection: number = 1;
 
     listActions: string[] = [];

@@ -26,6 +26,11 @@ export default class Maps extends Plugin {
         tmc.removeCommand('/list');
     }
 
+    /**
+     *  Player command to display the map list
+     * @param login
+     * @param params
+     */
     async cmdMaps(login: any, params: string[]) {
         const window = new MapsWindow(login, params);
         window.pos.y = 0;
@@ -39,11 +44,17 @@ export default class Maps extends Plugin {
             { key: 'Vehicle', title: 'Vehicle', width: 20 },
             { key: 'Rank', title: 'Rank', width: 10 }
         ]);
+        window.sortColumn = 'Name';
         window.title = 'Maps [' + tmc.maps.getMapCount() + ']';
         window.setActions(['Queue']);
         await window.display();
     }
 
+    /**
+     * Admin command to display the map list
+     * @param login
+     * @param params
+     */
     async cmdAdmMaps(login: any, params: string[]) {
         const window = new MapsWindowAdmin(login, params);
         window.size = { width: 155, height: 120 };

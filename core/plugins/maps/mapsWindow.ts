@@ -6,7 +6,7 @@ import { QueryTypes, type Sequelize } from 'sequelize';
 export default class MapsWindow extends ListWindow {
     params: string[] = [];
     // template: string = 'core/plugins/maps/maplist.xml.twig';
-     pageSize = 20;
+    pageSize = 20;
 
     constructor(login: string, params: string[]) {
         super(login);
