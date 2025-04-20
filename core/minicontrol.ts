@@ -22,7 +22,7 @@ const Sentry = require('./sentry', import.meta.url);
 
 import PlayerManager, { Player } from './playermanager';
 import BillManager from './billmanager';
-import Server from './server';
+import Server, { type VersionStruct } from './server';
 import UiManager from './uimanager';
 import MapManager from './mapmanager';
 import CommandManager, { type CallableCommand } from './commandmanager';
@@ -34,12 +34,6 @@ import Plugin from './plugins/index';
 import path from 'path';
 import { DepGraph } from 'dependency-graph';
 import semver from 'semver';
-
-export interface GameStruct {
-    Name: string;
-    Version?: string;
-    Build?: string;
-}
 
 /**
  * MiniControl class
@@ -91,7 +85,7 @@ class MiniControl {
     /**
      * The game object.
      */
-    game: GameStruct;
+    game: VersionStruct = {} as VersionStruct;
     mapsPath: string = '';
     storage: { [key: string]: any } = {};
     startComplete: boolean = false;
@@ -106,7 +100,6 @@ class MiniControl {
         this.billMgr = new BillManager();
         this.settings = new SettingsManager();
         this.admins = this.settings.admins;
-        this.game = { Name: '' };
     }
 
     /**
@@ -357,9 +350,9 @@ class MiniControl {
             process.exit();
         }
         await this.server.fetchServerInfo();
+        this.game = this.server.version;
         this.server.send('EnableCallbacks', true);
         this.server.send('SendHideManialinkPage');
-        this.game = await this.server.call('GetVersion');
 
         if (this.game.Name == 'Trackmania') {
             await this.server.call('SetApiVersion', '2023-04-16');
@@ -423,7 +416,6 @@ class MiniControl {
         }
 
         // load metadata
-        // this.pluginDependecies.addNode("game:" + tmc.game.Name);
         let dependencyByPlugin: any = {};
 
         for (const name of loadList) {

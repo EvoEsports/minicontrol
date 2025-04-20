@@ -23,6 +23,11 @@ export interface ServerOptions {
     AutoSaveReplays: boolean;
 }
 
+export interface VersionStruct {
+    Name: string;
+    Version?: string;
+    Build?: string;
+}
 /**
  * Server class
  */
@@ -43,6 +48,7 @@ export default class Server {
     name: string = '';
     packmask: string = '';
     serverOptions: ServerOptions = {} as ServerOptions;
+    version: VersionStruct = {} as VersionStruct;
 
     constructor() {
         this.events.setMaxListeners(100);
@@ -249,9 +255,9 @@ export default class Server {
     async fetchServerInfo(): Promise<void> {
         let serverPlayerInfo = await this.gbx.call('GetMainServerPlayerInfo');
         let serverOptions = await this.gbx.call('GetServerOptions');
-        let version = await this.gbx.call('GetVersion');
+        this.version = await this.gbx.call('GetVersion');
         this.packmask ='Stadium';
-        if (version.Name != 'Trackmania') {
+        if (this.version.Name != 'Trackmania') {
             this.packmask = await this.gbx.call('GetServerPackMask');
         }
         this.login = serverPlayerInfo.Login;

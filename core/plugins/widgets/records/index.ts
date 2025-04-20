@@ -206,7 +206,7 @@ export default class RecordsWidget extends Plugin {
             }
         }
 
-        widget.setData({ myRank: this.myIndex, records: outRecords, type: this.widgetType[login] });
+        widget.setData({ myRank: this.myIndex, records: outRecords, type: this.widgetType[login], game: tmc.game.Name });
         widget.size.height = 4 * outRecords.length + 5;
         if (outRecords.length < 1) {
             widget.size.height = 8;

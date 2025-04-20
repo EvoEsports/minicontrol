@@ -57,7 +57,7 @@ export default class UiManager {
             await this.getUiProperties();
         }
 
-        if ((tmc.game.Name = 'TmForever')) {
+        if ((tmc.game.Name == 'TmForever')) {
             tmc.settings.register('tmf.hud.round_scores', true, this.uiSettingsChange.bind(this), 'TmForever HUD: Show round scores');
             tmc.settings.register('tmf.hud.checkpoint_list', false, this.uiSettingsChange.bind(this), 'TmForever HUD: Show checkpoint list');
             tmc.settings.register('tmf.hud.net_infos', true, this.uiSettingsChange.bind(this), 'TmForever HUD: Show net infos');
