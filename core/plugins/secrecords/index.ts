@@ -157,11 +157,16 @@ export default class RecordsSector extends Plugin {
 
         if (update) {
             // process pb
+            if (sectorTime !== Number.NaN && sectorTime < 0) {
+                this.lastCheckpoint[login] = data[1];
+                return;
+            }
+
             if (this.sectorRecords[login][checkpoint] === undefined) {
                 this.sectorRecords[login][checkpoint] = sectorTime;
             }
 
-            if (sectorTime !== Number.NaN && sectorTime > 0 && sectorTime < this.sectorRecords[login][checkpoint]) {
+            if (sectorTime < this.sectorRecords[login][checkpoint]) {
                 const oldRecord = this.sectorRecords[login][checkpoint] || -1;
                 this.sectorRecords[login][checkpoint] = sectorTime;
 
@@ -192,11 +197,11 @@ export default class RecordsSector extends Plugin {
                 this.topRecord[checkpoint] = {
                     nickname: player.nickname,
                     login: login,
-                    time:sectorTime,
+                    time: sectorTime,
                     date: new Date().toISOString()
                 };
             }
-            if (sectorTime !== Number.NaN && sectorTime > 0 && sectorTime < this.topRecord[checkpoint]?.time) {
+            if (sectorTime < this.topRecord[checkpoint]?.time) {
                 const oldRecord = clone(this.topRecord[checkpoint] || {});
 
                 this.topRecord[checkpoint] = {
