@@ -77,7 +77,7 @@ export default class Announces extends Plugin {
         if (!tmc.settings.get('announce.records')) return;
         const newRecord = data.record;
         const nick = newRecord.player.customNick ?? newRecord.player.nickname;
-        tmc.chat(`¤white¤${nick}¤rec¤ has set a new $fff${newRecord.rank} ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`);
+        tmc.chat(`¤white¤${nick}¤rec¤ has set a new $fff${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`);
     }
 
     async onUpdateRecord(data: any) {
