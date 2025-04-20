@@ -4,6 +4,7 @@ import Player from '@core/schemas/players.model';
 import { clone, htmlEntities, formatTime } from '@core/utils';
 import RecordsWindow from './recordsWindow';
 import { Op } from 'sequelize';
+import Menu from '../menu/menu';
 
 export default class Records extends Plugin {
     static depends: string[] = ['database'];
@@ -18,6 +19,11 @@ export default class Records extends Plugin {
         tmc.server.addListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint, this);
         tmc.chatCmd.addCommand('/records', this.cmdRecords.bind(this), 'Display Records');
         tmc.settings.register('records.maxRecords', 100, this.settingMaxRecords.bind(this), 'LocalRecords: Maximum number of records');
+        Menu.getInstance().addItem({
+            category: 'Records',
+            title: 'Local Records',
+            action: '/records'
+        });
     }
 
     async onUnload() {

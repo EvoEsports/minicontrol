@@ -3,6 +3,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { QueryTypes } from 'sequelize';
 import ListWindow from '@core/ui/listwindow';
 import Player from '@core/schemas/players.model';
+import Menu from '../menu/menu';
 
 interface Ranking {
     rank: number;
@@ -19,6 +20,17 @@ export default class Players extends Plugin {
         tmc.addCommand('/topranks', this.cmdRankings.bind(this), 'Show ranks');
         tmc.addCommand('/rank', this.cmdMyRank.bind(this), 'Show my rank');
         this.rankings = await this.getPlayerRanking();
+
+        Menu.getInstance().addItem({
+            category: 'Records',
+            title: 'Top Rankings',
+            action: '/topranks'
+        });
+        Menu.getInstance().addItem({
+            category: 'Records',
+            title: 'My Rank',
+            action: '/rank'
+        });
     }
 
     async onUnload() {
@@ -58,14 +70,7 @@ export default class Players extends Plugin {
             {
                 type: QueryTypes.SELECT,
                 raw: true,
-                replacements: [
-                    mapCount,
-                    maxRank,
-                    mapCount,
-                    mapUids,
-                    maxRank,
-                    rankedRecordCount
-                ],
+                replacements: [mapCount, maxRank, mapCount, mapUids, maxRank, rankedRecordCount]
             }
         );
         return rankings;
@@ -92,7 +97,7 @@ export default class Players extends Plugin {
             const player = players.find((val) => val.login == rank.login);
             outRanks.push({
                 rank: rank.rank,
-                nickname: player?.customNick ?? player?.nickname ?? "Unknown",
+                nickname: player?.customNick ?? player?.nickname ?? 'Unknown',
                 avg: avg.toFixed(2)
             });
             x += 1;

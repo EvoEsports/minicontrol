@@ -5,6 +5,7 @@ import { clone, htmlEntities, formatTime } from '@core/utils';
 import { Op } from 'sequelize';
 import ListWindow from '@core/ui/listwindow';
 import Confirm from '@core/ui/confirm';
+import Menu from '../menu/menu';
 
 export interface TopRecord {
     login: string;
@@ -32,6 +33,12 @@ export default class RecordsSector extends Plugin {
         tmc.server.addListener('TMC.PlayerFinish', this.onPlayerFinish, this);
         tmc.addCommand('/sectors', this.cmdSecRecs.bind(this), 'Show sector records');
         tmc.addCommand('//sectors', this.cmdAdminSecRecs.bind(this), 'Sector record admin commands');
+        Menu.getInstance().addItem({
+            category: 'Records',
+            title: 'Sector Records',
+            action: '/sectors'
+        });
+
         await this.onBeginMap();
     }
 
