@@ -3,10 +3,27 @@ import { formatTime } from '@core/utils';
 import fs from 'fs';
 import SearchWindow from './searchWindow';
 import Menu from '@core/plugins/menu/menu';
+import type { Map as TmMap } from '@core/mapmanager';
+
+export interface TmxMapInfo {
+    TmxId: string;
+    TmxUrl: string;
+    Name: string;
+    Style: string;
+    Tags: string[];
+    Difficulty: string;
+    wrHolder: string;
+    wrTime: number | undefined;
+}
+
 interface Map {
     id: string;
     baseUrl: string;
     site?: string;
+}
+
+export interface TmxMap extends TmMap {
+    tmx?: TmxMapInfo;
 }
 
 export default class Tmx extends Plugin {
@@ -45,6 +62,7 @@ export default class Tmx extends Plugin {
     }
 
     async onLoad() {
+        tmc.settings.register('tmx.fetchMapInfo', true, null, 'TMX: Fetch map info for maps');
         tmc.addCommand('//add', this.addMap.bind(this), 'Add map from TMX');
         tmc.addCommand('//addpack', this.addMapPack.bind(this), 'Add map pack from TMX');
         tmc.addCommand(
@@ -63,11 +81,27 @@ export default class Tmx extends Plugin {
             action: '//search',
             admin: true
         });
+        await this.onBeginMap();
     }
 
     async onUnload() {
         tmc.removeCommand('//add');
         tmc.removeCommand('//addpack');
+    }
+
+    async onBeginMap() {
+        if (!tmc.settings.get('tmx.fetchMapInfo')) return;
+        const uuid = tmc.maps.currentMap.UId;
+        let type: undefined | string = undefined;
+        if (uuid) {
+            if (tmc.game.Name == 'TmForever' && tmc.maps.currentMap.Environnement != 'Stadium') {
+                type = 'TMUF';
+            }
+            this.getTmxInfo(uuid, type).then((info) => {
+                tmc.maps.currentMap.tmx = info;
+                tmc.server.emit('Plugin.TMX.MapInfo', [info]);
+            });
+        }
     }
 
     async searchMaps(login: string, params: string[]) {
@@ -357,7 +391,7 @@ export default class Tmx extends Plugin {
         tmc.chat('¤white¤Done!');
     }
 
-    async getTmxInfo(uid: string, envir: string | undefined) {
+    async getTmxInfo(uid: string, envir: string | undefined): Promise<TmxMapInfo> {
         let maps = 'maps';
         let wr = 'OnlineWR,MapId';
         if (tmc.game.Name === 'TmForever') {
@@ -372,10 +406,11 @@ export default class Tmx extends Plugin {
             const timeoutID = setTimeout(() => controller.abort(), 1000);
             const res = await fetch(url, { keepalive: false, signal: signal });
             clearTimeout(timeoutID);
-            if (res.ok === false) return {};
+            if (res.ok === false) return {} as TmxMapInfo;
             const json: any = await res.json();
-            if (!json || !json.Results) return {};
+            if (!json || !json.Results) return {} as TmxMapInfo;
             let result: any = {};
+
             if (json.Results.length > 0) {
                 result = json.Results[0];
             }
@@ -399,10 +434,10 @@ export default class Tmx extends Plugin {
             } else {
                 result.Difficulty = this.TMX_DIFFICULTY[result.Difficulty] || 'Difficulty not set';
             }
-            return result;
+            return result as TmxMapInfo;
         } catch (e: any) {
             tmc.debug(`TmxInfo Error: ${e.message}`);
-            return {};
+            return {} as TmxMapInfo;
         }
     }
 }

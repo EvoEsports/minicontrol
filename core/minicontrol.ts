@@ -489,7 +489,7 @@ class MiniControl {
         this.players.afterInit();
         await this.chatCmd.afterInit();
         await this.ui.afterInit();
-
+        await this.maps.afterInit();
         const msg = `¤info¤Welcome to ${this.brand} ¤info¤version ¤white¤${this.version}¤info¤!`;
         this.chat(msg);
         this.cli(msg);

@@ -35,7 +35,7 @@ export default class Players extends Plugin {
         window.setItems(players);
         window.setColumns([
             { key: 'nickname', title: 'Nickname', width: 50 },
-            { key: 'login', title: 'Login', width: 50, type: 'entry' },
+            { key: 'login', title: 'Login', width: 50, action: 'getLogin' },
             { key: 'path', title: 'Path', width: 50 }
         ]);
 

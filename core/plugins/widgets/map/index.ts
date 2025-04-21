@@ -1,45 +1,35 @@
 import { htmlEntities, formatTime } from '@core/utils';
 import Plugin from '@core/plugins';
 import Widget from '@core/ui/widget';
-import type Tmx from '@core/plugins/tmx';
+import type { TmxMapInfo } from '@core/plugins/tmx';
 
 export default class MapWidget extends Plugin {
     static depends: string[] = ['maps'];
     widget: Widget | null = null;
-    tmxInfo: any;
+    tmxInfo: TmxMapInfo = {} as TmxMapInfo;
 
     async onLoad() {
-        tmc.settings.register('widget.maps.fetchTmxInfo', true, null, 'Widgets: Fetch TMX info for map widget');
-
         this.widget = new Widget('core/plugins/widgets/map/widget.xml.twig');
         this.widget.pos = { x: 121, y: 89, z: 1 };
         this.widget.size = { width: 38, height: 9 };
         this.widget.setOpenAction(this.buttonClick.bind(this));
-        tmc.server.addListener('Trackmania.BeginMap', this.beginMap, this);
-        const info = tmc.maps.currentMap;
-        await this.display([info]);
+        tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
+        tmc.server.addListener('Plugin.TMX.MapInfo', this.onMapInfo, this);
+        await this.display();
     }
 
     async onUnload() {
         this.widget?.hide();
         this.widget = null;
-        tmc.server.removeListener('Trackmania.BeginMap', this.beginMap);
     }
 
-    async beginMap(data: any) {
-        await this.display(data);
+    async onBeginMap(data: any) {
+        await this.display();
     }
 
-    async getTmxData() {
-        const uuid = tmc.maps.currentMap?.UId;
-        let type: undefined | string = undefined;
-        if (uuid) {
-            if (tmc.game.Name == 'TmForever' && tmc.maps.currentMap?.Environnement != 'Stadium') {
-                type = 'TMUF';
-            }
-            return await (tmc.plugins['tmx'] as Tmx).getTmxInfo(uuid, type);
-        }
-        return {};
+    async onMapInfo(data: any) {
+        this.tmxInfo = data[0];
+        await this.display();
     }
 
     getTmxLogo() {
@@ -66,16 +56,9 @@ export default class MapWidget extends Plugin {
         };
     }
 
-    async display(data: any) {
-        data = data[0];
-        if (Object.keys(tmc.plugins).includes('tmx')) {
-            if (tmc.settings.get('widget.maps.fetchTmxInfo')) {
-                this.tmxInfo = await this.getTmxData();
-                if (this.tmxInfo) {
-                    data = { ...data, ...this.tmxInfo };
-                }
-            }
-        }
+    async display() {
+        const data = this.tmxInfo;
+        const map = tmc.maps.currentMap;
 
         let tmxUrl = '';
         if (data.TmxId) {
@@ -84,17 +67,29 @@ export default class MapWidget extends Plugin {
                 tmxUrl = data.TmxUrl.replace('https://', 'http://') + 'trackshow/' + data.TmxId;
             }
         }
+        const tags = (data.Tags || []).splice(0, 3);
+
+        let info = 'No TMX Info';
+        if (data.Style) {
+            info = data.Style ?? "";
+            for (const tag of tags) {
+                if (tag != data.Style) {
+                    info += ', ' + tag + '$fff';
+                }
+            }
+        }
 
         this.widget?.setData({
-            author: htmlEntities(data.AuthorNickname ? data.AuthorNickname : data.Author),
-            mapname: htmlEntities(data.Name),
-            authortime: formatTime(data.AuthorTime),
-            wrTime: formatTime(data.wrTime),
+            author: htmlEntities(map.AuthorNickname ? map.AuthorNickname : map.Author),
+            mapname: htmlEntities(map.Name),
+            authortime: formatTime(map.AuthorTime),
+            wrTime: formatTime(data.wrTime || 0),
             wrHolder: htmlEntities(data.wrHolder || 'n/a'),
             tmx: this.getTmxLogo(),
             tmxUrl: tmxUrl,
             game: tmc.game.Name,
-            info: data.Style ? data.Style + ' $fff/ ' + data.Difficulty : 'No TMX info'
+            info: info,
+            difficulty: data.Difficulty || 'Normal'
         });
 
         this.widget?.display();

@@ -1,4 +1,4 @@
-import { chunkArray, clone } from "./utils";
+import { chunkArray, clone } from './utils';
 
 export interface Map {
     UId: string;
@@ -24,10 +24,11 @@ export interface Map {
  * MapManager class
  */
 class MapManager {
-    private maps: { [key: string]: Map; };
-    previousMap?: Map;
-    currentMap?: Map;
-    nextMap?: Map;
+    private maps: { [key: string]: Map };
+    previousMap: Map = {} as Map;
+    currentMap: Map = {} as Map;
+    nextMap: Map = {} as Map;
+    private startTime: number = 0;
 
     /**
      * @ignore
@@ -42,15 +43,25 @@ class MapManager {
      **/
     async init() {
         this.maps = {};
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("Trackmania.MapListModified", this.onMapListModified, this);
+        tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
+        tmc.server.addListener('Trackmania.MapListModified', this.onMapListModified, this);
+        tmc.server.addListener('Trackmania.BeginRound', this.onBeginRound, this);
         try {
-            this.currentMap = await tmc.server.call("GetCurrentMapInfo");
-            this.nextMap = await tmc.server.call("GetNextMapInfo");
-        } catch (e:any) {
-            tmc.cli("¤error¤" + e.message);
+            this.currentMap = await tmc.server.call('GetCurrentMapInfo');
+            this.nextMap = await tmc.server.call('GetNextMapInfo');
+        } catch (e: any) {
+            tmc.cli('¤error¤' + e.message);
         }
+
         await this.syncMaplist();
+    }
+
+    async afterInit() {
+        this.startTime = Date.now();
+    }
+
+    async onBeginRound() {
+        this.startTime = Date.now();
     }
 
     /** @ignore */
@@ -73,17 +84,17 @@ class MapManager {
      * Sync the maplist with the server
      */
     async syncMaplist() {
-        const chunckedMaps: any = chunkArray(await tmc.server.call("GetMapList", -1, 0), 100);
-        let method = "GetMapInfo";
-        if (tmc.game.Name == "TmForever") method = "GetChallengeInfo";
+        const chunckedMaps: any = chunkArray(await tmc.server.call('GetMapList', -1, 0), 100);
+        let method = 'GetMapInfo';
+        if (tmc.game.Name == 'TmForever') method = 'GetChallengeInfo';
         let newMaps = {};
         for (const infos of chunckedMaps) {
-            let out:any[] = [];
+            let out: any[] = [];
 
             for (const map of infos) {
                 out.push([method, map.FileName]);
             }
-            const res:any = await tmc.server.multicall(out) || [];
+            const res: any = (await tmc.server.multicall(out)) || [];
 
             for (const map of res) {
                 newMaps[map.UId] = map;
@@ -109,6 +120,16 @@ class MapManager {
         if (this.maps[mapUId]) {
             delete this.maps[mapUId];
         }
+    }
+
+    /**
+     * get timing infos for current map
+     */
+    getTimeInfo(): { timePlayed: number; timeLeft: number; timeLimit: number } {
+        const timeLimit = tmc.storage['minicontrol.taTimeLimit'] ?? Number.parseInt(process.env.TALIMIT ?? '300');
+        const timeLeft = 3 + timeLimit - (Date.now() - this.startTime) / 1000;
+        const timePlayed = 3 + (Date.now() - this.startTime) / 1000;
+        return { timePlayed, timeLeft, timeLimit };
     }
 
     /**
