@@ -128,7 +128,7 @@ export function castType(value: string, type?: string): any {
 }
 
 let prevValueMem: number = -1;
-let startValueMem: number = 0;
+export let startValueMem: number = 0;
 
 /**
  * @ignore
