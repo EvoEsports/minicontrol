@@ -41,7 +41,7 @@ export default class MapLikes extends Plugin {
         }
         const sequelize: Sequelize = tmc.storage['db'];
         const uids = tmc.maps.getUids();
-        tmc.cli("¤info¤Starting karma sync for $fff" + uids.length + " ¤info¤maps");
+        tmc.debug("¤info¤Starting karma sync for $fff" + uids.length + " ¤info¤maps");
         console.time('karma sync');
         sequelize
             .query(
@@ -59,7 +59,7 @@ export default class MapLikes extends Plugin {
                 }
             )
             .then((result: any) => {
-                tmc.cli('¤info¤Sync complete.');
+                tmc.debug('¤info¤Sync complete.');
                 console.timeEnd('karma sync');
                 for (const info of result) {
                     const map = tmc.maps.getMap(info.Uid);

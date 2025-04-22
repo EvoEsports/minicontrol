@@ -4,7 +4,6 @@ import { QueryTypes } from 'sequelize';
 import ListWindow from '@core/ui/listwindow';
 import Player from '@core/schemas/players.model';
 import Menu from '../menu/menu';
-import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript';
 
 interface Ranking {
     rank: number;
@@ -46,7 +45,7 @@ export default class Players extends Plugin {
         const maxRank = tmc.settings.get('records.maxRecords') || 100;
         const rankedRecordCount = 3;
         console.time('rankings');
-        tmc.cli('¤info¤Fetching rankings for ' + mapCount + ' maps');
+        tmc.debug('¤info¤Fetching rankings for $fff' + mapCount + ' ¤info¤maps');
 
         sequelize.query(
             `SELECT row_number() OVER (order by average) as rank, login, average as avg FROM (
@@ -76,7 +75,7 @@ export default class Players extends Plugin {
         ).then((result: any) =>
         {
             this.rankings = result as Ranking[];
-            tmc.cli('¤info¤Rankings fetched: ' + this.rankings.length);
+            tmc.debug('¤info¤Rankings fetched: $fff' + this.rankings.length);
             console.timeEnd('rankings');
         }).catch((err: any) => {
             tmc.cli('¤error¤Error while fetching rankings: ' + err);
