@@ -54,6 +54,7 @@ export default class VotesPlugin extends Plugin {
         tmc.addCommand('//vote', this.cmdVotes.bind(this), 'Start custom vote');
         tmc.addCommand('//pass', this.cmdPassVote.bind(this), 'Pass vote');
         tmc.addCommand('/skip', this.cmdSkip.bind(this), 'Start vote to Skip map');
+        tmc.addCommand('/res', this.cmdRes.bind(this), 'Start vote to Restart map');
         tmc.addCommand('/extend', this.cmdExtend.bind(this), 'Start vote to Extend map');
         tmc.addCommand('//extend', this.cmdAdmExtend.bind(this), 'Extend timelimit');
         tmc.addCommand('/yes', this.cmdYes.bind(this), 'Vote yes');
@@ -90,16 +91,6 @@ export default class VotesPlugin extends Plugin {
         this.newLimit = tmc.storage['minicontrol.taTimeLimit'] || this.origTimeLimit || 300;
 
         const menu = Menu.getInstance();
-        menu.addItem({
-            category: 'Votes',
-            title: 'Cast Yes',
-            action: '/yes'
-        });
-        menu.addItem({
-            category: 'Votes',
-            title: 'Cast No',
-            action: '/no'
-        });
 
         menu.addItem({
             category: 'Votes',
@@ -115,14 +106,20 @@ export default class VotesPlugin extends Plugin {
 
         menu.addItem({
             category: 'Votes',
-            title: '> Pass vote',
+            title: 'Restart',
+            action: '/res'
+        });
+
+        menu.addItem({
+            category: 'Votes',
+            title: 'Pass vote',
             action: '//pass',
             admin: true
         });
 
         menu.addItem({
             category: 'Votes',
-            title: '> Cancel vote',
+            title: 'Cancel vote',
             action: '//cancel',
             admin: true
         });
@@ -181,6 +178,10 @@ export default class VotesPlugin extends Plugin {
         await this.startVote(login, 'Skip', '¤info¤Skip map?');
     }
 
+    async cmdRes(login: string, _args: string[]) {
+        await this.startVote(login, 'Restart', '¤info¤Restart map?');
+    }
+
     async cmdExtend(login: string, args: string[]) {
         let minutes = Number.parseInt(args[0]) || 5;
         if (minutes < 1) minutes = 1;
@@ -192,7 +193,7 @@ export default class VotesPlugin extends Plugin {
 
     async startVote(login: string, type: string, question: string, value: number = -1) {
         if (!tmc.admins.includes(login)) {
-            const allowedVotes = ['Skip', 'Extend'];
+            const allowedVotes = ['Skip', 'Extend','Restart'];
             if (!allowedVotes.includes(type)) {
                 tmc.chat('You are not allowed to start this type of vote.', login);
                 return;
@@ -316,6 +317,10 @@ export default class VotesPlugin extends Plugin {
     onVotePass(data: VoteStruct) {
         if (data.vote.type === 'Skip') {
             tmc.server.send('NextMap');
+            return;
+        }
+        if (data.vote.type === 'Restart') {
+            tmc.server.send('RestartMap');
             return;
         }
         if (data.vote.type === 'Extend') {

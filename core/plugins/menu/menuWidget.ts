@@ -25,7 +25,9 @@ export default class MenuWidget extends Widget {
     }
 
     async display() {
-        this.data['items'] = Menu.getInstance().getItemsByCategory(this.data['activeCategory'], this.recipient) || [];
+        let items = Menu.getInstance().getItemsByCategory(this.data['activeCategory'], this.recipient) || [];
+
+        this.data['items'] = items;
         for (const action in this.actions) {
             if (action.startsWith('item_')) {
                 tmc.ui.removeAction(this.actions[action]);

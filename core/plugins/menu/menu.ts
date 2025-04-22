@@ -37,7 +37,11 @@ export default class Menu {
             if ((i.admin && tmc.admins.includes(login)) || !i.admin) {
                 return i.category === category;
             }
-        }).sort((a, b) => a.title.localeCompare(b.title));
+        }).sort((a, b) => a.title.localeCompare(b.title)).sort((a, b) => {
+            if (a.admin && !b.admin) return 1;
+            if (!a.admin && b.admin) return -1;
+            return 0;
+        });
     }
 
     public getItems() {
