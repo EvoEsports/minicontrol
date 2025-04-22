@@ -18,6 +18,7 @@ export default class Announces extends Plugin {
         tmc.settings.register('announce.records', true, null,  "Announces: Server records");
         tmc.settings.register('announce.dedimania', true, null, "Announces: Dedimania records");
         tmc.settings.register('announce.map', true, null, "Announces: Map info on map start");
+        tmc.settings.registerColor('dedirec', '0a0', null, "Dedimania record color");
     }
 
     async onStart() {
@@ -61,16 +62,16 @@ export default class Announces extends Plugin {
 
         let extrainfo = '';
         if (oldRecord && oldRecord.Rank) {
-            extrainfo = `(¤gray¤$n${formatTime(newRecord.Best - oldRecord.Best).replace('0:', '')}$m¤rec¤)`;
+            extrainfo = `(¤gray¤$n${formatTime(newRecord.Best - oldRecord.Best).replace('0:', '')}$m¤dedirec¤)`;
         }
         let recipient = undefined;
 
         if (oldRecord && oldRecord.Best == newRecord.Best) {
-            tmc.chat(`¤white¤${newRecord.NickName}¤rec¤ equalled their ¤white¤${newRecord.Rank}. ¤rec¤dedimania record ¤white¤${formatTime(newRecord.Best)}¤rec¤!`, recipient);
+            tmc.chat(`¤white¤${newRecord.NickName}¤dedirec¤ equalled their ¤white¤${newRecord.Rank}. ¤dedirec¤dedimania record ¤white¤${formatTime(newRecord.Best)}¤dedirec¤!`, recipient);
             return;
         }
 
-        tmc.chat(`¤white¤${newRecord.NickName}¤rec¤ improved ¤white¤${newRecord.Rank}. ¤rec¤dedimania record ¤white¤${formatTime(newRecord.Best)}¤rec¤ ${extrainfo}!`, recipient);
+        tmc.chat(`¤white¤${newRecord.NickName}¤dedirec¤ improved ¤white¤${newRecord.Rank}. ¤dedirec¤dedimania record ¤white¤${formatTime(newRecord.Best)}¤dedirec¤ ${extrainfo}!`, recipient);
     }
 
     async onNewRecord(data: any) {
