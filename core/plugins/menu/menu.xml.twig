@@ -26,12 +26,12 @@
                                 {% if item.admin %}
                                     <quad pos="0 0" z-index="2" size="0.5 3.5" halign="left" valign="center" bgcolor="d00"/>
                                 {% endif %}
-                                <label pos="1 0" z-index="3" size="35 3.5" halign="left" valign="center2" text="{{item.title}}" textcolor="fff" textsize="1" textfont="GameFontSemiBold"/>
+                                <label pos="1 0" z-index="1" size="35 3.5" halign="left" valign="center2" text="{{item.title}}" textcolor="fff" textsize="1" textfont="GameFontSemiBold" />
                                 <label pos="0 0" z-index="0" size="35 3.5" text=" " halign="left" valign="center2" focusareacolor1="0009" focusareacolor2="{{colors.highlight}}" action="{{ actions['item_' ~ item.title] }}" />
                             </frame>
                     {% endfor %}
             </frame>
         </frame>
-        <quad pos="-10 2" z-index="-3" size="57 50" bgcolor="{{colors.widget_bg}}7"  halign="left" valign="top" />
+        <quad pos="-10 2" z-index="-2" size="57 50" bgcolor="{{colors.widget_bg}}7"  halign="left" valign="top" />
    </frame>
 {% endblock %}
