@@ -402,8 +402,7 @@ export default class CommandManager {
                     let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s"]+/gi) || []).map((word) =>
                         word.replace(/^"(.+(?="$))"$/, '$1').replaceAll('\\', '')
                     );
-                    // don't wait for the command to finish
-                    command.callback(login, params);
+                    await command.callback(login, params);
                     return;
                 }
             }

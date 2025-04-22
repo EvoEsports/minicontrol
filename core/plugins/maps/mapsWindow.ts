@@ -58,7 +58,7 @@ export default class MapsWindow extends ListWindow {
 
     async onAction(login: string, action: string, item: any) {
         if (action == 'Queue') {
-            await tmc.chatCmd.execute(login, '/addqueue ' + item.UId);
+            tmc.chatCmd.execute(login, '/addqueue ' + item.UId);
         }
     }
 }

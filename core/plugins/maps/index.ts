@@ -65,8 +65,7 @@ export default class Maps extends Plugin {
         window.sortColumn = 'Name';
         window.title = 'Maps [' + tmc.maps.getMapCount() + ']';
         window.setActions(['Queue']);
-
-        await window.display();
+        window.display();
     }
 
     /**
@@ -86,6 +85,6 @@ export default class Maps extends Plugin {
         ]);
         window.title = 'Maps [' + tmc.maps.getMapCount() + ']';
         window.setActions(['Remove']);
-        await window.display();
+        window.display();
     }
 }
