@@ -33,17 +33,19 @@ export default class CommandManager {
                     if (this.commands[command]?.admin) continue;
                     outCommands.push({
                         command: htmlEntities(this.commands[command].trigger),
-                        help: htmlEntities(this.commands[command].help)
+                        help: htmlEntities(this.commands[command].help),
+                        rawCommand: this.commands[command].trigger
                     });
                 }
-                const window = new ListWindow(login);
+                const window = new HelpWindow(login);
                 window.size = { width: 160, height: 95 };
                 window.title = 'Commands';
                 window.setItems(outCommands.sort((a: any, b: any) => a.command.localeCompare(b.command)));
                 window.setColumns([
                     { key: 'command', title: 'Command', width: 50 },
-                    { key: 'help', title: 'Help', width: 100 }
+                    { key: 'help', title: 'Help', width: 90 }
                 ]);
+                window.setActions(['Invoke']);
                 await window.display();
             },
             'Display help for command'
@@ -433,6 +435,15 @@ class PluginManagerWindow extends ListWindow {
             }
             await tmc.chatCmd.execute(login, '//plugins');
             return;
+        }
+    }
+}
+
+class HelpWindow extends ListWindow {
+
+    async onAction(login: string, action: string, item: any) {
+        if (action == "Invoke") {
+            await tmc.chatCmd.execute(login, item.rawCommand);
         }
     }
 }
