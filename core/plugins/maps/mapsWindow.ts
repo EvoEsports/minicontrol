@@ -2,6 +2,7 @@ import type { Map } from '@core/mapmanager';
 import ListWindow from '@core/ui/listwindow';
 import { formatTime, htmlEntities, clone, removeColors } from '@core/utils';
 import { QueryTypes, type Sequelize } from 'sequelize';
+import Tmx from '../tmx';
 
 export default class MapsWindow extends ListWindow {
     params: string[] = [];
@@ -29,12 +30,22 @@ export default class MapsWindow extends ListWindow {
                 if (karma == 0) {
                     outKarma = '$fff0%';
                 } else if (karma > 0) {
-                    outKarma = '$0f0' + karma + '%'
+                    outKarma = '$0f0' + karma + '%';
                 } else if (karma < 0) {
                     outKarma = '$f00' + karma + '%';
                 }
-                if (karma == -1000.00) {
+                if (karma == -1000.0) {
                     outKarma = '-';
+                }
+
+                let rank =
+                    rankings.find((val) => {
+                        return map.UId == val.Uid;
+                    })?.playerRank || -1;
+                const max = tmc.settings.get('records.maxRecords') || 100;
+                let myRank = rank > max ? '-' : rank;
+                if (myRank == -1) {
+                    myRank = '-';
                 }
 
                 maps.push(
@@ -44,11 +55,9 @@ export default class MapsWindow extends ListWindow {
                         AuthorName: htmlEntities(map.AuthorNickname || map.Author || ''),
                         ATime: formatTime(map.AuthorTime || map.GoldTime),
                         Vehicle: map.Vehicle ? htmlEntities(map.Vehicle) : '',
-                        Rank:
-                            rankings.find((val) => {
-                                return map.UId == val.Uid;
-                            })?.playerRank || '-',
-                        Karma: outKarma
+                        Rank: myRank,
+                        Karma: outKarma,
+                        Date: map.CreatedAt || '',
                     })
                 );
             }
@@ -59,6 +68,9 @@ export default class MapsWindow extends ListWindow {
     async onAction(login: string, action: string, item: any) {
         if (action == 'Queue') {
             tmc.chatCmd.execute(login, '/addqueue ' + item.UId);
+        }
+        if (action == 'Records') {
+            tmc.chatCmd.execute(login, '/records ' + item.UId);
         }
     }
 }

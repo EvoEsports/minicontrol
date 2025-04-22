@@ -9,6 +9,7 @@ import { removeColors } from '@core/utils';
 import { GBX, CGameCtnChallenge } from 'gbx';
 import { existsSync, promises as fsPromises } from 'fs';
 import path from 'path';
+import { Op } from 'sequelize';
 
 const strToCar: any = {
     Stadium: 'StadiumCar',
@@ -190,16 +191,28 @@ export default class GenericDb extends Plugin {
             }
         }
 
-        result = await Map.findAll();
+        result = await Map.findAll({
+            where: {
+                uuid: {
+                    [Op.in]: serverUids
+                }
+            }
+        });
         tmc.cli('¤white¤Importing vehicle data from maps, if missing');
         tmc.cli('¤white¤This can take a while...');
         for (const map of result) {
             const mapInfo = tmc.maps.getMap(map.uuid ?? '');
+            if (!mapInfo) continue;
+            mapInfo.CreatedAt = new Date(map.createdAt).toISOString().split('T')[0];
             if (!map.playerModel) {
-                if (mapInfo && !mapInfo.Vehicle) {
+                if (!mapInfo.Vehicle) {
                     const fileName = path.resolve(tmc.mapsPath, mapInfo.FileName);
                     if (existsSync(fileName)) {
                         const stream = await fsPromises.readFile(fileName);
+                        if (!stream) {
+                            tmc.debug(`¤error¤Failed to read file "¤white¤${fileName}¤error¤"`);
+                            continue;
+                        }
                         const gbx = new GBX<CGameCtnChallenge>(stream, 0);
                         gbx
                             .parse()

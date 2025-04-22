@@ -60,11 +60,23 @@ export default class Maps extends Plugin {
             { key: 'ATime', title: 'Author Time', width: 20 },
             { key: 'Environnement', title: 'Environment', width: 15 },
             { key: 'Rank', title: 'My Rank', width: 10 },
-            { key: 'Karma', title: 'Karma', width: 10 }
+            { key: 'Karma', title: 'Karma', width: 10 },
+            { key: 'Date', title: 'Date Added', width: 20 }
         ]);
         window.sortColumn = 'Name';
         window.title = 'Maps [' + tmc.maps.getMapCount() + ']';
-        window.setActions(['Queue']);
+        let actions: string[] = [];
+        const plugins = Object.keys(tmc.plugins);
+
+        if (plugins.includes('jukebox')) {
+            actions.push('Queue');
+        }
+
+        if (plugins.includes('records')) {
+            actions.push('Records');
+        }
+
+        window.setActions(actions);
         window.display();
     }
 

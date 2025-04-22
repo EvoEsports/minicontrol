@@ -43,7 +43,7 @@ export default class Players extends Plugin {
         const sequelize: Sequelize = tmc.storage['db'];
         const mapUids = tmc.maps.getUids();
         const mapCount = mapUids.length;
-        const maxRank = parseInt(process.env.MAX_RECORDS || '100');
+        const maxRank = tmc.settings.get('records.maxRecords') || 100;
         const rankedRecordCount = 3;
         console.time('rankings');
         tmc.cli('¤info¤Fetching rankings for ' + mapCount + ' maps');

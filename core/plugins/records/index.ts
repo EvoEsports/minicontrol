@@ -19,11 +19,6 @@ export default class Records extends Plugin {
         tmc.server.addListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint, this);
         tmc.chatCmd.addCommand('/records', this.cmdRecords.bind(this), 'Display Records');
         tmc.settings.register('records.maxRecords', 100, this.settingMaxRecords.bind(this), 'LocalRecords: Maximum number of records');
-        Menu.getInstance().addItem({
-            category: 'Records',
-            title: 'Local Records',
-            action: '/records'
-        });
     }
 
     async onUnload() {
@@ -34,15 +29,11 @@ export default class Records extends Plugin {
     }
 
     async onStart() {
-        const menu = tmc.storage['menu'];
-        if (menu) {
-            menu.addItem({
-                category: 'Records',
-                title: 'Show: Server Records',
-                action: '/records'
-            });
-        }
-        if (!tmc.maps.currentMap?.UId) return;
+        Menu.getInstance().addItem({
+            category: 'Records',
+            title: 'Local Records',
+            action: '/records'
+        });
         this.currentMapUid = tmc.maps.currentMap.UId;
         await this.syncRecords(tmc.maps.currentMap.UId);
     }
@@ -57,19 +48,27 @@ export default class Records extends Plugin {
         await this.syncRecords(this.currentMapUid);
     }
 
-    async cmdRecords(login: string, _args: string[]) {
+    async cmdRecords(login: string, args: string[]) {
         let records: any = [];
-        for (const record of this.records) {
+        let mapUuid = this.currentMapUid;
+
+        if (args.length > 0) {
+            mapUuid = args[0].trim() || this.currentMapUid;
+        }
+
+        for (const record of await this.getRecords(mapUuid)) {
             records.push({
                 rank: record.rank,
                 nickname: htmlEntities(record?.player?.customNick ?? record?.player?.nickname ?? ''),
                 login: record.login,
-                time: formatTime(record.time ?? 0)
+                time: formatTime(record.time ?? 0),
+                mapUuid: mapUuid,
             });
         }
+        const map = tmc.maps.getMap(mapUuid) ?? tmc.maps.currentMap;
         const window = new RecordsWindow(login, this);
         window.size = { width: 100, height: 100 };
-        window.title = `Server Records [${this.records.length}]`;
+        window.title = `Server Records for ${htmlEntities(map.Name)}$z$s [${this.records.length}]`;
         window.setItems(records);
         window.setColumns([
             { key: 'rank', title: 'Rank', width: 10 },
@@ -86,27 +85,37 @@ export default class Records extends Plugin {
         await window.display();
     }
 
-    async syncRecords(mapUuid: string) {
-        const scores = await Score.findAll({
-            where: {
-                mapUuid: mapUuid
-            },
-            order: [
-                ['time', 'ASC'],
-                ['updatedAt', 'ASC']
-            ],
-            limit: tmc.settings.get('records.maxRecords'),
-            include: [Player]
-        });
+    async getRecords(mapUuid: string) {
+        let scores: Score[] = [];
+        try {
+            scores = await Score.findAll({
+                where: {
+                    mapUuid: mapUuid
+                },
+                order: [
+                    ['time', 'ASC'],
+                    ['updatedAt', 'ASC']
+                ],
+                limit: tmc.settings.get('records.maxRecords'),
+                include: [Player]
+            });
+        } catch (err: any) {
+            tmc.cli('Error fetching records: ' + err.message);
+            return [];
+        }
 
-        this.records = [];
+        let records: Score[] = [];
         let rank = 1;
         for (const score of scores) {
             score.rank = rank;
-            this.records.push(score);
+            records.push(score);
             rank += 1;
         }
+        return records;
+    }
 
+    async syncRecords(mapUuid: string) {
+        this.records = await this.getRecords(mapUuid);
         tmc.server.emit('Plugin.Records.onSync', {
             mapUid: mapUuid,
             records: clone(this.records)
@@ -115,6 +124,15 @@ export default class Records extends Plugin {
 
     async deleteRecord(login: string, data: any) {
         if (!tmc.admins.includes(login)) return;
+        if (!data) {
+            tmc.chat('¤error¤No data provided', login);
+            return;
+        }
+        if (!data.mapUuid) {
+            tmc.chat('¤error¤No mapUuid provided', login);
+            return;
+        }
+
         const msg = `¤info¤Deleting map record for ¤white¤${data.nickname} ¤info¤(¤white¤${data.login}¤info¤)`;
         tmc.cli(msg);
         tmc.chat(msg, login);
@@ -123,7 +141,7 @@ export default class Records extends Plugin {
                 where: {
                     [Op.and]: {
                         login: data.login,
-                        mapUuid: this.currentMapUid
+                        mapUuid: data.mapUuid
                     }
                 }
             });

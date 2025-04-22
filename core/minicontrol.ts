@@ -490,17 +490,27 @@ class MiniControl {
         await this.chatCmd.afterInit();
         await this.ui.afterInit();
         await this.maps.afterInit();
+        this.startComplete = true;
+        if (gc) gc();
+        setMemStart();
         const msg = `¤info¤Welcome to ${this.brand} ¤info¤version ¤white¤${this.version}¤info¤!`;
         this.chat(msg);
         this.cli(msg);
-        this.startComplete = true;
-        setMemStart();
-        if (gc) gc();
         for (const plugin of Object.values(this.plugins)) {
-            await plugin?.onStart();
+            try {
+                plugin?.onStart();
+            } catch (err: any) {
+                this.cli(`¤error¤Error while starting plugin ¤cmd¤${plugin.constructor.name}`);
+                /*
+                sentry.captureException(err, {
+                    tags: {
+                        section: 'initPlugin'
+                    }
+                }); */
+                console.log(err);
+            }
         }
         console.timeEnd('Startup');
-        tmc.cli('¤success¤MiniControl started successfully.');
     }
 }
 

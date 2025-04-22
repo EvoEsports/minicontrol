@@ -1,12 +1,12 @@
-import ListWindow from "@core/ui/listwindow";
-import Confirm from "@core/ui/confirm";
-import Score from "@core/schemas/scores.model";
-import Player from "@core/schemas/players.model";
+import ListWindow from '@core/ui/listwindow';
+import Confirm from '@core/ui/confirm';
+import Score from '@core/schemas/scores.model';
+import Player from '@core/schemas/players.model';
 import { formatTime, htmlEntities } from '@core/utils';
-import { Op } from "sequelize";
-import WorldRecords from "@core/plugins/tm2020/worldrecords";
-import Records from "@core/plugins/records";
-import liverankings from "@core/plugins/liverankings";
+import { Op } from 'sequelize';
+import WorldRecords from '@core/plugins/tm2020/worldrecords';
+import Records from '@core/plugins/records';
+import liverankings from '@core/plugins/liverankings';
 
 interface Column {
     title: string;
@@ -25,23 +25,20 @@ export default class RecordsWindow extends ListWindow {
     }
 
     async onAction(login: string, action: string, item: any): Promise<void> {
-        if (action === "Delete") {
-            if (this.title.includes("Live Records")) {
+        if (action === 'Delete') {
+            if (this.title.includes('Live Records')) {
+                const confirm = new Confirm(login, `Delete record from ${item.nickname} $z$s(no undo)`, this.applyCommand.bind(this), [login, item]);
+                await confirm.display();
+            } else if (this.title.includes('Server Records')) {
                 const confirm = new Confirm(login, `Delete record from ${item.nickname} $z$s(no undo)`, this.applyCommand.bind(this), [login, item]);
                 await confirm.display();
             }
-            else if (this.title.includes("Server Records")) {
-                const confirm = new Confirm(login, `Delete record from ${item.nickname} $z$s(no undo)`, this.applyCommand.bind(this), [login, item]);
-                await confirm.display();
-            }
-        }
-        else if (action === "View") {
+        } else if (action === 'View') {
             let recordDetails;
-            if (this.title.includes("Live Records")) {
-                recordDetails = await this.getRecordDetails(item.login);
-            }
-            else if (this.title.includes("Server Records")) {
-                recordDetails = await this.getRecordDetails(item.login);
+            if (this.title.includes('Live Records')) {
+                recordDetails = await this.getRecordDetails(item.login, item.mapUuid);
+            } else if (this.title.includes('Server Records')) {
+                recordDetails = await this.getRecordDetails(item.login, item.mapUuid);
             }
 
             if (recordDetails) {
@@ -55,20 +52,22 @@ export default class RecordsWindow extends ListWindow {
         await this.app.deleteRecord(login, item);
     }
 
-    async getRecordDetails(login: string) {
-        if (this.title.includes('Server Records'))
-        {
+    async getRecordDetails(login: string, mapUuid: string) {
+        if (this.title.includes('Server Records')) {
             try {
                 const record = await Score.findOne({
-                    where: { login: login, mapUuid: (this.app as Records).currentMapUid },
-                    order: [['time', 'ASC'], ['updatedAt', 'ASC']], // just in case there are multiple entries for the same player on that map for whatever reason
-                    include: [Player],
+                    where: { login: login, mapUuid: mapUuid },
+                    order: [
+                        ['time', 'ASC'],
+                        ['updatedAt', 'ASC']
+                    ], // just in case there are multiple entries for the same player on that map for whatever reason
+                    include: [Player]
                 });
 
                 if (record) {
                     const betterRecordsCount = await Score.count({
                         where: {
-                            mapUuid: (this.app as Records).currentMapUid,
+                            mapUuid: mapUuid,
                             [Op.or]: [
                                 {
                                     time: { [Op.lt]: record.time }
@@ -87,20 +86,16 @@ export default class RecordsWindow extends ListWindow {
                         time: record.time,
                         checkpoints: record.checkpoints
                     };
-                }
-
-                else {
+                } else {
                     return null;
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 console.error(`Error fetching server record details for ${login}:`, error);
                 return null;
             }
-        }
-        else if (this.title.includes("Live Records")) {
+        } else if (this.title.includes('Live Records')) {
             try {
-                const liveRecord = (this.app as liverankings).liverankings.find(record => record.login === login);
+                const liveRecord = (this.app as liverankings).liverankings.find((record) => record.login === login);
 
                 if (!liveRecord) {
                     return null;
@@ -112,13 +107,11 @@ export default class RecordsWindow extends ListWindow {
                     time: liveRecord.time,
                     checkpoints: liveRecord.checkpoints
                 };
-            }
-            catch (error) {
+            } catch (error) {
                 console.error(`Error fetching live record details for ${login}:`, error);
                 return null;
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -139,21 +132,21 @@ class DetailsWindow extends ListWindow {
             return;
         }
 
-        const items: { key: string, value: string }[] = [
-            { key: "Rank", value: `${this.record.rank}` },
-            { key: "Nickname", value: htmlEntities(this.record.nickname) },
-            { key: "Time", value: formatTime(this.record.time).replace("0:", "") },
+        const items: { key: string; value: string }[] = [
+            { key: 'Rank', value: `${this.record.rank}` },
+            { key: 'Nickname', value: htmlEntities(this.record.nickname) },
+            { key: 'Time', value: formatTime(this.record.time).replace('0:', '') }
         ];
 
         if (this.record.checkpoints) {
             if (typeof this.record.checkpoints === 'string') {
-                items.push({ key: "", value: "" });
+                items.push({ key: '', value: '' });
                 const laps = this.record.checkpoints.split(';');
                 let lastLapTotalTime = 0;
 
                 laps.forEach((lap: string, lapIndex: number) => {
                     const lapCheckpoints = lap.split(',');
-                    items.push({ key: `Lap ${lapIndex + 1}`, value: "" });
+                    items.push({ key: `Lap ${lapIndex + 1}`, value: '' });
 
                     lapCheckpoints.forEach((cpTimeStr: string, index: number) => {
                         const cpTime = parseInt(cpTimeStr);
@@ -162,13 +155,12 @@ class DetailsWindow extends ListWindow {
                             const lapTime = cpTime - lastLapTotalTime;
                             lastLapTotalTime = cpTime;
 
-                            const checkpointKey = index === lapCheckpoints.length - 1 ? "Finish" : `Checkpoint ${index + 1}`;
+                            const checkpointKey = index === lapCheckpoints.length - 1 ? 'Finish' : `Checkpoint ${index + 1}`;
 
                             if (lapIndex > 0) {
-                                items.push({ key: checkpointKey, value: `${formatTime(lapTime).replace("0:", "")} (${formatTime(cpTime).replace("0:", "")})` });
-                            }
-                            else {
-                                items.push({ key: checkpointKey, value: `${formatTime(lapTime).replace("0:", "")}` });
+                                items.push({ key: checkpointKey, value: `${formatTime(lapTime).replace('0:', '')} (${formatTime(cpTime).replace('0:', '')})` });
+                            } else {
+                                items.push({ key: checkpointKey, value: `${formatTime(lapTime).replace('0:', '')}` });
                             }
                         }
                     });
@@ -177,8 +169,8 @@ class DetailsWindow extends ListWindow {
         }
         this.setItems(items);
         this.setColumns([
-            { key: "key", title: "Stats", width: 50 },
-            { key: "value", title: "Data", width: 50 }
+            { key: 'key', title: 'Stats', width: 50 },
+            { key: 'value', title: 'Data', width: 50 }
         ]);
 
         await super.display();
