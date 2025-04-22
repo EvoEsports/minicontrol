@@ -27,6 +27,8 @@ export default class worldRecords extends Plugin {
     private cachedLeaderboard: LeaderboardEntry[] = [];
     private displayNamesCache: { [key: string]: string } = {};
     private worldRecordsUpdate: NodeJS.Timeout | null = null;
+    envIdentifier:string = '';
+    envSecret:string = '';
 
     async onLoad() {
         const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
@@ -34,6 +36,9 @@ export default class worldRecords extends Plugin {
             tmc.cli(`¤error¤Missing required environment variables: ${missingVars.join(', ')}`);
             process.exit(1);
         }
+        this.envIdentifier = process.env.IDENTIFIER || '';
+        this.envSecret = process.env.SECRET || '';
+
         tmc.server.addListener('Trackmania.BeginMap', this.onMapChanged, this);
         tmc.addCommand('/worldrecords', this.cmdRecords.bind(this), 'Display World Records');
     }
@@ -136,8 +141,8 @@ export default class worldRecords extends Plugin {
             method: 'POST',
             body: new URLSearchParams({
                 grant_type: 'client_credentials',
-                client_id: process.env.IDENTIFIER || '',
-                client_secret: process.env.SECRET || ''
+                client_id: this.envIdentifier,
+                client_secret: this.envSecret,
             }),
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'

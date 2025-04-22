@@ -4,6 +4,7 @@ import tm from 'tm-essentials';
 
 export default class TAlimitPlugin extends Plugin {
     static depends: string[] = ['game:TmForever'];
+    origTimeLimit: number = Number.parseInt(process.env.TALIMIT ?? '300');
     startTime: number = Date.now();
     timeLimit: number = 0;
     active: boolean = false;
@@ -16,7 +17,7 @@ export default class TAlimitPlugin extends Plugin {
         const gamemode = await tmc.server.call('GetGameMode'); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
         const warmup = await tmc.server.call('GetWarmUp');
         this.active = gamemode === 1 && !warmup;
-        this.timeLimit = tmc.storage['minicontrol.taTimeLimit'] ?? Number.parseInt(process.env.TALIMIT ?? '300');
+        this.timeLimit = tmc.storage['minicontrol.taTimeLimit'] ?? this.origTimeLimit;
     }
 
     async onEndRound() {
@@ -28,7 +29,7 @@ export default class TAlimitPlugin extends Plugin {
         this.widget = new Widget('core/plugins/tmnf/talimit/widget.xml.twig');
         this.widget.pos = { x: 128, y: 45, z: 1 };
         this.widget.size = { width: 38, height: 10 };
-        this.timeLimit = tmc.storage['minicontrol.taTimeLimit'] ?? Number.parseInt(process.env.TALIMIT ?? '300');
+        this.timeLimit = tmc.storage['minicontrol.taTimeLimit'] ?? this.origTimeLimit;
         this.startTime = Date.now();
         tmc.server.addListener('Trackmania.BeginRound', this.onBeginRound, this);
         tmc.server.addListener('Trackmania.EndRound', this.onEndRound, this);
@@ -48,8 +49,8 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async onStart() {
-        this.timeLimit = tmc.storage['minicontrol.taTimeLimit'] ?? Number.parseInt(process.env.TALIMIT ?? '300');
-    }
+        this.timeLimit = tmc.storage['minicontrol.taTimeLimit'] ?? this.origTimeLimit;
+     }
 
     async onUnload() {
         if (this.intervalId) {

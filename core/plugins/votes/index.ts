@@ -206,6 +206,8 @@ export default class VotesPlugin extends Plugin {
         }
         this.currentVote = new Vote(login, type, question, Date.now() + this.timeout * 1000, value);
         this.currentVote.voteRatio = this.ratio;
+        this.newLimit += 35;
+        tmc.server.send('SetTimeAttackLimit', this.newLimit * 1000);
         await this.vote(login, true);
         this.widget = new Widget('core/plugins/votes/widget.xml.twig');
         this.widget.pos = { x: 0, y: 60, z: 10 };

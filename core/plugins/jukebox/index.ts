@@ -25,6 +25,8 @@ export default class Jukebox extends Plugin {
         tmc.addCommand('//cjb', this.cmdClearQueue.bind(this), 'clear queue');
         tmc.addCommand('//requeue', this.cmdRequeue.bind(this), 'Add current map to the front of the queue');
         tmc.addCommand('//prev', this.cmdPrev.bind(this), 'Skip to previous map');
+        tmc.settings.register('jukebox.enabled', true, null, 'Jukebox: Enable/Disable jukebox');
+
         if (tmc.game.Name === 'TmForever') {
             tmc.server.addListener('Trackmania.EndMap', this.onEndRace, this);
         } else {
@@ -69,7 +71,7 @@ export default class Jukebox extends Plugin {
 
     async cmdQueue(login: any, params: string[]) {
         let map: any = null;
-        if (process.env.DISABLE_MAP_QUEUE == 'true') {
+        if (!tmc.settings.get('jukebox.enabled')) {
             tmc.chat('¤info¤Map queue is disabled', login);
             return;
         }

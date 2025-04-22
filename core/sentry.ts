@@ -1,9 +1,10 @@
 const Sentry = require('@sentry/node');
 const errorReporting:boolean = (process.env['ERROR_REPORTING'] || 'true') == 'true';
+let init = false;
 
-if (!process.env['SENTRY_INIT']) {
+if (!init) {
     if (errorReporting) {
-        process.env['SENTRY_INIT'] = 'true';
+        init = true;
         Sentry.init({
             release: 'minicontrol@' + process.env.npm_package_version,
             dsn: 'https://72d7e2f2ba0eeae97f77b368b70d981a@o4507555499409408.ingest.de.sentry.io/4507555551445072',

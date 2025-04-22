@@ -7,15 +7,16 @@ import { parseEntries } from '@core/utils';
 export default class OpenPlanet extends Plugin {
     static depends:string[] = ["game:Trackmania"];
     action: string = "";
+    envForceMode:string|undefined = process.env['FORCE_OP_MODE'];
 
     async onLoad() {
-        if (process.env['FORCE_OP_MODE']) {
+        if (this.envForceMode) {
             tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
         }
     }
 
     async onStart() {
-        if (process.env['FORCE_OP_MODE']) {
+        if (this.envForceMode) {
             let widgets: Manialink[] = [];
             for (let player of tmc.players.getAll()) {
                 widgets.push(this.getManialink(player.login));
@@ -37,7 +38,7 @@ export default class OpenPlanet extends Plugin {
         let widget = new Manialink();
         widget.recipient = login;
         // widget.data['replyAction'] = this.action;
-        widget.data['signature'] = process.env['FORCE_OP_MODE'];
+        widget.data['signature'] = this.envForceMode;
         widget.template = "core/plugins/tm2020/openplanet/opdetect.xml.twig";
         return widget;
     }

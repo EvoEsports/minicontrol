@@ -27,6 +27,7 @@ export default class Dedimania extends Plugin {
     serverInfo: any = {};
     records: DediRecord[] = [];
     intervalId: NodeJS.Timeout | null = null;
+    pass:string = process.env.DEDIMANIA_PASS || '';
 
     async onLoad() {
         tmc.cli('¤info¤Dedimania: TmForever detected, enabling plugin.');
@@ -37,8 +38,8 @@ export default class Dedimania extends Plugin {
 
         this.serverInfo = await tmc.server.call('GetMainServerPlayerInfo');
         this.serverLogin = this.serverInfo.Login;
-        const pass = process.env.DEDIMANIA_PASS || '';
-        if (pass == '') {
+
+        if (this.pass == '') {
             this.enabled = false;
             tmc.cli('¤error¤Dedimania: No password set, plugin disabled.');
             return;
@@ -155,17 +156,15 @@ export default class Dedimania extends Plugin {
      */
     async authenticate(): Promise<boolean> {
         this.server = await tmc.server.call('GetDetailedPlayerInfo', this.serverInfo.Login);
-        const packmask = await tmc.server.call('GetServerPackMask');
-        const pass = process.env.DEDIMANIA_PASS || '';
         try {
             const res: any = await this.api.call('dedimania.Authenticate', {
                 Game: 'TMF',
                 Login: this.serverLogin,
-                Password: pass.toString(),
+                Password: this.pass.toString(),
                 Tool: 'MINIcontrol',
                 Version: tmc.version,
                 Nation: this.server.Path,
-                Packmask: packmask,
+                Packmask:  tmc.server.packmask,
                 PlayersGame: true
             });
             const res2 = await this.api.call('dedimania.ValidateAccount');
@@ -297,7 +296,8 @@ export default class Dedimania extends Plugin {
         if (!map) return;
         // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
         const serverGameMode = await tmc.server.call('GetGameMode');
-        const serverInfo = await tmc.server.call('GetServerOptions', 0);
+        const serverInfo = tmc.server.serverOptions;
+
         try {
             const res: any = await this.api.call(
                 'dedimania.CurrentChallenge',
