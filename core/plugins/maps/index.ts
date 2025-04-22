@@ -10,12 +10,12 @@ export default class Maps extends Plugin {
 
         Menu.getInstance().addItem({
             category: 'Map',
-            title: 'Show Maplist',
+            title: 'Map List',
             action: '/list'
         });
 
         Menu.getInstance().addItem({
-            category: 'Server',
+            category: 'Map',
             title: 'Manage Maps',
             action: '//list',
             admin: true

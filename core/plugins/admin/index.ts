@@ -621,20 +621,34 @@ export default class AdminPlugin extends Plugin {
             });
             menu.addItem({
                 category: 'Map',
-                title: 'Shuffle Maplist',
+                title: 'Shuffle Map List',
                 action: '//shuffle',
                 admin: true
             });
             menu.addItem({
                 category: 'Map',
-                title: 'Write Maplist',
+                title: 'Write Map List',
                 action: '//wml',
                 admin: true
             });
 
             menu.addItem({
+                category: 'Map',
+                title: 'Goto Next Map',
+                action: '//skip',
+                admin: true
+            });
+
+            menu.addItem({
+                category: 'Map',
+                title: 'Restart Map',
+                action: '//res',
+                admin: true
+            });
+
+            menu.addItem({
                 category: 'Server',
-                title: 'Settings',
+                title: 'Minicontrol Settings',
                 action: '//settings',
                 admin: true
             });
@@ -649,11 +663,39 @@ export default class AdminPlugin extends Plugin {
             if (tmc.game.Name == 'Trackmania') {
                 menu.addItem({
                     category: 'Server',
-                    title: 'ModeSettings',
+                    title: 'Mode Settings',
                     action: '//modesettings',
                     admin: true
                 });
             }
+
+            menu.addItem({
+                category: 'Players',
+                title: 'Guest list',
+                action: '//guestlist list',
+                admin: true
+            });
+
+            menu.addItem({
+                category: 'Players',
+                title: 'Mute list',
+                action: '//ignorelist list',
+                admin: true
+            });
+
+            menu.addItem({
+                category: 'Players',
+                title: 'Ban list',
+                action: '//banlist list',
+                admin: true
+            });
+
+            menu.addItem({
+                category: 'Players',
+                title: 'Black list',
+                action: '//blacklist list',
+                admin: true
+            });
 
     }
 

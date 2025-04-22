@@ -48,13 +48,13 @@ export default class Jukebox extends Plugin {
         const menu = Menu.getInstance();
         menu.addItem({
             category: 'Map',
-            title: 'Show Jukebox',
+            title: 'Jukebox',
             action: '/jb'
         });
 
         menu.addItem({
             category: 'Map',
-            title: 'Re-queue Map',
+            title: 'Replay Map again',
             action: '//requeue',
             admin: true
         });

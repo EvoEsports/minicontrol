@@ -90,6 +90,16 @@ export default class VotesPlugin extends Plugin {
         this.newLimit = tmc.storage['minicontrol.taTimeLimit'] || this.origTimeLimit || 300;
 
         const menu = Menu.getInstance();
+        menu.addItem({
+            category: 'Votes',
+            title: 'Cast Yes',
+            action: '/yes'
+        });
+        menu.addItem({
+            category: 'Votes',
+            title: 'Cast No',
+            action: '/no'
+        });
 
         menu.addItem({
             category: 'Votes',
@@ -101,6 +111,20 @@ export default class VotesPlugin extends Plugin {
             category: 'Votes',
             title: 'Extend',
             action: '/extend'
+        });
+
+        menu.addItem({
+            category: 'Votes',
+            title: '> Pass vote',
+            action: '//pass',
+            admin: true
+        });
+
+        menu.addItem({
+            category: 'Votes',
+            title: '> Cancel vote',
+            action: '//cancel',
+            admin: true
         });
     }
 

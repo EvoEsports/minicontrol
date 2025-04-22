@@ -57,8 +57,8 @@ export default class Dedimania extends Plugin {
         const menu = tmc.storage['menu'];
         if (menu) {
             menu.addItem({
-                category: 'Map',
-                title: 'Show: Dedimania',
+                category: 'Records',
+                title: 'Dedimania Records',
                 action: '/dedirecords'
             });
         }

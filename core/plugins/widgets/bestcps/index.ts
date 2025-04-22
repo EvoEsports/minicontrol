@@ -41,8 +41,8 @@ export default class BestCps extends Plugin {
     async onStart() {
         const menu = Menu.getInstance();
         menu.addItem({
-            category: 'Map',
-            title: 'Best Checkpoints',
+            category: 'Records',
+            title: 'Live Checkpoints',
             action: '/checkpoints'
         });
     }
