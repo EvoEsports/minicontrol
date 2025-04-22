@@ -70,7 +70,7 @@ export default class DebugTool extends Plugin {
         const mem = memInfo();
         let start = Date.now() - Number.parseInt(tmc.startTime);
         tmc.cli(
-            '¤info¤Memory usage: ' +
+            '¤info¤Memory usage: $fff' +
                 mem +
                 ' ¤info¤uptime: ¤white¤' +
                 tm.Time.fromMilliseconds(start)

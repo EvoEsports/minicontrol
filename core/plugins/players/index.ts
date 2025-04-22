@@ -14,8 +14,8 @@ export default class Players extends Plugin {
 
     async onStart() {
         Menu.getInstance().addItem({
-            category: 'Server',
-            title: 'Players',
+            category: 'Players',
+            title: 'Players List',
             action: '/players'
         });
     }

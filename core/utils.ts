@@ -144,7 +144,7 @@ export function memInfo(section = '') {
         prefix = '$0f0-';
     }
     section = section != '' ? `¤info¤${section} ` : '';
-    const out = section + ' Mem:' + memMB.toFixed(1) + 'Mb  Diff:' + prefix + Math.abs(memMB - startValueMem).toFixed(1) + 'Mb';
+    const out = section + ' ¤info¤Mem: $fff' + memMB.toFixed(1) + 'Mb ¤info¤Diff: ' + prefix + Math.abs(memMB - startValueMem).toFixed(1) + 'Mb';
     prevValueMem = memMB;
     return processColorString(out);
 }
