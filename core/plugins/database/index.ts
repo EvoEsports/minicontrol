@@ -106,7 +106,7 @@ export default class GenericDb extends Plugin {
             sequelize.addModels([Map, Player]);
             tmc.storage['db'] = sequelize;
             tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
-            tmc.server.addListener('Trackmania.MapListModified', this.onMapListModified, this);
+            tmc.server.addListener('TMC.MapListModified', this.onMapListModified, this);
         } catch (e: any) {
             tmc.cli('¤error¤' + e.message);
             process.exit(1);
@@ -155,7 +155,6 @@ export default class GenericDb extends Plugin {
 
     async onMapListModified(data: any) {
         if (data[2] === true) {
-            await sleep(250);
             await this.syncMaps();
         }
     }
@@ -197,31 +196,33 @@ export default class GenericDb extends Plugin {
         for (const map of result) {
             const mapInfo = tmc.maps.getMap(map.uuid ?? '');
             if (!map.playerModel) {
-                if (mapInfo) {
+                if (mapInfo && !mapInfo.Vehicle) {
                     const fileName = path.resolve(tmc.mapsPath, mapInfo.FileName);
                     if (existsSync(fileName)) {
                         const stream = await fsPromises.readFile(fileName);
                         const gbx = new GBX<CGameCtnChallenge>(stream, 0);
-                        await gbx
+                        gbx
                             .parse()
                             .then((file) => map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || '' }))
                             .catch(async (error) => {
                                 tmc.debug(`¤error¤Failed to parse "¤white¤${fileName}¤error¤" file, falling back to the map environment...`);
                                 tmc.debug(error);
-
                                 await map.update({ playerModel: mapInfo.Environnement || '' });
                             })
                             .catch((error) => {
                                 tmc.debug(`¤error¤Failed to update player model to map environment for "¤white¤${fileName}¤error¤" file, skipping...`);
                                 tmc.debug(error);
+                            }).then(
+                                () => {
+                                let car = strToCar[map.playerModel ?? ''] || strToCar[map.environment ?? ''];
+                                mapInfo.Vehicle = car || '';
                             });
                     } else {
+                        mapInfo.Vehicle = strToCar[map.environment ?? ''] || '';
                         tmc.debug(`¤error¤ "¤white¤${fileName}¤error¤" not found.`);
                     }
                 }
             }
-            let car = strToCar[map.playerModel ?? ''] || strToCar[map.environment ?? ''];
-            if (mapInfo) mapInfo.Vehicle = car || '';
         }
         tmc.cli('¤success¤Done!');
     }

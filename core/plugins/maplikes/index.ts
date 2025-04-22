@@ -1,5 +1,6 @@
 import Plugin from '@core/plugins';
 import Likes from '@core/schemas/maplikes.model';
+import { QueryTypes, type Sequelize } from 'sequelize';
 
 export interface Like {
     login: string;
@@ -38,6 +39,43 @@ export default class MapLikes extends Plugin {
         for (const vote of votes) {
             this.votes.push({ login: vote.login || '', vote: vote.vote || 0, updatedAt: vote.updatedAt || '' });
         }
+        const sequelize: Sequelize = tmc.storage['db'];
+        const uids = tmc.maps.getUids();
+        tmc.cli("¤info¤Starting karma sync for $fff" + uids.length + " ¤info¤maps");
+        console.time('karma sync');
+        sequelize
+            .query(
+                `SELECT *, (positive/(positive+abs(negative)+0.00001))*100 as total from (
+                            SELECT mapUuid as Uid, createdAt,
+                            SUM(case when vote>0 then vote else 0 end) as positive,
+                            SUM(case when vote<0 then vote else 0 end) as negative,
+                            SUM(ABS(vote)) as total FROM maplikes
+                            WHERE mapUuid in (?)
+                            GROUP BY mapUuid) as t`,
+                {
+                    type: QueryTypes.SELECT,
+                    raw: true,
+                    replacements: [uids]
+                }
+            )
+            .then((result: any) => {
+                tmc.cli('¤info¤Sync complete.');
+                console.timeEnd('karma sync');
+                for (const info of result) {
+                    const map = tmc.maps.getMap(info.Uid);
+                    if (map) {
+                        map.Karma = {
+                            positive: info.positive,
+                            negative: info.negative,
+                            total: info.total
+                        };
+                    }
+                }
+            })
+            .catch((err: any) => {
+                tmc.cli('¤error¤Error while syncing karma: ' + err.message);
+            });
+
         tmc.server.emit('Plugin.MapLikes.onSync', this.votes);
     }
 

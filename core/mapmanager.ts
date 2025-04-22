@@ -17,6 +17,11 @@ export interface Map {
     NbLaps: number;
     NbCheckpoints: number;
     Vehicle?: string;
+    Karma?: {
+        positive: number;
+        negative: number;
+        total: number;
+    };
     [key: string]: any;
 }
 
@@ -78,6 +83,7 @@ class MapManager {
         if (data[2] === true) {
             await this.syncMaplist();
         }
+        tmc.server.emit('TMC.MapListModified', data);
     }
 
     /**
@@ -97,7 +103,13 @@ class MapManager {
             const res: any = (await tmc.server.multicall(out)) || [];
 
             for (const map of res) {
-                newMaps[map.UId] = map;
+                // sync old map objects to new map
+                if (this.maps[map.UId]) {
+                    const oldmap = clone(this.maps[map.UId]);
+                    newMaps[map.UId] = Object.assign(map, oldmap);
+                } else {
+                    newMaps[map.UId] = map;
+                }
             }
         }
         this.maps = newMaps;

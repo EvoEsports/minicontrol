@@ -402,7 +402,8 @@ export default class CommandManager {
                     let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s"]+/gi) || []).map((word) =>
                         word.replace(/^"(.+(?="$))"$/, '$1').replaceAll('\\', '')
                     );
-                    await command.callback(login, params);
+                    // don't wait for the command to finish
+                    command.callback(login, params);
                     return;
                 }
             }
@@ -419,7 +420,7 @@ export default class CommandManager {
         if (data[0] == 0) return;
         const login: string = data[1];
         let text: string = data[2];
-        await this.execute(login, text);
+        this.execute(login, text);
     }
 }
 

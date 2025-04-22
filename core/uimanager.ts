@@ -212,7 +212,7 @@ export default class UiManager {
         }
         const hash = prefix + iHash.toString();
         this.actions[hash] = { callback: callback, data: data };
-        tmc.debug('¤info¤Added action: ¤white¤' + hash + ' ¤info¤total actions: ¤white¤' + Object.keys(this.actions).length.toString());
+        // tmc.debug('¤info¤Added action: ¤white¤' + hash + ' ¤info¤total actions: ¤white¤' + Object.keys(this.actions).length.toString());
         return hash;
     }
 
@@ -223,7 +223,7 @@ export default class UiManager {
     removeAction(actionId: string) {
         if (this.actions[actionId]) {
             delete this.actions[actionId];
-            tmc.debug('¤info¤deleted action: ¤white¤' + actionId + ' ¤info¤total actions: ¤white¤' + Object.keys(this.actions).length.toString());
+            // tmc.debug('¤info¤deleted action: ¤white¤' + actionId + ' ¤info¤total actions: ¤white¤' + Object.keys(this.actions).length.toString());
         } else {
             // tmc.debug("¤error¤action not found: " + actionId);
         }

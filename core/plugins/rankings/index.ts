@@ -4,6 +4,7 @@ import { QueryTypes } from 'sequelize';
 import ListWindow from '@core/ui/listwindow';
 import Player from '@core/schemas/players.model';
 import Menu from '../menu/menu';
+import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript';
 
 interface Ranking {
     rank: number;
@@ -17,9 +18,10 @@ export default class Players extends Plugin {
 
     async onLoad() {
         tmc.server.addListener('Trackmania.EndMap', this.onEndMap, this);
-        tmc.addCommand('/topranks', this.cmdRankings.bind(this), 'Show ranks');
+        tmc.addCommand('/top100', this.cmdRankings.bind(this), 'Show top ranks');
+        tmc.addCommand('/topranks', this.cmdRankings.bind(this), 'Show top ranks');
         tmc.addCommand('/rank', this.cmdMyRank.bind(this), 'Show my rank');
-        this.rankings = await this.getPlayerRanking();
+        this.onEndMap(null);
 
         Menu.getInstance().addItem({
             category: 'Records',
@@ -37,17 +39,16 @@ export default class Players extends Plugin {
         tmc.server.removeListener('Trackmania.EndMap', this.onEndMap);
     }
 
-    async onEndMap(data: any) {
-        this.rankings = await this.getPlayerRanking();
-    }
-
-    async getPlayerRanking(): Promise<Ranking[]> {
+    async onEndMap(_data: any) {
         const sequelize: Sequelize = tmc.storage['db'];
         const mapUids = tmc.maps.getUids();
         const mapCount = mapUids.length;
         const maxRank = parseInt(process.env.MAX_RECORDS || '100');
         const rankedRecordCount = 3;
-        const rankings: Ranking[] = await sequelize.query(
+        console.time('rankings');
+        tmc.cli('¤info¤Fetching rankings for ' + mapCount + ' maps');
+
+        sequelize.query(
             `SELECT row_number() OVER (order by average) as rank, login, average as avg FROM (
             SELECT
                 login,
@@ -72,8 +73,15 @@ export default class Players extends Plugin {
                 raw: true,
                 replacements: [mapCount, maxRank, mapCount, mapUids, maxRank, rankedRecordCount]
             }
-        );
-        return rankings;
+        ).then((result: any) =>
+        {
+            this.rankings = result as Ranking[];
+            tmc.cli('¤info¤Rankings fetched: ' + this.rankings.length);
+            console.timeEnd('rankings');
+        }).catch((err: any) => {
+            tmc.cli('¤error¤Error while fetching rankings: ' + err);
+            this.rankings = [];
+        });
     }
 
     async cmdMyRank(login: string, _args: string[]) {

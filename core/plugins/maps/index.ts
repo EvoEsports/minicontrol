@@ -2,6 +2,7 @@ import MapsWindow from './mapsWindow';
 import MapsWindowAdmin from './mapsWindowAdmin';
 import Plugin from '..';
 import Menu from '@core/plugins/menu/menu';
+import { QueryTypes, type Sequelize } from 'sequelize';
 
 export default class Maps extends Plugin {
     async onLoad() {
@@ -32,7 +33,24 @@ export default class Maps extends Plugin {
      * @param params
      */
     async cmdMaps(login: any, params: string[]) {
-        const window = new MapsWindow(login, params);
+        let rankings: any[] = [];
+
+        const sequelize: Sequelize = tmc.storage['db'];
+        if (sequelize) {
+            const uids = tmc.maps.getUids();
+            rankings = await sequelize.query(
+                `SELECT * FROM (
+                SELECT mapUuid as Uid, login, time, RANK() OVER (PARTITION BY mapUuid ORDER BY time ASC) AS playerRank
+                FROM scores WHERE mapUuid in (?)
+                ) AS t WHERE login = ?`,
+                {
+                    type: QueryTypes.SELECT,
+                    raw: true,
+                    replacements: [uids, login]
+                }
+            );
+        }
+        const window = new MapsWindow(login, params, rankings);
         window.pos.y = 0;
         window.size = { width: 187, height: 120 };
         window.setColumns([
@@ -41,12 +59,13 @@ export default class Maps extends Plugin {
             { key: 'AuthorName', title: 'Author', width: 30 },
             { key: 'ATime', title: 'Author Time', width: 20 },
             { key: 'Environnement', title: 'Environment', width: 15 },
-            { key: 'Vehicle', title: 'Vehicle', width: 20 },
-            { key: 'Rank', title: 'Rank', width: 10 }
+            { key: 'Rank', title: 'My Rank', width: 10 },
+            { key: 'Karma', title: 'Karma', width: 10 }
         ]);
         window.sortColumn = 'Name';
         window.title = 'Maps [' + tmc.maps.getMapCount() + ']';
         window.setActions(['Queue']);
+
         await window.display();
     }
 
