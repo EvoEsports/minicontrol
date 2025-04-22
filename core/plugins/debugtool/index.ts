@@ -19,8 +19,8 @@ export default class DebugTool extends Plugin {
                 this.displayMemInfo();
             }, 30000) as any;
         }
-        tmc.addCommand('//mem', this.cmdMeminfo.bind(this));
-        tmc.addCommand('//uptime', this.cmdUptime.bind(this));
+        tmc.addCommand('//mem', this.cmdMeminfo.bind(this), 'Show Memory usage');
+        tmc.addCommand('//uptime', this.cmdUptime.bind(this), 'Show Uptime');
         setInterval(() => {
             const currentMem = process.memoryUsage().rss / 1048576;
             const diff = currentMem - startValueMem;

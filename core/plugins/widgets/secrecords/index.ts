@@ -70,7 +70,7 @@ export default class SecRecordsWidget extends Plugin {
             </manialinks>`;
         }
 
-        tmc.server.call('SendDisplayManialinkPageToLogin', player.login, tmc.ui.convert(xml), 2000, false);
+        tmc.server.send('SendDisplayManialinkPageToLogin', player.login, tmc.ui.convert(xml), 2000, false);
     }
 
     async onPB(data: any, isNew: boolean) {

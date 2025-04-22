@@ -497,7 +497,7 @@ export default class AdminPlugin extends Plugin {
             } catch (err: any) {
                 tmc.chat(err.message, login);
             }
-        });
+        }, 'Set round points');
         tmc.addCommand(
             '//usenewrules',
             async (login: string, params: string[]) => {
