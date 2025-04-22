@@ -25,7 +25,9 @@ export default class DebugTool extends Plugin {
             const currentMem = process.memoryUsage().rss / 1048576;
             const diff = currentMem - startValueMem;
             if (diff > 350) {
-                tmc.cli('¤error¤Stopping MINIcontrol, Memory usage is too high: $fff' + currentMem.toFixed(2) + 'MB ¤error¤(' + diff.toFixed(2) + 'MB)');
+                const msg = '¤error¤Stopping MINIcontrol, Memory usage is too high: $fff' + currentMem.toFixed(2) + 'MB ¤error¤(' + diff.toFixed(2) + 'MB)'
+                tmc.cli(msg);
+                tmc.chat(msg);
                 process.exit(1);
             }
         }, 30000);
