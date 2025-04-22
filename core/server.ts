@@ -2,6 +2,7 @@ import { GbxClient } from './gbx';
 import EventEmitter from 'node:events';
 
 export interface ServerOptions {
+    LadderMode: any;
     Name: string;
     Comment: string;
     Password: string;
