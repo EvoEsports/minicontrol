@@ -29,7 +29,7 @@ export interface TmxMap extends TmMap {
 export default class Tmx extends Plugin {
     readonly SITE_NAMES = ['TMN', 'TMO', 'TMS', 'TMUF', 'TMNF'];
     readonly TM1X_TAGS = ['Normal', 'Stunt', 'Maze', 'Offroad', 'Laps', 'Fullspeed', 'LOL', 'Tech', 'Speedtech', 'RPG', 'PressForward', 'Trial', 'Grass'];
-    readonly TM1X_UNLIMITER = ['none', '0.4', '0.6', '0.7', '1.1', '1.2', '1.3', '2.0'];
+    readonly TM1X_UNLIMITER = ['none', '0.4', '0.6', '0.7', '1.1', '1.2', '1.3', '2.0', '2.1'];
     readonly TMX1X_DIFFICULTY = ['Beginner', 'Intermediate', 'Expert', 'Lunatic'];
     readonly TMX_DIFFICULTY = ['Beginner', 'Intermediate', 'Advanced', 'Expert', 'Lunatic', 'Impossible'];
     readonly BASE_URL_NATIONS = 'https://nations.tm-exchange.com/';
@@ -130,9 +130,13 @@ export default class Tmx extends Plugin {
 
         let out: any = [];
         for (let data of results) {
+            let name = data.GbxMapName || data.TrackName || data.Name || '';
+            if (name.startsWith('ï»¿')) {
+                name = Buffer.from(name.replace('ï»¿', ''), 'latin1').toString('utf-8');
+            }
             out.push({
                 id: data.TrackId || data.MapId,
-                name: data.GbxMapName || data.TrackName || data.Name || '',
+                name: name,
                 author: data.Authors[0].User.Name || 'n/a',
                 length: formatTime(data.AuthorScore || data.Length) || '',
                 tags:
