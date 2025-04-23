@@ -81,6 +81,7 @@ export default class Tmx extends Plugin {
             action: '//search',
             admin: true
         });
+        tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
         await this.onBeginMap();
     }
 
@@ -412,7 +413,7 @@ export default class Tmx extends Plugin {
         try {
             const controller = new AbortController();
             const { signal } = controller;
-            const timeoutID = setTimeout(() => controller.abort(), 1000);
+            const timeoutID = setTimeout(() => controller.abort(), 3000);
             const res = await fetch(url, { keepalive: false, signal: signal });
             clearTimeout(timeoutID);
             if (res.ok === false) return {} as TmxMapInfo;
