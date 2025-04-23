@@ -44,13 +44,16 @@ export default class Announces extends Plugin {
 
     async onPlayerConnect(player: Player) {
         if (tmc.settings.get('announce.brand')) tmc.chat(`${tmc.brand} ¤info¤version ¤white¤${tmc.version}`, player.login);
-        const msg = `¤white¤${player.nickname}¤info¤ from ¤white¤${player.path.replace('World|', '').replaceAll('|', ', ')} ¤info¤joins!`;
+        const msg = `¤info¤Player ¤white¤${player.nickname}¤info¤ from ¤white¤${player.path.replace('World|', '').replaceAll('|', ', ')} ¤info¤joins!`;
         if (tmc.settings.get('announce.playerconnect')) tmc.chat(msg);
+        if (Object.keys(tmc.plugins).includes("chat") && tmc.settings.get('chat.useEmotes') == true) {
+            tmc.chat(`$z$fff回$s Emoji chat is $0f0enabled$fff! For details: $3cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$L$`, player.login)
+        }
         tmc.cli(msg);
     }
 
     async onPlayerDisconnect(player: Player) {
-        const msg = `¤white¤${player.nickname}¤info¤ leaves!`;
+        const msg = `¤info¤Player ¤white¤${player.nickname}¤info¤ leaves!`;
         if (tmc.settings.get('announce.playerconnect')) tmc.chat(msg);
         tmc.cli(msg);
     }
@@ -101,7 +104,7 @@ export default class Announces extends Plugin {
             return;
         }
 
-        tmc.chat(`¤white¤${nick}¤rec¤ gained ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤ ${extrainfo}!`, recipient);
+        tmc.chat(`¤white¤${nick}¤rec¤ improved ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤ ${extrainfo}!`, recipient);
     }
 
     async onSyncRecord(data: any) {

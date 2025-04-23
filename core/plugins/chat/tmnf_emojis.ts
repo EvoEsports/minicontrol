@@ -45,7 +45,7 @@ export const emotesMap = [
     { emote: 'waiting', glyph: '交' },
     { emote: 'Life', glyph: '换' },
     { emote: 'clap', glyph: '系' },
-    { emote: 'esimo', glyph: '统' },
+    { emote: 'e', glyph: '统' },
     { emote: 'minionlmao', glyph: '网游' },
     { emote: 'cathuh', glyph: '对' },
     { emote: 'wajaja', glyph: '建' },

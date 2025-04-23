@@ -21,7 +21,7 @@ export default class Chat extends Plugin {
                 tmc.chatCmd.addCommand(
                     '/emotes',
                     async (login: string) => {
-                        tmc.chat('$fffTo apply emotes for tmnf, $0cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$l$z$s$fff for instructions!', login);
+                        tmc.chat('$fffEmojis for tmnf: $3cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$l$z$s$fff for instructions!', login);
                     },
                     'How to apply emotes'
                 );
