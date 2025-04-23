@@ -54,7 +54,7 @@ export default class VotesPlugin extends Plugin {
         tmc.addCommand('//vote', this.cmdVotes.bind(this), 'Start custom vote');
         tmc.addCommand('//pass', this.cmdPassVote.bind(this), 'Pass vote');
         tmc.addCommand('/skip', this.cmdSkip.bind(this), 'Start vote to Skip map');
-        tmc.addCommand('/res', this.cmdRes.bind(this), 'Start vote to Restart map');
+        tmc.addCommand('/restart', this.cmdRes.bind(this), 'Start vote to Restart map');
         tmc.addCommand('/extend', this.cmdExtend.bind(this), 'Start vote to Extend map');
         tmc.addCommand('//extend', this.cmdAdmExtend.bind(this), 'Extend timelimit');
         tmc.addCommand('/yes', this.cmdYes.bind(this), 'Vote yes');
