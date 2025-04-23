@@ -71,7 +71,6 @@ export class Player {
     set(key: string, value: any) {
         this[key] = value;
     }
-
 }
 /**
  * PlayerManager class
@@ -161,6 +160,10 @@ export default class PlayerManager {
      * @returns {Player} Returns the player object
      */
     async getPlayer(login: string): Promise<Player> {
+        if (login == tmc.server.login) {
+            tmc.cli(`¤error¤Tried to fetch server login as a player.`);
+            return new Player();
+        }
         if (this.players[login]) return this.players[login];
 
         try {
@@ -183,7 +186,7 @@ export default class PlayerManager {
      */
     private async onPlayerInfoChanged(data: any) {
         data = data[0];
-        if (data.PlayerId === 0) return;
+        if (data.PlayerId == 0 || data.Login == tmc.server.login) return;
         if (this.players[data.Login]) {
             this.players[data.Login].syncFromPlayerInfo(data);
         } else {
