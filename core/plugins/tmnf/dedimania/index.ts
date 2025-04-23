@@ -27,7 +27,7 @@ export default class Dedimania extends Plugin {
     serverInfo: any = {};
     records: DediRecord[] = [];
     intervalId: NodeJS.Timeout | null = null;
-    pass:string = process.env.DEDIMANIA_PASS || '';
+    pass: string = process.env.DEDIMANIA_PASS || '';
 
     async onLoad() {
         tmc.cli('¤info¤Dedimania: TmForever detected, enabling plugin.');
@@ -164,7 +164,7 @@ export default class Dedimania extends Plugin {
                 Tool: 'MINIcontrol',
                 Version: tmc.version,
                 Nation: this.server.Path,
-                Packmask:  tmc.server.packmask,
+                Packmask: tmc.server.packmask,
                 PlayersGame: true
             });
             const res2 = await this.api.call('dedimania.ValidateAccount');
@@ -274,6 +274,28 @@ export default class Dedimania extends Plugin {
             );
             tmc.debug('¤info¤Dedimania: Sent scores.');
         } catch (e: any) {
+            try {
+                tmc.cli('¤info¤Dedimania: Error occurred, re-authenticating and retrying...');
+                const authRes = await this.authenticate();
+                if (authRes) {
+                    await this.api.call(
+                        'dedimania.ChallengeRaceTimes',
+                        map.UId,
+                        map.Name,
+                        map.Environnement,
+                        map.Author,
+                        'TMF',
+                        serverGameMode,
+                        map.NbCheckpoints,
+                        this.maxRank,
+                        this.getDedimaniaScores(scores)
+                    );
+                    tmc.debug('¤info¤Dedimania: Scores sent after retry.');
+                    return;
+                }
+            } catch (retryError: any) {
+                tmc.cli(`¤error¤Dedimania (retry): ${retryError.message}`);
+            }
             tmc.cli(`¤error¤Dedimania: ${e.message}`);
         }
     }
