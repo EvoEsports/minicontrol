@@ -47,7 +47,7 @@ export default class SecRecordsWidget extends Plugin {
         let xml = '';
 
         if (tmc.game.Name == 'TmForever') {
-            xml = `<manialinks>
+            xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>
                 <manialink id="-3" version="3">
                     <frame pos="-25 48" z-index="0">
                         <label pos="3 -14" z-index="1" text="$fff$s${checkpoint + 1}/${tmc.maps.currentMap?.NbCheckpoints || 1})" textsize="2" halign="right" valign="center2" />
@@ -57,7 +57,7 @@ export default class SecRecordsWidget extends Plugin {
             </manialinks>
             `;
         } else {
-            xml = `
+            xml = `<?xml version="1.0" encoding="UTF-8"?>
             <manialinks>
                 <manialink id="-3" version="3">
                     <frame pos="0 48" z-index="0">

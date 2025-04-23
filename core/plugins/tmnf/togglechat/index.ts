@@ -45,7 +45,7 @@ export default class ToggleChat extends Plugin {
 
     getTmnfManialink(chatStatus: boolean): string {
         const chatStatusString = chatStatus ? 'true' : 'false';
-        let xml = `<manialinks><custom_ui>`;
+        let xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks><custom_ui>`;
         for (let key in tmc.ui.tmnfCustomUi) {
             if (key == 'chat') {
                 xml += `<chat visible="${chatStatusString}" />`;
