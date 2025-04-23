@@ -17,7 +17,7 @@ export interface DediRecord {
 
 export default class Dedimania extends Plugin {
     static depends: string[] = ['game:TmForever'];
-    enabled: boolean = false;
+    enabled: boolean = true;
     authError: boolean = false;
 
     maxRank: number = 30;

@@ -95,7 +95,7 @@ export default class DedimaniaClient {
         } catch (e: any) {
             tmc.debug(`Dedimania error: ` + e.message);
             this.sessionID = '';
-            return undefined;
+            throw e;
         }
     }
 }
