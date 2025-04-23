@@ -67,14 +67,14 @@ export function parseEntries(entries: any[]) {
 
 /** @deprecated please use htmlEntities() */
 export function escape(str: string): string {
-    tmc.cli("$fffescape() ¤info¤is deprecated, please use $fffhtmlEntities()");
+    tmc.cli('$fffescape() ¤info¤is deprecated, please use $fffhtmlEntities()');
     return htmlEntities(str);
 }
 
 export function htmlEntities(str: string): string {
     const val = (str || '')
-        .replace(/[\u00A0-\u9999<>\&"']/g, i => '&#'+i.charCodeAt(0)+';')
-        .replaceAll(/[$][lh]\[.*?](.*?)([$][lh])?/ig, '$1')
+        .replace(/[\u00A0-\uFFFF<>\&"']/g, (i) => '&#' + i.charCodeAt(0) + ';')
+        .replaceAll(/[$][lh]\[.*?](.*?)([$][lh])?/gi, '$1')
         .replaceAll(/[$][lh]/gi, '')
         .replaceAll('--', '-&#45;');
     return val;
