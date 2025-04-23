@@ -68,8 +68,7 @@ export default class Manialink {
 
         if (!this._templateData) {
             try {
-                const template = await environment.loadTemplate(process.cwd() + '/' + this.template, 'utf-8');
-                this._templateData = template;
+                this._templateData = await environment.loadTemplate(process.cwd() + '/' + this.template, 'utf-8');
                 return this._templateData.render(environment, obj);
             } catch (e:any) {
                 tmc.cli('Manialink error: ¤error¤ ' + e.message);
@@ -83,6 +82,5 @@ export default class Manialink {
                 throw new Error('Failed to render template: ' + e.message);
             }
         }
-        return '';
     }
 }

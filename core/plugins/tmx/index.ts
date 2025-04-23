@@ -302,21 +302,26 @@ export default class Tmx extends Plugin {
                 return;
             }
         }
-        if (!fs.existsSync(`${tmc.mapsPath}tmx/`)) fs.mkdirSync(`${tmc.mapsPath}tmx/`);
-        const abuffer = await (await res.blob()).arrayBuffer();
+        try {
+            if (!fs.existsSync(`${tmc.mapsPath}tmx/`)) fs.mkdirSync(`${tmc.mapsPath}tmx/`);
+            const abuffer = await (await res.blob()).arrayBuffer();
 
-        fs.writeFileSync(`${tmc.mapsPath}${filePath}`, new Uint8Array(abuffer));
-        await tmc.server.call('AddMap', filePath);
-        await tmc.maps.syncMaplist();
-        const info = tmc.maps.get().filter((map) => map.FileName == filePath)[0];
-        if (info) {
-            const author = info.AuthorNickname || info.Author || 'n/a';
-            tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
-            if (Object.keys(tmc.plugins).includes('jukebox')) {
-                await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
+            fs.writeFileSync(`${tmc.mapsPath}${filePath}`, new Uint8Array(abuffer));
+            await tmc.server.call('AddMap', filePath);
+            await tmc.maps.syncMaplist();
+            const info = await tmc.server.call('GetMapInfo', tmc.mapsPath + filePath);
+            if (info) {
+                const author = info.AuthorNickname || info.Author || 'n/a';
+                tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
+                if (Object.keys(tmc.plugins).includes('jukebox')) {
+                    await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
+                }
+            } else {
+                tmc.chat(`¤info¤Added map but didn't find map info!`);
             }
-        } else {
-            tmc.chat(`¤info¤Added map but didn't find map info!`);
+        } catch (err: any) {
+            tmc.chat(`¤error¤${err.message}`, login);
+            return;
         }
     }
 
