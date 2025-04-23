@@ -1,5 +1,25 @@
 import Plugin from '../index';
 import { emotesMap } from './tmnf_emojis';
+import badwords from './badwords.json';
+import { removeColors } from '@core/utils';
+
+let regex: RegExp[] = [];
+
+for (const pattern of badwords) {
+    regex.push(new RegExp('^' + pattern + '$'));
+}
+
+function filterWords(text: String) {
+    const phrase = text.split(/\s+/);
+    for (const word of phrase) {
+        for (const re of regex) {
+            if (re.test(word.toLowerCase())) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 export default class Chat extends Plugin {
     static depends: string[] = [];
@@ -15,6 +35,7 @@ export default class Chat extends Plugin {
             tmc.settings.register('chat.color', 'ff0', null, 'Chat: Public chat color');
             tmc.settings.register('chat.badge.admin', 'f00', null, 'Chat: Admin badge color');
             tmc.settings.register('chat.badge.player', 'fff', null, 'Chat: Player badge color');
+            tmc.settings.register('chat.profanityFilter', true, null, 'Chat: Enable profanity filter');
 
             if (tmc.game.Name == 'TmForever') {
                 tmc.settings.register('chat.useEmotes', false, null, 'Chat: Enable emote replacements in chat $z(see: http://bit.ly/Celyans_emotes_sheet)');
@@ -68,29 +89,38 @@ export default class Chat extends Plugin {
     }
 
     async onPlayerChat(data: any) {
+        const login = data[1];
+        let text = data[2];
+
         if (!this.pluginEnabled) return;
-        if (!this.publicChatEnabled && !tmc.admins.includes(data[1])) {
-            tmc.chat('Public chat is disabled.', data[1]);
+        if (!this.publicChatEnabled && !tmc.admins.includes(login)) {
+            tmc.chat('Public chat is disabled.', login);
             return;
         }
         if (data[0] == 0) return;
         if (data[2].startsWith('/')) return;
-        if (this.playersDisabled.includes(data[1])) {
-            tmc.chat('Your chat is disabled.', data[1]);
+        if (this.playersDisabled.includes(login)) {
+            tmc.chat('Your chat is disabled.', login);
             return;
         }
-        const player = await tmc.getPlayer(data[1]);
+        if (tmc.settings.get('chat.profanityFilter') && filterWords(removeColors(text))) {
+            tmc.chat('¤gray¤$iPlease be respectful!', login);
+            return;
+        }
+        const player = await tmc.getPlayer(login);
         const nick = player.nickname.replaceAll(/\$[iwozs]/gi, '');
-        let text = data[2];
-        if (tmc.game.Name == 'TmForever' && tmc.settings.get("chat.useEmotes")) {
+
+        if (tmc.game.Name == 'TmForever' && tmc.settings.get('chat.useEmotes')) {
             for (const emoteData of emotesMap) {
                 text = text.replaceAll(new RegExp(':\\b(' + emoteData.emote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')\\b:', 'gi'), '$z$fff' + emoteData.glyph + '$s$ff0');
             }
         }
         const chatColor = tmc.settings.get('chat.color');
-        const adminColor = tmc.admins.includes(data[1]) ? tmc.settings.get('chat.badge.admin') : tmc.settings.get('chat.badge.player');
+        const adminColor = tmc.admins.includes(login) ? tmc.settings.get('chat.badge.admin') : tmc.settings.get('chat.badge.player');
         const msg = `${nick}$z$s$${adminColor} »$${chatColor} ${text}`;
         tmc.server.send('ChatSendServerMessage', msg);
-        tmc.cli(msg);
+        if (process.env.DEBUG == 'true') {
+            tmc.cli(msg);
+        }
     }
 }
