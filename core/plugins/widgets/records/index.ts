@@ -14,6 +14,8 @@ export default class RecordsWidget extends Plugin {
     myIndex: number | undefined;
     private widgetType: { [login: string]: string } = {};
     private lastClick: { [login: string]: number } = {};
+    update: boolean = false;
+    timeout: NodeJS.Timeout | null = null;
 
     async onLoad() {
         tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
@@ -46,14 +48,29 @@ export default class RecordsWidget extends Plugin {
     }
 
     async onStart() {
-        await this.updateWidgets();
+        this.updateWidgets();
+        this.triggerUpdate().catch((err) => {
+            tmc.cli('Error: ' + err.message);
+        });
+    }
+
+    async triggerUpdate() {
+        if (this.update) {
+            this.update = false;
+            this.updateWidgets();
+        }
+        this.timeout = setTimeout(() => {
+            this.triggerUpdate().catch((err) => {
+                tmc.cli('Error: ' + err.message);
+            });
+        }, 5000);
     }
 
     async onPlayerConnect(player: Player) {
         const login = player.login;
-        await this.updateWidget(login);
+        this.updateWidget(login);
         if (this.widgets[login]) {
-            await tmc.ui.displayManialink(this.widgets[login]);
+            tmc.ui.displayManialink(this.widgets[login]);
         }
     }
 
@@ -66,37 +83,38 @@ export default class RecordsWidget extends Plugin {
 
     async onSync(data: any) {
         this.records = data.records;
-        await this.updateWidgets();
+        this.update = true;
+        this.updateWidgets();
     }
 
     async onLiveSync(data: any) {
         this.liverankings = data.records;
-        await this.updateWidgets();
+        this.update = true;
     }
 
     async onWorldSync(data: any) {
         this.worldRecords = data.records;
-        await this.updateWidgets();
+        this.update = true;
     }
 
     async onDediSync(data: any) {
         this.dediRecords = data;
-        await this.updateWidgets();
+        this.update = true;
     }
 
     async onDediUpdate(data: any) {
         this.dediRecords = data.records;
-        await this.updateWidgets();
+        this.update = true;
     }
 
     async onNewRecord(data: any) {
         this.records = data.records;
-        await this.updateWidgets();
+        this.update = true;
     }
 
     async onUpdateRecord(data: any) {
         this.records = data.records;
-        await this.updateWidgets();
+        this.update = true;
     }
 
     async updateWidgets() {
@@ -104,9 +122,9 @@ export default class RecordsWidget extends Plugin {
             if (!this.widgetType[player.login]) {
                 this.widgetType[player.login] = 'server';
             }
-            await this.updateWidget(player.login);
+            this.updateWidget(player.login);
         }
-        await tmc.ui.displayManialinks(Object.values(this.widgets));
+        tmc.ui.displayManialinks(Object.values(this.widgets));
     }
 
     async updateWidget(login: string) {
@@ -228,20 +246,20 @@ export default class RecordsWidget extends Plugin {
     }
 
     async liveAction(login: string) {
-        await this.changeType(login, 'live');
+        this.changeType(login, 'live');
     }
 
     async serverAction(login: string) {
-        await this.changeType(login, 'server');
+        this.changeType(login, 'server');
     }
 
     async worldAction(login: string) {
         if (tmc.game.Name == 'TmForever') {
-            await this.changeType(login, 'dedimania');
+            this.changeType(login, 'dedimania');
             return;
         }
         if (tmc.game.Name == 'Trackmania') {
-            await this.changeType(login, 'world');
+            this.changeType(login, 'world');
             return;
         }
     }
@@ -250,8 +268,8 @@ export default class RecordsWidget extends Plugin {
         if (this.clickProtection(login)) {
             this.widgetType[login] = type;
             this.lastClick[login] = Date.now();
-            await this.updateWidget(login);
-            await this.widgets[login].display();
+            this.updateWidget(login);
+            this.widgets[login].display();
         }
     }
 

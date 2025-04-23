@@ -160,9 +160,10 @@ export default class liverankings extends Plugin {
                 record.rank = index + 1;
             });
 
-            tmc.server.emit('Plugin.LiveRankings.onSync', {
-                records: clone(this.liverankings)
-            });
+           /* tmc.server.emit('Plugin.LiveRankings.onSync', {
+                records: this.liverankings,
+            }); */
+
         } catch (e: any) {
             tmc.cli(e);
         }
