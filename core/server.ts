@@ -63,16 +63,21 @@ export default class Server {
 
     async onCallback(method: string, data: any) {
         method = method.replace(/(ManiaPlanet\.)|(TrackMania\.)/i, 'Trackmania.').replace('Challenge', 'Map');
-        if (method == 'Trackmania.Echo') {
-            if (data[0] == 'MiniControl' && data[1] != tmc.startTime) {
+        const isDebug = process.env.DEBUG === 'true';
+
+        // Handle Trackmania.Echo
+        if (method === 'Trackmania.Echo') {
+            if (data[0] === 'MiniControl' && data[1] !== tmc.startTime) {
                 tmc.cli('¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!');
                 process.exit(1);
-            } else if (data[0] == 'MiniControl' && data[1] == tmc.startTime) {
+            } else if (data[0] === 'MiniControl' && data[1] === tmc.startTime) {
                 await tmc.afterStart();
             }
+            return;
         }
-        // convert script events to legacy
-        if (method == 'Trackmania.ModeScriptCallbackArray') {
+
+        // Handle ModeScriptCallbackArray
+        if (method === 'Trackmania.ModeScriptCallbackArray') {
             let params = data[1];
             try {
                 params = JSON.parse(params);
@@ -81,47 +86,40 @@ export default class Server {
             }
             const outmethod = data[0].replace(/(ManiaPlanet\.)|(TrackMania\.)/i, 'Trackmania.');
 
-            // convert waypoints to checkpoints
-            if (outmethod == 'Trackmania.Event.WayPoint') {
-                if (params.isendrace) {
-                    this.events.emit('TMC.PlayerFinish', [params.login, params.racetime, params]);
+            switch (outmethod) {
+                case 'Trackmania.Event.WayPoint':
+                    if (params.isendrace) {
+                        this.events.emit('TMC.PlayerFinish', [params.login, params.racetime, params]);
+                    } else {
+                        this.events.emit('TMC.PlayerCheckpoint', [params.login, params.racetime, params.checkpointinrace, params]);
+                    }
                     return;
-                } else {
-                    this.events.emit('TMC.PlayerCheckpoint', [params.login, params.racetime, params.checkpointinrace, params]);
+                case 'Trackmania.Event.GiveUp':
+                    this.events.emit('TMC.PlayerGiveup', [params.login]);
                     return;
-                }
+                default:
+                    if (isDebug) console.log(outmethod, params);
+                    this.events.emit(outmethod, params);
+                    return;
             }
-            if (outmethod == 'Trackmania.Event.GiveUp') {
-                this.events.emit('TMC.PlayerGiveup', [params.login]);
-                return;
-            }
-            if (process.env.DEBUG == 'true') {
-                console.log(outmethod, params);
-            }
-
-            this.events.emit(outmethod, params);
-            return;
         }
 
+        // Handle legacy events
         switch (method) {
-            case 'Trackmania.PlayerCheckpoint': {
+            case 'Trackmania.PlayerCheckpoint':
                 this.events.emit('TMC.PlayerCheckpoint', [data[1], data[2], data[4]]);
                 return;
-            }
-            case 'Trackmania.PlayerFinish': {
+            case 'Trackmania.PlayerFinish':
                 if (data[2] < 1) {
                     this.events.emit('TMC.PlayerGiveup', [data[1]]);
-                    return;
+                } else {
+                    this.events.emit('TMC.PlayerFinish', [data[1], data[2]]);
                 }
-                this.events.emit('TMC.PlayerFinish', [data[1], data[2]]);
                 return;
-            }
+            default:
+                if (isDebug) console.log(method, data);
+                this.events.emit(method, data);
         }
-        if (process.env.DEBUG == 'true') {
-            console.log(method, data);
-        }
-
-        this.events.emit(method, data);
     }
 
     /**
@@ -142,17 +140,12 @@ export default class Server {
         if (tmc.game.Name == 'Trackmania' || tmc.game.Name == 'ManiaPlanet') {
             if (method == 'SetTimeAttackLimit') {
                 const settings = { S_TimeLimit: Number.parseInt(args[0]) / 1000 };
-                await tmc.server.call('SetModeScriptSettings', settings);
+                tmc.server.send('SetModeScriptSettings', settings);
                 return;
             }
         }
 
-        try {
-            return await this.gbx.call(method, ...args);
-        } catch (e: any) {
-            tmc.cli(e.message);
-            return undefined;
-        }
+        return await this.gbx.call(method, ...args);
     }
     /**
      * adds override for a method
@@ -257,10 +250,11 @@ export default class Server {
         let serverPlayerInfo = await this.gbx.call('GetMainServerPlayerInfo');
         let serverOptions = await this.gbx.call('GetServerOptions');
         this.version = await this.gbx.call('GetVersion');
-        this.packmask ='Stadium';
+        this.packmask = 'Stadium';
         if (this.version.Name != 'Trackmania') {
             this.packmask = await this.gbx.call('GetServerPackMask');
         }
+        this.gbx.game = this.version.Name;
         this.login = serverPlayerInfo.Login;
         this.name = serverOptions.Name;
         this.serverOptions = serverOptions;

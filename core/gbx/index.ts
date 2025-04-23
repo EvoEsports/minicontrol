@@ -22,7 +22,8 @@ export class GbxClient {
         throwErrors: true
     };
     timeoutHandler: any;
-    promiseCallbacks: { [key: string]: any } = {};
+    promiseCallbacks: Map<number, { resolve: any; reject: any }> = new Map();
+    game: string = 'Trackmania';
 
     /**
      * Creates an instance of GbxClient.
@@ -90,16 +91,19 @@ export class GbxClient {
                 });
             }
         );
+
         this.timeoutHandler = setTimeout(() => {
             tmc.cli('¤error¤[ERROR] Attempt at connection exceeded timeout value.');
             socket.end();
-            this.promiseCallbacks['onConnect']?.reject(new Error('Connection timeout'));
+            this.promiseCallbacks.get(-1)?.reject(new Error('Connection timeout'));
+            this.promiseCallbacks.delete(-1);
         }, timeout);
-        const res: boolean = await new Promise((resolve, reject) => {
-            this.promiseCallbacks['onConnect'] = { resolve, reject };
-        });
 
-        delete this.promiseCallbacks['onConnect'];
+        const res: boolean = await new Promise((resolve, reject) => {
+            this.promiseCallbacks.set(-1, { resolve, reject });
+        });
+        this.promiseCallbacks.delete(-1);
+
         return res;
     }
 
@@ -107,56 +111,62 @@ export class GbxClient {
         if (data != null) {
             this.recvData = Buffer.concat([this.recvData, data]);
         }
-        if (this.recvData.length > 0 && this.responseLength === null) {
-            this.responseLength = this.recvData.readUInt32LE();
-            if (this.isConnected) this.responseLength += 4;
-            this.recvData = this.recvData.subarray(4);
-        }
 
-        if (this.responseLength && this.recvData.length >= this.responseLength) {
-            let data = this.recvData.subarray(0, this.responseLength);
-            if (this.recvData.length > this.responseLength) {
-                this.recvData = this.recvData.subarray(this.responseLength);
-            } else {
-                this.recvData = Buffer.from([]);
+        while (true) {
+            if (this.recvData.length > 0 && this.responseLength === null) {
+                this.responseLength = this.recvData.readUInt32LE();
+                if (this.isConnected) this.responseLength += 4;
+                this.recvData = this.recvData.subarray(4);
             }
 
-            if (!this.isConnected) {
-                if (data.toString('utf-8') == 'GBXRemote 2') {
-                    this.isConnected = true;
-                    this.promiseCallbacks['onConnect']?.resolve(true);
+            if (this.responseLength && this.recvData.length >= this.responseLength) {
+                let data = this.recvData.subarray(0, this.responseLength);
+                if (this.recvData.length > this.responseLength) {
+                    this.recvData = this.recvData.subarray(this.responseLength);
                 } else {
-                    this.socket?.destroy();
-                    this.isConnected = false;
-                    this.socket = null;
-                    this.promiseCallbacks['onConnect']?.reject(false);
-                    this.server.onDisconnect('Unknown protocol: ' + data.toString('utf-8'));
+                    this.recvData = Buffer.from([]);
                 }
-            } else {
-                const deserializer = new Deserializer('utf-8');
-                const requestHandle = data.readUInt32LE();
-                const readable = Readable.from(data.subarray(4));
-                if (requestHandle >= 0x80000000) {
-                    deserializer.deserializeMethodResponse(readable, (err: any, res: any) => {
-                        if (this.promiseCallbacks[requestHandle]) {
-                            this.promiseCallbacks[requestHandle].resolve([res, err]);
-                        }
-                    });
+
+                if (!this.isConnected) {
+                    if (data.toString('utf-8') == 'GBXRemote 2') {
+                        this.isConnected = true;
+                        this.promiseCallbacks.get(-1)?.resolve(true);
+                    } else {
+                        this.socket?.destroy();
+                        this.isConnected = false;
+                        this.socket = null;
+                        this.promiseCallbacks.get(-1)?.reject(new Error('Unknown protocol: ' + data.toString('utf-8')));
+                        this.server.onDisconnect('Unknown protocol: ' + data.toString('utf-8'));
+                    }
                 } else {
-                    deserializer.deserializeMethodCall(readable, (err: any, method: any, res: any) => {
-                        if (err) {
-                            if (this.options.showErrors) console.error(err);
-                        } else {
-                            this.server.onCallback(method, res);
-                        }
-                    });
+                    const deserializer = new Deserializer('utf-8');
+                    const requestHandle = data.readUInt32LE();
+                    const readable = Readable.from(data.subarray(4));
+                    if (requestHandle >= 0x80000000) {
+                        deserializer.deserializeMethodResponse(readable, (err: any, res: any) => {
+                            const cb = this.promiseCallbacks.get(requestHandle);
+                            if (cb) {
+                                cb.resolve([res, err]);
+                                this.promiseCallbacks.delete(requestHandle);
+                            }
+                        });
+                    } else {
+                        deserializer.deserializeMethodCall(readable, (err: any, method: any, res: any) => {
+                            if (err) {
+                                if (this.options.showErrors) console.error(err);
+                            } else {
+                                setImmediate(() => this.server.onCallback(method, res));
+                            }
+                        });
+                    }
                 }
+                this.responseLength = null;
+                // Continue the loop to process more messages if available
+                continue;
             }
-            this.responseLength = null;
-            if (this.recvData.length > 0) return this.handleData(null);
-            return;
+            // Not enough data for a full message, exit loop
+            break;
         }
-        return;
     }
 
     /**
@@ -260,8 +270,22 @@ export class GbxClient {
 
     private async query(xml: string, wait: boolean = true) {
         // if request is more than 7mb
-        if (xml.length + 8 > 7 * 1024 * 1024) {
-            throw new Error('transport error - request too large (' + (xml.length / 1024 / 1024).toFixed(2) + ' Mb)');
+        switch (this.game) {
+            case 'Trackmania':
+                if (xml.length + 8 > 7 * 1024 * 1024) {
+                    throw new Error('transport error - request too large (' + (xml.length / 1024).toFixed(2) + ' Kb)');
+                }
+                break;
+            case 'TmForever':
+                if (xml.length + 8 > 512 * 1024) {
+                    throw new Error('transport error - request too large (' + (xml.length / 1024).toFixed(2) + ' Kb)');
+                }
+                break;
+            case 'ManiaPlanet':
+                if (xml.length + 8 > 4 * 1024 * 1024) {
+                    throw new Error('transport error - request too large (' + (xml.length / 1024).toFixed(2) + ' Kb)');
+                }
+                break;
         }
         this.reqHandle++;
         if (this.reqHandle >= 0xffffff00) this.reqHandle = 0x80000000;
@@ -273,10 +297,8 @@ export class GbxClient {
         buf.write(xml, 8);
         this.socket?.write(buf);
         if (wait) {
-            const response = await new Promise<any>((resolve, reject) => {
-                this.promiseCallbacks[handle] = { resolve, reject };
-            });
-            delete this.promiseCallbacks[handle];
+            const response = await this.waitForResponse(handle);
+            this.promiseCallbacks.delete(handle);
 
             if (response[1]) {
                 if (this.options.showErrors) {
@@ -290,6 +312,15 @@ export class GbxClient {
             return response[0];
         }
         return {};
+    }
+
+    private waitForResponse(handle: number): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            this.promiseCallbacks.set(handle, {
+                resolve: (res: any) => setImmediate(() => resolve(res)),
+                reject: (err: any) => setImmediate(() => reject(err))
+            });
+        });
     }
 
     /**
