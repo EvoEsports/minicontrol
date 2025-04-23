@@ -116,6 +116,6 @@ export default class Players extends Plugin {
             { key: 'nickname', title: 'Name', width: 60 },
             { key: 'avg', title: 'Average', width: 20 }
         ]);
-        await window.display();
+        window.display();
     }
 }

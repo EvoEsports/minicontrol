@@ -59,6 +59,8 @@ export default class VotesPlugin extends Plugin {
         tmc.addCommand('//extend', this.cmdAdmExtend.bind(this), 'Extend timelimit');
         tmc.addCommand('/yes', this.cmdYes.bind(this), 'Vote yes');
         tmc.addCommand('/no', this.cmdNo.bind(this), 'Vote no');
+
+        tmc.settings.registerColor('vote', 'f9c', null, 'Vote color');
         tmc.settings.register('votes.timeout', 30, (value) => (this.timeout = value), 'Votes: Vote Timeout in seconds');
         tmc.settings.register('votes.ratio', 0.55, (value) => (this.ratio = value), 'Votes: Vote ratio to pass');
         tmc.settings.register('votes.native.timeout', 0, (value) => tmc.server.send('SetCallVoteTimeOut', value), 'Votes: Native vote timeout $z(milliseconds, 0 to disable)');
@@ -143,7 +145,7 @@ export default class VotesPlugin extends Plugin {
 
     async passVote(_login: string, _args: string[]) {
         if (!this.currentVote) {
-            tmc.chat('There is no vote in progress.');
+            tmc.chat('¤vote¤There is no vote in progress.');
             return;
         }
         await this.endVote(true);
@@ -151,10 +153,11 @@ export default class VotesPlugin extends Plugin {
 
     overrideCancel(login: string, _args: string[]) {
         if (this.currentVote) {
-            tmc.chat('Vote cancelled by admin.');
+            tmc.chat('¤vote¤Admin cancelled the vote.');
             this.cancelVote(login);
             return true;
         }
+        tmc.chat('¤vote¤There is no vote in progress.');
         return false;
     }
 
@@ -166,7 +169,7 @@ export default class VotesPlugin extends Plugin {
 
     async cmdVotes(login: string, args: string[]) {
         if (args.length < 1) {
-            tmc.chat('Please specify a vote type', login);
+            tmc.chat('¤vote¤Please specify a vote type', login);
             return;
         }
         const type = args.shift() || '';
@@ -195,13 +198,13 @@ export default class VotesPlugin extends Plugin {
         if (!tmc.admins.includes(login)) {
             const allowedVotes = ['Skip', 'Extend','Restart'];
             if (!allowedVotes.includes(type)) {
-                tmc.chat('You are not allowed to start this type of vote.', login);
+                tmc.chat('¤vote¤You are not allowed to start this type of vote.', login);
                 return;
             }
         }
 
         if (this.currentVote) {
-            tmc.chat('There is already a vote in progress.', login);
+            tmc.chat('¤vote¤There is already a vote in progress.', login);
             return;
         }
         this.currentVote = new Vote(login, type, question, Date.now() + this.timeout * 1000, value);
@@ -225,12 +228,15 @@ export default class VotesPlugin extends Plugin {
     }
 
     async cmdPassVote(login: string, _args: string[]) {
+        if (!this.currentVote) {
+            tmc.chat("¤vote¤There is no vote in progress.");
+        }
         await this.endVote(true);
     }
 
     async vote(login: string, vote: boolean) {
         if (!this.currentVote) {
-            tmc.chat('There is no vote in progress.');
+            tmc.chat('¤vote¤There is no vote in progress.');
             return;
         }
 
@@ -263,15 +269,15 @@ export default class VotesPlugin extends Plugin {
         const percent = Math.round((yes / total) * 100);
 
         if (forcePass) {
-            tmc.chat('¤info¤Admin passed the vote');
+            tmc.chat('¤vote¤Admin passed the vote');
             tmc.server.emit('TMC.Vote.Pass', { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
         } else if (percent >= this.ratio * 100) {
-            tmc.chat(`¤info¤Vote: ¤white¤${this.currentVote.question}`);
-            tmc.chat(`¤info¤Vote passed: ¤white¤${yes} / ${no} (${percent}%)`);
+            tmc.chat(`¤vote¤Vote: ¤white¤${this.currentVote.question}`);
+            tmc.chat(`¤vote¤Vote passed: ¤white¤${yes} / ${no} (${percent}%)`);
             tmc.server.emit('TMC.Vote.Pass', { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
         } else {
-            tmc.chat(`¤info¤Vote: ¤white¤${this.currentVote.question}`);
-            tmc.chat(`¤info¤Vote did not pass: ¤white¤${yes} / ${no} (${percent}%)`);
+            tmc.chat(`¤vote¤Vote: ¤white¤${this.currentVote.question}`);
+            tmc.chat(`¤vote¤Vote did not pass: ¤white¤${yes} / ${no} (${percent}%)`);
             tmc.server.emit('TMC.Vote.Deny', { vote: this.currentVote, yes: yes, no: no, total: total, percent: percent });
         }
 

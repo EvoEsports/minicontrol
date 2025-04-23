@@ -225,6 +225,6 @@ export default class Jukebox extends Plugin {
         ]);
 
         window.setActions(['Drop']);
-        await window.display();
+        window.display();
     }
 }

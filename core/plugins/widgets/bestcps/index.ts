@@ -96,6 +96,6 @@ export default class BestCps extends Plugin {
             { key: 'time', title: 'Time', width: 20 }
         ]);
 
-        await window.display();
+        window.display();
     }
 }

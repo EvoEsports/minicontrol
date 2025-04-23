@@ -20,7 +20,7 @@ export default class Pay2Play extends Plugin {
         this.widgets.push(this.createWidget(1, 'RES', this.resAmount, this.res.bind(this)));
 
         for (let widget of this.widgets) {
-            await widget.display();
+            widget.display();
         }
     }
 

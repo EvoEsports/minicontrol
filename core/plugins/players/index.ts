@@ -43,6 +43,6 @@ export default class Players extends Plugin {
             window.setActions(['Mute', 'Kick', 'Ban']);
         }
 
-        await window.display();
+        window.display();
     }
 }

@@ -351,7 +351,7 @@ export default class RecordsSector extends Plugin {
         }
 
         window.setItems(items);
-        await window.display();
+        window.display();
     }
 
     // admin command

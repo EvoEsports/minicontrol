@@ -1,8 +1,6 @@
 import type { Map } from '@core/mapmanager';
 import ListWindow from '@core/ui/listwindow';
 import { formatTime, htmlEntities, clone, removeColors } from '@core/utils';
-import { QueryTypes, type Sequelize } from 'sequelize';
-import Tmx from '../tmx';
 
 export default class MapsWindow extends ListWindow {
     params: string[] = [];

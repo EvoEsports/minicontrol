@@ -46,7 +46,7 @@ export default class CommandManager {
                     { key: 'help', title: 'Help', width: 90 }
                 ]);
                 window.setActions(['Invoke']);
-                await window.display();
+                window.display();
             },
             'Display help for command'
         );
@@ -70,7 +70,7 @@ export default class CommandManager {
                     { key: 'command', title: 'Command', width: 50 },
                     { key: 'help', title: 'Help', width: 100 }
                 ]);
-                await window.display();
+                window.display();
             },
             'Display help for command'
         );
@@ -269,7 +269,7 @@ export default class CommandManager {
                         { key: 'help', title: 'Help', width: 150 }
                     ]);
                     window.size = { width: 230, height: 95 };
-                    await window.display();
+                    window.display();
                     return;
                 }
                 try {
@@ -342,7 +342,7 @@ export default class CommandManager {
             { key: 'depends', title: 'Dependencies', width: 50 }
         ]);
 
-        await window.display();
+        window.display();
     }
 
     /**

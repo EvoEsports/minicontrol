@@ -277,7 +277,7 @@ export class GbxClient {
                 }
                 break;
             case 'TmForever':
-                if (xml.length + 8 > 512 * 1024) {
+                if (xml.length + 8 > 1024 * 1024) {
                     throw new Error('transport error - request too large (' + (xml.length / 1024).toFixed(2) + ' Kb)');
                 }
                 break;
@@ -296,6 +296,7 @@ export class GbxClient {
         buf.writeUInt32LE(handle, 4);
         buf.write(xml, 8);
         this.socket?.write(buf);
+
         if (wait) {
             const response = await this.waitForResponse(handle);
             this.promiseCallbacks.delete(handle);
@@ -317,8 +318,8 @@ export class GbxClient {
     private waitForResponse(handle: number): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             this.promiseCallbacks.set(handle, {
-                resolve: (res: any) => setImmediate(() => resolve(res)),
-                reject: (err: any) => setImmediate(() => reject(err))
+                resolve,
+                reject
             });
         });
     }

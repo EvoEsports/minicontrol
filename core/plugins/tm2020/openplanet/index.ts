@@ -31,7 +31,7 @@ export default class OpenPlanet extends Plugin {
 
     async onPlayerConnect(player: Player) {
         let widget = this.getManialink(player.login);
-        await widget.display();
+        widget.display();
     }
 
     getManialink(login: string) {

@@ -1,5 +1,5 @@
 import Plugin from '@core/plugins';
-import { formatTime } from '@core/utils';
+import { formatTime, htmlEntities } from '@core/utils';
 import fs from 'fs';
 import SearchWindow from './searchWindow';
 import Menu from '@core/plugins/menu/menu';
@@ -137,8 +137,8 @@ export default class Tmx extends Plugin {
             }
             out.push({
                 id: data.TrackId || data.MapId,
-                name: name,
-                author: data.Authors[0].User.Name || 'n/a',
+                name: htmlEntities(name),
+                author: htmlEntities(data.Authors[0].User.Name || 'n/a'),
                 length: formatTime(data.AuthorScore || data.Length) || '',
                 tags:
                     data.Tags.map((tag: any) => {
@@ -179,7 +179,7 @@ export default class Tmx extends Plugin {
 
         window.setActions(['Install']);
         window.setItems(out);
-        await window.display();
+        window.display();
     }
 
     async addMap(login: string, params: string[]) {

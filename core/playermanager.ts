@@ -1,4 +1,4 @@
-import { clone, sleep } from './utils';
+import { clone } from './utils';
 
 interface PlayerRanking {
     Path: string;
@@ -46,7 +46,7 @@ export class Player {
     flags: number = 0;
     [key: string]: any; // Add index signature
 
-    async syncFromDetailedPlayerInfo(data: any) {
+    syncFromDetailedPlayerInfo(data: any) {
         for (let key in data) {
             let k = key[0].toLowerCase() + key.slice(1);
             if (k == 'nickName') {
@@ -109,7 +109,7 @@ export default class PlayerManager {
         if (login) {
             if (this.players[login]) {
                 tmc.cli(`$888Player ${login} already connected, kicking player due a bug to allow them joining again.`);
-                await tmc.server.call('Kick', login, 'You are already connected, please rejoin.');
+                tmc.server.send('Kick', login, 'You are already connected, please rejoin.');
                 return;
             }
             const player = await this.getPlayer(login);
@@ -130,7 +130,7 @@ export default class PlayerManager {
             tmc.server.emit('TMC.PlayerDisconnect', clone(this.players[login]));
             delete this.players[login];
         } else {
-            tmc.debug('¤Error¤Unknown player tried to disconnect or player not found at server. ignored.');
+            tmc.debug(`¤Error¤Unknown player ($fff${login}¤error¤) tried to disconnect or player not found at server. ignored.`);
         }
     }
 
@@ -170,7 +170,7 @@ export default class PlayerManager {
             tmc.debug(`$888Player "${login}" not found, fetching from server.`);
             const data = await tmc.server.call('GetDetailedPlayerInfo', login);
             const player = new Player();
-            await player.syncFromDetailedPlayerInfo(data);
+            player.syncFromDetailedPlayerInfo(data);
             this.players[login] = player;
             return player;
         } catch (e: any) {
@@ -192,7 +192,7 @@ export default class PlayerManager {
         } else {
             // if player is joined, fetch detailed info
             if (Math.floor(data.Flags / 100000000) % 10 === 1) {
-                await this.getPlayer(data.Login);
+                this.getPlayer(data.Login);
             }
         }
     }

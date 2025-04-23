@@ -134,7 +134,7 @@ export default class Server {
         }
         tmc.debug('$27fcall ¤white¤<> $89a' + method);
         if (this.methodOverrides[method]) {
-            return await this.methodOverrides[method](...args);
+            return this.methodOverrides[method](...args);
         }
 
         if (tmc.game.Name == 'Trackmania' || tmc.game.Name == 'ManiaPlanet') {
@@ -145,7 +145,7 @@ export default class Server {
             }
         }
 
-        return await this.gbx.call(method, ...args);
+        return this.gbx.call(method, ...args);
     }
     /**
      * adds override for a method
@@ -236,7 +236,7 @@ export default class Server {
      */
     async connect(host: string, port: number): Promise<boolean> {
         try {
-            return await this.gbx.connect(host, port);
+            return this.gbx.connect(host, port);
         } catch (e: any) {
             tmc.cli(e.message);
         }

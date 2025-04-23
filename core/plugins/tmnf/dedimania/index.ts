@@ -103,7 +103,7 @@ export default class Dedimania extends Plugin {
             { key: 'nickname', title: 'Nickname', width: 50 },
             { key: 'time', title: 'Time', width: 20 }
         ]);
-        await window.display();
+        window.display();
     }
 
     /**
@@ -274,6 +274,8 @@ export default class Dedimania extends Plugin {
             );
             tmc.debug('¤info¤Dedimania: Sent scores.');
         } catch (e: any) {
+            tmc.cli(`¤error¤Dedimania: ${e.message}`);
+            this.authError = true;
             try {
                 tmc.cli('¤info¤Dedimania: Error occurred, re-authenticating and retrying...');
                 const authRes = await this.authenticate();
@@ -290,13 +292,12 @@ export default class Dedimania extends Plugin {
                         this.maxRank,
                         this.getDedimaniaScores(scores)
                     );
-                    tmc.debug('¤info¤Dedimania: Scores sent after retry.');
+                    tmc.cli('¤info¤Dedimania: Scores sent after retry.');
                     return;
                 }
             } catch (retryError: any) {
                 tmc.cli(`¤error¤Dedimania (retry): ${retryError.message}`);
             }
-            tmc.cli(`¤error¤Dedimania: ${e.message}`);
         }
     }
 

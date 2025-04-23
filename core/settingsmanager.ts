@@ -1,6 +1,5 @@
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { clone, modLightness } from './utils';
-import type { init } from '@sentry/node';
 
 export default class SettingsManager {
     _defaultSettings: { [key: string]: any } = {};

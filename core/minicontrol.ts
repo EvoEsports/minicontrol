@@ -108,7 +108,7 @@ class MiniControl {
      * @returns A promise that resolves to the player object.
      */
     async getPlayer(login: string): Promise<Player> {
-        return await this.players.getPlayer(login);
+        return this.players.getPlayer(login);
     }
 
     /**
@@ -375,7 +375,7 @@ class MiniControl {
         await this.maps.init();
         await this.players.init();
         await this.ui.init();
-        await this.beforeInit();
+        this.beforeInit();
     }
 
     /**
@@ -487,9 +487,10 @@ class MiniControl {
     async afterStart() {
         this.billMgr.afterInit();
         this.players.afterInit();
-        await this.chatCmd.afterInit();
-        await this.ui.afterInit();
-        await this.maps.afterInit();
+        this.chatCmd.afterInit();
+        this.ui.afterInit();
+        this.maps.afterInit();
+
         this.startComplete = true;
         if (gc) gc();
         setMemStart();

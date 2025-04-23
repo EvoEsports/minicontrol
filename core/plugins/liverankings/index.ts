@@ -80,7 +80,7 @@ export default class liverankings extends Plugin {
             window.setActions(['View', 'Delete']);
         }
 
-        await window.display();
+        window.display();
     }
 
     async deleteRecord(login: string, data: any) {

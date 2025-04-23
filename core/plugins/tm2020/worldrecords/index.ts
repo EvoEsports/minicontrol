@@ -236,7 +236,7 @@ export default class worldRecords extends Plugin {
                 { key: 'Zone', title: 'Zone', width: 60 },
                 { key: 'Time', title: 'Time', width: 30 }
             ]);
-            await window.display();
+            window.display();
         } catch (error) {
             tmc.chat(`¤error¤An error occurred: ${error}`, login);
         }

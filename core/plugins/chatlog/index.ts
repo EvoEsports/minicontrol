@@ -67,6 +67,6 @@ export default class ChatLog extends Plugin {
         window.setItems(chatLog);
 
         window.pageSize = 20;
-        await window.display();
+        window.display();
     }
 }

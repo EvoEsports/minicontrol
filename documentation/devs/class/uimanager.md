@@ -22,5 +22,5 @@ To create background hoverable buttons ets... use:
 
 ```ts
   const widget = new Widget("core/plugins/debugtool/widget.xml.twig");
-  await widget.display();
+  widget.display();
 ```

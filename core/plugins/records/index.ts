@@ -82,7 +82,7 @@ export default class Records extends Plugin {
             window.size.width = 115;
             window.setActions(['View', 'Delete']);
         }
-        await window.display();
+        window.display();
     }
 
     async getRecords(mapUuid: string) {

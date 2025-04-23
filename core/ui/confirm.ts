@@ -9,31 +9,29 @@ import { htmlEntities } from '../utils';
 export default class Confirm extends Widget {
     callback: CallableFunction;
     params: string[];
-    title = "Confirm required";
+    title = 'Confirm required';
     size = { width: 90, height: 40 };
 
     constructor(login: string, question: string, callback: CallableFunction, params: any) {
-        super("core/templates/confirm.xml.twig");
+        super('core/templates/confirm.xml.twig');
         this.recipient = login;
         this.pos = { x: 0, y: 20, z: 10 };
         this.callback = callback;
         this.params = params;
         this.data['question'] = htmlEntities(question);
-        this.actions['close'] = tmc.ui.addAction(this.hide.bind(this), "");
-        this.actions['apply'] = tmc.ui.addAction(this.apply.bind(this), "");
+        this.actions['close'] = tmc.ui.addAction(this.hide.bind(this), '');
+        this.actions['apply'] = tmc.ui.addAction(this.apply.bind(this), '');
     }
 
     /**
      * closes the window
      */
     async hide() {
-        await super.destroy();
+        super.destroy();
     }
 
     async apply(_login: string, _answer: any, _entries: string[]) {
-            await this.callback(...this.params);
-            await super.destroy();
+        this.callback(...this.params);
+        super.destroy();
     }
 }
-
-

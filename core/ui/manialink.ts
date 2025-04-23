@@ -35,19 +35,19 @@ export default class Manialink {
     async display() {
         if (this._firstDisplay) {
             this._firstDisplay = false;
-            await tmc.ui.displayManialink(this);
+            tmc.ui.displayManialink(this);
         } else {
-            await tmc.ui.refreshManialink(this);
+            tmc.ui.refreshManialink(this);
         }
     }
 
     async hide() {
-        await tmc.ui.hideManialink(this);
+        tmc.ui.hideManialink(this);
     }
 
     async destroy() {
         delete this._templateData;
-        await tmc.ui.destroyManialink(this);
+        tmc.ui.destroyManialink(this);
     }
 
     /**

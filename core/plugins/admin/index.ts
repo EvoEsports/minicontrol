@@ -705,7 +705,7 @@ export default class AdminPlugin extends Plugin {
             const widget = new AdminWidget(player.login);
             widget.size = { width: 60, height: 5 };
             widget.pos = { x: 35, y: -86, z: 1 };
-            await widget.display();
+            widget.display();
             this.adminWidget[player.login] = widget;
         } else if (this.adminWidget[player.login]) {
             await this.adminWidget[player.login].destroy();
@@ -739,7 +739,7 @@ export default class AdminPlugin extends Plugin {
             { key: 'type', title: 'Type', width: 25 }
         ]);
         window.addApplyButtons();
-        await window.display();
+        window.display();
     }
 
     async cmdAddLocal(login: string, args: string[]) {
@@ -770,7 +770,7 @@ export default class AdminPlugin extends Plugin {
                 { key: 'MapAuthor', title: 'Author', width: 35 }
             ]);
             window.setActions(['Add']);
-            await window.display();
+            window.display();
         } else {
             try {
                 await tmc.server.call('AddMapList', args);
@@ -869,7 +869,7 @@ export default class AdminPlugin extends Plugin {
                 window.setItems(await tmc.server.call('GetGuestList', -1, 0));
                 window.setColumns([{ key: 'Login', title: 'Login', width: 100 }]);
                 window.setActions(['RemoveGuest']);
-                await window.display();
+                window.display();
                 return;
             }
             default: {
@@ -923,7 +923,7 @@ export default class AdminPlugin extends Plugin {
                 window.setItems(await tmc.server.call('GetBanList', -1, 0));
                 window.setColumns([{ key: 'Login', title: 'Login', width: 100 }]);
                 window.setActions(['UnBan']);
-                await window.display();
+                window.display();
                 return;
             }
             default: {
@@ -977,7 +977,7 @@ export default class AdminPlugin extends Plugin {
                 window.setItems(await tmc.server.call('GetIgnoreList', -1, 0));
                 window.setColumns([{ key: 'Login', title: 'Login', width: 100 }]);
                 window.setActions(['UnIgnore']);
-                await window.display();
+                window.display();
                 return;
             }
             default: {
@@ -1036,7 +1036,7 @@ export default class AdminPlugin extends Plugin {
                 window.setItems(await tmc.server.call('GetBlackList', -1, 0));
                 window.setColumns([{ key: 'Login', title: 'Login', width: 100 }]);
                 window.setActions(['RemoveBlacklist']);
-                await window.display();
+                window.display();
                 return;
             }
             default: {
@@ -1141,7 +1141,7 @@ export default class AdminPlugin extends Plugin {
             { key: 'value', title: 'Value', width: 125, action: 'Toggle' }
         ]);
         window.setActions(['Reset']);
-        await window.display();
+        window.display();
     }
 
     async cmdColors(login: string, args: string[]) {
@@ -1179,7 +1179,7 @@ export default class AdminPlugin extends Plugin {
             { key: 'value', title: 'Value', width: 125, action: 'Toggle' }
         ]);
         window.setActions(['Reset']);
-        await window.display();
+        window.display();
     }
 
 }

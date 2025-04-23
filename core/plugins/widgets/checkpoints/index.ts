@@ -44,7 +44,7 @@ export default class Checkpoints extends Plugin {
                 currentCheckpoint: this.checkpointCounter[login] || 0,
             };
             this.widgets[login] = widget;
-            await widget.display();
+            widget.display();
         }
     }
 
