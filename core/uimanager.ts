@@ -264,16 +264,16 @@ export default class UiManager {
         let multi = [['SendDisplayManialinkPage', this.convert(this.getGlobalManialink()), 0, false]];
         for (let manialink of Object.values(this.publicManialinks)) {
             const render = await (manialink as Manialink).render();
-            const xml = `<manialinks>${this.convert(render)}</manialinks>`;
+            const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
             multi.push(['SendDisplayManialinkPageToLogin', login, xml, 0, false]);
         }
         if (this.playerManialinks[login] == undefined) this.playerManialinks[login] = {} as Manialink;
         for (let manialink of Object.values(this.playerManialinks[login])) {
             const render = await (manialink as Manialink).render();
-            const xml = `<manialinks>${this.convert(render)}</manialinks>`;
+            const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
             multi.push(['SendDisplayManialinkPageToLogin', login, xml, 0, false]);
         }
-        await tmc.server.gbx.multicall(multi);
+        await tmc.server.multicall(multi);
 
         if (tmc.game.Name == 'TmForever') {
             this.sendTmnfCustomUI();
@@ -460,7 +460,7 @@ export default class UiManager {
     /** set clipboard content for user */
     setClipboard(login: string, text: string) {
         if (login == undefined) return;
-        const xml = `
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <manialinks>
         <manialink id="${this.uuid()}" version="3">
         <script><!--
@@ -505,8 +505,7 @@ export default class UiManager {
 
     sendTmnfCustomUI() {
         if (tmc.game.Name == 'TmForever') {
-            let xml = `
-        <?xml version="1.0" encoding="UTF-8"?>
+            let xml = `<?xml version="1.0" encoding="UTF-8"?>
         <manialinks><custom_ui>`;
             for (let key in this.tmnfCustomUi) {
                 xml += `<${key} visible="${this.tmnfCustomUi[key] ? 'true' : 'false'}" />`;
