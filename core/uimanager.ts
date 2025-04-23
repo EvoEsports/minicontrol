@@ -248,12 +248,12 @@ export default class UiManager {
                 tmc.server.send('SendDisplayManialinkPageToLogin', login, hide, 0, false);
             } else {
                 this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
-                this.onPlayerConnect([login]);
+                await this.onPlayerConnect([login]);
             }
             return;
         }
         if (this.actions[answer]) {
-            this.actions[answer].callback(login, this.actions[answer].data, entries);
+            await this.actions[answer].callback(login, this.actions[answer].data, entries);
         }
     }
 
@@ -327,7 +327,7 @@ export default class UiManager {
         <manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
             if (!this.hiddenManialinks.includes(manialink.recipient)) {
-                tmc.server.send('SendDisplayManialinkPageToLogin', manialink.recipient, xml, 0, false);
+                tmc.server.send('SendDisplayManialinkPageToLogin', manialink.recipient, xml, manialink.displayDuration, false);
             }
         } else {
             if (this.hiddenManialinks.length > 0) {
@@ -387,8 +387,10 @@ export default class UiManager {
                 }
             }
         }
-        for (const calls of chunkArray(callArray, 50)) {
-            await tmc.server.multicall(calls);
+        for (const calls of chunkArray(callArray, 15)) {
+            tmc.server.multisend(calls).catch((e) => {
+                tmc.cli('¤error¤error while displaying manialinks: ¤white¤' + e);
+            });
         }
     }
 

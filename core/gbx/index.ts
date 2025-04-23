@@ -11,7 +11,7 @@ export class GbxClient {
     isConnected: boolean;
     doHandShake: boolean;
     reqHandle: number;
-    private socket: any;
+    private socket: Socket | null;
     recvData: Buffer;
     responseLength: null | number;
     requestHandle: number;
@@ -22,7 +22,7 @@ export class GbxClient {
         throwErrors: true
     };
     timeoutHandler: any;
-    promiseCallbacks: Map<number, { resolve: any; reject: any }> = new Map();
+    promiseCallbacks: { [key: string]: { resolve: CallableFunction; reject: CallableFunction } } = {};
     game: string = 'Trackmania';
 
     /**
@@ -57,6 +57,7 @@ export class GbxClient {
         const socket = new Socket();
         const timeout = 5000;
         this.socket = socket;
+
         socket.connect(
             {
                 host: host,
@@ -78,7 +79,7 @@ export class GbxClient {
                     this.isConnected = false;
                     this.server.onDisconnect(error.message);
                 });
-                socket.on('data', (data: Buffer) => {
+                socket.on('data', async (data: Buffer) => {
                     if (this.timeoutHandler) {
                         clearTimeout(this.timeoutHandler);
                         this.timeoutHandler = null;
@@ -95,77 +96,92 @@ export class GbxClient {
         this.timeoutHandler = setTimeout(() => {
             tmc.cli('¤error¤[ERROR] Attempt at connection exceeded timeout value.');
             socket.end();
-            this.promiseCallbacks.get(-1)?.reject(new Error('Connection timeout'));
-            this.promiseCallbacks.delete(-1);
+            this.promiseCallbacks['onConnect']?.reject(new Error('Connection timeout'));
+            delete this.promiseCallbacks['onConnect'];
         }, timeout);
 
         const res: boolean = await new Promise((resolve, reject) => {
-            this.promiseCallbacks.set(-1, { resolve, reject });
+            this.promiseCallbacks['onConnect'] = { resolve, reject };
         });
-        this.promiseCallbacks.delete(-1);
-
+        delete this.promiseCallbacks['onConnect'];
         return res;
     }
 
-    private handleData(data: any | null): void {
-        if (data != null) {
+    private async handleData(data: any | null): Promise<void> {
+        // Append new data if available.
+        if (data) {
             this.recvData = Buffer.concat([this.recvData, data]);
         }
 
+        // Process all complete messages present in recvData.
         while (true) {
-            if (this.recvData.length > 0 && this.responseLength === null) {
-                this.responseLength = this.recvData.readUInt32LE();
+            // If we haven't read the header yet, do so.
+            if (this.responseLength === null) {
+                // Need at least 4 bytes for the header.
+                if (this.recvData.length < 4) break;
+                this.responseLength = this.recvData.readUInt32LE(0);
                 if (this.isConnected) this.responseLength += 4;
                 this.recvData = this.recvData.subarray(4);
             }
 
+            // Wait until the full message is available.
             if (this.responseLength && this.recvData.length >= this.responseLength) {
-                let data = this.recvData.subarray(0, this.responseLength);
-                if (this.recvData.length > this.responseLength) {
-                    this.recvData = this.recvData.subarray(this.responseLength);
-                } else {
-                    this.recvData = Buffer.from([]);
-                }
+                const message = this.recvData.subarray(0, this.responseLength);
+                this.recvData = this.recvData.subarray(this.responseLength);
+                // Reset state for the next message.
+                this.responseLength = null;
 
+                // Processing handshake response.
                 if (!this.isConnected) {
-                    if (data.toString('utf-8') == 'GBXRemote 2') {
+                    const msgStr = message.toString('utf-8');
+                    if (msgStr === 'GBXRemote 2') {
                         this.isConnected = true;
-                        this.promiseCallbacks.get(-1)?.resolve(true);
+                        const handshakeCb = this.promiseCallbacks['onConnect'];
+                        handshakeCb?.resolve(true);
                     } else {
                         this.socket?.destroy();
                         this.isConnected = false;
                         this.socket = null;
-                        this.promiseCallbacks.get(-1)?.reject(new Error('Unknown protocol: ' + data.toString('utf-8')));
-                        this.server.onDisconnect('Unknown protocol: ' + data.toString('utf-8'));
+                        const handshakeCb = this.promiseCallbacks['onConnect'];
+                        handshakeCb?.reject(new Error('Unknown protocol: ' + msgStr));
+                        this.server.onDisconnect('Unknown protocol: ' + msgStr);
                     }
                 } else {
+                    // Processing regular messages.
                     const deserializer = new Deserializer('utf-8');
-                    const requestHandle = data.readUInt32LE();
-                    const readable = Readable.from(data.subarray(4));
+
+                    // The first 4 bytes in the message represent the request handle.
+                    const requestHandle = message.readUInt32LE(0);
+                    const readable = Readable.from(message.subarray(4));
                     if (requestHandle >= 0x80000000) {
-                        deserializer.deserializeMethodResponse(readable, (err: any, res: any) => {
-                            const cb = this.promiseCallbacks.get(requestHandle);
-                            if (cb) {
+                        const cb = this.promiseCallbacks[requestHandle];
+                        if (cb) {
+                            deserializer.deserializeMethodResponse(readable, async (err: any, res: any) => {
                                 cb.resolve([res, err]);
-                                this.promiseCallbacks.delete(requestHandle);
-                            }
-                        });
+                                delete this.promiseCallbacks[requestHandle];
+                            });
+                        }
                     } else {
-                        deserializer.deserializeMethodCall(readable, (err: any, method: any, res: any) => {
-                            if (err) {
-                                if (this.options.showErrors) console.error(err);
+                        deserializer.deserializeMethodCall(readable, async (err: any, method: any, res: any) => {
+                            if (err && this.options.showErrors) {
+                                console.error(err);
                             } else {
-                                setImmediate(() => this.server.onCallback(method, res));
+                                this.server.onCallback(method, res).catch((err: any) => {
+                                    if (this.options.showErrors) {
+                                        console.error('[ERROR] gbxclient > ' + err.message);
+                                    }
+                                    if (this.options.throwErrors) {
+                                        throw new Error(err);
+                                    }
+                                });
                             }
                         });
                     }
                 }
-                this.responseLength = null;
-                // Continue the loop to process more messages if available
-                continue;
+            } else {
+                // Not enough data for a full message, exit the loop.
+                break;
             }
-            // Not enough data for a full message, exit loop
-            break;
         }
     }
 
@@ -207,19 +223,10 @@ export class GbxClient {
         if (!this.isConnected) {
             return undefined;
         }
-        try {
-            // tmc.debug(`$080send ¤white¤>> $888${method}`);
-            const xml = Serializer.serializeMethodCall(method, params);
-            return this.query(xml, false);
-        } catch (err: any) {
-            if (this.options.showErrors) {
-                console.error('[ERROR] gbxclient >' + err.message);
-            }
-            if (this.options.throwErrors) {
-                throw new Error(err.message);
-            }
-            return undefined;
-        }
+        const xml = Serializer.serializeMethodCall(method, params);
+        return this.query(xml, false).catch((err: any) => {
+            tmc.cli(`[ERROR] gbxclient > ${err.message}`);
+        });
     }
 
     /**
@@ -268,60 +275,92 @@ export class GbxClient {
         return out;
     }
 
-    private async query(xml: string, wait: boolean = true) {
-        // if request is more than 7mb
-        switch (this.game) {
-            case 'Trackmania':
-                if (xml.length + 8 > 7 * 1024 * 1024) {
-                    throw new Error('transport error - request too large (' + (xml.length / 1024).toFixed(2) + ' Kb)');
-                }
-                break;
-            case 'TmForever':
-                if (xml.length + 8 > 1024 * 1024) {
-                    throw new Error('transport error - request too large (' + (xml.length / 1024).toFixed(2) + ' Kb)');
-                }
-                break;
-            case 'ManiaPlanet':
-                if (xml.length + 8 > 4 * 1024 * 1024) {
-                    throw new Error('transport error - request too large (' + (xml.length / 1024).toFixed(2) + ' Kb)');
-                }
-                break;
+    /**
+     * perform a multisend
+     *
+     * @example
+     * await gbx.multicall([
+     *                     ["Method1", param1, param2, ...],
+     *                     ["Method2", param1, param2, ...],
+     *                     ])
+     *
+     * @param {Array<any>} methods
+     * @returns Array<any>
+     * @memberof GbxClient
+     */
+    async multisend(methods: Array<any>) {
+        if (!this.isConnected) {
+            return undefined;
         }
-        this.reqHandle++;
-        if (this.reqHandle >= 0xffffff00) this.reqHandle = 0x80000000;
-        const handle = this.reqHandle;
-        const len = Buffer.byteLength(xml);
-        const buf = Buffer.alloc(8 + len);
-        buf.writeInt32LE(len, 0);
-        buf.writeUInt32LE(handle, 4);
-        buf.write(xml, 8);
-        this.socket?.write(buf);
-
-        if (wait) {
-            const response = await this.waitForResponse(handle);
-            this.promiseCallbacks.delete(handle);
-
-            if (response[1]) {
-                if (this.options.showErrors) {
-                    console.error(response[1].faultString ? '[ERROR] gbxclient > ' + response[1].faultString : response[1]);
-                }
-                if (this.options.throwErrors) {
-                    throw response[1];
-                }
-                return undefined;
-            }
-            return response[0];
+        const params: any = [];
+        for (let method of methods) {
+            params.push({ methodName: method.shift(), params: method });
         }
-        return {};
+
+        const xml = Serializer.serializeMethodCall('system.multicall', [params]);
+        await this.query(xml, false);
     }
 
-    private waitForResponse(handle: number): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            this.promiseCallbacks.set(handle, {
-                resolve,
-                reject
-            });
+    private async query(xml: string, wait: boolean = true) {
+        const HEADER_LENGTH = 8;
+        const requestSize = xml.length + HEADER_LENGTH;
+
+        // Define request size limits per game
+        const limits: { [key: string]: number } = {
+            Trackmania: 7 * 1024 * 1024,
+            TmForever: 1024 * 1024,
+            ManiaPlanet: 4 * 1024 * 1024
+        };
+
+        const limit = limits[this.game];
+        if (limit && requestSize > limit) {
+            throw new Error(`transport error - request too large (${(xml.length / 1024).toFixed(2)} Kb)`);
+        }
+
+        // Increment and wrap request handle if needed
+        this.reqHandle++;
+        if (this.reqHandle >= 0xffffff00) {
+            this.reqHandle = 0x80000000;
+        }
+        const handle = this.reqHandle;
+
+        // Allocate buffer and write header and XML payload
+        const len = Buffer.byteLength(xml);
+        const buf = Buffer.alloc(HEADER_LENGTH + len);
+        buf.writeInt32LE(len, 0); // write length at offset 0
+        buf.writeUInt32LE(handle, 4); // write request handle at offset 4
+        buf.write(xml, HEADER_LENGTH); // write xml starting at offset 8
+
+        // Write buffer to the socket
+        this.socket?.write(buf);
+
+        // If not waiting for a response, return an empty object.
+        if (!wait) {
+            this.promiseCallbacks[handle] = {
+                resolve: () => {},
+                reject: () => {}
+            };
+            return {};
+        }
+
+        // Wait for and retrieve the response
+        const response = await new Promise<any>((resolve, reject) => {
+            this.promiseCallbacks[handle] = { resolve, reject };
         });
+        delete this.promiseCallbacks[handle];
+
+        // Error handling of response if needed.
+        if (response[1]) {
+            if (this.options.showErrors) {
+                console.error(response[1].faultString ? `[ERROR] gbxclient > ${response[1].faultString}` : response[1]);
+            }
+            if (this.options.throwErrors) {
+                throw response[1];
+            }
+            return undefined;
+        }
+
+        return response[0];
     }
 
     /**

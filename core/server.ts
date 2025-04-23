@@ -202,7 +202,7 @@ export default class Server {
         }
 
         try {
-            this.gbx.send(method, ...args);
+            return this.gbx.send(method, ...args);
         } catch (e: any) {
             tmc.cli(e.message);
             return undefined;
@@ -223,6 +223,16 @@ export default class Server {
     async multicall(methods: any[]) {
         try {
             return this.gbx.multicall(methods);
+        } catch (e: any) {
+            tmc.cli(e.message);
+            return undefined;
+        }
+    }
+
+    /** perform multicall */
+    async multisend(methods: any[]) {
+        try {
+            return this.gbx.multisend(methods);
         } catch (e: any) {
             tmc.cli(e.message);
             return undefined;

@@ -14,16 +14,16 @@ export default class SecRecordsWidget extends Plugin {
     }
 
     async newBest(data: any) {
-        await this.onBest(data, true);
+        this.onBest(data, true);
     }
     async diffBest(data: any) {
-        await this.onBest(data, false);
+        this.onBest(data, false);
     }
     async newPB(data: any) {
-        await this.onPB(data, true);
+        this.onPB(data, true);
     }
     async diffPB(data: any) {
-        await this.onPB(data, false);
+        this.onPB(data, false);
     }
 
     async onBest(data: any, isNew: boolean) {
@@ -61,7 +61,9 @@ export default class SecRecordsWidget extends Plugin {
             <manialinks>
                 <manialink id="-3" version="3">
                     <frame pos="0 48" z-index="0">
-                        <label pos="-11 -17.25" z-index="1" text="$fff$s${checkpoint + 1}/${tmc.maps.currentMap?.NbCheckpoints || 1})" textsize="2" halign="right" valign="center2" />
+                        <label pos="-11 -17.25" z-index="1" text="$fff$s${checkpoint + 1}/${
+                tmc.maps.currentMap?.NbCheckpoints || 1
+            })" textsize="2" halign="right" valign="center2" />
                         <quad pos="-10 -17.25" size="9 7" z-index="0" bgcolor="0009" halign="right" valign="center2" />
                         <label pos="-9 -24" size="17 6.5" z-index="1" text="$o${prefix}${outTime}" halign="left" valign="center2" textsize="1" />
                         <quad pos="-10 -24" size="18 6.5" z-index="0" bgcolor="${color}6" halign="left" valign="center2" textsize="1" />
