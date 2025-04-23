@@ -82,7 +82,7 @@ export const emotesMap = [
     { emote: 'fatass', glyph: '上次计重' },
     { emote: 'goggers', glyph: '竞' },
     { emote: 'sniffa', glyph: '飙' },
-    { emote: 'D:', glyph: '影' },
+    { emote: 'D', glyph: '影' },
     { emote: 'cowJAM', glyph: '录' },
     { emote: 'yippie', glyph: '到' },
     { emote: 'opice', glyph: '理' },
