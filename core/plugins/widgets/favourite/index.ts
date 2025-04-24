@@ -2,7 +2,7 @@ import Plugin from '@core/plugins';
 import Widget from '@core/ui/widget';
 
 export default class Favourite extends Plugin {
-    static depends: string[] = [];
+    static depends = ['widgets'];
     widget?: Widget;
 
     async onStart() {

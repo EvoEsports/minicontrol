@@ -4,7 +4,7 @@ import Widget from '@core/ui/widget';
 import type { TmxMapInfo } from '@core/plugins/tmx';
 
 export default class MapWidget extends Plugin {
-    static depends: string[] = ['maps'];
+    static depends: string[] = ['widgets', 'maps'];
     widget: Widget | null = null;
     tmxInfo: TmxMapInfo = {} as TmxMapInfo;
 

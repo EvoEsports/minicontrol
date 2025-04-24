@@ -5,7 +5,7 @@ import recordsWidget from '@core/plugins/widgets/records/recordsWidget';
 import { formatTime, htmlEntities } from '@core/utils';
 
 export default class RecordsWidget extends Plugin {
-    static depends: string[] = ['records'];
+    static depends: string[] = ['widgets', 'records'];
     widgets: { [key: string]: recordsWidget } = {};
     records: any[] = [];
     liverankings: any[] = [];

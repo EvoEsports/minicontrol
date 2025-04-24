@@ -17,7 +17,7 @@ interface LeaderboardEntry {
 const requiredEnvVars = ['SERVER_LOGIN', 'SERVER_PASS', 'CONTACT_INFO', 'IDENTIFIER', 'SECRET'];
 
 export default class worldRecords extends Plugin {
-    static depends: string[] = ['game:Trackmania'];
+    static depends: string[] = ['game:Trackmania', 'tm2020'];
 
     maxRecords = 100; // Amount of World Records to be displayed in /worldrecords. Increasing this might get your Account banned (too many API calls).
     length: number = this.maxRecords > 1 ? this.maxRecords : 100;
@@ -27,8 +27,8 @@ export default class worldRecords extends Plugin {
     private cachedLeaderboard: LeaderboardEntry[] = [];
     private displayNamesCache: { [key: string]: string } = {};
     private worldRecordsUpdate: NodeJS.Timeout | null = null;
-    envIdentifier:string = '';
-    envSecret:string = '';
+    envIdentifier: string = '';
+    envSecret: string = '';
 
     async onLoad() {
         const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
@@ -142,7 +142,7 @@ export default class worldRecords extends Plugin {
             body: new URLSearchParams({
                 grant_type: 'client_credentials',
                 client_id: this.envIdentifier,
-                client_secret: this.envSecret,
+                client_secret: this.envSecret
             }),
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'

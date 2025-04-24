@@ -1,32 +1,32 @@
-import Plugin from "../..";
-import API from "./api";
+import Plugin from '../..';
+import API from './api';
 
 export default class NadeoAPI extends Plugin {
-    static depends: string[] = ["game:Trackmania"];
+    static depends: string[] = ['game:Trackmania', 'tm2020'];
 
     private api: API = new API();
 
     async onLoad() {
         if (!process.env.SERVER_LOGIN || !process.env.SERVER_PASS) {
-            tmc.chat("¤error¤NadeoAPI: Cannot enable plugin - Server name and/or password was not set, please check your .env file.");
-            return await tmc.unloadPlugin("tm2020/nadeoapi");
+            tmc.chat('¤error¤NadeoAPI: Cannot enable plugin - Server name and/or password was not set, please check your .env file.');
+            return await tmc.unloadPlugin('tm2020/nadeoapi');
         }
 
         if (!process.env.CONTACT_INFO) {
-            tmc.chat("¤error¤NadeoAPI: Cannot enable plugin - Contact info was not set, please check your .env file.");
-            return await tmc.unloadPlugin("tm2020/nadeoapi");
+            tmc.chat('¤error¤NadeoAPI: Cannot enable plugin - Contact info was not set, please check your .env file.');
+            return await tmc.unloadPlugin('tm2020/nadeoapi');
         }
 
-        tmc.addCommand("//addcampaign", this.addClubCampaign.bind(this), "Add a campaign from a club");
+        tmc.addCommand('//addcampaign', this.addClubCampaign.bind(this), 'Add a campaign from a club');
     }
 
     async onUnload() {
-        tmc.removeCommand("//addcampaign");
+        tmc.removeCommand('//addcampaign');
     }
 
     async addClubCampaign(login: string, params: string[]) {
         if (params.length < 2) {
-            tmc.chat("¤info¤Usage: ¤cmd¤//addcampaign ¤white¤<clubId> <campaignId>", login);
+            tmc.chat('¤info¤Usage: ¤cmd¤//addcampaign ¤white¤<clubId> <campaignId>', login);
             return;
         }
 

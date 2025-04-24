@@ -4,7 +4,7 @@ import type { TopRecord } from '@core/plugins/secrecords';
 import type { Player } from '@core/playermanager';
 
 export default class SecRecordsWidget extends Plugin {
-    static depends: string[] = ['secrecords'];
+    static depends: string[] = ['widgets', 'secrecords'];
 
     async onLoad() {
         tmc.server.addListener('Plugin.secRecords.newBest', this.newBest, this);

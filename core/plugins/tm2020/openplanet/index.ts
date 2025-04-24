@@ -3,15 +3,14 @@ import Plugin from '@core/plugins';
 import Manialink from '@core/ui/manialink';
 import { parseEntries } from '@core/utils';
 
-
 export default class OpenPlanet extends Plugin {
-    static depends:string[] = ["game:Trackmania"];
-    action: string = "";
-    envForceMode:string|undefined = process.env['FORCE_OP_MODE'];
+    static depends: string[] = ['game:Trackmania', 'tm2020'];
+    action: string = '';
+    envForceMode: string | undefined = process.env['FORCE_OP_MODE'];
 
     async onLoad() {
         if (this.envForceMode) {
-            tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+            tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
         }
     }
 
@@ -26,7 +25,7 @@ export default class OpenPlanet extends Plugin {
     }
 
     async onUnload() {
-        tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect);
+        tmc.server.removeListener('TMC.PlayerConnect', this.onPlayerConnect);
     }
 
     async onPlayerConnect(player: Player) {
@@ -39,8 +38,7 @@ export default class OpenPlanet extends Plugin {
         widget.recipient = login;
         // widget.data['replyAction'] = this.action;
         widget.data['signature'] = this.envForceMode;
-        widget.template = "core/plugins/tm2020/openplanet/opdetect.xml.twig";
+        widget.template = 'core/plugins/tm2020/openplanet/opdetect.xml.twig';
         return widget;
     }
-
 }
