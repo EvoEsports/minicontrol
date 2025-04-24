@@ -405,7 +405,7 @@ class MiniControl {
                 }
                 for (const excludeName of exclude) {
                     if (excludeName == '') continue;
-                    if (pluginName.startsWith(excludeName.trim())) {
+                    if (pluginName == excludeName.trim()) {
                         include = false;
                     }
                 }
