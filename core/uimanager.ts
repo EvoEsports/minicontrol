@@ -357,8 +357,6 @@ export default class UiManager {
      * @param manialinks
      */
     async displayManialinks(manialinks: Manialink[]) {
-        console.time('displayManialinks');
-
         const callArray: any[] = [];
 
         // Process all manialinks concurrently.
@@ -433,7 +431,6 @@ export default class UiManager {
             })
         );
 
-        console.timeEnd('displayManialinks');
     }
 
     /**

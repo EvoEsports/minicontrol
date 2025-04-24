@@ -203,7 +203,7 @@ class MiniControl {
                     }
                 }
                 if (!this.pluginDependecies.hasNode(depend) && !depend.startsWith('game:')) {
-                    const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ failed to load. Missing dependency ¤cmd¤${depend}¤white¤.`;
+                    const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Missing dependency ¤cmd¤${depend}¤white¤.`;
                     this.cli(msg);
                     if (this.startComplete) this.chat(msg);
                     return;
