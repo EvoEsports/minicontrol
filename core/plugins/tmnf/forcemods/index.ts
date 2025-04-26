@@ -12,7 +12,7 @@ export interface ModCollection {
 }
 
 export default class ForceMods extends Plugin {
-  static depends: string[] = ["game:TmForever"];
+  static depends: string[] = ["game:TmForever", 'tmnf'];
   enabled: boolean = false;
   environments: string[] = [
     "Stadium",

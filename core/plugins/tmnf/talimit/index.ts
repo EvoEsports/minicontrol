@@ -3,7 +3,7 @@ import Plugin from '@core/plugins';
 import tm from 'tm-essentials';
 
 export default class TAlimitPlugin extends Plugin {
-    static depends: string[] = ['game:TmForever'];
+    static depends: string[] = ['game:TmForever', 'tmnf'];
     origTimeLimit: number = Number.parseInt(process.env.TALIMIT ?? '300');
     startTime: number = Date.now();
     timeLimit: number = 0;

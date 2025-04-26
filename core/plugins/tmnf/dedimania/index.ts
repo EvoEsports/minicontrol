@@ -16,7 +16,7 @@ export interface DediRecord {
 }
 
 export default class Dedimania extends Plugin {
-    static depends: string[] = ['game:TmForever'];
+    static depends: string[] = ['game:TmForever', 'tmnf'];
     enabled: boolean = true;
     authError: boolean = false;
 
