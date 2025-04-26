@@ -1,66 +1,16 @@
-import type { Map } from '@core/mapmanager';
+import Confirm from '@core/ui/confirm';
 import ListWindow from '@core/ui/listwindow';
-import { formatTime, htmlEntities, clone, removeColors } from '@core/utils';
+import { htmlEntities } from '@core/utils';
 
 export default class MapsWindow extends ListWindow {
     params: string[] = [];
     // template: string = 'core/plugins/maps/maplist.xml.twig';
     pageSize = 20;
 
-    constructor(login: string, params: string[], rankings: any[]) {
+    constructor(login: string, params: string[]) {
         super(login);
         this.params = params;
         this.recipient = login;
-        let maps: any = [];
-        let i = 1;
-
-        for (const map of clone(tmc.maps.get()) as Map[]) {
-            if (
-                !this.params[0] ||
-                removeColors(map.Name).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
-                removeColors(map.AuthorNickname || map.Author || '')
-                    .toLocaleLowerCase()
-                    .indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
-                removeColors(map.Environnement).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1
-            ) {
-                let karma = Number.parseFloat((map.Karma?.total ?? -1000).toFixed(2));
-                let outKarma = '';
-                if (karma == 0) {
-                    outKarma = '$fff0%';
-                } else if (karma > 0) {
-                    outKarma = '$0f0' + karma + '%';
-                } else if (karma < 0) {
-                    outKarma = '$f00' + karma + '%';
-                }
-                if (karma == -1000.0) {
-                    outKarma = '-';
-                }
-
-                let rank =
-                    rankings.find((val) => {
-                        return map.UId == val.Uid;
-                    })?.playerRank || -1;
-                const max = tmc.settings.get('records.maxRecords') || 100;
-                let myRank = rank > max ? '-' : rank;
-                if (myRank == -1) {
-                    myRank = '-';
-                }
-
-                maps.push(
-                    Object.assign(map, {
-                        Index: i++,
-                        Name: htmlEntities(map.Name.trim()),
-                        AuthorName: htmlEntities(map.AuthorNickname || map.Author || ''),
-                        ATime: formatTime(map.AuthorTime || map.GoldTime),
-                        Vehicle: map.Vehicle ? htmlEntities(map.Vehicle) : '',
-                        Rank: myRank,
-                        Karma: outKarma,
-                        Date: map.CreatedAt || '',
-                    })
-                );
-            }
-        }
-        this.setItems(maps);
     }
 
     async onAction(login: string, action: string, item: any) {
@@ -70,5 +20,14 @@ export default class MapsWindow extends ListWindow {
         if (action == 'Records') {
             tmc.chatCmd.execute(login, '/records ' + item.UId);
         }
+        if (action == 'Remove') {
+            const confirm = new Confirm(login, 'Remove ' + item.Name, this.applyCommand.bind(this), [login, '//remove ' + item.UId]);
+            await confirm.display();
+        }
+    }
+
+    async applyCommand(login: string, action: string) {
+        await tmc.chatCmd.execute(login, action);
+        await tmc.chatCmd.execute(login, '/list ' + this.params.join(' '));
     }
 }

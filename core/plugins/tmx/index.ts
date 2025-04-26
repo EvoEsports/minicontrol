@@ -4,6 +4,7 @@ import fs from 'fs';
 import SearchWindow from './searchWindow';
 import Menu from '@core/plugins/menu/menu';
 import type { Map as TmMap } from '@core/mapmanager';
+import { QueryTypes, type Sequelize } from 'sequelize';
 
 export interface TmxMapInfo {
     TmxId: string;
@@ -294,6 +295,7 @@ export default class Tmx extends Plugin {
                 const info = await tmc.server.call('GetMapInfo', tmc.mapsPath + filePath);
                 if (info) {
                     const author = info.AuthorNickname || info.Author || 'n/a';
+                    this.updateDatabase(info.UId, map.id);
                     tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
                     if (Object.keys(tmc.plugins).includes('jukebox')) {
                         await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
@@ -317,6 +319,7 @@ export default class Tmx extends Plugin {
             const info = await tmc.server.call('GetMapInfo', tmc.mapsPath + filePath);
             if (info) {
                 const author = info.AuthorNickname || info.Author || 'n/a';
+                this.updateDatabase(info.UId, map.id);
                 tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
                 if (Object.keys(tmc.plugins).includes('jukebox')) {
                     await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
@@ -448,6 +451,29 @@ export default class Tmx extends Plugin {
         } catch (e: any) {
             tmc.debug(`TmxInfo Error: ${e.message}`);
             return {} as TmxMapInfo;
+        }
+    }
+
+    async updateDatabase(uuid: string, id: string) {
+        const sequelize = tmc.storage['db'] as Sequelize;
+        if (!sequelize) {
+            tmc.debug('Database not initialized');
+            return;
+        }
+        const query = `UPDATE maps SET tmxId = ? WHERE uuid = ?`;
+        try {
+            await sequelize
+                .query(query, {
+                    replacements: [id, uuid],
+                    type: QueryTypes.UPDATE
+                })
+                .then(() => {
+                    tmc.debug(`Updated map ${uuid} with TMX ID ${id}`);
+                });
+            const map = tmc.maps.getMap(uuid);
+            if (map) map.tmx.TmxId = id;
+        } catch (err: any) {
+            tmc.debug(`Error updating map ${uuid} with TMX ID ${id}: ${err.message}`);
         }
     }
 }

@@ -33,6 +33,14 @@ class Map extends Model {
     @Column(DataType.STRING)
     playerModel?: string | null;
 
+    @AllowNull(true)
+    @Column(DataType.DATE)
+    lastPlayed?: Date | null;
+
+    @AllowNull(true)
+    @Column(DataType.STRING)
+    tmxId?: string | null;
+
 }
 
 export default Map;

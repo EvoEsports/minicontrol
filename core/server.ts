@@ -167,7 +167,13 @@ export default class Server {
     addListener(method: string, callback: any, obj: object) {
         const wrapper = callback.bind(obj);
         wrapper.listener = callback;
-        this.events.on(method, wrapper);
+        this.events.addListener(method, wrapper);
+    }
+
+    prependListener(method: string, callback: any, obj: object) {
+        const wrapper = callback.bind(obj);
+        wrapper.listener = callback;
+        this.events.prependListener(method, wrapper);
     }
 
     removeListener(method: string, callback: any) {

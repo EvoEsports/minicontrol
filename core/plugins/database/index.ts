@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize-typescript';
 import type { Player as PlayerType } from '@core/playermanager';
 import Plugin from '@core/plugins';
-import { chunkArray, sleep } from '@core/utils';
+import { chunkArray, htmlEntities, sleep } from '@core/utils';
 import Map from '@core/schemas/map.model';
 import Player from '@core/schemas/players.model';
 import { SequelizeStorage, Umzug } from 'umzug';
@@ -10,6 +10,7 @@ import { GBX, CGameCtnChallenge } from 'gbx';
 import { existsSync, promises as fsPromises } from 'fs';
 import path from 'path';
 import { Op } from 'sequelize';
+import ListWindow from '@core/ui/listwindow';
 
 const strToCar: any = {
     Stadium: 'StadiumCar',
@@ -52,8 +53,28 @@ const strToCar: any = {
     CharacterPilot: 'Pilot'
 };
 
+interface DbPlayer extends PlayerType {
+    joinedAt: number;
+    totalPlaytime: number;
+}
+
 export default class GenericDb extends Plugin {
     async onLoad() {
+        try {
+            await this.connect();
+            tmc.server.prependListener('TMC.PlayerConnect', this.onPlayerConnect, this);
+            tmc.server.addListener('TMC.PlayerDisconnect', this.onPlayerDisconnect, this);
+            tmc.server.addListener('Trackmania.EndMap', this.onEndMap, this);
+            tmc.server.addListener('TMC.MapListModified', this.onMapListModified, this);
+            tmc.addCommand('/active', this.cmdActive.bind(this), 'Show playtime');
+            tmc.addCommand('/topactive', this.cmdTopActive.bind(this), 'Show top100 playtime');
+        } catch (e: any) {
+            tmc.cli('¤error¤' + e.message);
+            process.exit(1);
+        }
+    }
+
+    async connect() {
         let sequelize: Sequelize;
         const dbString = (process.env['DATABASE'] ?? '').split('://', 1)[0];
         if (!['sqlite', 'mysql', 'postgres'].includes(dbString)) {
@@ -63,7 +84,6 @@ export default class GenericDb extends Plugin {
 
         try {
             let enableLog = process.env.DEBUG == 'true' && parseInt(process.env.DEBUGLEVEL || '0') >= 2;
-
             sequelize = new Sequelize(process.env['DATABASE'] ?? '', {
                 logging(sql, _timing) {
                     if (enableLog) tmc.debug(`$d7c${removeColors(sql)}`);
@@ -105,13 +125,10 @@ export default class GenericDb extends Plugin {
                 tmc.cli('¤success¤Success!');
             }
             sequelize.addModels([Map, Player]);
-            tmc.storage['db'] = sequelize;
-            tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
-            tmc.server.addListener('TMC.MapListModified', this.onMapListModified, this);
         } catch (e: any) {
             tmc.cli('¤error¤' + e.message);
-            process.exit(1);
         }
+        tmc.storage['db'] = sequelize;
     }
 
     async onUnload() {
@@ -127,23 +144,61 @@ export default class GenericDb extends Plugin {
         await this.syncMaps();
     }
 
-    async onPlayerConnect(player: any) {
+    async onPlayerConnect(player: PlayerType) {
         await this.syncPlayer(player);
     }
 
+    async onPlayerDisconnect(player: PlayerType) {
+        const dbPlayer = await Player.findByPk(player.login);
+        const joinedAt = (player as DbPlayer).joinedAt;
+        const sessionTime = Math.floor((new Date().getTime() - joinedAt) / 1000);
+
+        if (dbPlayer) {
+            try {
+                dbPlayer.totalPlaytime = (dbPlayer.totalPlaytime ?? 0) + sessionTime;
+                dbPlayer.connectCount = (dbPlayer.connectCount ?? 0) + 1;
+                await dbPlayer.save();
+            } catch (e: any) {
+                tmc.cli('¤error¤' + e.message);
+            }
+        }
+    }
+
+    async onMapListModified(data: any) {
+        if (data[2] === true) {
+            await this.syncMaps();
+        }
+    }
+
+    async onEndMap(data: any) {
+        const map = await Map.findByPk(data[1].UId);
+        if (map) {
+            await map.update({
+                lastPlayed: new Date().toISOString()
+            });
+        }
+    }
+
     async syncPlayer(player: PlayerType) {
-        let dbPlayer = await Player.findByPk(player.login);
-        if (dbPlayer == null) {
-             await Player.create({
-                login: player.login,
-                nickname: player.nickname,
-                path: player.path
-            });
-        } else {
-            await dbPlayer.update({
-                nickname: player.nickname,
-                path: player.path
-            });
+        try {
+            const dbPlayer = await Player.findByPk(player.login);
+            if (dbPlayer == null) {
+                await Player.create({
+                    login: player.login,
+                    nickname: player.nickname,
+                    zone: player.path,
+                    connectCount: 0
+                });
+            } else {
+                dbPlayer.nickname = player.nickname;
+                dbPlayer.zone = player.path;
+                await dbPlayer.save();
+            }
+            player.set('connectCount', dbPlayer?.connectCount || 0);
+            player.set('totalPlaytime', dbPlayer?.totalPlaytime || 0);
+            player.set('joinedAt', new Date().getTime());
+        } catch (e: any) {
+            tmc.cli('¤error¤' + e.message);
         }
     }
 
@@ -151,12 +206,6 @@ export default class GenericDb extends Plugin {
         const players = tmc.players.getAll();
         for (const player of players) {
             await this.syncPlayer(await tmc.players.getPlayer(player.login));
-        }
-    }
-
-    async onMapListModified(data: any) {
-        if (data[2] === true) {
-            await this.syncMaps();
         }
     }
 
@@ -214,8 +263,7 @@ export default class GenericDb extends Plugin {
                             continue;
                         }
                         const gbx = new GBX<CGameCtnChallenge>(stream, 0);
-                        gbx
-                            .parse()
+                        gbx.parse()
                             .then((file) => map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || '' }))
                             .catch(async (error) => {
                                 tmc.debug(`¤error¤Failed to parse "¤white¤${fileName}¤error¤" file, falling back to the map environment...`);
@@ -225,8 +273,8 @@ export default class GenericDb extends Plugin {
                             .catch((error) => {
                                 tmc.debug(`¤error¤Failed to update player model to map environment for "¤white¤${fileName}¤error¤" file, skipping...`);
                                 tmc.debug(error);
-                            }).then(
-                                () => {
+                            })
+                            .then(() => {
                                 let car = strToCar[map.playerModel ?? ''] || strToCar[map.environment ?? ''];
                                 mapInfo.Vehicle = car || '';
                             });
@@ -238,5 +286,63 @@ export default class GenericDb extends Plugin {
             }
         }
         tmc.cli('¤success¤Done!');
+    }
+
+    async cmdActive(login: string) {
+        const dbPlayer = await Player.findByPk(login);
+        if (!dbPlayer) {
+            tmc.chat('¤error¤Player not found in database');
+            return;
+        }
+
+        const tmPlayer = await tmc.players.getPlayer(login) as DbPlayer;
+        const sessionTime = Math.floor((new Date().getTime() - tmPlayer.joinedAt) / 1000);
+
+        const totalSeconds = (dbPlayer.totalPlaytime || 0) + sessionTime;
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const formattedPlaytime = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}min ${seconds.toString().padStart(2, '0')}s`;
+
+        tmc.chat(`¤info¤Your playtime: ¤white¤${formattedPlaytime}`);
+    }
+
+    async cmdTopActive(login: string) {
+        const players = await Player.findAll({
+            order: [['totalPlaytime', 'DESC']],
+            limit: 100
+        });
+        const topPlayers = players.map((player) => {
+            return {
+                login: player.login,
+                nickname: player.customNick ?? player.nickname ?? player.login ?? 'n/a',
+                playtime: player.totalPlaytime
+            };
+        });
+        tmc.chat('¤info¤Top 100 active players:');
+        const window = new ListWindow(login);
+        window.title = 'Top 100 active players';
+        window.setColumns([
+            { key: 'rank', title: 'Rank', width: 10 },
+            { key: 'nickname', title: 'Nickname', width: 50 },
+            { key: 'playtime', title: 'Playtime', width: 20 }
+        ]);
+        window.setItems(
+            topPlayers.map((player, index) => {
+                // Convert playtime (seconds) to hh:mm format
+                const totalSeconds = player.playtime ?? 0;
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                const formattedPlaytime = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}min ${seconds.toString().padStart(2, '0')}s`;
+                return {
+                    rank: index + 1,
+                    nickname: htmlEntities(player.nickname),
+                    playtime: formattedPlaytime
+                };
+            })
+        );
+        window.size = { width: 100, height: 100 };
+        window.display();
     }
 }

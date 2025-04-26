@@ -1,19 +1,21 @@
 import Plugin from '@core/plugins';
 import Score from '@core/schemas/scores.model';
 import Player from '@core/schemas/players.model';
+import PersonalBest from '@core/schemas/personalBest.model';
 import { clone, htmlEntities, formatTime } from '@core/utils';
 import RecordsWindow from './recordsWindow';
 import { Op } from 'sequelize';
 import Menu from '../menu/menu';
+import { create } from 'domain';
 
 export default class Records extends Plugin {
     static depends: string[] = ['database'];
     records: Score[] = [];
-    currentMapUid: string = '';
     private playerCheckpoints: { [login: string]: string[] } = {};
+    personalBest: { [login: string]: PersonalBest } = {};
 
     async onLoad() {
-        tmc.storage['db'].addModels([Score]);
+        tmc.storage['db'].addModels([Score, PersonalBest]);
         tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
         tmc.server.addListener('TMC.PlayerFinish', this.onPlayerFinish, this);
         tmc.server.addListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint, this);
@@ -34,26 +36,26 @@ export default class Records extends Plugin {
             title: 'Local Records',
             action: '/records'
         });
-        this.currentMapUid = tmc.maps.currentMap.UId;
         await this.syncRecords(tmc.maps.currentMap.UId);
     }
 
     async onBeginMap(data: any) {
         const map = data[0];
-        this.currentMapUid = map.UId;
+        tmc.maps.currentMap.UId = map.UId;
+        this.personalBest = {};
         await this.syncRecords(map.UId);
     }
 
     async settingMaxRecords(value: any) {
-        await this.syncRecords(this.currentMapUid);
+        await this.syncRecords(tmc.maps.currentMap.UId);
     }
 
     async cmdRecords(login: string, args: string[]) {
         let records: any = [];
-        let mapUuid = this.currentMapUid;
+        let mapUuid = tmc.maps.currentMap.UId;
 
         if (args.length > 0) {
-            mapUuid = args[0].trim() || this.currentMapUid;
+            mapUuid = args[0].trim() || tmc.maps.currentMap.UId;
         }
 
         for (const record of await this.getRecords(mapUuid)) {
@@ -62,7 +64,7 @@ export default class Records extends Plugin {
                 nickname: htmlEntities(record?.player?.customNick ?? record?.player?.nickname ?? ''),
                 login: record.login,
                 time: formatTime(record.time ?? 0),
-                mapUuid: mapUuid,
+                mapUuid: mapUuid
             });
         }
         const map = tmc.maps.getMap(mapUuid) ?? tmc.maps.currentMap;
@@ -191,16 +193,67 @@ export default class Records extends Plugin {
         this.playerCheckpoints[login].push(racetime.toString());
 
         const nbCp = tmc.maps.currentMap?.NbCheckpoints || 1;
-        if (checkpointIndex % nbCp == 0) {
+        if (checkpointIndex % nbCp == nbCp) {
             this.playerCheckpoints[login].push(';');
         } else {
             this.playerCheckpoints[login].push(',');
         }
     }
 
+    async updatePB(login: string, personalBest: PersonalBest, time: number) {
+        if (!personalBest) return;
+        if (personalBest.mapUuid !== tmc.maps.currentMap.UId) {
+            tmc.debug('PB not for this map');
+            return;
+        }
+        if (personalBest.login !== login) {
+            tmc.debug('PB not for this player');
+            return;
+        }
+
+        personalBest.avgTime = personalBest.avgTime ? (((personalBest.avgTime * (personalBest.finishCount ?? 1)) + time) / ((personalBest.finishCount ?? 0) + 1)) : time;
+        personalBest.finishCount = personalBest.finishCount ? personalBest.finishCount + 1 : 1;
+        if (personalBest.time && time < personalBest.time) {
+            personalBest.time = time;
+            personalBest.checkpoints = this.playerCheckpoints[login].join('');
+        }
+        personalBest.updatedAt = new Date().toISOString();
+        personalBest.save();
+    }
+
     async onPlayerFinish(data: any) {
         const login = data[0];
         const limit = tmc.settings.get('records.maxRecords') || 100;
+        try {
+            if (!this.personalBest[login]) {
+                const personalBest = await PersonalBest.findOne({
+                    where: {
+                        [Op.and]: {
+                            login: login,
+                            mapUuid: tmc.maps.currentMap.UId
+                        }
+                    }
+                });
+                if (personalBest) {
+                    this.updatePB(login, personalBest, data[1]);
+                } else {
+                    this.personalBest[login] = await PersonalBest.create({
+                        login: login,
+                        mapUuid: tmc.maps.currentMap.UId,
+                        finishCount: 1,
+                        time: data[1],
+                        avgTime: data[1],
+                        checkpoints: this.playerCheckpoints[login].join(''),
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+            } else {
+                this.updatePB(login, this.personalBest[login], data[1]);
+            }
+        } catch (e: any) {
+            tmc.cli(e);
+        }
 
         try {
             if (!this.playerCheckpoints[login]) {
@@ -208,7 +261,6 @@ export default class Records extends Plugin {
             }
 
             this.playerCheckpoints[login].push(data[1].toString());
-
             if (this.records.length == 0) {
                 let ranking = await this.getRankingsForLogin(data);
                 if (ranking.BestTime <= 0) return;
@@ -216,13 +268,13 @@ export default class Records extends Plugin {
                     login: login,
                     time: ranking.BestTime,
                     checkpoints: this.playerCheckpoints[login].join(''),
-                    mapUuid: this.currentMapUid
+                    mapUuid: tmc.maps.currentMap.UId
                 });
                 const newRecord = await Score.findOne({
                     where: {
                         [Op.and]: {
                             login: login,
-                            mapUuid: this.currentMapUid
+                            mapUuid: tmc.maps.currentMap.UId
                         }
                     },
                     include: Player
@@ -263,7 +315,7 @@ export default class Records extends Plugin {
                 }
             } else {
                 await Score.create({
-                    mapUuid: this.currentMapUid,
+                    mapUuid: tmc.maps.currentMap.UId,
                     login: login,
                     time: ranking.BestTime,
                     checkpoints: this.playerCheckpoints[login].join('')
@@ -272,7 +324,7 @@ export default class Records extends Plugin {
                     where: {
                         [Op.and]: {
                             login: login,
-                            mapUuid: this.currentMapUid
+                            mapUuid: tmc.maps.currentMap.UId
                         }
                     },
                     include: Player

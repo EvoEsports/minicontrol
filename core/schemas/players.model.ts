@@ -16,11 +16,16 @@ class Player extends Model {
     customNick?: string | null;
 
     @Column(DataType.BOOLEAN)
-    allowOverride?: boolean | null = true;
+    allowOverride?: boolean | null;
 
     @Column(DataType.STRING)
     zone?: string | null;
 
+    @Column(DataType.INTEGER)
+    totalPlaytime?: number | null;
+
+    @Column(DataType.INTEGER)
+    connectCount?: number | null;
 }
 
 export default Player;

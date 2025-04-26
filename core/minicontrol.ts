@@ -384,6 +384,7 @@ class MiniControl {
      */
     async beforeInit() {
         await this.chatCmd.beforeInit();
+
         // load plugins
         let plugins = fs.readdirSync(process.cwd().replaceAll('\\', '/') + '/core/plugins', { withFileTypes: true, recursive: true });
         plugins = plugins.concat(fs.readdirSync(process.cwd().replaceAll('\\', '/') + '/userdata/plugins', { withFileTypes: true, recursive: true }));

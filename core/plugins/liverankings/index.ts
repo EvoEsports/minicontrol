@@ -118,7 +118,7 @@ export default class liverankings extends Plugin {
         this.playerCheckpoints[login].push(raceTime.toString());
         const nbCp = tmc.maps.currentMap?.NbCheckpoints || 1;
 
-        if (checkpointIndex % nbCp == 0) {
+        if (checkpointIndex % nbCp == nbCp) {
             this.playerCheckpoints[login].push(';');
         } else {
             this.playerCheckpoints[login].push(',');
