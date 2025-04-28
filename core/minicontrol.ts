@@ -355,7 +355,7 @@ class MiniControl {
         this.server.send('SendHideManialinkPage');
 
         if (this.game.Name == 'Trackmania') {
-            await this.server.call('SetApiVersion', '2023-04-16');
+            await this.server.call('SetApiVersion', '2023-03-25');
             this.mapsPath = await this.server.call('GetMapsDirectory');
             await this.server.callScript('XmlRpc.EnableCallbacks', 'true');
         } else if (this.game.Name == 'TmForever') {

@@ -108,7 +108,7 @@ export default class GenericDb extends Plugin {
                         sequelize
                     }),
                     logger: {
-                        debug: (_message) => {},
+                        debug: (_message) => { },
                         error: (message) => {
                             tmc.cli('$f00' + message);
                         },
@@ -171,11 +171,15 @@ export default class GenericDb extends Plugin {
     }
 
     async onEndMap(data: any) {
-        const map = await Map.findByPk(data[1].UId);
-        if (map) {
-            await map.update({
-                lastPlayed: new Date().toISOString()
-            });
+        try {
+            const map = await Map.findByPk(data[1].UId);
+            if (map) {
+                await map.update({
+                    lastPlayed: new Date().toISOString()
+                });
+            }
+        } catch (e: any) {
+            tmc.cli('¤error¤' + e.message);
         }
     }
 

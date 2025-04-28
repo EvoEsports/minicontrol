@@ -46,6 +46,10 @@ export default class Chat extends Plugin {
                     },
                     'How to apply emotes'
                 );
+            } else {
+                // TODO: Add support for openplanet Better chat
+                tmc.chatCmd.addCommand(
+                    '/chatformat', async () => {}, '');
             }
         } catch (e: any) {
             this.pluginEnabled = false;

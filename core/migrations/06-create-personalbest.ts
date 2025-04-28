@@ -48,14 +48,14 @@ export const up: Migration = async ({ context: sequelize }) => {
     });
 
     // fill the table with data from scores table
-    tmc.cli("Filling personalbest table with data from scores table...");
-    tmc.cli("This may take a while...");
+    console.log("Filling personalbest table with data from scores table...");
+    console.log("This may take a while...");
     await queryInterface.sequelize.query(`
         INSERT INTO personalbest (mapUuid, login, time, checkpoints, avgTime, finishCount, createdAt, updatedAt)
-        SELECT mapUuid, login, time, checkpoints, time, 1, NOW(), NOW()
+        SELECT mapUuid, login, time, checkpoints, time, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
         FROM scores
     `);
-    tmc.cli("Done.");
+    console.log("Done.");
 };
 
 export const down: Migration = async ({ context: sequelize }) => {
