@@ -20,12 +20,12 @@ export default class RecordsWidget extends Plugin {
     async onLoad() {
         tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
         tmc.server.addListener('TMC.PlayerDisconnect', this.onPlayerDisconnect, this);
-        tmc.server.addListener('Plugin.Records.onSync', this.onSync, this);
         tmc.server.addListener('Plugin.LiveRankings.onSync', this.onLiveSync, this);
         tmc.server.addListener('Plugin.WorldRecords.onSync', this.onWorldSync, this);
         tmc.server.addListener('Plugin.Dedimania.onSync', this.onDediSync, this);
         tmc.server.addListener('Plugin.Dedimania.onNewRecord', this.onDediUpdate, this);
-        tmc.server.addListener('Plugin.Records.onRefresh', this.onSync, this);
+        tmc.server.addListener('Plugin.Records.onSync', this.onRecSync, this);
+        tmc.server.addListener('Plugin.Records.onRefresh', this.onRecRefresh, this);
         tmc.server.addListener('Plugin.Records.onUpdateRecord', this.onUpdateRecord, this);
         tmc.server.addListener('Plugin.Records.onNewRecord', this.onNewRecord, this);
     }
@@ -33,12 +33,12 @@ export default class RecordsWidget extends Plugin {
     async onUnload() {
         tmc.server.removeListener('TMC.PlayerConnect', this.onPlayerConnect);
         tmc.server.removeListener('TMC.PlayerDisconnect', this.onPlayerDisconnect);
-        tmc.server.removeListener('Plugin.Records.onSync', this.onSync);
         tmc.server.removeListener('Plugin.LiveRankings.onSync', this.onLiveSync);
         tmc.server.removeListener('Plugin.WorldRecords.onSync', this.onWorldSync);
         tmc.server.removeListener('Plugin.Dedimania.onSync', this.onDediSync);
         tmc.server.removeListener('Plugin.Dedimania.onNewRecord', this.onDediUpdate);
-        tmc.server.removeListener('Plugin.Records.onRefresh', this.onSync);
+        tmc.server.removeListener('Plugin.Records.onSync', this.onRecSync);
+        tmc.server.removeListener('Plugin.Records.onRefresh', this.onRecRefresh);
         tmc.server.removeListener('Plugin.Records.onUpdateRecord', this.onUpdateRecord);
         tmc.server.removeListener('Plugin.Records.onNewRecord', this.onNewRecord);
         for (const login of Object.keys(this.widgets)) {
@@ -81,10 +81,15 @@ export default class RecordsWidget extends Plugin {
         }
     }
 
-    async onSync(data: any) {
+    async onRecSync(data: any) {
         this.records = data.records;
         this.update = true;
         this.updateWidgets();
+    }
+
+    async onRecRefresh(data: any) {
+        this.records = data.records;
+        this.update = true;
     }
 
     async onLiveSync(data: any) {

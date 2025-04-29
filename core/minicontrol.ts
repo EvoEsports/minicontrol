@@ -19,6 +19,11 @@ import { require } from 'tsx/cjs/api';
 import * as SentryType from '@sentry/node';
 
 const Sentry = require('./sentry', import.meta.url);
+declare global {
+    const tmc: MiniControl;
+    const sentry: typeof SentryType;
+}
+(globalThis as any).tmc = undefined;
 
 import PlayerManager, { Player } from './playermanager';
 import BillManager from './billmanager';
@@ -517,22 +522,8 @@ class MiniControl {
 }
 
 const tmc = new MiniControl();
-
-declare global {
-    const tmc: MiniControl;
-    const sentry: typeof SentryType;
-}
-
 (globalThis as any).tmc = tmc;
 (globalThis as any).sentry = Sentry;
-
-(async () => {
-    try {
-        await tmc.run();
-    } catch (e: any) {
-        tmc.cli('¤error¤' + e.message);
-    }
-})();
 
 process.on('SIGINT', function () {
     tmc.server.send('SendHideManialinkPage', 0, false);
@@ -557,3 +548,11 @@ process.on('uncaughtException', function (err) {
         // process.exit(1);
     }
 });
+
+try {
+    tmc.run();
+} catch (e: any) {
+    tmc.cli('¤error¤' + e.message);
+}
+
+tmc.debug('MINIcontrol is running, add debug point here to get tmc object to debug console.');

@@ -61,17 +61,15 @@ export default class RecordsSector extends Plugin {
                 this.sectorRecords[login] = [];
             }
 
-            const record = await SectorRec.findAll({
+            const record = await SectorRec.findOne({
                 where: {
                     mapUuid: tmc.maps.currentMap.UId,
                     login: login
                 }
             });
             if (!record) return;
-            if (record.length > 0) {
-                this.recordCache[login] = record[0];
-                this.sectorRecords[login] = JSON.parse(record[0].jsonData ?? '[]');
-            }
+            this.recordCache[login] = record;
+            this.sectorRecords[login] = JSON.parse(record.jsonData ?? '[]');
         } catch (err: any) {
             tmc.cli(`¤error¤Error loading sector records for ${login}: ` + err.message);
         }
@@ -90,10 +88,9 @@ export default class RecordsSector extends Plugin {
             }
         }
         filter.push('*Best Records*');
-
         const records = await SectorRec.findAll({
             where: {
-                mapUuid: tmc.maps.currentMap?.UId,
+                mapUuid: tmc.maps.currentMap.UId,
                 login: {
                     [Op.in]: filter
                 }
