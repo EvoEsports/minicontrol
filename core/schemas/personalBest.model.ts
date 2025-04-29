@@ -1,7 +1,7 @@
 import { Table, Column, Model, PrimaryKey, Unique, Index, DataType, NotNull, AllowNull, HasOne, ForeignKey, AutoIncrement } from 'sequelize-typescript';
 import Player from './players.model';
 
-@Table({ tableName: "personalBest", timestamps: true })
+@Table({ tableName: "personalbest", timestamps: true })
 class PersonalBest extends Model {
     @PrimaryKey
     @AutoIncrement

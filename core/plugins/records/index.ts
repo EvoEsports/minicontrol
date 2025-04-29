@@ -6,7 +6,7 @@ import { clone, htmlEntities, formatTime } from '@core/utils';
 import RecordsWindow from './recordsWindow';
 import { Op } from 'sequelize';
 import Menu from '../menu/menu';
-import { create } from 'domain';
+
 
 export default class Records extends Plugin {
     static depends: string[] = ['database'];

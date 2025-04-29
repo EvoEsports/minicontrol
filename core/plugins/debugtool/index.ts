@@ -21,6 +21,15 @@ export default class DebugTool extends Plugin {
         }
         tmc.addCommand('//mem', this.cmdMeminfo.bind(this), 'Show Memory usage');
         tmc.addCommand('//uptime', this.cmdUptime.bind(this), 'Show Uptime');
+        tmc.addCommand('//gc', async (login: string) => {
+            if (gc) {
+                tmc.chat('¤info¤Running garbage collector...', login);
+                gc();
+            } else {
+                tmc.chat('¤error¤Garbage collector is not available', login);
+            }
+        }, 'Run garbage collector');
+
         setInterval(() => {
             const currentMem = process.memoryUsage().rss / 1048576;
             const diff = currentMem - startValueMem;
@@ -69,9 +78,9 @@ export default class DebugTool extends Plugin {
         let diff = Date.now() - Number.parseInt(tmc.startTime);
         tmc.chat(
             '¤info¤Uptime: ¤white¤' +
-                tm.Time.fromMilliseconds(diff)
-                    .toTmString()
-                    .replace(/[.]\d{3}/, ''),
+            tm.Time.fromMilliseconds(diff)
+                .toTmString()
+                .replace(/[.]\d{3}/, ''),
             login
         );
     }
@@ -81,11 +90,11 @@ export default class DebugTool extends Plugin {
         let start = Date.now() - Number.parseInt(tmc.startTime);
         tmc.cli(
             '¤info¤Memory usage: $fff' +
-                mem +
-                ' ¤info¤uptime: ¤white¤' +
-                tm.Time.fromMilliseconds(start)
-                    .toTmString()
-                    .replace(/[.]\d{3}/, '')
+            mem +
+            ' ¤info¤uptime: ¤white¤' +
+            tm.Time.fromMilliseconds(start)
+                .toTmString()
+                .replace(/[.]\d{3}/, '')
         );
         if (this.widget) {
             this.widget.setData({ mem: mem });
