@@ -88,7 +88,7 @@ export default class Checkpoints extends Plugin {
     }
 
     async onPlayerGiveup(data: any) {
-        this.checkpointCounter[data[0]] = 0;
+        this.checkpointCounter[data[0].toString()] = 0;
         await this.displayWidget(data[0]);
     }
 

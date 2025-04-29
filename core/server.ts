@@ -107,13 +107,14 @@ export default class Server {
         // Handle legacy events
         switch (method) {
             case 'Trackmania.PlayerCheckpoint':
-                this.events.emit('TMC.PlayerCheckpoint', [data[1], data[2], data[4]]);
+                this.events.emit('TMC.PlayerCheckpoint', [data[1].toString(), data[2], data[4]]);
                 return;
             case 'Trackmania.PlayerFinish':
+                if (data[0] === 0) return;
                 if (data[2] < 1) {
-                    this.events.emit('TMC.PlayerGiveup', [data[1]]);
+                    this.events.emit('TMC.PlayerGiveup', [data[1].toString()]);
                 } else {
-                    this.events.emit('TMC.PlayerFinish', [data[1], data[2]]);
+                    this.events.emit('TMC.PlayerFinish', [data[1].toString(), data[2]]);
                 }
                 return;
             default:

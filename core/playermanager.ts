@@ -105,7 +105,7 @@ export default class PlayerManager {
      * @ignore
      */
     private async onPlayerConnect(data: any) {
-        const login = data[0];
+        const login = data[0].toString();
         if (login) {
             if (this.players[login]) {
                 tmc.cli(`$888Player ${login} already connected, kicking player due a bug to allow them joining again.`);
@@ -125,7 +125,7 @@ export default class PlayerManager {
      * @param data data from the server
      */
     private async onPlayerDisconnect(data: any) {
-        const login = data[0];
+        const login = data[0].toString();
         if (login && this.players[login]) {
             tmc.server.emit('TMC.PlayerDisconnect', clone(this.players[login]));
             delete this.players[login];
@@ -185,7 +185,7 @@ export default class PlayerManager {
      * @returns
      */
     private async onPlayerInfoChanged(data: any) {
-        data = data[0];
+        data = data[0].toString();
         if (data.PlayerId == 0 || data.Login == tmc.server.login) return;
         if (this.players[data.Login]) {
             this.players[data.Login].syncFromPlayerInfo(data);
