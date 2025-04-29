@@ -63,13 +63,13 @@ export default class RecordsSector extends Plugin {
 
             const record = await SectorRec.findAll({
                 where: {
-                    mapUuid: tmc.maps.currentMap?.UId,
+                    mapUuid: tmc.maps.currentMap.UId,
                     login: login
                 }
             });
-
             if (!record) return;
             if (record.length > 0) {
+                this.recordCache[login] = record[0];
                 this.sectorRecords[login] = JSON.parse(record[0].jsonData ?? '[]');
             }
         } catch (err: any) {
@@ -189,7 +189,6 @@ export default class RecordsSector extends Plugin {
                         });
                     }
                 } catch (err: any) {
-                    console.log(err);
                     tmc.cli(`¤error¤Error saving sector records for login ${login}: ` + err.message);
                 }
 
