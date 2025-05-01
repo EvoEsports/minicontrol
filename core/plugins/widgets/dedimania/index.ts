@@ -2,11 +2,10 @@ import type { Player } from '@core/playermanager';
 import Plugin from '@core/plugins';
 import type { DediRecord } from '@core/plugins/tmnf/dedimania';
 import Widget from '@core/ui/widget';
-import { formatTime, removeColors, htmlEntities } from '@core/utils';
-
+import { formatTime, htmlEntities } from '@core/utils';
 
 export default class DedimaniaWidget extends Plugin {
-    static depends: string[] = ["tmnf/dedimania"];
+    static depends: string[] = ["game:TmForever", "tmnf/dedimania"];
     records: DediRecord[] = [];
     widgets: { [key: string]: Widget } = {};
 
