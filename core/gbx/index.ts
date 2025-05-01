@@ -55,6 +55,10 @@ export class GbxClient {
         host = host || '127.0.0.1';
         port = port || 5000;
         const socket = new Socket();
+
+        // increase max listeners to avoid warnings
+        socket.setMaxListeners(30);
+
         const timeout = 5000;
         this.socket = socket;
 
