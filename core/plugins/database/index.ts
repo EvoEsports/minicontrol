@@ -56,6 +56,7 @@ const strToCar: any = {
 interface DbPlayer extends PlayerType {
     joinedAt: number;
     totalPlaytime: number;
+    customNick: string;
 }
 
 export default class GenericDb extends Plugin {
@@ -108,7 +109,7 @@ export default class GenericDb extends Plugin {
                         sequelize
                     }),
                     logger: {
-                        debug: (_message) => { },
+                        debug: (_message) => {},
                         error: (message) => {
                             tmc.cli('$f00' + message);
                         },
@@ -200,9 +201,10 @@ export default class GenericDb extends Plugin {
             }
             player.set('connectCount', dbPlayer?.connectCount || 0);
             player.set('totalPlaytime', dbPlayer?.totalPlaytime || 0);
+            player.set('customNick', dbPlayer?.customNick || player.nickname);
             player.set('joinedAt', new Date().getTime());
         } catch (e: any) {
-            tmc.cli('¤error¤' + e.message);
+            tmc.cli('¤error¤[database.syncplayer] ' + e.message);
         }
     }
 
@@ -299,7 +301,7 @@ export default class GenericDb extends Plugin {
             return;
         }
 
-        const tmPlayer = await tmc.players.getPlayer(login) as DbPlayer;
+        const tmPlayer = (await tmc.players.getPlayer(login)) as DbPlayer;
         const sessionTime = Math.floor((new Date().getTime() - tmPlayer.joinedAt) / 1000);
 
         const totalSeconds = (dbPlayer.totalPlaytime || 0) + sessionTime;

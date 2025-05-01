@@ -63,7 +63,7 @@ export default class Server {
 
     async onCallback(method: string, data: any) {
         method = method.replace(/(ManiaPlanet\.)|(TrackMania\.)/i, 'Trackmania.').replace('Challenge', 'Map');
-        const isDebug = process.env.DEBUG === 'true';
+        const isDebug = process.env.DEBUG_GBX === 'true';
 
         // Handle Trackmania.Echo
         if (method === 'Trackmania.Echo') {

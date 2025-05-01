@@ -56,6 +56,12 @@ export function rgb2hsl(r: number, g: number, b: number) {
     let h = c && (v == r ? (g - b) / c : v == g ? 2 + (b - r) / c : 4 + (r - g) / c);
     return [60 * (h < 0 ? h + 6 : h), f ? c / f : 0, (v + v - c) / 2];
 }
+export function getCountryFromPath(path:string) {
+    if (!path) return 'World';
+    if (path.indexOf('World|') == -1) return path;
+    const pathSplit = path.split('|');
+    return pathSplit[2] || pathSplit[1] || pathSplit[0];
+}
 
 export function parseEntries(entries: any[]) {
     let out: { [key: string]: any } = {};

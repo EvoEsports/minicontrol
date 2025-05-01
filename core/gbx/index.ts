@@ -62,7 +62,8 @@ export class GbxClient {
             {
                 host: host,
                 port: port,
-                keepAlive: true
+                keepAlive: true,
+                family: 4
             },
             () => {
                 socket.on('connect', () => {
@@ -308,7 +309,7 @@ export class GbxClient {
         // Define request size limits per game
         const limits: { [key: string]: number } = {
             Trackmania: 7 * 1024 * 1024,
-            TmForever: 1024 * 1024,
+            TmForever: 1 * 1024 * 1024,
             ManiaPlanet: 4 * 1024 * 1024
         };
 
@@ -325,14 +326,22 @@ export class GbxClient {
         const handle = this.reqHandle;
 
         // Allocate buffer and write header and XML payload
-        const len = Buffer.byteLength(xml);
+        const len = Buffer.byteLength(xml, 'utf-8');
         const buf = Buffer.alloc(HEADER_LENGTH + len);
         buf.writeInt32LE(len, 0); // write length at offset 0
         buf.writeUInt32LE(handle, 4); // write request handle at offset 4
-        buf.write(xml, HEADER_LENGTH); // write xml starting at offset 8
+        buf.write(xml, HEADER_LENGTH, 'utf-8'); // write xml starting at offset 8
 
         // Write buffer to the socket
-        this.socket?.write(buf);
+        await new Promise((resolve, reject) => {
+            if (!this.socket?.write(buf, (err?: Error) => {
+                if (err) reject(err);
+            })) {
+                this.socket?.once('drain', resolve);
+            } else {
+                process.nextTick(resolve);
+            }
+        });
 
         // If not waiting for a response, return an empty object.
         if (!wait) {

@@ -28,8 +28,10 @@ export default class UiManager {
     private publicManialinks: { [key: string]: Manialink } = {};
     private playerManialinks: { [key: string]: Manialink } = {};
     private manialinkUUID: number = 2;
+    // array of logins that have hidden manialinks
     private hiddenManialinks: string[] = [];
     private uiProperties: uiModule[] = [];
+
     private scriptCalls: string[] = [];
     tmnfCustomUi: CustomUI = {
         notice: false,
@@ -522,6 +524,7 @@ export default class UiManager {
             tmc.cli('¤error¤invalid key: ¤white¤' + key + '¤error¤ for custom ui');
         }
     }
+
     getCustomUI() {
         return this.tmnfCustomUi;
     }
