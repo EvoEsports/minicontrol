@@ -27,6 +27,7 @@ export default class RecordsSector extends Plugin {
     }
 
     async onStart() {
+        await this.onBeginMap();
         tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
         tmc.server.addListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint, this);
         tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
@@ -39,7 +40,7 @@ export default class RecordsSector extends Plugin {
             action: '/sectors'
         });
 
-        await this.onBeginMap();
+
     }
 
     getSectorTime(login: string, checkpoint: number, racetime: number): number {
