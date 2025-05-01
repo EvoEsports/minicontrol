@@ -412,7 +412,7 @@ export default class Records extends Plugin {
             this.records = this.records.slice(0, limit);
             if (this.records.includes(record)) {
                 inRange = true;
-                record.save();
+                await record.save();
             }
 
             if (!inRange) {

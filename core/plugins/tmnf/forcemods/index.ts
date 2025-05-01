@@ -34,12 +34,13 @@ export default class ForceMods extends Plugin {
     Alpine: process.env.FORCEMODS_URL_ALPINE || this.defaultModUrl,
   };
   overrideMods: boolean =
-    process.env.FORCEMODS_OVERRIDE_TRACKMOD?.toLowerCase() == "true";
+    process.env.FORCEMODS_OVERRIDE_TRACKMOD?.toLowerCase() === "true";
 
   async onLoad() {
     this.enabled = true;
     tmc.cli("¤info¤ForceMods: TmForever detected, enabling plugin.");
     tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
+    await this.onEndMap([]);
   }
 
   async onUnload() {
@@ -66,7 +67,7 @@ export default class ForceMods extends Plugin {
         "[ForceMods] DEBUG: Forcing mod to be overwritten due to FORCEMODS_OVERRIDE_TRACKMOD",
       );
     }
-    await tmc.server.call("SetForcedMods", this.overrideMods, [
+    tmc.server.send("SetForcedMods", this.overrideMods, [
       { Env: nextMap.Environnement, Url: nextModUrl },
     ]);
   }
