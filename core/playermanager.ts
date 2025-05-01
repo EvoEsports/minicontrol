@@ -142,6 +142,10 @@ export default class PlayerManager {
         return Object.values(this.players);
     }
 
+    getAllLogins(): string[] {
+        return Object.keys(this.players);
+    }
+
     /**
      * get player by nickname
      * @param nickname

@@ -555,4 +555,4 @@ try {
     tmc.cli('¤error¤' + e.message);
 }
 
-tmc.debug('MINIcontrol is running, add debug point here to get tmc object to debug console.');
+ tmc.debug('MINIcontrol is running, add debug point this line to get tmc object to debug console.');

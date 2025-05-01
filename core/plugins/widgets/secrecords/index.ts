@@ -19,14 +19,11 @@ export default class SecRecordsWidget extends Plugin {
     async diffBest(data: any) {
         this.onBest(data, false);
     }
-    async newPB(data: any) {
-        this.onPB(data, true);
-    }
-    async diffPB(data: any) {
-        this.onPB(data, false);
-    }
 
     async onBest(data: any, isNew: boolean) {
+        const minPlayers = tmc.settings.get('widgets.performance');
+        if (tmc.players.getAllLogins().length >= minPlayers ) return;
+
         const player: Player = data[0];
         const checkpoint: number = data[1];
         const newRecord: TopRecord = data[2];
@@ -73,6 +70,13 @@ export default class SecRecordsWidget extends Plugin {
         }
 
         tmc.server.send('SendDisplayManialinkPageToLogin', player.login, tmc.ui.convert(xml), 2000, false);
+    }
+
+    async newPB(data: any) {
+        this.onPB(data, true);
+    }
+    async diffPB(data: any) {
+        this.onPB(data, false);
     }
 
     async onPB(data: any, isNew: boolean) {

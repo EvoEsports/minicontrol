@@ -58,10 +58,12 @@ export default class Checkpoints extends Plugin {
     }
 
     async onHideWidget(data: any) {
-        const players = tmc.players.getAll();
-        for (const player of players) {
-            if (this.widgets[player.login]) {
-                await this.widgets[player.login].hide();
+        const minPlayers = tmc.settings.get("widgets.performance");
+        const logins = tmc.players.getAllLogins();
+        if (logins.length >= minPlayers) return;
+        for (const login of logins) {
+            if (this.widgets[login]) {
+                await this.widgets[login].hide();
             }
         }
     }
@@ -93,6 +95,9 @@ export default class Checkpoints extends Plugin {
     }
 
     async displayWidget(login: string) {
+        const minPlayers = tmc.settings.get("widgets.performance");
+        if (tmc.players.getAllLogins().length >= minPlayers) return;
+
         if (!this.widgets[login]) {
             const player = await tmc.getPlayer(login);
             await this.onPlayerConnect(player);

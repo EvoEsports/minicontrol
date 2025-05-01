@@ -15,10 +15,6 @@ export default class Records extends Plugin {
 
     async onLoad() {
         tmc.storage['db'].addModels([Score, PersonalBest]);
-        tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
-        tmc.server.addListener('TMC.PlayerFinish', this.onPlayerFinish, this);
-        tmc.server.addListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint, this);
-        tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
         tmc.chatCmd.addCommand('/records', this.cmdRecords.bind(this), 'Display Records');
         tmc.settings.register('records.maxRecords', 100, this.settingMaxRecords.bind(this), 'LocalRecords: Maximum number of records');
     }
@@ -37,6 +33,11 @@ export default class Records extends Plugin {
             action: '/records'
         });
         await this.syncRecords(tmc.maps.currentMap.UId);
+
+        tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
+        tmc.server.addListener('TMC.PlayerFinish', this.onPlayerFinish, this);
+        tmc.server.addListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint, this);
+        tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
     }
 
     async onBeginMap(data: any) {
@@ -105,7 +106,6 @@ export default class Records extends Plugin {
             tmc.server.emit('Plugin.Records.onRefresh', {
                 records: clone(this.records)
             });
-
         } catch (e: any) {
             tmc.cli('¤error¤Error fetching new record: ' + e.message);
         }
@@ -234,14 +234,16 @@ export default class Records extends Plugin {
 
     async getRankingsForLogin(data: any) {
         const login = data[0];
+        /*
         if (tmc.game.Name === 'TmForever') {
             const ranking = await tmc.server.call('GetCurrentRankingForLogin', login);
             return ranking[0];
         }
-
+        */
+        const player = await tmc.players.getPlayer(login);
         return {
             login: login,
-            NickName: (await tmc.players.getPlayer(login)).nickname,
+            NickName: player.customName ?? player.nickname,
             BestTime: data[1]
         };
     }
@@ -280,7 +282,7 @@ export default class Records extends Plugin {
         personalBest.finishCount = personalBest.finishCount ? personalBest.finishCount + 1 : 1;
         if (personalBest.time && time < personalBest.time) {
             personalBest.time = time;
-            personalBest.checkpoints = this.playerCheckpoints[login].join('');
+            personalBest.checkpoints = (this.playerCheckpoints[login] ?? []).join('');
         }
         personalBest.updatedAt = new Date().toISOString();
         personalBest.save();
@@ -288,6 +290,7 @@ export default class Records extends Plugin {
 
     async onPlayerFinish(data: any) {
         const login = data[0];
+
         const limit = tmc.settings.get('records.maxRecords') || 100;
         try {
             if (!this.personalBest[login]) {
@@ -317,7 +320,7 @@ export default class Records extends Plugin {
                 this.updatePB(login, this.personalBest[login], data[1]);
             }
         } catch (e: any) {
-            tmc.cli(e);
+            tmc.cli(`¤error¤updatePB: ${e.message}`);
         }
 
         try {
@@ -326,6 +329,7 @@ export default class Records extends Plugin {
             }
 
             this.playerCheckpoints[login].push(data[1].toString());
+
             if (this.records.length == 0) {
                 let ranking = await this.getRankingsForLogin(data);
                 if (ranking.BestTime <= 0) return;
@@ -364,14 +368,14 @@ export default class Records extends Plugin {
 
             if (lastIndex >= limit && lastRecord && typeof lastRecord.time === 'number' && ranking.BestTime >= lastRecord.time) return;
             const time = ranking.BestTime;
-            const record = this.records.find((r) => r.login === login);
+            let record = this.records.find((r) => r.login === login);
             let oldRecord: Score = clone(record);
 
             if (record) {
                 if (typeof record.time === 'number') {
                     if (ranking.BestTime >= record.time) return;
                     if (time < record.time) {
-                        record.update({
+                        record.set({
                             time: ranking.BestTime,
                             checkpoints: this.playerCheckpoints[login].join('')
                         });
@@ -379,24 +383,17 @@ export default class Records extends Plugin {
                     }
                 }
             } else {
-                await Score.create({
-                    mapUuid: tmc.maps.currentMap.UId,
-                    login: login,
-                    time: ranking.BestTime,
-                    checkpoints: this.playerCheckpoints[login].join('')
-                });
-                const newRecord = await Score.findOne({
-                    where: {
-                        [Op.and]: {
-                            login: login,
-                            mapUuid: tmc.maps.currentMap.UId
-                        }
+                record = await Score.build(
+                    {
+                        mapUuid: tmc.maps.currentMap.UId,
+                        login: login,
+                        time: ranking.BestTime,
+                        checkpoints: this.playerCheckpoints[login].join('')
                     },
-                    include: Player
-                });
-                if (newRecord) {
-                    this.records.push(newRecord);
-                }
+                    {
+                        include: Player
+                    }
+                );
             }
             this.records.sort((a, b) => {
                 const timeA = a.time ?? Infinity;
@@ -411,16 +408,23 @@ export default class Records extends Plugin {
                 return timeA - timeB;
             });
 
+            let inRange = false;
+            this.records = this.records.slice(0, limit);
+            if (this.records.includes(record)) {
+                inRange = true;
+                record.save();
+            }
+
+            if (!inRange) {
+                return;
+            }
             let outRecord: Score = {} as Score;
             for (let i = 0; i < this.records.length; i++) {
                 this.records[i].rank = i + 1;
-
                 if (this.records[i].login == login) {
                     outRecord = this.records[i];
                 }
             }
-
-            this.records = this.records.slice(0, limit);
 
             if (!oldRecord) {
                 tmc.server.emit('Plugin.Records.onNewRecord', {
@@ -429,13 +433,13 @@ export default class Records extends Plugin {
                 });
             } else {
                 tmc.server.emit('Plugin.Records.onUpdateRecord', {
-                    oldRecord: oldRecord || {},
+                    oldRecord: oldRecord ?? {},
                     record: clone(outRecord),
                     records: clone(this.records)
                 });
             }
         } catch (e: any) {
-            tmc.cli(e);
+            tmc.cli(`¤error¤Update Record for login: ${login}: ${e.message}`);
         }
     }
 }

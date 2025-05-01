@@ -70,6 +70,8 @@ export default class RecordsWidget extends Plugin {
         const login = player.login;
         this.updateWidget(login);
         if (this.widgets[login]) {
+            const minPlayers = tmc.settings.get('widgets.performance') ?? 35;
+            if (tmc.players.getAllLogins().length >= minPlayers) return;
             tmc.ui.displayManialink(this.widgets[login]);
         }
     }
@@ -123,11 +125,17 @@ export default class RecordsWidget extends Plugin {
     }
 
     async updateWidgets() {
-        for (const player of tmc.players.getAll()) {
-            if (!this.widgetType[player.login]) {
-                this.widgetType[player.login] = 'server';
+        const minPlayers = tmc.settings.get('widgets.performance') ?? 35;
+        const logins = tmc.players.getAllLogins();
+        if (logins.length >= minPlayers) {
+            return;
+        }
+
+        for (const login of logins) {
+            if (!this.widgetType[login]) {
+                this.widgetType[login] = 'server';
             }
-            this.updateWidget(player.login);
+            this.updateWidget(login);
         }
         tmc.ui.displayManialinks(Object.values(this.widgets));
     }

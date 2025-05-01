@@ -172,14 +172,14 @@ export default class GenericDb extends Plugin {
 
     async onEndMap(data: any) {
         try {
-            const map = await Map.findByPk(data[1].UId);
+            const map = await Map.findByPk(data[0].UId);
             if (map) {
                 await map.update({
                     lastPlayed: new Date().toISOString()
                 });
             }
         } catch (e: any) {
-            tmc.cli('¤error¤' + e.message);
+            tmc.cli('¤error¤[Database.EndMap]' + e.message);
         }
     }
 
