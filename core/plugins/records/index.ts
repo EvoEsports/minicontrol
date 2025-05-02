@@ -264,7 +264,8 @@ export default class Records extends Plugin {
             personalBest.checkpoints = (this.playerCheckpoints[login] ?? []).join('');
         }
         personalBest.updatedAt = new Date().toISOString();
-        personalBest.save();
+        console.log('.');
+        await personalBest.save();
     }
 
     async onPlayerFinish(data: any) {
@@ -287,7 +288,7 @@ export default class Records extends Plugin {
             // Ensure checkpoints array exists and update it
             if (!this.playerCheckpoints[login]) this.playerCheckpoints[login] = [];
             this.playerCheckpoints[login].push(finishTime.toString());
-
+            /*
             try {
                 if (this.personalBest[login]) {
                     await this.updatePB(login, this.personalBest[login], finishTime);
@@ -308,8 +309,10 @@ export default class Records extends Plugin {
                             checkpoints: this.playerCheckpoints[login].join(''),
                             updatedAt: new Date().toISOString(),
                             createdAt: new Date().toISOString()
-                        }
-                    });
+                        },
+                        include: Player
+                    }
+                    );
 
                     this.personalBest[login] = pb;
                 }
@@ -317,6 +320,7 @@ export default class Records extends Plugin {
                 tmc.cli(`¤error¤updatePB: ${e.message}`);
                 return;
             }
+            */
 
             // If no records yet, create the first one
             if (this.records.length === 0) {
@@ -350,11 +354,8 @@ export default class Records extends Plugin {
                 return;
             }
 
-            let record: Score | undefined;
-
-            if (this.records.length == limit) {
-                record = this.records.find((r) => r.login === login);
-            } else {
+            let record: Score | undefined = this.records.find((r) => r.login === login);
+            if (!record) {
                 record =
                     (await Score.findOne({
                         where: {
@@ -376,7 +377,7 @@ export default class Records extends Plugin {
                     oldRecord = clone(record);
                     await record.update({
                         time: finishTime,
-                        checkpoints: this.playerCheckpoints[login].join(''),
+                        checkpoints: (this.playerCheckpoints[login]??[]).join(''),
                         updatedAt: new Date().toISOString()
                     });
                 } else {
@@ -386,18 +387,17 @@ export default class Records extends Plugin {
             } else {
                 // New record for this player
                 isNewRecord = true;
-                await Score.create(
-                    {
-                        login,
-                        time: finishTime,
-                        checkpoints: this.playerCheckpoints[login].join(''),
-                        mapUuid
-                    }
-                );
-                record = (await Score.findOne({
-                    where: { [Op.and]: { login, mapUuid } },
-                    include: Player
-                })) || undefined;
+                await Score.create({
+                    login,
+                    time: finishTime,
+                    checkpoints: (this.playerCheckpoints[login]??[]).join(''),
+                    mapUuid
+                });
+                record =
+                    (await Score.findOne({
+                        where: { [Op.and]: { login, mapUuid } },
+                        include: Player
+                    })) || undefined;
                 if (record) {
                     this.records.push(record);
                 }
