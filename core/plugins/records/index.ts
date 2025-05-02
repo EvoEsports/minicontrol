@@ -6,6 +6,7 @@ import { clone, htmlEntities, formatTime } from '@core/utils';
 import RecordsWindow from './recordsWindow';
 import { Op } from 'sequelize';
 import Menu from '../menu/menu';
+import { time } from 'console';
 
 export default class Records extends Plugin {
     static depends: string[] = ['database'];
@@ -66,50 +67,6 @@ export default class Records extends Plugin {
             }
         } catch (e: any) {
             tmc.cli('¤error¤Error fetching personal best: ' + e.message);
-        }
-        try {
-            const newRecord = await Score.findOne({
-                where: {
-                    [Op.and]: {
-                        login: login,
-                        mapUuid: tmc.maps.currentMap.UId
-                    }
-                },
-                include: Player
-            });
-            if (!newRecord) return;
-            // update record if present in records
-            const record = this.records.find((r) => r.login === login);
-            if (record) {
-                record.time = newRecord.time;
-                record.checkpoints = newRecord.checkpoints;
-                record.updatedAt = newRecord.updatedAt;
-            } else {
-                this.records.push(newRecord);
-            }
-            this.records.sort((a, b) => {
-                const timeA = a.time ?? Infinity;
-                const timeB = b.time ?? Infinity;
-
-                if (timeA === timeB) {
-                    const strA = a.updatedAt.toString();
-                    const strB = b.updatedAt.toString();
-                    return strA.localeCompare(strB);
-                }
-
-                return timeA - timeB;
-            });
-            for (let i = 0; i < this.records.length; i++) {
-                this.records[i].rank = i + 1;
-            }
-
-            const limit = tmc.settings.get('records.maxRecords') || 100;
-            this.records = this.records.slice(0, limit);
-            tmc.server.emit('Plugin.Records.onRefresh', {
-                records: clone(this.records)
-            });
-        } catch (e: any) {
-            tmc.cli('¤error¤Error fetching new record: ' + e.message);
         }
     }
 
@@ -335,15 +292,23 @@ export default class Records extends Plugin {
                 if (this.personalBest[login]) {
                     await this.updatePB(login, this.personalBest[login], finishTime);
                 } else {
-                    const pb = await PersonalBest.create({
-                        login,
-                        mapUuid,
-                        finishCount: 1,
-                        time: finishTime,
-                        avgTime: finishTime,
-                        checkpoints: this.playerCheckpoints[login].join(''),
-                        updatedAt: new Date().toISOString(),
-                        createdAt: new Date().toISOString()
+                    const [pb, boolean] = await PersonalBest.findOrCreate({
+                        where: {
+                            [Op.and]: {
+                                login: login,
+                                mapUuid: mapUuid
+                            }
+                        },
+                        defaults: {
+                            login,
+                            mapUuid,
+                            finishCount: 1,
+                            time: finishTime,
+                            avgTime: finishTime,
+                            checkpoints: this.playerCheckpoints[login].join(''),
+                            updatedAt: new Date().toISOString(),
+                            createdAt: new Date().toISOString()
+                        }
                     });
 
                     this.personalBest[login] = pb;
@@ -352,11 +317,6 @@ export default class Records extends Plugin {
                 tmc.cli(`¤error¤updatePB: ${e.message}`);
                 return;
             }
-
-            // Get or update Score record
-            let record = this.records.find((r) => r.login === login) || undefined;
-            let isNewRecord = false;
-            let oldRecord: Score | undefined;
 
             // If no records yet, create the first one
             if (this.records.length === 0) {
@@ -384,6 +344,32 @@ export default class Records extends Plugin {
                 return;
             }
 
+            const lastTime = this.records[this.records.length - 1].time ?? -1;
+            if (lastTime == -1) return;
+            if (this.records.length == limit && finishTime > lastTime) {
+                return;
+            }
+
+            let record: Score | undefined;
+
+            if (this.records.length == limit) {
+                record = this.records.find((r) => r.login === login);
+            } else {
+                record =
+                    (await Score.findOne({
+                        where: {
+                            [Op.and]: {
+                                login: login,
+                                mapUuid: mapUuid
+                            }
+                        }
+                    })) ?? undefined;
+                if (record) record.rank = this.records.length + 1;
+            }
+
+            let isNewRecord = false;
+            let oldRecord: Score | undefined;
+
             // If record exists, check if this is a better time
             if (record) {
                 if (typeof record.time === 'number' && finishTime < record.time) {
@@ -400,17 +386,18 @@ export default class Records extends Plugin {
             } else {
                 // New record for this player
                 isNewRecord = true;
-                record = await Score.create({
-                    login,
-                    time: finishTime,
-                    checkpoints: this.playerCheckpoints[login].join(''),
-                    mapUuid
-                });
-                record =
-                    (await Score.findOne({
-                        where: { [Op.and]: { login, mapUuid } },
-                        include: Player
-                    })) || undefined;
+                await Score.create(
+                    {
+                        login,
+                        time: finishTime,
+                        checkpoints: this.playerCheckpoints[login].join(''),
+                        mapUuid
+                    }
+                );
+                record = (await Score.findOne({
+                    where: { [Op.and]: { login, mapUuid } },
+                    include: Player
+                })) || undefined;
                 if (record) {
                     this.records.push(record);
                 }
@@ -432,7 +419,7 @@ export default class Records extends Plugin {
             this.records = this.records.slice(0, limit);
 
             // check if the record is in the records array
-            if (record && this.records.find((r) => r.login === record.login)) {
+            if (record && (record.rank ?? 9999) <= limit) {
                 // Emit appropriate event
                 if (isNewRecord) {
                     tmc.server.emit('Plugin.Records.onNewRecord', {

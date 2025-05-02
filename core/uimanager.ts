@@ -287,7 +287,10 @@ export default class UiManager {
         if (this.hiddenManialinks.includes(login)) {
             this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
         }
-        for (const manialink of Object.values(this.playerManialinks[login]) || {} ) {
+        const values = Object.values(this.playerManialinks[login]);
+        if (!values || values.length == 0) return;
+
+        for (const manialink of values) {
             const id = manialink.id;
             manialink.destroy();
             delete this.playerManialinks[login][manialink.id];
@@ -317,18 +320,19 @@ export default class UiManager {
 
             // If manialink is a Window, destroy all existing windows for this recipient.
             if (manialink instanceof Window) {
-                const windows = Object.values(this.playerManialinks[manialink.recipient]).filter(ml => ml instanceof Window) as Window[];
-                await Promise.all(windows.map(async (win) => {
-                    await win.destroy();
-                    if (win.recipient) {
-                        delete this.playerManialinks[win.recipient][win.id.toString()];
-                    }
-                }));
+                const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
+                await Promise.all(
+                    windows.map(async (win) => {
+                        await win.destroy();
+                        if (win.recipient) {
+                            delete this.playerManialinks[win.recipient][win.id.toString()];
+                        }
+                    })
+                );
             }
 
             // If an existing manialink with the same id is present, destroy it.
-            if (this.playerManialinks[manialink.recipient][manialink.id] &&
-                this.playerManialinks[manialink.recipient][manialink.id] !== manialink) {
+            if (this.playerManialinks[manialink.recipient][manialink.id] && this.playerManialinks[manialink.recipient][manialink.id] !== manialink) {
                 tmc.debug('¤error¤destroying old manialink: ¤white¤' + manialink.id);
                 this.playerManialinks[manialink.recipient][manialink.id].destroy();
             }
@@ -435,7 +439,6 @@ export default class UiManager {
                 });
             })
         );
-
     }
 
     /**
