@@ -45,8 +45,15 @@ export default class Manialink {
         tmc.ui.hideManialink(this);
     }
 
+    cleanReferences() {
+        console.log('Cleaning references for manialink ' + this.template);
+        for (const key of Object.keys(this)) {
+            // @ts-ignore
+            delete this[key];
+        }
+    }
+
     async destroy() {
-        delete this._templateData;
         tmc.ui.destroyManialink(this);
     }
 

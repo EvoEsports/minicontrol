@@ -2,6 +2,7 @@ import Plugin from '@core/plugins';
 import type { Player } from '@core/playermanager';
 import { clone, htmlEntities, formatTime } from '@core/utils';
 import RecordsWindow from '@core/plugins/records/recordsWindow';
+import { pl } from '@faker-js/faker';
 
 interface LiveRecord {
     login: string;
@@ -47,6 +48,7 @@ export default class liverankings extends Plugin {
         const map = data[0];
         this.currentMapUid = map.UId;
         this.liverankings = [];
+        this.playerCheckpoints = {};
         tmc.server.emit('Plugin.LiveRankings.onSync', {
             records: clone(this.liverankings)
         });

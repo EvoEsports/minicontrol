@@ -43,8 +43,9 @@ export default class Records extends Plugin {
 
     async onBeginMap(data: any) {
         const map = data[0];
-        tmc.maps.currentMap.UId = map.UId;
         this.personalBest = {};
+        this.playerCheckpoints = {};
+        this.records = [];
         await this.syncRecords(map.UId);
     }
 
@@ -181,6 +182,7 @@ export default class Records extends Plugin {
         }
 
         // get personal best for each player
+        this.personalBest = {};
         const pbs =
             (await PersonalBest.findAll({
                 where: {
@@ -446,7 +448,7 @@ export default class Records extends Plugin {
                 }
             }
         } catch (e: any) {
-            tmc.cli(`¤error¤onPlayerFinish: ${e.message}`);
+            tmc.cli(`¤error¤[records.onPlayerFinish]: ${e.message}`);
         } finally {
             resolveLock();
             if (this.finishLocks[lockKey] === prev) delete this.finishLocks[lockKey];

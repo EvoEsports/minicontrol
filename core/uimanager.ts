@@ -287,8 +287,10 @@ export default class UiManager {
         if (this.hiddenManialinks.includes(login)) {
             this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
         }
-        for (const id in this.playerManialinks[login]) {
-            this.destroyManialink(this.playerManialinks[login.toString()][id.toString()], false);
+        for (const manialink of Object.values(this.playerManialinks[login]) || {} ) {
+            const id = manialink.id;
+            manialink.destroy();
+            delete this.playerManialinks[login][manialink.id];
         }
     }
 
@@ -372,6 +374,7 @@ export default class UiManager {
                         tmc.debug('¤error¤destroying old manialink: ¤white¤' + manialink.id);
                         this.publicManialinks[manialink.id].destroy();
                     }
+
                     this.publicManialinks[manialink.id] = manialink;
                 } else {
                     // Player-specific manialinks processing.
@@ -485,11 +488,14 @@ export default class UiManager {
         for (let id in manialink.actions) {
             this.removeAction(manialink.actions[id]);
         }
-        manialink.data = [];
-        if (manialink.recipient !== undefined) {
+        const recipient = manialink.recipient;
+        const uid = manialink.id;
+        manialink.cleanReferences();
+
+        if (recipient !== undefined) {
             for (let login in this.playerManialinks) {
-                if (this.playerManialinks[login][manialink.id]) {
-                    delete this.playerManialinks[login][manialink.id];
+                if (this.playerManialinks[login][uid]) {
+                    delete this.playerManialinks[login][uid];
                 }
             }
         } else {

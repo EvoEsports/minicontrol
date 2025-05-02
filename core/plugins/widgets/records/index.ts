@@ -68,10 +68,11 @@ export default class RecordsWidget extends Plugin {
 
     async onPlayerConnect(player: Player) {
         const login = player.login;
+        const minPlayers = tmc.settings.get('widgets.performance') ?? 35;
+        if (tmc.players.getAllLogins().length >= minPlayers) return;
+
         this.updateWidget(login);
         if (this.widgets[login]) {
-            const minPlayers = tmc.settings.get('widgets.performance') ?? 35;
-            if (tmc.players.getAllLogins().length >= minPlayers) return;
             tmc.ui.displayManialink(this.widgets[login]);
         }
     }
