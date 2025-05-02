@@ -287,10 +287,10 @@ export default class UiManager {
         if (this.hiddenManialinks.includes(login)) {
             this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
         }
-        const values = Object.values(this.playerManialinks[login]);
-        if (!values || values.length == 0) return;
 
-        for (const manialink of values) {
+        if (!this.playerManialinks[login]) return;
+
+        for (const manialink of Object.values(this.playerManialinks[login])) {
             const id = manialink.id;
             manialink.destroy();
             delete this.playerManialinks[login][manialink.id];
