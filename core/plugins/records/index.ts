@@ -12,6 +12,7 @@ export default class Records extends Plugin {
     records: Score[] = [];
     private playerCheckpoints: { [login: string]: string[] } = {};
     personalBest: { [login: string]: PersonalBest } = {};
+    private finishLocks: { [key: string]: Promise<any> } = {};
 
     async onLoad() {
         tmc.storage['db'].addModels([Score, PersonalBest]);
@@ -178,6 +179,25 @@ export default class Records extends Plugin {
             records.push(score);
             rank += 1;
         }
+
+        // get personal best for each player
+        const pbs =
+            (await PersonalBest.findAll({
+                where: {
+                    [Op.and]: {
+                        login: {
+                            [Op.in]: tmc.players.getAllLogins()
+                        },
+                        mapUuid: mapUuid
+                    }
+                }
+            })) ?? [];
+
+        for (const pb of pbs) {
+            if (pb && pb.login && pb.login !== '') {
+                this.personalBest[pb.login] = pb;
+            }
+        }
         return records;
     }
 
@@ -290,156 +310,146 @@ export default class Records extends Plugin {
 
     async onPlayerFinish(data: any) {
         const login = data[0];
-
+        const finishTime = data[1];
+        const mapUuid = tmc.maps.currentMap.UId;
+        const lockKey = `${login}:${mapUuid}`;
         const limit = tmc.settings.get('records.maxRecords') || 100;
+
+        // Per-player/map lock
+        const prev = this.finishLocks[lockKey] || Promise.resolve();
+        let resolveLock: (value?: any) => void = () => {};
+        this.finishLocks[lockKey] = new Promise((res) => {
+            resolveLock = res;
+        });
+
         try {
-            if (!this.personalBest[login]) {
-                const personalBest = await PersonalBest.findOne({
-                    where: {
-                        [Op.and]: {
-                            login: login,
-                            mapUuid: tmc.maps.currentMap.UId
-                        }
-                    }
-                });
-                if (personalBest) {
-                    this.updatePB(login, personalBest, data[1]);
+            await prev;
+
+            // Ensure checkpoints array exists and update it
+            if (!this.playerCheckpoints[login]) this.playerCheckpoints[login] = [];
+            this.playerCheckpoints[login].push(finishTime.toString());
+
+            try {
+                if (this.personalBest[login]) {
+                    await this.updatePB(login, this.personalBest[login], finishTime);
                 } else {
-                    this.personalBest[login] = await PersonalBest.create({
-                        login: login,
-                        mapUuid: tmc.maps.currentMap.UId,
+                    const pb = await PersonalBest.create({
+                        login,
+                        mapUuid,
                         finishCount: 1,
-                        time: data[1],
-                        avgTime: data[1],
+                        time: finishTime,
+                        avgTime: finishTime,
                         checkpoints: this.playerCheckpoints[login].join(''),
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
+                        updatedAt: new Date().toISOString(),
+                        createdAt: new Date().toISOString()
                     });
+
+                    this.personalBest[login] = pb;
                 }
-            } else {
-                this.updatePB(login, this.personalBest[login], data[1]);
-            }
-        } catch (e: any) {
-            tmc.cli(`¤error¤updatePB: ${e.message}`);
-        }
-
-        try {
-            if (!this.playerCheckpoints[login]) {
-                this.playerCheckpoints[login] = [];
+            } catch (e: any) {
+                tmc.cli(`¤error¤updatePB: ${e.message}`);
+                return;
             }
 
-            this.playerCheckpoints[login].push(data[1].toString());
+            // Get or update Score record
+            let record = this.records.find((r) => r.login === login) || undefined;
+            let isNewRecord = false;
+            let oldRecord: Score | undefined;
 
-            if (this.records.length == 0) {
-                let ranking = await this.getRankingsForLogin(data);
+            // If no records yet, create the first one
+            if (this.records.length === 0) {
+                const ranking = await this.getRankingsForLogin(data);
                 if (ranking.BestTime <= 0) return;
                 await Score.create({
                     login: login,
                     time: ranking.BestTime,
                     checkpoints: this.playerCheckpoints[login].join(''),
-                    mapUuid: tmc.maps.currentMap.UId
+                    mapUuid: mapUuid
                 });
-                const newRecord = await Score.findOne({
-                    where: {
-                        [Op.and]: {
-                            login: login,
-                            mapUuid: tmc.maps.currentMap.UId
-                        }
-                    },
-                    include: Player
-                });
+                const newRecord =
+                    (await Score.findOne({
+                        where: { [Op.and]: { login, mapUuid } },
+                        include: Player
+                    })) || undefined;
                 if (newRecord) {
                     newRecord.rank = 1;
-
                     this.records.push(newRecord);
                     tmc.server.emit('Plugin.Records.onNewRecord', {
-                        record: newRecord,
+                        record: clone(newRecord),
                         records: clone(this.records)
                     });
                 }
                 return;
             }
 
-            const lastIndex = this.records.length > limit ? limit : this.records.length;
-            const lastRecord = this.records[lastIndex - 1];
-
-            let ranking = await this.getRankingsForLogin(data);
-            if (ranking.BestTime <= 0) return;
-
-            if (lastIndex >= limit && lastRecord && typeof lastRecord.time === 'number' && ranking.BestTime >= lastRecord.time) return;
-            const time = ranking.BestTime;
-            let record = this.records.find((r) => r.login === login);
-            let oldRecord: Score = clone(record);
-
+            // If record exists, check if this is a better time
             if (record) {
-                if (typeof record.time === 'number') {
-                    if (ranking.BestTime >= record.time) return;
-                    if (time < record.time) {
-                        record.set({
-                            time: ranking.BestTime,
-                            checkpoints: this.playerCheckpoints[login].join('')
-                        });
-                        this.records[this.records.findIndex((r) => r.login === login)] = record;
-                    }
+                if (typeof record.time === 'number' && finishTime < record.time) {
+                    oldRecord = clone(record);
+                    await record.update({
+                        time: finishTime,
+                        checkpoints: this.playerCheckpoints[login].join(''),
+                        updatedAt: new Date().toISOString()
+                    });
+                } else {
+                    // Not a better time, nothing to do
+                    return;
                 }
             } else {
-                record = await Score.build(
-                    {
-                        mapUuid: tmc.maps.currentMap.UId,
-                        login: login,
-                        time: ranking.BestTime,
-                        checkpoints: this.playerCheckpoints[login].join('')
-                    },
-                    {
+                // New record for this player
+                isNewRecord = true;
+                record = await Score.create({
+                    login,
+                    time: finishTime,
+                    checkpoints: this.playerCheckpoints[login].join(''),
+                    mapUuid
+                });
+                record =
+                    (await Score.findOne({
+                        where: { [Op.and]: { login, mapUuid } },
                         include: Player
-                    }
-                );
+                    })) || undefined;
+                if (record) {
+                    this.records.push(record);
+                }
             }
+
+            // Sort and slice records, assign ranks
             this.records.sort((a, b) => {
                 const timeA = a.time ?? Infinity;
                 const timeB = b.time ?? Infinity;
-
                 if (timeA === timeB) {
-                    const strA = a.updatedAt.toString();
-                    const strB = b.updatedAt.toString();
+                    const strA = a.updatedAt?.toString() ?? '';
+                    const strB = b.updatedAt?.toString() ?? '';
                     return strA.localeCompare(strB);
                 }
-
                 return timeA - timeB;
             });
 
-            let inRange = false;
+            this.records.forEach((r, i) => (r.rank = i + 1));
             this.records = this.records.slice(0, limit);
-            if (this.records.includes(record)) {
-                inRange = true;
-                await record.save();
-            }
 
-            if (!inRange) {
-                return;
-            }
-            let outRecord: Score = {} as Score;
-            for (let i = 0; i < this.records.length; i++) {
-                this.records[i].rank = i + 1;
-                if (this.records[i].login == login) {
-                    outRecord = this.records[i];
+            // check if the record is in the records array
+            if (record && this.records.find((r) => r.login === record.login)) {
+                // Emit appropriate event
+                if (isNewRecord) {
+                    tmc.server.emit('Plugin.Records.onNewRecord', {
+                        record: clone(record),
+                        records: clone(this.records)
+                    });
+                } else if (oldRecord) {
+                    tmc.server.emit('Plugin.Records.onUpdateRecord', {
+                        oldRecord: clone(oldRecord),
+                        record: clone(record),
+                        records: clone(this.records)
+                    });
                 }
             }
-
-            if (!oldRecord) {
-                tmc.server.emit('Plugin.Records.onNewRecord', {
-                    record: clone(outRecord),
-                    records: clone(this.records)
-                });
-            } else {
-                tmc.server.emit('Plugin.Records.onUpdateRecord', {
-                    oldRecord: oldRecord ?? {},
-                    record: clone(outRecord),
-                    records: clone(this.records)
-                });
-            }
         } catch (e: any) {
-            tmc.cli(`¤error¤Update Record for login: ${login}: ${e.message}`);
+            tmc.cli(`¤error¤onPlayerFinish: ${e.message}`);
+        } finally {
+            resolveLock();
+            if (this.finishLocks[lockKey] === prev) delete this.finishLocks[lockKey];
         }
     }
 }
