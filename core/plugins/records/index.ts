@@ -288,7 +288,7 @@ export default class Records extends Plugin {
             // Ensure checkpoints array exists and update it
             if (!this.playerCheckpoints[login]) this.playerCheckpoints[login] = [];
             this.playerCheckpoints[login].push(finishTime.toString());
-            /*
+
             try {
                 if (this.personalBest[login]) {
                     await this.updatePB(login, this.personalBest[login], finishTime);
@@ -320,7 +320,6 @@ export default class Records extends Plugin {
                 tmc.cli(`¤error¤updatePB: ${e.message}`);
                 return;
             }
-            */
 
             // If no records yet, create the first one
             if (this.records.length === 0) {
