@@ -119,6 +119,9 @@ export default class Chat extends Plugin {
                 text = text.replaceAll(new RegExp(':\\b(' + emoteData.emote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')\\b:', 'gi'), '$z$fff' + emoteData.glyph + '$s$ff0');
             }
         }
+        // regexp for url
+        text = text.replaceAll(/(https?:\/\/[^\s]+)/g, '$L$1$L');
+
         const chatColor = tmc.settings.get('chat.color');
         const adminColor = tmc.admins.includes(login) ? tmc.settings.get('chat.badge.admin') : tmc.settings.get('chat.badge.player');
         const msg = `${nick}$z$s$${adminColor} »$${chatColor} ${text}`;
