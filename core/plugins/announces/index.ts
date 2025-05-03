@@ -17,6 +17,7 @@ export default class Announces extends Plugin {
         tmc.settings.register('announce.records', true, null, 'Announces: Server records');
         tmc.settings.register('announce.dedimania', true, null, 'Announces: Dedimania records');
         tmc.settings.register('announce.map', true, null, 'Announces: Map info on map start');
+        tmc.settings.register('announce.localrec.threshold', 15, null, 'Announces: Local records public threshold');
         tmc.settings.registerColor('dedirec', '0a0', null, 'Dedimania record color');
     }
 
@@ -90,7 +91,12 @@ export default class Announces extends Plugin {
         const newRecord = data.record;
         const player = await tmc.getPlayer(newRecord.login);
         const nick = player.customNick ?? player.nickname;
-        tmc.chat(`¤white¤${nick}¤rec¤ has set a new $fff${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`);
+        let recipient = undefined;
+        const localRecThreshold = tmc.settings.get('announce.localrec.threshold') || 50;
+        if (newRecord.rank > localRecThreshold) {
+            recipient = newRecord.login;
+        }
+        tmc.chat(`¤white¤${nick}¤rec¤ has set a new $fff${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`, recipient);
     }
 
     async onUpdateRecord(data: any) {
@@ -105,7 +111,8 @@ export default class Announces extends Plugin {
             extrainfo = `(¤gray¤$n${formatTime(newRecord.time - oldRecord.time).replace('0:', '')}$m¤rec¤)`;
         }
         let recipient = undefined;
-        if (newRecord.rank > 15) {
+        const localRecThreshold = tmc.settings.get('announce.localrec.threshold') || 50;
+        if (newRecord.rank > localRecThreshold) {
             recipient = newRecord.login;
         }
 
