@@ -17,7 +17,8 @@ export default class Announces extends Plugin {
         tmc.settings.register('announce.records', true, null, 'Announces: Server records');
         tmc.settings.register('announce.dedimania', true, null, 'Announces: Dedimania records');
         tmc.settings.register('announce.map', true, null, 'Announces: Map info on map start');
-        tmc.settings.register('announce.localrec.threshold', 15, null, 'Announces: Local records public threshold');
+        tmc.settings.register('announce.localrec.threshold', 15, null, 'Announces: Improved local records public threshold');
+        tmc.settings.register('announce.localrec.threshold.new', 50, null, 'Announces: New local records public threshold');
         tmc.settings.registerColor('dedirec', '0a0', null, 'Dedimania record color');
     }
 
@@ -92,7 +93,7 @@ export default class Announces extends Plugin {
         const player = await tmc.getPlayer(newRecord.login);
         const nick = player.customNick ?? player.nickname;
         let recipient = undefined;
-        const localRecThreshold = tmc.settings.get('announce.localrec.threshold') || 50;
+        const localRecThreshold = tmc.settings.get('announce.localrec.threshold.new') || 50;
         if (newRecord.rank > localRecThreshold) {
             recipient = newRecord.login;
         }
