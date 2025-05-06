@@ -310,7 +310,7 @@ export default class GenericDb extends Plugin {
         const seconds = totalSeconds % 60;
         const formattedPlaytime = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}min ${seconds.toString().padStart(2, '0')}s`;
 
-        tmc.chat(`¤info¤Your playtime: ¤white¤${formattedPlaytime}`);
+        tmc.chat(`¤info¤Your playtime: ¤white¤${formattedPlaytime}`, login);
     }
 
     async cmdTopActive(login: string) {
@@ -325,7 +325,6 @@ export default class GenericDb extends Plugin {
                 playtime: player.totalPlaytime
             };
         });
-        tmc.chat('¤info¤Top 100 active players:');
         const window = new ListWindow(login);
         window.title = 'Top 100 active players';
         window.setColumns([
