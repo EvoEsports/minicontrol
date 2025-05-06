@@ -5,7 +5,7 @@ export default class Widget extends Manialink {
     size: MlSize = { width: 32, height: 50 };
 
     constructor(path: string = "core/templates/widget.xml.twig") {
-        super();
+        super(undefined);
         this.template = path;
     }
 

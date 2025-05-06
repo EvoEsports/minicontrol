@@ -1,5 +1,6 @@
 import { createEnvironment, createFilesystemLoader, type TwingTemplate } from 'twing';
 import * as fs from 'fs';
+import { clone } from '@core/utils';
 
 const loader = createFilesystemLoader(fs);
 const environment = createEnvironment(loader, { charset: 'utf-8', parserOptions: { level: 3 } });
@@ -46,7 +47,9 @@ export default class Manialink {
     }
 
     cleanReferences() {
-        tmc.debug('Cleaning references for manialink ' + this.template);
+        //const template = this.title || this.template || this.id;
+        //tmc.debug('Cleaning references for manialink: $fff' + template);
+
         for (const key of Object.keys(this)) {
             // @ts-ignore
             delete this[key];
@@ -77,14 +80,14 @@ export default class Manialink {
             try {
                 this._templateData = await environment.loadTemplate(process.cwd() + '/' + this.template, 'utf-8');
                 return this._templateData.render(environment, obj);
-            } catch (e:any) {
+            } catch (e: any) {
                 tmc.cli('Manialink error: ¤error¤ ' + e.message);
                 throw new Error('Failed to load template: ' + e.message);
             }
         } else {
             try {
                 return (await this._templateData?.render(environment, obj)) ?? '';
-            } catch (e:any) {
+            } catch (e: any) {
                 tmc.cli('Manialink error: ¤error¤ ' + e.message);
                 throw new Error('Failed to render template: ' + e.message);
             }
