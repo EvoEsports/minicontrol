@@ -60,6 +60,9 @@ export function getCountryFromPath(path:string) {
     if (!path) return 'World';
     if (path.indexOf('World|') == -1) return path;
     const pathSplit = path.split('|');
+    if (tmc.game.Name == 'TmForever') {
+        return pathSplit[1] || pathSplit[0];
+    }
     return pathSplit[2] || pathSplit[1] || pathSplit[0];
 }
 
