@@ -58,7 +58,6 @@ export class GbxClient {
 
         // increase max listeners to avoid warnings
         socket.setMaxListeners(30);
-
         const timeout = 5000;
         this.socket = socket;
 
@@ -67,7 +66,8 @@ export class GbxClient {
                 host: host,
                 port: port,
                 keepAlive: true,
-                family: 4
+                family: 4,
+                noDelay: true
             },
             () => {
                 socket.on('connect', () => {
@@ -249,6 +249,15 @@ export class GbxClient {
         return await this.call('TriggerModeScriptEventArray', method, params);
     }
 
+    private serializeMulticall(methods: Array<any>) {
+        return Serializer.serializeMethodCall('system.multicall', [
+            methods.map(method => ({
+                methodName: method[0],
+                params: method.slice(1)
+            }))
+        ]);
+    }
+
     /**
      * perform a multicall
      *
@@ -266,13 +275,8 @@ export class GbxClient {
         if (!this.isConnected) {
             return undefined;
         }
-        const params: any = [];
-        for (let method of methods) {
-            params.push({ methodName: method.shift(), params: method });
-        }
 
-        const xml = Serializer.serializeMethodCall('system.multicall', [params]);
-
+        const xml = this.serializeMulticall(methods);
         const out: any = [];
         for (let answer of await this.query(xml, true)) {
             out.push(answer[0]);
@@ -297,12 +301,7 @@ export class GbxClient {
         if (!this.isConnected) {
             return undefined;
         }
-        const params: any = [];
-        for (let method of methods) {
-            params.push({ methodName: method.shift(), params: method });
-        }
-
-        const xml = Serializer.serializeMethodCall('system.multicall', [params]);
+        const xml = this.serializeMulticall(methods);
         await this.query(xml, false);
     }
 
@@ -338,9 +337,11 @@ export class GbxClient {
 
         // Write buffer to the socket
         await new Promise((resolve, reject) => {
-            if (!this.socket?.write(buf, (err?: Error) => {
-                if (err) reject(err);
-            })) {
+            if (
+                !this.socket?.write(buf, (err?: Error) => {
+                    if (err) reject(err);
+                })
+            ) {
                 this.socket?.once('drain', resolve);
             } else {
                 process.nextTick(resolve);

@@ -6,7 +6,6 @@ import { clone, htmlEntities, formatTime } from '@core/utils';
 import RecordsWindow from './recordsWindow';
 import { Op } from 'sequelize';
 import Menu from '../menu/menu';
-import { time } from 'console';
 
 export default class Records extends Plugin {
     static depends: string[] = ['database'];
@@ -264,7 +263,6 @@ export default class Records extends Plugin {
             personalBest.checkpoints = (this.playerCheckpoints[login] ?? []).join('');
         }
         personalBest.updatedAt = new Date().toISOString();
-        console.log('.');
         await personalBest.save();
     }
 

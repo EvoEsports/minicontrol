@@ -1,4 +1,4 @@
-import Plugin from '../index';
+import Plugin from '../index.ts';
 import { emotesMap } from './tmnf_emojis';
 import badwords from './badwords.json';
 import { removeColors } from '@core/utils';
@@ -119,8 +119,10 @@ export default class Chat extends Plugin {
                 text = text.replaceAll(new RegExp(':\\b(' + emoteData.emote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')\\b:', 'gi'), '$z$fff' + emoteData.glyph + '$s$ff0');
             }
         }
-        // regexp for url
-        text = text.replaceAll(/(https?:\/\/[^\s]+)/g, '$L$1$L');
+
+        if (text.indexOf(/\$l/i) == -1) {
+            text = text.replaceAll(/(https?:\/\/[^\s]+)/g, '$L$1$L');
+        }
 
         const chatColor = tmc.settings.get('chat.color');
         const adminColor = tmc.admins.includes(login) ? tmc.settings.get('chat.badge.admin') : tmc.settings.get('chat.badge.player');
