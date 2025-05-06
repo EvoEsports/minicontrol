@@ -404,10 +404,10 @@ export default class Records extends Plugin {
             this.records.sort((a, b) => {
                 const timeA = a.time ?? Infinity;
                 const timeB = b.time ?? Infinity;
-                if (timeA === timeB) {
-                    const strA = a.updatedAt?.toString() ?? '';
-                    const strB = b.updatedAt?.toString() ?? '';
-                    return strA.localeCompare(strB);
+                if (timeA == timeB) {
+                    const dateA = new Date(a.updatedAt ?? 0).getTime();
+                    const dateB = new Date(b.updatedAt ?? 0).getTime();
+                    return dateA - dateB;
                 }
                 return timeA - timeB;
             });
