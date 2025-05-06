@@ -50,7 +50,7 @@ export default class Announces extends Plugin {
         if (tmc.settings.get('announce.playerconnect')) tmc.chat(msg);
         tmc.cli(msg);
 
-        if (Object.keys(tmc.plugins).includes('chat') && tmc.settings.get('chat.useEmotes') == true) {
+        if (tmc.settings.get('chat.useEmotes') == true) {
             tmc.chat(`$z$fff回$s Emoji chat is $0f0enabled$fff! For details: $3cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$L$`, player.login);
         }
     }
