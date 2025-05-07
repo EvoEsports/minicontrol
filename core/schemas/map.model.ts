@@ -2,6 +2,7 @@
 import { Table, Column, Model, HasMany, PrimaryKey, Unique, Index, DataType, NotNull, AllowNull } from 'sequelize-typescript';
 
 @Table({ tableName: "maps", timestamps: true })
+// biome-ignore lint/suspicious/noShadowRestrictedNames: <explanation>
 class Map extends Model {
     @PrimaryKey
     @Unique

@@ -10,7 +10,7 @@ export class Vote {
     timeout: number;
     votes: Map<string, boolean>;
     starter: string;
-    voteRatio: number = 0.5;
+    voteRatio = 0.5;
 
     constructor(login: string, type: string, question: string, timeout: number, value: number) {
         this.starter = login;
@@ -32,8 +32,8 @@ export interface VoteStruct {
 
 export default class VotesPlugin extends Plugin {
     static depends: string[] = [];
-    timeout: number = 30;
-    ratio: number = 0.55;
+    timeout = 30;
+    ratio = 0.55;
     currentVote: Vote | null = null;
     widget: Widget | null = null;
     readonly origTimeLimit = Number.parseInt(process.env.TALIMIT || '300');
@@ -46,7 +46,7 @@ export default class VotesPlugin extends Plugin {
         tmc.server.addListener('TMC.Vote.Deny', this.onVoteDeny, this);
         tmc.server.addListener('TMC.Vote.Pass', this.onVotePass, this);
         tmc.server.addListener('Trackmania.BeginMap', this.onBeginRound, this);
-        if (tmc.game.Name == 'TmForever') {
+        if (tmc.game.Name === 'TmForever') {
             tmc.server.addListener('Trackmania.EndRace', this.onEndMatch, this);
         } else {
             tmc.server.addListener('Trackmania.Podium_Start', this.onEndMatch, this);
@@ -61,8 +61,22 @@ export default class VotesPlugin extends Plugin {
         tmc.addCommand('/no', this.cmdNo.bind(this), 'Vote no');
 
         tmc.settings.registerColor('vote', 'f9c', null, 'Vote color');
-        tmc.settings.register('votes.timeout', 30, (value) => (this.timeout = value), 'Votes: Vote Timeout in seconds');
-        tmc.settings.register('votes.ratio', 0.55, (value) => (this.ratio = value), 'Votes: Vote ratio to pass');
+        tmc.settings.register(
+            'votes.timeout',
+            30,
+            async (value) => {
+                this.timeout = value;
+            },
+            'Votes: Vote Timeout in seconds'
+        );
+        tmc.settings.register(
+            'votes.ratio',
+            0.55,
+            async (value) => {
+                this.ratio = value;
+            },
+            'Votes: Vote ratio to pass'
+        );
         tmc.settings.register('votes.native.timeout', 0, (value) => tmc.server.send('SetCallVoteTimeOut', value), 'Votes: Native vote timeout $z(milliseconds, 0 to disable)');
         this.timeout = tmc.settings.get('votes.timeout');
         this.ratio = tmc.settings.get('votes.ratio');
@@ -190,13 +204,13 @@ export default class VotesPlugin extends Plugin {
         if (minutes < 1) minutes = 1;
         if (minutes > 10) minutes = 10;
 
-        let message = `¤info¤Extend map by ¤white¤${minutes} ¤info¤min?`;
+        const message = `¤info¤Extend map by ¤white¤${minutes} ¤info¤min?`;
         await this.startVote(login, 'Extend', message, minutes);
     }
 
-    async startVote(login: string, type: string, question: string, value: number = -1) {
+    async startVote(login: string, type: string, question: string, value = -1) {
         if (!tmc.admins.includes(login)) {
-            const allowedVotes = ['Skip', 'Extend','Restart'];
+            const allowedVotes = ['Skip', 'Extend', 'Restart'];
             if (!allowedVotes.includes(type)) {
                 tmc.chat('¤vote¤You are not allowed to start this type of vote.', login);
                 return;
@@ -229,7 +243,7 @@ export default class VotesPlugin extends Plugin {
 
     async cmdPassVote(login: string, _args: string[]) {
         if (!this.currentVote) {
-            tmc.chat("¤vote¤There is no vote in progress.");
+            tmc.chat('¤vote¤There is no vote in progress.');
         }
         await this.endVote(true);
     }
@@ -251,13 +265,12 @@ export default class VotesPlugin extends Plugin {
         if (this.currentVote.timeout < Date.now()) {
             await this.endVote(false);
             return;
-        } else {
-            setTimeout(this.checkVote.bind(this), 1000);
-            await this.showWidget();
         }
+        setTimeout(this.checkVote.bind(this), 1000);
+        await this.showWidget();
     }
 
-    async endVote(forcePass: boolean = false) {
+    async endVote(forcePass = false) {
         if (!this.currentVote) {
             this.hideWidget();
             return;
@@ -316,7 +329,7 @@ export default class VotesPlugin extends Plugin {
 
     async cmdAdmExtend(_login: string, params: string[]) {
         this.extendCounter += 1;
-        const seconds = params[0] ? parseInt(params[0]) : tmc.storage['minicontrol.taTimeLimit'] || this.origTimeLimit;
+        const seconds = params[0] ? Number.parseInt(params[0]) : tmc.storage['minicontrol.taTimeLimit'] || this.origTimeLimit;
         this.newLimit += seconds;
         tmc.server.send('SetTimeAttackLimit', this.newLimit * 1000);
         tmc.chat(`¤info¤Time limit extended by ¤white¤${seconds} ¤info¤seconds.`);

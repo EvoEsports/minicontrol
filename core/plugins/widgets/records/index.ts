@@ -14,8 +14,8 @@ export default class RecordsWidget extends Plugin {
     myIndex: number | undefined;
     private widgetType: { [login: string]: string } = {};
     private lastClick: { [login: string]: number } = {};
-    update: boolean = false;
-    timeout: NodeJS.Timeout | null = null;
+    update = false;
+    timeout: NodeJS.Timeout | undefined = undefined;
 
     async onLoad() {
         tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
@@ -50,7 +50,7 @@ export default class RecordsWidget extends Plugin {
     async onStart() {
         this.updateWidgets();
         this.triggerUpdate().catch((err) => {
-            tmc.cli('Error: ' + err.message);
+            tmc.cli(`Error: ${err.message}`);
         });
     }
 
@@ -61,7 +61,7 @@ export default class RecordsWidget extends Plugin {
         }
         this.timeout = setTimeout(() => {
             this.triggerUpdate().catch((err) => {
-                tmc.cli('Error: ' + err.message);
+                tmc.cli(`Error: ${err.message}`);
             });
         }, 5000);
     }
@@ -150,7 +150,7 @@ export default class RecordsWidget extends Plugin {
             widget = new recordsWidget('core/plugins/widgets/records/widget.xml.twig');
             widget.title = 'RECORDS';
             widget.recipient = login;
-            if (tmc.game.Name == 'TmForever') {
+            if (tmc.game.Name === 'TmForever') {
                 widget.pos = { x: -159, y: 38, z: 0 };
             } else {
                 widget.pos = { x: 121, y: 30, z: 0 };
@@ -162,9 +162,9 @@ export default class RecordsWidget extends Plugin {
             widget.setWorldAction(this.worldAction.bind(this));
         }
 
-        if (this.widgetType[login] == 'live') {
+        if (this.widgetType[login] === 'live') {
             outRecords = this.liverankings.slice(0, 5);
-            this.myIndex = this.liverankings.findIndex((val: any) => val.login == login);
+            this.myIndex = this.liverankings.findIndex((val: any) => val.login === login);
             let addRecords = true;
 
             if (this.myIndex !== -1) {
@@ -176,10 +176,10 @@ export default class RecordsWidget extends Plugin {
             if (addRecords) {
                 outRecords = [...outRecords, ...this.liverankings.slice(5, 10)];
             }
-        } else if (this.widgetType[login] == 'world') {
+        } else if (this.widgetType[login] === 'world') {
             outRecords = this.worldRecords.slice(0, 5);
-            let myName = (await tmc.players.getPlayer(login)).nickname;
-            this.myIndex = this.worldRecords.findIndex((val: any) => val.nickname == myName);
+            const myName = (await tmc.players.getPlayer(login)).nickname;
+            this.myIndex = this.worldRecords.findIndex((val: any) => val.nickname === myName);
             let addRecords = true;
 
             if (this.myIndex !== -1) {
@@ -191,9 +191,9 @@ export default class RecordsWidget extends Plugin {
             if (addRecords) {
                 outRecords = [...outRecords, ...this.worldRecords.slice(5, 10)];
             }
-        } else if (this.widgetType[login] == 'server') {
+        } else if (this.widgetType[login] === 'server') {
             outRecords = this.records.slice(0, 5);
-            this.myIndex = this.records.findIndex((val: any) => val.login == login);
+            this.myIndex = this.records.findIndex((val: any) => val.login === login);
             let addRecords = true;
 
             if (this.myIndex !== -1) {
@@ -205,11 +205,10 @@ export default class RecordsWidget extends Plugin {
             if (addRecords) {
                 outRecords = [...outRecords, ...this.records.slice(5, 10)];
             }
-        } else if (this.widgetType[login] == 'dedimania') {
-            // widget.title = 'DEDIMANIA RECORDS';
+        } else if (this.widgetType[login] === 'dedimania') {
             outRecords = this.dediRecords.slice(0, 5);
-            let myName = login;
-            this.myIndex = this.dediRecords.findIndex((val: DediRecord) => val.Login == myName);
+            const myName = login;
+            this.myIndex = this.dediRecords.findIndex((val: DediRecord) => val.Login === myName);
             let addRecords = true;
 
             if (this.myIndex !== -1) {
@@ -230,7 +229,7 @@ export default class RecordsWidget extends Plugin {
             }
         }
 
-        if (this.widgetType[login] == 'dedimania') {
+        if (this.widgetType[login] === 'dedimania') {
             for (const rec of outRecords) {
                 rec.rank = rec.Rank;
                 rec.formattedTime = formatTime(rec.Best);
@@ -268,11 +267,11 @@ export default class RecordsWidget extends Plugin {
     }
 
     async worldAction(login: string) {
-        if (tmc.game.Name == 'TmForever') {
+        if (tmc.game.Name === 'TmForever') {
             this.changeType(login, 'dedimania');
             return;
         }
-        if (tmc.game.Name == 'Trackmania') {
+        if (tmc.game.Name === 'Trackmania') {
             this.changeType(login, 'world');
             return;
         }
@@ -292,9 +291,8 @@ export default class RecordsWidget extends Plugin {
         const lastClick = this.lastClick[login] || 0;
         if (currentTime - lastClick > 500) {
             return true;
-        } else {
-            const msg = `¤info¤Please wait ¤white¤0.5 ¤info¤seconds.`;
-            tmc.chat(msg, login);
         }
+        const msg = '¤info¤Please wait ¤white¤0.5 ¤info¤seconds.';
+        tmc.chat(msg, login);
     }
 }

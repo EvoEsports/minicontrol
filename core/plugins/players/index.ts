@@ -24,7 +24,7 @@ export default class Players extends Plugin {
         const window = new PlayerWindow(login);
         window.size = { width: 195, height: 95 };
         window.title = 'Players';
-        let players: any = [];
+        const players: any = [];
         for (const player of tmc.players.getAll()) {
             players.push({
                 nickname: htmlEntities(player.nickname),

@@ -24,36 +24,36 @@ interface LadderStats {
  * Player class
  */
 export class Player {
-    login: string = '';
-    nickname: string = '';
-    playerId: number = -1;
-    teamId: number = -1;
+    login = '';
+    nickname = '';
+    playerId = -1;
+    teamId = -1;
     path = '';
     language = 'en';
     clientVersion = '';
     iPAddress = '';
-    downloadRate: number = -1;
-    uploadRate: number = -1;
-    isSpectator: boolean = false;
-    ladderRanking: number = 0;
+    downloadRate = -1;
+    uploadRate = -1;
+    isSpectator = false;
+    ladderRanking = 0;
     ladderStats?: LadderStats;
     avatar?: Avatar;
-    hoursSinceZoneInscription: number = -1;
+    hoursSinceZoneInscription = -1;
     /** 3 for united */
     onlineRights = -1;
-    isAdmin: boolean = false;
-    spectatorTarget: number = 0;
-    flags: number = 0;
+    isAdmin = false;
+    spectatorTarget = 0;
+    flags = 0;
     [key: string]: any; // Add index signature
 
     syncFromDetailedPlayerInfo(data: any) {
-        for (let key in data) {
+        for (const key in data) {
             let k = key[0].toLowerCase() + key.slice(1);
-            if (k == 'nickName') {
+            if (k === 'nickName') {
                 k = 'nickname';
                 data[key] = data[key].replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, '$1').replaceAll(/[$][lh]/gi, '');
             }
-            if (k == 'flags') {
+            if (k === 'flags') {
                 this.spectatorTarget = Math.floor(data.SpecatorStatus / 10000);
             }
             this[k] = data[key];
@@ -152,8 +152,8 @@ export default class PlayerManager {
      * @returns {Player | null} Returns the player object or null if not found
      */
     getPlayerbyNick(nickname: string): Player | null {
-        for (let player in this.players) {
-            if (this.players[player].nick == nickname) return this.players[player];
+        for (const player in this.players) {
+            if (this.players[player].nick === nickname) return this.players[player];
         }
         return null;
     }
@@ -164,8 +164,8 @@ export default class PlayerManager {
      * @returns {Player} Returns the player object
      */
     async getPlayer(login: string): Promise<Player> {
-        if (login == tmc.server.login) {
-            tmc.cli(`¤error¤Tried to fetch server login as a player.`);
+        if (login === tmc.server.login) {
+            tmc.cli("¤error¤Tried to fetch server login as a player.");
             return new Player();
         }
         if (this.players[login]) return this.players[login];
@@ -189,14 +189,14 @@ export default class PlayerManager {
      * @returns
      */
     private async onPlayerInfoChanged(data: any) {
-        data = data[0].toString();
-        if (data.PlayerId == 0 || data.Login == tmc.server.login) return;
-        if (this.players[data.Login]) {
-            this.players[data.Login].syncFromPlayerInfo(data);
+        const playerData = data[0].toString();
+        if (playerData.PlayerId === 0 || playerData.Login === tmc.server.login) return;
+        if (this.players[playerData.Login]) {
+            this.players[playerData.Login].syncFromPlayerInfo(playerData);
         } else {
             // if player is joined, fetch detailed info
-            if (Math.floor(data.Flags / 100000000) % 10 === 1) {
-                this.getPlayer(data.Login);
+            if (Math.floor(playerData.Flags / 100000000) % 10 === 1) {
+                this.getPlayer(playerData.Login);
             }
         }
     }

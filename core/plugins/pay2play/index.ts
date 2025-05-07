@@ -10,7 +10,7 @@ export default class Pay2Play extends Plugin {
     resAmount = 50;
 
     async onStart() {
-        if (tmc.game.Name == 'Trackmania') return;
+        if (tmc.game.Name === 'Trackmania') return;
         tmc.settings.register('pay2play.skipAmount', 150, this.updateSkipWidget.bind(this), 'Pay2Play: Skip map amount');
         tmc.settings.register('pay2play.resAmount', 50, this.updateResWidget.bind(this), 'Pay2Play: Restart map amount');
         this.skipAmount = tmc.settings.get('pay2play.skipAmount');
@@ -19,26 +19,26 @@ export default class Pay2Play extends Plugin {
         this.widgets.push(this.createWidget(0, 'SKIP',this.skipAmount, this.skip.bind(this)));
         this.widgets.push(this.createWidget(1, 'RES', this.resAmount, this.res.bind(this)));
 
-        for (let widget of this.widgets) {
+        for (const widget of this.widgets) {
             widget.display();
         }
     }
 
     async updateSkipWidget(value: any) {
-        this.skipAmount = parseInt(value);
+        this.skipAmount = Number.parseInt(value);
         this.widgets[0].data.amount = this.skipAmount;
         await this.widgets[0].display();
     }
 
     async updateResWidget(value: any) {
-        this.resAmount = parseInt(value);
+        this.resAmount = Number.parseInt(value);
         this.widgets[1].data.amount = this.resAmount;
         await this.widgets[1].display();
     }
 
 
     async onUnload() {
-        for (let widget of this.widgets) {
+        for (const widget of this.widgets) {
             await widget.destroy();
         }
         this.widgets = [];
@@ -73,7 +73,7 @@ export default class Pay2Play extends Plugin {
             };
             await bill.send();
         } catch (e: any) {
-            tmc.chat('¤error¤' + e.message, login);
+            tmc.chat(`¤error¤${e.message}`, login);
         }
     }
 
@@ -95,7 +95,7 @@ export default class Pay2Play extends Plugin {
             };
             await bill.send();
         } catch (e: any) {
-            tmc.chat('¤error¤' + e.message, login);
+            tmc.chat(`¤error¤${e.message}`, login);
         }
     }
 }

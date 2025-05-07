@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
-import { Socket } from 'net';
+import { Socket } from 'node:net';
 import type Server from '../../core/server';
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 /** @ts-ignore */
 import Serializer from 'xmlrpc/lib/serializer';
 /** @ts-ignore */
@@ -23,7 +23,7 @@ export class GbxClient {
     };
     timeoutHandler: any;
     promiseCallbacks: { [key: string]: { resolve: CallableFunction; reject: CallableFunction } } = {};
-    game: string = 'Trackmania';
+    game = 'Trackmania';
 
     /**
      * Creates an instance of GbxClient.
@@ -52,8 +52,8 @@ export class GbxClient {
      * @memberof GbxClient
      */
     async connect(host?: string, port?: number): Promise<boolean> {
-        host = host || '127.0.0.1';
-        port = port || 5000;
+        const normalizedHost = host || '127.0.0.1';
+        const normalizedPort = port || 5000;
         const socket = new Socket();
 
         // increase max listeners to avoid warnings
@@ -63,8 +63,8 @@ export class GbxClient {
 
         socket.connect(
             {
-                host: host,
-                port: port,
+                host: normalizedHost,
+                port: normalizedPort,
                 keepAlive: true,
                 family: 4,
                 noDelay: true
@@ -101,14 +101,16 @@ export class GbxClient {
         this.timeoutHandler = setTimeout(() => {
             tmc.cli('¤error¤[ERROR] Attempt at connection exceeded timeout value.');
             socket.end();
-            this.promiseCallbacks['onConnect']?.reject(new Error('Connection timeout'));
-            delete this.promiseCallbacks['onConnect'];
+            this.promiseCallbacks.onConnect?.reject(new Error('Connection timeout'));
+            // biome-ignore lint/performance/noDelete: <explanation>
+            delete this.promiseCallbacks.onConnect;
         }, timeout);
 
         const res: boolean = await new Promise((resolve, reject) => {
-            this.promiseCallbacks['onConnect'] = { resolve, reject };
+            this.promiseCallbacks.onConnect = { resolve, reject };
         });
-        delete this.promiseCallbacks['onConnect'];
+        // biome-ignore lint/performance/noDelete: <explanation>
+        delete this.promiseCallbacks.onConnect;
         return res;
     }
 
@@ -141,15 +143,15 @@ export class GbxClient {
                     const msgStr = message.toString('utf-8');
                     if (msgStr === 'GBXRemote 2') {
                         this.isConnected = true;
-                        const handshakeCb = this.promiseCallbacks['onConnect'];
+                        const handshakeCb = this.promiseCallbacks.onConnect;
                         handshakeCb?.resolve(true);
                     } else {
                         this.socket?.destroy();
                         this.isConnected = false;
                         this.socket = null;
-                        const handshakeCb = this.promiseCallbacks['onConnect'];
-                        handshakeCb?.reject(new Error('Unknown protocol: ' + msgStr));
-                        this.server.onDisconnect('Unknown protocol: ' + msgStr);
+                        const handshakeCb = this.promiseCallbacks.onConnect;
+                        handshakeCb?.reject(new Error(`Unknown protocol: ${msgStr}`));
+                        this.server.onDisconnect(`Unknown protocol: ${msgStr}`);
                     }
                 } else {
                     // Processing regular messages.
@@ -173,7 +175,7 @@ export class GbxClient {
                             } else {
                                 this.server.onCallback(method, res).catch((err: any) => {
                                     if (this.options.showErrors) {
-                                        console.error('[ERROR] gbxclient > ' + err.message);
+                                        console.error(`[ERROR] gbxclient > ${err.message}`);
                                     }
                                     if (this.options.throwErrors) {
                                         throw new Error(err);
@@ -207,7 +209,7 @@ export class GbxClient {
             return await this.query(xml, true);
         } catch (err: any) {
             if (this.options.showErrors) {
-                console.error('[ERROR] gbxclient >' + err.message);
+                console.error(`[ERROR] gbxclient >${err.message}`);
             }
             if (this.options.throwErrors) {
                 throw new Error(err);
@@ -251,7 +253,7 @@ export class GbxClient {
 
     private serializeMulticall(methods: Array<any>) {
         return Serializer.serializeMethodCall('system.multicall', [
-            methods.map(method => ({
+            methods.map((method) => ({
                 methodName: method[0],
                 params: method.slice(1)
             }))
@@ -278,7 +280,7 @@ export class GbxClient {
 
         const xml = this.serializeMulticall(methods);
         const out: any = [];
-        for (let answer of await this.query(xml, true)) {
+        for (const answer of await this.query(xml, true)) {
             out.push(answer[0]);
         }
         return out;
@@ -305,7 +307,7 @@ export class GbxClient {
         await this.query(xml, false);
     }
 
-    private async query(xml: string, wait: boolean = true) {
+    private async query(xml: string, wait = true) {
         const HEADER_LENGTH = 8;
         const requestSize = xml.length + HEADER_LENGTH;
 

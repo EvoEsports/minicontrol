@@ -1,5 +1,5 @@
 import { createEnvironment, createFilesystemLoader, type TwingTemplate } from 'twing';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import { clone } from '@core/utils';
 
 const loader = createFilesystemLoader(fs);
@@ -20,13 +20,13 @@ export default class Manialink {
     id: string = tmc.ui.uuid();
     size: MlSize = { width: 160, height: 95 };
     pos: MlPos = { x: 0, y: 10, z: 1 };
-    template: string = 'core/templates/manialink.xml.twig';
+    template = 'core/templates/manialink.xml.twig';
     actions: { [key: string]: string } = {};
     data: { [key: string]: any } = {};
     recipient: string | undefined = undefined;
-    title: string = '';
-    displayDuration: number = 0;
-    private _firstDisplay: boolean = true;
+    title = '';
+    displayDuration = 0;
+    private _firstDisplay = true;
     _templateData: TwingTemplate | undefined = undefined;
 
     constructor(login: string | undefined = undefined) {
@@ -78,18 +78,18 @@ export default class Manialink {
 
         if (!this._templateData) {
             try {
-                this._templateData = await environment.loadTemplate(process.cwd() + '/' + this.template, 'utf-8');
+                this._templateData = await environment.loadTemplate(`${process.cwd()}/${this.template}`, 'utf-8');
                 return this._templateData.render(environment, obj);
             } catch (e: any) {
-                tmc.cli('Manialink error: ¤error¤ ' + e.message);
-                throw new Error('Failed to load template: ' + e.message);
+                tmc.cli(`Manialink error: ¤error¤ ${e.message}`);
+                throw new Error(`Failed to load template: ${e.message}`);
             }
         } else {
             try {
                 return (await this._templateData?.render(environment, obj)) ?? '';
             } catch (e: any) {
-                tmc.cli('Manialink error: ¤error¤ ' + e.message);
-                throw new Error('Failed to render template: ' + e.message);
+                tmc.cli(`Manialink error: ¤error¤ ${e.message}`);
+                throw new Error(`Failed to render template: ${e.message}`);
             }
         }
     }

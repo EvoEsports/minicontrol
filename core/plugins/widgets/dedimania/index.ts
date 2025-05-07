@@ -70,7 +70,7 @@ export default class DedimaniaWidget extends Plugin {
         }
 
         let outRecords: any[] = this.records.slice(0, 5);
-        let myIndex = this.records.findIndex((val: any) => val.login == login);
+        const myIndex = this.records.findIndex((val: any) => val.login === login);
 
         let addRecords = true;
         if (myIndex !== -1) {
@@ -91,7 +91,7 @@ export default class DedimaniaWidget extends Plugin {
 
         widget.setData({ records: outRecords });
         widget.size.height = 4 * outRecords.length + 1;
-        if (outRecords.length == 0) {
+        if (outRecords.length === 0) {
             widget.size.height = 4;
         }
         this.widgets[login] = widget;

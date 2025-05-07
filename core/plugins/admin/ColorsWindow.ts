@@ -2,21 +2,21 @@ import ListWindow from '@core/ui/listwindow';
 import type AdminPlugin from '.';
 
 export default class SettingsWindow extends ListWindow {
-    template: string = 'core/plugins/admin/settinglist.xml.twig';
-    pageSize: number = 6;
+    template = 'core/plugins/admin/settinglist.xml.twig';
+    pageSize = 6;
 
     async onAction(login: string, action: string, item: any) {
-        if (action == 'Toggle') {
+        if (action === 'Toggle') {
             (tmc.plugins['admin'] as AdminPlugin).currentSetting[login] = item;
             tmc.chat(`¤info¤type ¤cmd¤//set <value> ¤info¤to change $fff${item.key}`, login);
             return;
         }
-        if (action == 'Select') {
+        if (action === 'Select') {
             (tmc.plugins['admin'] as AdminPlugin).currentSetting[login] = item;
             tmc.chat(`¤info¤type ¤cmd¤//set <value> ¤info¤to change $fff${item.key}`, login);
             return;
         }
-        if (action == 'Reset') {
+        if (action === 'Reset') {
             await tmc.settings.resetColor(item.key);
             if (this.recipient) delete (tmc.plugins['admin'] as AdminPlugin).currentSetting[this.recipient];
             tmc.chat(`¤info¤Setting $fff${item.key} ¤info¤reset to default value.`, login);

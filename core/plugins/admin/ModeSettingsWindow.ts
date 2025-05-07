@@ -10,8 +10,8 @@ export default class ModeSettingsWindow extends ListWindow {
 
     async onApply(login: string, data: any, entries: any) {
         this.parseEntries(entries);
-        let out: { [key: string]: any } = {};
-        for (let item of this.items) {
+        const out: { [key: string]: any } = {};
+        for (const item of this.items) {
             out[item.setting] = item.value;
         }
         tmc.server.send("SetModeScriptSettings", out);

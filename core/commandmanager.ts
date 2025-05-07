@@ -1,11 +1,8 @@
-import { sign } from 'crypto';
 import ListWindow from './ui/listwindow';
 import { escapeRegex, htmlEntities } from './utils';
-import fs from 'fs';
+import fs from 'node:fs';
 
-export interface CallableCommand {
-    (login: string, args: string[]): Promise<void>;
-}
+export type CallableCommand = (login: string, args: string[]) => Promise<void>;
 
 export interface ChatCommand {
     admin: boolean;
@@ -28,8 +25,8 @@ export default class CommandManager {
         this.addCommand(
             '/help',
             async (login: string, args: string[]) => {
-                let outCommands: any = [];
-                for (let command in this.commands) {
+                const outCommands: any = [];
+                for (const command in this.commands) {
                     if (this.commands[command]?.admin) continue;
                     outCommands.push({
                         command: htmlEntities(this.commands[command].trigger),
@@ -54,8 +51,8 @@ export default class CommandManager {
         this.addCommand(
             '//help',
             async (login: string, args: string[]) => {
-                let outCommands: any = [];
-                for (let command in this.commands) {
+                const outCommands: any = [];
+                for (const command in this.commands) {
                     if (!this.commands[command]?.admin) continue;
                     outCommands.push({
                         command: htmlEntities(this.commands[command].trigger),
@@ -170,7 +167,7 @@ export default class CommandManager {
                 switch (action) {
                     case 'list': {
                         let admins = 'Admins: ';
-                        for (let admin of tmc.admins) {
+                        for (const admin of tmc.admins) {
                             admins += `¤cmd¤${admin}¤white¤, `;
                         }
                         tmc.chat(admins, login);
@@ -217,23 +214,23 @@ export default class CommandManager {
                 const method = params.shift();
                 if (method === undefined) {
                     const methods = await tmc.server.call('system.listMethods');
-                    let multicall: any = [];
-                    for (let method of methods) {
+                    const multicall: any = [];
+                    for (const method of methods) {
                         multicall.push(['system.methodHelp', method]);
                     }
 
-                    let multicall2: any = [];
-                    for (let method of methods) {
+                    const multicall2: any = [];
+                    for (const method of methods) {
                         multicall2.push(['system.methodSignature', method]);
                     }
 
-                    let methodHelp = await tmc.server.multicall(multicall);
-                    let methodSignature = await tmc.server.multicall(multicall2);
-                    let out: any = [];
+                    const methodHelp = await tmc.server.multicall(multicall);
+                    const methodSignature = await tmc.server.multicall(multicall2);
+                    const out: any = [];
                     for (const i in methods) {
                         if (methods[i].startsWith('system.')) continue;
                         let type = [];
-                        for (let j in methodSignature[i]) {
+                        for (const j in methodSignature[i]) {
                             const temp = methodSignature[i][j].map((x: any) => {
                                 switch (x) {
                                     case 'string':
@@ -253,7 +250,7 @@ export default class CommandManager {
                         }
                         const returnvalue = type.shift();
                         out.push({
-                            method: htmlEntities(methods[i] + '(' + type.join('$fff, ') + '$fff)'),
+                            method: htmlEntities(`${methods[i]}(${type.join('$fff, ')}$fff)`),
                             value: htmlEntities(returnvalue ?? ''),
                             help: htmlEntities(methodHelp[i].replace(/Only available to (Super)?Admin./, ''))
                         });
@@ -273,11 +270,11 @@ export default class CommandManager {
                     return;
                 }
                 try {
-                    let out: any = [];
+                    const out: any = [];
                     for (let i = 0; i < params.length; i++) {
-                        if (params[i].toLowerCase() == 'true') out[i] = true;
-                        else if (params[i].toLowerCase() == 'false') out[i] = false;
-                        else if (!isNaN(Number.parseInt(params[i]))) out[i] = Number.parseInt(params[i]);
+                        if (params[i].toLowerCase() === 'true') out[i] = true;
+                        else if (params[i].toLowerCase() === 'false') out[i] = false;
+                        else if (!Number.isNaN(Number.parseInt(params[i]))) out[i] = Number.parseInt(params[i]);
                         else out[i] = params[i];
                     }
                     const answer = await tmc.server.call(method, ...out);
@@ -295,20 +292,20 @@ export default class CommandManager {
         window.size = { width: 160, height: 95 };
         window.title = 'Plugins';
         let out: any[] = [];
-        let all: string[] = [];
-        let diff: string[] = [];
-        let plugins = fs.readdirSync(process.cwd() + '/core/plugins', { withFileTypes: true, recursive: true });
-        plugins = plugins.concat(fs.readdirSync(process.cwd() + '/userdata/plugins', { withFileTypes: true, recursive: true }));
+        const all: string[] = [];
+        const diff: string[] = [];
+        let plugins = fs.readdirSync(`${process.cwd()}/core/plugins`, { withFileTypes: true, recursive: true });
+        plugins = plugins.concat(fs.readdirSync(`${process.cwd()}/userdata/plugins`, { withFileTypes: true, recursive: true }));
 
         for (const i in plugins) {
             const plugin = plugins[i];
-            if (plugin && plugin.isDirectory()) {
+            if (plugin?.isDirectory()) {
                 if (plugin.name.includes('.') || plugin.parentPath.includes('.')) continue;
                 if (plugin.name.includes('node_modules') || plugin.parentPath.includes('node_modules')) continue;
-                const path = plugin.parentPath.replace(process.cwd() + '/core/plugins', '').replace(process.cwd() + '/userdata/plugins', '');
+                const path = plugin.parentPath.replace(`${process.cwd()}/core/plugins`, '').replace(`${process.cwd()}/userdata/plugins`, '');
                 let pluginName = plugin.name.replaceAll('\\', '/');
-                if (path != '') {
-                    pluginName = (path.substring(1) + '/' + plugin.name).replaceAll('\\', '/');
+                if (path !== '') {
+                    pluginName = `${path.substring(1)}/${plugin.name}`.replaceAll('\\', '/');
                 }
                 all.push(pluginName);
             }
@@ -359,17 +356,15 @@ export default class CommandManager {
      * @param help help text
      * @param admin force admin
      */
-    addCommand(command: string, callback: CallableCommand, help: string = '', admin?: boolean) {
-        if (admin === undefined) {
-            admin = command.startsWith('//');
-        }
+    addCommand(command: string, callback: CallableCommand, help = '', admin?: boolean) {
+        const isAdmin = admin === undefined ? command.startsWith('//') : admin;
         if (this.commands[command]) {
             tmc.cli(`¤white¤Command $fd0${command} ¤white¤already exists, overriding it.`);
         }
         this.commands[command] = {
             trigger: command,
             callback: callback,
-            admin: admin,
+            admin: isAdmin,
             help: help
         };
     }
@@ -390,7 +385,7 @@ export default class CommandManager {
      */
     async execute(login: string, text: string) {
         if (text.startsWith('/')) {
-            for (let command of Object.values(this.commands)) {
+            for (const command of Object.values(this.commands)) {
                 if (text.startsWith('//') && !tmc.admins.includes(login)) {
                     tmc.chat('¤error¤Not allowed.', login);
                     return;
@@ -401,7 +396,7 @@ export default class CommandManager {
                 const exp = new RegExp(`^${prefix}\\b${escapeRegex(command.trigger.replaceAll('/', ''))}\\b`, 'i');
                 if (exp.test(text)) {
                     const words = text.replace(new RegExp(escapeRegex(command.trigger), 'i'), '').trim();
-                    let params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s"]+/gi) || []).map((word) =>
+                    const params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s"]+/gi) || []).map((word) =>
                         word.replace(/^"(.+(?="$))"$/, '$1').replaceAll('\\', '')
                     );
                     await command.callback(login, params);
@@ -418,20 +413,20 @@ export default class CommandManager {
      * @returns
      */
     private async onPlayerChat(data: any) {
-        if (data[0] == 0) return;
+        if (data[0] === 0 || data[1] === tmc.server.login) return;
         const login: string = data[1];
-        let text: string = data[2];
+        const text: string = data[2];
         this.execute(login, text);
     }
 }
 
 class PluginManagerWindow extends ListWindow {
     async onAction(login: string, action: string, item: any) {
-        if (action == 'toggle') {
+        if (action === 'toggle') {
             if (tmc.plugins[item.pluginName]) {
-                await tmc.chatCmd.execute(login, '//plugin unload ' + item.pluginName);
+                await tmc.chatCmd.execute(login, `//plugin unload ${item.pluginName}`);
             } else {
-                await tmc.chatCmd.execute(login, '//plugin load ' + item.pluginName);
+                await tmc.chatCmd.execute(login, `//plugin load ${item.pluginName}`);
             }
             await tmc.chatCmd.execute(login, '//plugins');
             return;
@@ -440,9 +435,8 @@ class PluginManagerWindow extends ListWindow {
 }
 
 class HelpWindow extends ListWindow {
-
     async onAction(login: string, action: string, item: any) {
-        if (action == "Invoke") {
+        if (action === 'Invoke') {
             await tmc.chatCmd.execute(login, item.rawCommand);
         }
     }

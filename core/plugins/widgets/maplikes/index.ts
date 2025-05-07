@@ -1,7 +1,7 @@
 import Plugin from '@core/plugins';
 import Widget from '@core/ui/widget';
 import type { Like } from '@core/plugins/maplikes';
-import MapLikes from '@core/plugins/maplikes';
+import type MapLikes from '@core/plugins/maplikes';
 
 export default class MapLikesWidget extends Plugin {
     static depends: string[] = ['widgets', 'database', 'maplikes'];
@@ -52,7 +52,7 @@ export default class MapLikesWidget extends Plugin {
                 }
                 total++;
             }
-            let percentage = (((positive / total) * 100).toFixed(0) || 0) + '%';
+            let percentage = `${((positive / total) * 100).toFixed(0) || 0}%`;
             const percent = (positive / total) * 100;
 
             if (percent < 40) wording = 'Not Fun';
@@ -71,7 +71,7 @@ export default class MapLikesWidget extends Plugin {
                 width: ((positive / total) * (this.widget.size.width - 12)).toFixed(0)
             });
 
-            this.widget.title = 'MAP KARMA [' + data.length + ']';
+            this.widget.title = `MAP KARMA [${data.length}]`;
             await this.widget.display();
         }
     }

@@ -3,13 +3,13 @@ import { emotesMap } from './tmnf_emojis';
 import badwords from './badwords.json';
 import { removeColors } from '@core/utils';
 
-let regex: RegExp[] = [];
+const regex: RegExp[] = [];
 
 for (const pattern of badwords) {
-    regex.push(new RegExp('^' + pattern + '$'));
+    regex.push(new RegExp(`^${pattern}$`));
 }
 
-function filterWords(text: String) {
+function filterWords(text: string) {
     const phrase = text.split(/\s+/);
     for (const word of phrase) {
         for (const re of regex) {
@@ -23,8 +23,8 @@ function filterWords(text: String) {
 
 export default class Chat extends Plugin {
     static depends: string[] = [];
-    pluginEnabled: boolean = false;
-    publicChatEnabled: boolean = true;
+    pluginEnabled = false;
+    publicChatEnabled = true;
     playersDisabled: string[] = [];
 
     async onLoad() {
@@ -37,7 +37,7 @@ export default class Chat extends Plugin {
             tmc.settings.register('chat.badge.player', 'fff', null, 'Chat: Player badge color');
             tmc.settings.register('chat.profanityFilter', true, null, 'Chat: Enable profanity filter');
 
-            if (tmc.game.Name == 'TmForever') {
+            if (tmc.game.Name === 'TmForever') {
                 tmc.settings.register('chat.useEmotes', false, null, 'Chat: Enable emote replacements in chat $z(see: http://bit.ly/Celyans_emotes_sheet)');
                 tmc.chatCmd.addCommand(
                     '/emotes',
@@ -53,7 +53,7 @@ export default class Chat extends Plugin {
             }
         } catch (e: any) {
             this.pluginEnabled = false;
-            tmc.cli('ChatPlugin: ¤error¤ ' + e.message);
+            tmc.cli(`ChatPlugin: ¤error¤ ${e.message}`);
         }
     }
 
@@ -69,17 +69,17 @@ export default class Chat extends Plugin {
     }
 
     async cmdChat(login: string, params: string[]) {
-        if (params.length == 0) {
-            tmc.chat(`¤info¤usage: ¤cmd¤//chat <on/off> ¤info¤ or ¤cmd¤//chat <login> <on/off>`);
+        if (params.length === 0) {
+            tmc.chat("¤info¤usage: ¤cmd¤//chat <on/off> ¤info¤ or ¤cmd¤//chat <login> <on/off>");
             return;
         }
-        if (params.length == 1 && ['on', 'off'].includes(params[0])) {
-            this.publicChatEnabled = params[0] == 'on';
-            tmc.chat('¤info¤Public chat is ¤white¤' + params[0]);
+        if (params.length === 1 && ['on', 'off'].includes(params[0])) {
+            this.publicChatEnabled = params[0] === 'on';
+            tmc.chat(`¤info¤Public chat is ¤white¤${params[0]}`);
             return;
         }
-        if (params.length == 2 && ['on', 'off'].includes(params[1])) {
-            if (params[1] == 'on') {
+        if (params.length === 2 && ['on', 'off'].includes(params[1])) {
+            if (params[1] === 'on') {
                 const index = this.playersDisabled.indexOf(params[0]);
                 this.playersDisabled.splice(index, 1);
                 tmc.chat(`¤info¤Playerchat for ¤white¤${params[0]} ¤info¤is now ¤white¤on!`, login);
@@ -101,7 +101,7 @@ export default class Chat extends Plugin {
             tmc.chat('Public chat is disabled.', login);
             return;
         }
-        if (data[0] == 0) return;
+        if (data[0] === 0) return;
         if (data[2].startsWith('/')) return;
         if (this.playersDisabled.includes(login)) {
             tmc.chat('Your chat is disabled.', login);
@@ -114,13 +114,13 @@ export default class Chat extends Plugin {
         const player = await tmc.getPlayer(login);
         const nick = (player.customNick ?? player.nickname).replaceAll(/\$[iwozs]/gi, '');
 
-        if (tmc.game.Name == 'TmForever' && tmc.settings.get('chat.useEmotes')) {
+        if (tmc.game.Name === 'TmForever' && tmc.settings.get('chat.useEmotes')) {
             for (const emoteData of emotesMap) {
-                text = text.replaceAll(new RegExp(':\\b(' + emoteData.emote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')\\b:', 'gi'), '$z$fff' + emoteData.glyph + '$s$ff0');
+                text = text.replaceAll(new RegExp(`:\\b(${emoteData.emote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\b:`, 'gi'), `$z$fff${emoteData.glyph}$s$ff0`);
             }
         }
 
-        if (text.indexOf(/\$l/i) == -1) {
+        if (text.indexOf(/\$l/i) === -1) {
             text = text.replaceAll(/(https?:\/\/[^\s]+)/g, '$L$1$L');
         }
 
@@ -128,7 +128,7 @@ export default class Chat extends Plugin {
         const adminColor = tmc.admins.includes(login) ? tmc.settings.get('chat.badge.admin') : tmc.settings.get('chat.badge.player');
         const msg = `${nick}$z$s$${adminColor} »$${chatColor} ${text}`;
         tmc.server.send('ChatSendServerMessage', msg);
-        if (process.env.DEBUG == 'true') {
+        if (process.env.DEBUG === 'true') {
             tmc.cli(msg);
         }
     }

@@ -377,7 +377,7 @@ export default class UiManager {
             manialinks.map(async (manialink) => {
                 if (!manialink) return;
                 const title = manialink.title || manialink.template || manialink.id;
-                if (manialink.recipient == undefined) {
+                if (manialink.recipient === undefined) {
                     // Public manialinks processing.
                     if (this.publicManialinks[manialink.id] && this.publicManialinks[manialink.id] !== manialink) {
                         tmc.debug(`¤error¤destroying old manialink: ¤white¤${title}`);
@@ -489,7 +489,7 @@ export default class UiManager {
         }
     }
 
-    async destroyManialink(manialink: Manialink, hide: boolean = true) {
+    async destroyManialink(manialink: Manialink, hide = true) {
         const title = manialink.title || manialink.template || manialink.id;
         tmc.debug(`¤info¤destroying manialink: ¤white¤${title}`);
         if (hide) {

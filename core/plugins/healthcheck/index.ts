@@ -1,5 +1,5 @@
 
-import { Server, type Socket } from "net";
+import { Server, type Socket } from "node:net";
 import Plugin from "..";
 import { isDocker } from "@core/utils";
 
@@ -20,7 +20,7 @@ export default class HealthCheck extends Plugin {
 
             socket.on("data", (data: Buffer) => {
                 const message = data.toString("utf-8").trim();
-                if (message == "ping") {
+                if (message === "ping") {
                     // sends 0 if the service is healthy, 1 if it's not
                     socket.end(tmc.startComplete ? "0" : "1");
                     tmc.debug("¤info¤HealthCheck: Ping received.");

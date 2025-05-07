@@ -11,12 +11,12 @@ export default class SearchWindow extends ListWindow {
                     async (login: string, params: string) => {
                         await tmc.chatCmd.execute(login, params);
                     },
-                    [login, '//add ' + item.id]
+                    [login, `//add ${item.id}`]
                 );
 
                 await confirm.display();
             } else {
-                await tmc.chatCmd.execute(login, '//add ' + item.id);
+                await tmc.chatCmd.execute(login, `//add ${item.id}`);
             }
         }
         return super.onAction(login, action, item);

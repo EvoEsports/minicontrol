@@ -1,5 +1,5 @@
-import { Readable } from 'stream';
-import zlib from 'zlib';
+import { Readable } from 'node:stream';
+import zlib from 'node:zlib';
 // @ts-ignore
 import Serializer from 'xmlrpc/lib/serializer';
 // @ts-ignore
@@ -9,7 +9,7 @@ export default class DedimaniaClient {
     sessionID = '';
 
     compress(body: string): Promise<Buffer> {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             zlib.gzip(body, (err, buffer) => {
                 if (err) {
                     reject(err);
@@ -28,7 +28,7 @@ export default class DedimaniaClient {
 
         const outData = await this.compress(body);
 
-        let headers: any = {
+        const headers: any = {
             'Content-Type': 'text/xml',
             'Content-Encoding': 'gzip',
             Connection: 'keep-alive',
@@ -78,14 +78,13 @@ export default class DedimaniaClient {
                     deserializer.deserializeMethodResponse(Readable.from(data), (err: any, res: any) => {
                         if (err) {
                             return reject(err);
-                        } else {
-                            for (let method of res[1][0].methods) {
-                                if (method.errors !== '') {
-                                    return reject(method.errors);
-                                }
-                            }
-                            return resolve(res[0][0]);
                         }
+                        for (const method of res[1][0].methods) {
+                            if (method.errors !== '') {
+                                return reject(method.errors);
+                            }
+                        }
+                        return resolve(res[0][0]);
                     });
                 } catch (err) {
                     return reject(err);
@@ -93,7 +92,7 @@ export default class DedimaniaClient {
             });
             return answer;
         } catch (e: any) {
-            tmc.debug(`Dedimania error: ` + e.message);
+            tmc.debug(`Dedimania error: ${e.message}`);
             this.sessionID = '';
             throw e;
         }

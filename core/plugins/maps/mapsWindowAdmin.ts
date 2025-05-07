@@ -12,7 +12,7 @@ export default class MapsWindowAdmin extends ListWindow {
     }
 
     async uiPaginate(login: string, answer: any, entries: any): Promise<void> {
-        let maps: any[] = [];
+        const maps: any[] = [];
         let i = 1;
         for (const map of clone(tmc.maps.get())) {
             if (!this.params[0] || (removeColors(map.Name).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
@@ -33,13 +33,13 @@ export default class MapsWindowAdmin extends ListWindow {
     }
 
     async onAction(login: string, action: string, item: any) {
-        if (action == "Jump") {
-            await tmc.chatCmd.execute(login, "//jump " + item.Uid);
-        } else if (action == "Remove") {
-            const confirm = new Confirm(login, "Confirm Remove", this.applyCommand.bind(this), [login, "//remove " + item.UId]);
+        if (action === "Jump") {
+            await tmc.chatCmd.execute(login, `//jump ${item.Uid}`);
+        } else if (action === "Remove") {
+            const confirm = new Confirm(login, "Confirm Remove", this.applyCommand.bind(this), [login, `//remove ${item.UId}`]);
             await confirm.display();
-        } else if (action == "Queue") {
-            await tmc.chatCmd.execute(login, "/addqueue " + item.UId);
+        } else if (action === "Queue") {
+            await tmc.chatCmd.execute(login, `/addqueue ${item.UId}`);
         }
     }
 

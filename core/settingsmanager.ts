@@ -1,4 +1,4 @@
-import { writeFileSync, readFileSync, existsSync } from 'fs';
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { clone, modLightness } from './utils';
 
 export default class SettingsManager {
@@ -34,9 +34,9 @@ export default class SettingsManager {
     admins: string[] = [];
     masterAdmins: string[] = (process.env.ADMINS || '').split(',').map((a) => a.trim());
 
-    adminsFile: string = '/../userdata/admins.json';
-    colorsFile: string = '/../userdata/colors.json';
-    settingsFile: string = '/../userdata/settings.json';
+    adminsFile = '/../userdata/admins.json';
+    colorsFile = '/../userdata/colors.json';
+    settingsFile = '/../userdata/settings.json';
 
     load() {
         tmc.cli('¤info¤Loading settings...');
@@ -44,16 +44,16 @@ export default class SettingsManager {
         this.settings = this._defaultSettings;
         /** load colors from environment variables */
         for (const color in this._defaultColors) {
-            const envVar = 'COLOR_' + color.toString().toUpperCase();
+            const envVar = `COLOR_${color.toString().toUpperCase()}`;
             this.colors[color] = process.env[envVar] || this._defaultColors[color];
         }
-        this.colors['button_bg_light'] = modLightness(this.colors['button_bg'], 15);
-        this.colors['button_bg_dark'] = modLightness(this.colors['button_bg'], -15);
-        this.colors['window_bg_light'] = modLightness(this.colors['window_bg'], 5);
-        this.colors['window_bg_dark'] = modLightness(this.colors['window_bg'], -5);
-        this.adminsFile = '/../userdata/admins_' + tmc.server.login + '.json';
-        this.colorsFile = '/../userdata/colors_' + tmc.server.login + '.json';
-        this.settingsFile = '/../userdata/settings_' + tmc.server.login + '.json';
+        this.colors.button_bg_light = modLightness(this.colors.button_bg, 15);
+        this.colors.button_bg_dark = modLightness(this.colors.button_bg, -15);
+        this.colors.window_bg_light = modLightness(this.colors.window_bg, 5);
+        this.colors.window_bg_dark = modLightness(this.colors.window_bg, -5);
+        this.adminsFile = `/../userdata/admins_${tmc.server.login}.json`;
+        this.colorsFile = `/../userdata/colors_${tmc.server.login}.json`;
+        this.settingsFile = `/../userdata/settings_${tmc.server.login}.json`;
 
         this.init(this.adminsFile, []);
         this.init(this.colorsFile, {});
@@ -119,7 +119,7 @@ export default class SettingsManager {
             try {
                 writeFileSync(import.meta.dirname + file, JSON.stringify(data));
             } catch (e: any) {
-                tmc.cli('$f00Error while creating ' + file);
+                tmc.cli(`$f00Error while creating ${file}`);
                 tmc.cli(e.message);
                 process.exit(1);
             }
@@ -134,7 +134,7 @@ export default class SettingsManager {
      * @param callback
      * @param description
      */
-    register(key: string, value: any, callback: null | ((value: any, oldValue: any, _key:string) => Promise<void>), description: string = '') {
+    register(key: string, value: any, callback: null | ((value: any, oldValue: any, _key:string) => Promise<void>), description = '') {
         this._defaultSettings[key] = value;
         this.callbacks[key] = callback;
         this.descriptions[key] = description;
@@ -157,7 +157,7 @@ export default class SettingsManager {
         const oldValue = clone(this.settings[key]);
         const newValue = clone(value);
 
-        if (!this.settings.hasOwnProperty(key)) {
+        if (!Object.prototype.hasOwnProperty.call(this.settings, key)) {
             throw new Error(`Key ${key} does not exist in settings`);
         }
 
@@ -180,9 +180,9 @@ export default class SettingsManager {
      * @param callback
      * @param description
      */
-    registerColor(key: string, value: any, callback: null | ((value: any, oldValue: any) => Promise<void>), description: string = '') {
+    registerColor(key: string, value: any, callback: null | ((value: any, oldValue: any) => Promise<void>), description = '') {
         this._defaultColors[key] = value;
-        this.callbacks['color.' + key] = callback;
+        this.callbacks[`color.${key}`] = callback;
         this.colorDescriptions[key] = description;
         if (!Object.keys(this.colors).includes(key)) this.colors[key] = value;
     }
@@ -216,7 +216,7 @@ export default class SettingsManager {
         this.colors[key] = value;
         this.save();
 
-        const idx = 'color.' + key;
+        const idx = `color.${key}`;
 
         if (this.callbacks[idx]) {
             await this.callbacks[idx](value, oldValue, key);

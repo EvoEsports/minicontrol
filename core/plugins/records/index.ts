@@ -65,7 +65,7 @@ export default class Records extends Plugin {
                 this.personalBest[login] = personalBest;
             }
         } catch (e: any) {
-            tmc.cli('¤error¤Error fetching personal best: ' + e.message);
+            tmc.cli(`¤error¤Error fetching personal best: ${e.message}`);
         }
     }
 
@@ -74,7 +74,7 @@ export default class Records extends Plugin {
     }
 
     async cmdRecords(login: string, args: string[]) {
-        let records: any = [];
+        const records: any = [];
         let mapUuid = tmc.maps.currentMap.UId;
 
         if (args.length > 0) {
@@ -125,11 +125,11 @@ export default class Records extends Plugin {
                 include: [Player]
             });
         } catch (err: any) {
-            tmc.cli('Error fetching records: ' + err.message);
+            tmc.cli(`Error fetching records: ${err.message}`);
             return [];
         }
 
-        let records: Score[] = [];
+        const records: Score[] = [];
         let rank = 1;
         for (const score of scores) {
             score.rank = rank;
@@ -152,7 +152,7 @@ export default class Records extends Plugin {
             })) ?? [];
 
         for (const pb of pbs) {
-            if (pb && pb.login && pb.login !== '') {
+            if (pb?.login && pb.login !== '') {
                 this.personalBest[pb.login] = pb;
             }
         }
@@ -238,7 +238,7 @@ export default class Records extends Plugin {
         this.playerCheckpoints[login].push(racetime.toString());
 
         const nbCp = tmc.maps.currentMap?.NbCheckpoints || 1;
-        if (checkpointIndex % nbCp == nbCp) {
+        if (checkpointIndex % nbCp === nbCp) {
             this.playerCheckpoints[login].push(';');
         } else {
             this.playerCheckpoints[login].push(',');
@@ -309,8 +309,7 @@ export default class Records extends Plugin {
                             createdAt: new Date().toISOString()
                         },
                         include: Player
-                    }
-                    );
+                    });
 
                     this.personalBest[login] = pb;
                 }
@@ -346,8 +345,8 @@ export default class Records extends Plugin {
             }
 
             const lastTime = this.records[this.records.length - 1].time ?? -1;
-            if (lastTime == -1) return;
-            if (this.records.length == limit && finishTime > lastTime) {
+            if (lastTime === -1) return;
+            if (this.records.length === limit && finishTime > lastTime) {
                 return;
             }
 
@@ -374,7 +373,7 @@ export default class Records extends Plugin {
                     oldRecord = clone(record);
                     await record.update({
                         time: finishTime,
-                        checkpoints: (this.playerCheckpoints[login]??[]).join(''),
+                        checkpoints: (this.playerCheckpoints[login] ?? []).join(''),
                         updatedAt: new Date().toISOString()
                     });
                 } else {
@@ -387,7 +386,7 @@ export default class Records extends Plugin {
                 await Score.create({
                     login,
                     time: finishTime,
-                    checkpoints: (this.playerCheckpoints[login]??[]).join(''),
+                    checkpoints: (this.playerCheckpoints[login] ?? []).join(''),
                     mapUuid
                 });
                 record =
@@ -402,9 +401,9 @@ export default class Records extends Plugin {
 
             // Sort and slice records, assign ranks
             this.records.sort((a, b) => {
-                const timeA = a.time ?? Infinity;
-                const timeB = b.time ?? Infinity;
-                if (timeA == timeB) {
+                const timeA = a.time ?? Number.POSITIVE_INFINITY;
+                const timeB = b.time ?? Number.POSITIVE_INFINITY;
+                if (timeA === timeB) {
                     const dateA = new Date(a.updatedAt ?? 0).getTime();
                     const dateB = new Date(b.updatedAt ?? 0).getTime();
                     return dateA - dateB;
@@ -412,7 +411,9 @@ export default class Records extends Plugin {
                 return timeA - timeB;
             });
 
-            this.records.forEach((r, i) => (r.rank = i + 1));
+            this.records.forEach((r, i) => {
+                r.rank = i + 1;
+            });
             this.records = this.records.slice(0, limit);
 
             // check if the record is in the records array

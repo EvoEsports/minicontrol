@@ -4,9 +4,9 @@ import Score from '@core/schemas/scores.model';
 import Player from '@core/schemas/players.model';
 import { formatTime, htmlEntities } from '@core/utils';
 import { Op } from 'sequelize';
-import WorldRecords from '@core/plugins/tm2020/worldrecords';
-import Records from '@core/plugins/records';
-import liverankings from '@core/plugins/liverankings';
+import type WorldRecords from '@core/plugins/tm2020/worldrecords';
+import type Records from '@core/plugins/records';
+import type liverankings from '@core/plugins/liverankings';
 
 interface Column {
     title: string;
@@ -34,7 +34,7 @@ export default class RecordsWindow extends ListWindow {
                 await confirm.display();
             }
         } else if (action === 'View') {
-            let recordDetails;
+            let recordDetails: any;
             if (this.title.includes('Live Records')) {
                 recordDetails = await this.getRecordDetails(item.login, item.mapUuid);
             } else if (this.title.includes('Server Records')) {
@@ -86,9 +86,8 @@ export default class RecordsWindow extends ListWindow {
                         time: record.time,
                         checkpoints: record.checkpoints
                     };
-                } else {
-                    return null;
                 }
+                    return null;
             } catch (error) {
                 console.error(`Error fetching server record details for ${login}:`, error);
                 return null;
@@ -149,9 +148,9 @@ class DetailsWindow extends ListWindow {
                     items.push({ key: `Lap ${lapIndex + 1}`, value: '' });
 
                     lapCheckpoints.forEach((cpTimeStr: string, index: number) => {
-                        const cpTime = parseInt(cpTimeStr);
+                        const cpTime = Number.parseInt(cpTimeStr);
 
-                        if (!isNaN(cpTime)) {
+                        if (!Number.isNaN(cpTime)) {
                             const lapTime = cpTime - lastLapTotalTime;
                             lastLapTotalTime = cpTime;
 

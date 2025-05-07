@@ -1,11 +1,11 @@
 import Widget from '@core/ui/widget';
-import { type Item } from './menu';
+import type { Item } from './menu';
 import Menu from './menu';
 
 export default class MenuWidget extends Widget {
     parent: any;
 
-    constructor(login: string, path: string = 'core/plugins/menu/menu.xml.twig', parent) {
+    constructor(login: string, path: string, parent: any) {
         super(path);
         this.parent = parent;
         const categories: any= Menu.getInstance()
@@ -14,8 +14,8 @@ export default class MenuWidget extends Widget {
             .filter((v: any, i: number, a: any) => a.indexOf(v) === i)
             .sort((a: string, b: string) => a.localeCompare(b));
         for (const item of categories) {
-            if (!this.actions['cat_' + item]) {
-                this.actions['cat_' + item] = tmc.ui.addAction(this.changeCategory.bind(this), item);
+            if (!this.actions[`cat_${item}`]) {
+                this.actions[`cat_${item}`] = tmc.ui.addAction(this.changeCategory.bind(this), item);
             }
         }
         this.data['categories'] = categories || [];
@@ -25,7 +25,7 @@ export default class MenuWidget extends Widget {
     }
 
     async display() {
-        let items = Menu.getInstance().getItemsByCategory(this.data['activeCategory'], this.recipient) || [];
+        const items = Menu.getInstance().getItemsByCategory(this.data['activeCategory'], this.recipient) || [];
 
         this.data['items'] = items;
         for (const action in this.actions) {
@@ -35,8 +35,8 @@ export default class MenuWidget extends Widget {
             }
         }
         for (const item of this.data['items']) {
-            if (!this.actions['item_' + item.title]) {
-                this.actions['item_' + item.title] = tmc.ui.addAction(this.doAction.bind(this), item);
+            if (!this.actions[`item_${item.title}`]) {
+                this.actions[`item_${item.title}`] = tmc.ui.addAction(this.doAction.bind(this), item);
             }
         }
         await super.display();

@@ -62,9 +62,9 @@ export default class MapWidget extends Plugin {
 
         let tmxUrl = '';
         if (data.TmxId) {
-            tmxUrl = data.TmxUrl + 'mapshow/' + data.TmxId;
-            if (data.TmxId && tmc.game.Name == 'TmForever') {
-                tmxUrl = data.TmxUrl.replace('https://', 'http://') + 'trackshow/' + data.TmxId;
+            tmxUrl = `${data.TmxUrl}mapshow/${data.TmxId}`;
+            if (data.TmxId && tmc.game.Name === 'TmForever') {
+                tmxUrl = `${data.TmxUrl.replace('https://', 'http://')}trackshow/${data.TmxId}`;
             }
         }
         const tags = (data.Tags || []).splice(0, 3);
@@ -73,8 +73,8 @@ export default class MapWidget extends Plugin {
         if (data.Style) {
             info = data.Style ?? "";
             for (const tag of tags) {
-                if (tag != data.Style) {
-                    info += ', ' + tag + '$fff';
+                if (tag !== data.Style) {
+                    info += `, ${tag}$fff`;
                 }
             }
         }

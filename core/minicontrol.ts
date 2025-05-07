@@ -16,16 +16,15 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 import { require } from 'tsx/cjs/api';
-import * as SentryType from '@sentry/node';
+import type * as SentryType from '@sentry/node';
 
 const Sentry = require('./sentry', import.meta.url);
 declare global {
     const tmc: MiniControl;
     const sentry: typeof SentryType;
 }
-(globalThis as any).tmc = undefined;
 
-import PlayerManager, { Player } from './playermanager';
+import PlayerManager, { type Player } from './playermanager';
 import BillManager from './billmanager';
 import Server, { type VersionStruct } from './server';
 import UiManager from './uimanager';
@@ -34,9 +33,9 @@ import CommandManager, { type CallableCommand } from './commandmanager';
 import SettingsManager from './settingsmanager';
 import { clone, getCallerName, processColorString, setMemStart } from './utils';
 import log from './log';
-import fs from 'fs';
+import fs from 'node:fs';
 import Plugin from './plugins/index';
-import path from 'path';
+import path from 'node:path';
 import { DepGraph } from 'dependency-graph';
 import semver from 'semver';
 
@@ -91,9 +90,9 @@ class MiniControl {
      * The game object.
      */
     game: VersionStruct = {} as VersionStruct;
-    mapsPath: string = '';
+    mapsPath = '';
     storage: { [key: string]: any } = {};
-    startComplete: boolean = false;
+    startComplete = false;
 
     constructor() {
         console.time('Startup');
@@ -122,7 +121,7 @@ class MiniControl {
      * @param callback The callback function to execute when the command is triggered.
      * @param help The help text for the command.
      */
-    addCommand(command: string, callback: CallableCommand, help: string = '') {
+    addCommand(command: string, callback: CallableCommand, help = '') {
         this.chatCmd.addCommand(command, callback, help);
     }
 
@@ -141,7 +140,7 @@ class MiniControl {
     findPlugin(name: string): string | null {
         const dirsToCheck = ['./core/plugins/', './userdata/plugins/'];
         for (const dir of dirsToCheck) {
-            if (fs.existsSync(dir + name + '/index.ts')) {
+            if (fs.existsSync(`${dir + name}/index.ts`)) {
                 return (dir + name).replaceAll('\\', '/');
             }
         }
@@ -168,12 +167,12 @@ class MiniControl {
             let plugin: any;
             const epoch = new Date().getTime();
             if (process.platform === 'win32') {
-                plugin = await import('file:///' + process.cwd() + '/' + pluginPath + '?stamp=' + epoch);
+                plugin = await import(`file:///${process.cwd()}/${pluginPath}?stamp=${epoch}`);
             } else {
-                plugin = await import(process.cwd() + '/' + pluginPath + '?stamp=' + epoch);
+                plugin = await import(`${process.cwd()}/${pluginPath}?stamp=${epoch}`);
             }
 
-            if (plugin.default == undefined) {
+            if (plugin.default === undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
                 this.cli(msg);
                 this.chat(msg);
@@ -200,7 +199,7 @@ class MiniControl {
             for (const depend of plugin.default.depends) {
                 if (depend.startsWith('game:')) {
                     const game = depend.split(':')[1];
-                    if (game != this.game.Name) {
+                    if (game !== this.game.Name) {
                         const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Game is not ¤cmd¤${game}¤white¤.`;
                         this.cli(msg);
                         if (this.startComplete) this.chat(msg);
@@ -227,7 +226,7 @@ class MiniControl {
                 }
                 this.cli('¤gray¤Success.');
             } catch (e: any) {
-                tmc.cli('¤gray¤Error while starting plugin ¤cmd¤' + name);
+                tmc.cli(`¤gray¤Error while starting plugin ¤cmd¤${name}`);
                 sentry.captureException(e, {
                     tags: {
                         section: 'initPlugin'
@@ -297,7 +296,7 @@ class MiniControl {
      */
     cli(object: any) {
         log.info(processColorString(object.toString()));
-        if (process.env.DEBUGLEVEL == '2') getCallerName();
+        if (process.env.DEBUGLEVEL === '3') getCallerName();
     }
 
     /**
@@ -305,8 +304,8 @@ class MiniControl {
      * @param object The object to log.
      */
     debug(object: any) {
-        if (process.env.DEBUG == 'true') {
-            const level = parseInt(process.env.DEBUGLEVEL || '1');
+        if (process.env.DEBUG === 'true') {
+            const level = Number.parseInt(process.env.DEBUGLEVEL || '1');
             if (level >= 1) log.debug(processColorString(object.toString()));
             if (level >= 3) getCallerName();
         }
@@ -319,10 +318,10 @@ class MiniControl {
      */
     chat(text: string, login: undefined | string | string[] = undefined) {
         if (login !== undefined) {
-            const msg = '$9ab$n>$z$s ' + text.toString();
-            this.server.send('ChatSendServerMessageToLogin', processColorString(msg, '$z$s'), typeof login == 'string' ? login : login.join(','));
+            const msg = `$9ab$n>$z$s ${text.toString()}`;
+            this.server.send('ChatSendServerMessageToLogin', processColorString(msg, '$z$s'), typeof login === 'string' ? login : login.join(','));
         } else {
-            const msg = '$9ab» ¤info¤' + text.toString();
+            const msg = `$9ab» ¤info¤${text.toString()}`;
             this.server.send('ChatSendServerMessage', processColorString(msg, '$z$s'));
         }
     }
@@ -340,7 +339,7 @@ class MiniControl {
             this.cli('¤error¤Your Node version is too old. Must be atleast 21.5.0, please upgrade!');
             process.exit(1);
         }
-        this.cli('¤info¤Connecting to Trackmania Dedicated server at ¤white¤' + (process.env.XMLRPC_HOST ?? '127.0.0.1') + ':' + port);
+        this.cli(`¤info¤Connecting to Trackmania Dedicated server at ¤white¤${process.env.XMLRPC_HOST ?? '127.0.0.1'}:${port}`);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? '127.0.0.1', port);
         if (!status) {
             this.cli("¤error¤Couldn't connect to server.");
@@ -359,13 +358,13 @@ class MiniControl {
         this.server.send('EnableCallbacks', true);
         this.server.send('SendHideManialinkPage');
 
-        if (this.game.Name == 'Trackmania') {
+        if (this.game.Name === 'Trackmania') {
             await this.server.call('SetApiVersion', '2023-03-25');
             this.mapsPath = await this.server.call('GetMapsDirectory');
             await this.server.callScript('XmlRpc.EnableCallbacks', 'true');
-        } else if (this.game.Name == 'TmForever') {
+        } else if (this.game.Name === 'TmForever') {
             this.mapsPath = await this.server.call('GetTracksDirectory');
-        } else if (this.game.Name == 'ManiaPlanet') {
+        } else if (this.game.Name === 'ManiaPlanet') {
             await this.server.call('SetApiVersion', '2013-04-16');
             this.mapsPath = await this.server.call('GetMapsDirectory');
             await this.server.callScript('XmlRpc.EnableCallbacks', 'true');
@@ -391,12 +390,12 @@ class MiniControl {
         await this.chatCmd.beforeInit();
 
         // load plugins
-        let plugins = fs.readdirSync(process.cwd().replaceAll('\\', '/') + '/core/plugins', { withFileTypes: true, recursive: true });
-        plugins = plugins.concat(fs.readdirSync(process.cwd().replaceAll('\\', '/') + '/userdata/plugins', { withFileTypes: true, recursive: true }));
+        let plugins = fs.readdirSync(`${process.cwd().replaceAll('\\', '/')}/core/plugins`, { withFileTypes: true, recursive: true });
+        plugins = plugins.concat(fs.readdirSync(`${process.cwd().replaceAll('\\', '/')}/userdata/plugins`, { withFileTypes: true, recursive: true }));
         const exclude = process.env.EXCLUDED_PLUGINS?.split(',') || [];
-        let loadList: string[] = [];
+        const loadList: string[] = [];
         for (const plugin of plugins) {
-            let include = plugin && plugin.name && plugin.isDirectory();
+            let include = plugin?.name && plugin.isDirectory();
             if (plugin.name.includes('.') || plugin.parentPath.includes('.')) include = false;
             if (plugin.name.includes('node_modules') || plugin.parentPath.includes('node_modules')) include = false;
             const directory = plugin.parentPath
@@ -405,13 +404,13 @@ class MiniControl {
                 .replace(path.resolve('userdata', 'plugins').replaceAll('\\', '/'), '');
             if (include) {
                 let pluginName: string = plugin.name;
-                if (directory != '') {
-                    pluginName = (directory + '/' + plugin.name).replaceAll('\\', '/');
+                if (directory !== '') {
+                    pluginName = `${directory}/${plugin.name}`.replaceAll('\\', '/');
                     if (pluginName.startsWith('/')) pluginName = pluginName.substring(1);
                 }
                 for (const excludeName of exclude) {
-                    if (excludeName == '') continue;
-                    if (pluginName == excludeName.trim()) {
+                    if (excludeName === '') continue;
+                    if (pluginName === excludeName.trim()) {
                         include = false;
                     }
                 }
@@ -433,14 +432,14 @@ class MiniControl {
             }
             let cls: any = null;
             if (process.platform === 'win32') {
-                cls = await import('file:///' + process.cwd() + '/' + pluginName);
+                cls = await import(`file:///${process.cwd()}/${pluginName}`);
             } else {
-                cls = await import(process.cwd() + '/' + pluginName);
+                cls = await import(`${process.cwd()}/${pluginName}`);
             }
 
             let plugin: any = cls.default;
 
-            if (plugin == undefined) {
+            if (plugin === undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
                 this.cli(msg);
                 cls = undefined;
@@ -521,11 +520,10 @@ class MiniControl {
     }
 }
 
-const tmc = new MiniControl();
-(globalThis as any).tmc = tmc;
+(globalThis as any).tmc = new MiniControl();
 (globalThis as any).sentry = Sentry;
 
-process.on('SIGINT', function () {
+process.on('SIGINT', () => {
     tmc.server.send('SendHideManialinkPage', 0, false);
     Sentry.close(2000).then(() => {
         console.log('MINIcontrol exits successfully.');
@@ -541,10 +539,10 @@ process.on('SIGTERM', () => {
     });
 });
 
-process.on('uncaughtException', function (err) {
-    tmc.cli('¤error¤' + err.message);
+process.on('uncaughtException', (err) => {
+    tmc.cli(`¤error¤${err.message}`);
     console.log(err);
-    if (process.env['DEBUG'] == 'true') {
+    if (process.env.DEBUG === 'true') {
         // process.exit(1);
     }
 });
@@ -552,7 +550,7 @@ process.on('uncaughtException', function (err) {
 try {
     tmc.run();
 } catch (e: any) {
-    tmc.cli('¤error¤' + e.message);
+    tmc.cli(`¤error¤${e.message}`);
 }
 
- tmc.debug('MINIcontrol is running, add debug point this line to get tmc object to debug console.');
+tmc.debug('MINIcontrol is running, add debug point this line to get tmc object to debug console.');

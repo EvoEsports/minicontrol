@@ -1,11 +1,11 @@
-import { processColorString, castType, htmlEntities } from '@core/utils';
+import { castType, htmlEntities } from '@core/utils';
 import ModeSettingsWindow from './ModeSettingsWindow';
 import Plugin from '@core/plugins';
-import fs from 'fs';
+import fs from 'node:fs';
 import LocalMapsWindow from './LocalMapsWindow';
 import PlayerListsWindow from './PlayerListsWindow';
-import fsPath from 'path';
-import { type Map } from '@core/mapmanager.ts';
+import fsPath from 'node:path';
+import type { Map as TmMap } from '@core/mapmanager.ts';
 import SettingsWindow from './SettingsWindow';
 import ColorsWindow from './ColorsWindow';
 import type { Player } from '@core/playermanager';
@@ -33,7 +33,7 @@ export default class AdminPlugin extends Plugin {
     adminWidget: { [key: string]: AdminWidget } = {};
 
     async onLoad() {
-        if (tmc.game.Name != 'TmForever') {
+        if (tmc.game.Name !== 'TmForever') {
             tmc.addCommand('//modesettings', this.cmdModeSettings.bind(this), 'Display mode settings');
         }
         tmc.settings.register('admin.panel', true, this.adminPanelChange.bind(this), 'Admin: Enable admin panel');
@@ -85,7 +85,7 @@ export default class AdminPlugin extends Plugin {
                 try {
                     tmc.server.send('ForceEndRound');
                 } catch (err: any) {
-                    tmc.chat('¤error¤' + err.message);
+                    tmc.chat(`¤error¤${err.message}`);
                 }
             },
             'Ends round'
@@ -96,7 +96,7 @@ export default class AdminPlugin extends Plugin {
                 if (!params[0]) {
                     return tmc.chat('¤cmd¤//mode ¤info¤needs a mode', login);
                 }
-                if (tmc.game.Name == 'TmForever') {
+                if (tmc.game.Name === 'TmForever') {
                     const modes: { [key: string]: number } = {
                         rounds: 0,
                         ta: 1,
@@ -112,7 +112,7 @@ export default class AdminPlugin extends Plugin {
                     await tmc.server.call('SetGameMode', modes[params[0]]);
                 }
 
-                if (tmc.game.Name == 'Trackmania') {
+                if (tmc.game.Name === 'Trackmania') {
                     const scripts: { [key: string]: string } = {
                         rounds: 'Trackmania/TM_Rounds_Online.Script.txt',
                         ta: 'Trackmania/TM_TimeAttack_Online.Script.txt',
@@ -135,8 +135,8 @@ export default class AdminPlugin extends Plugin {
                 const newPass = params[0] || '';
                 await tmc.server.call('SetServerPassword', newPass);
                 await tmc.server.call('SetServerPasswordForSpectator', newPass);
-                if (newPass == '') {
-                    tmc.chat(`¤info¤Password removed`, login);
+                if (newPass === '') {
+                    tmc.chat("¤info¤Password removed", login);
                 } else {
                     tmc.chat(`¤info¤Password set to "¤white¤${newPass}¤info¤"`, login);
                 }
@@ -147,7 +147,7 @@ export default class AdminPlugin extends Plugin {
         tmc.addCommand(
             '//warmup',
             async (login: string, params: string[]) => {
-                if (!params[0] && isNaN(Number.parseInt(params[0]))) {
+                if (!params[0] && Number.isNaN(Number.parseInt(params[0]))) {
                     return tmc.chat('¤cmd¤//warmup ¤info¤needs numeric value');
                 }
                 tmc.chat(`¤info¤Warmup set to ¤white¤${params[0]}`, login);
@@ -217,15 +217,15 @@ export default class AdminPlugin extends Plugin {
                     return tmc.chat('¤cmd¤//talimit ¤info¤needs numeric value in seconds');
                 }
 
-                if (tmc.game.Name == 'TmForever') {
+                if (tmc.game.Name === 'TmForever') {
                     const mode = await tmc.server.call('GetGameMode');
-                    if (mode == TmnfMode.TimeAttack) {
+                    if (mode === TmnfMode.TimeAttack) {
                         tmc.server.send('SetTimeAttackLimit', Number.parseInt(params[0]) * 1000);
                         tmc.storage['minicontrol.taTimeLimit'] = Number.parseInt(params[0]);
                         tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
                         return;
                     }
-                    if (mode == TmnfMode.Laps) {
+                    if (mode === TmnfMode.Laps) {
                         tmc.server.send('SetLapsTimeLimit', Number.parseInt(params[0]) * 1000);
                         tmc.storage['minicontrol.taTimeLimit'] = Number.parseInt(params[0]);
                         tmc.chat(`¤info¤Timelimit set to ¤white¤${params[0]} ¤info¤seconds`);
@@ -235,7 +235,7 @@ export default class AdminPlugin extends Plugin {
                     return;
                 }
 
-                if (tmc.game.Name == 'Trackmania' || tmc.game.Name == 'ManiaPlanet') {
+                if (tmc.game.Name === 'Trackmania' || tmc.game.Name === 'ManiaPlanet') {
                     tmc.storage['minicontrol.taTimeLimit'] = Number.parseInt(params[0]);
                     const settings = { S_TimeLimit: Number.parseInt(params[0]) };
                     tmc.server.send('SetModeScriptSettings', settings);
@@ -249,16 +249,16 @@ export default class AdminPlugin extends Plugin {
         tmc.addCommand(
             '//jump',
             async (login: string, params: string[]) => {
-                if (!params[0] && isNaN(Number.parseInt(params[0]))) {
+                if (!params[0] && Number.isNaN(Number.parseInt(params[0]))) {
                     return tmc.chat('¤cmd¤//jump ¤info¤needs numeric value');
                 }
                 try {
                     let map: any;
                     if (params[0].toString().length < 5) {
-                        let index = Number.parseInt(params[0]) - 1;
+                        const index = Number.parseInt(params[0]) - 1;
                         map = tmc.maps.getMaplist()[index];
                     } else {
-                        map = tmc.maps.getMaplist().find((m: any) => m.UId == params[0]);
+                        map = tmc.maps.getMaplist().find((m: any) => m.UId === params[0]);
                     }
                     if (map) {
                         tmc.chat(`¤info¤Jumped to ¤white¤${map.Name}¤info¤ by ¤white¤${map.AuthorNickname ? map.AuthorNickname : map.Author}`);
@@ -278,9 +278,9 @@ export default class AdminPlugin extends Plugin {
             '//wml',
             async (login: string, params: string[]) => {
                 let file = 'tracklist.txt';
-                if (params[0]) file = params[0].replace('.txt', '') + '.txt';
+                if (params[0]) file = `${params[0].replace('.txt', '')}.txt`;
                 try {
-                    const answer = await tmc.server.call('SaveMatchSettings', 'MatchSettings/' + file);
+                    const answer = await tmc.server.call('SaveMatchSettings', `MatchSettings/${file}`);
                     if (!answer) {
                         tmc.chat(`¤error¤Couldn't save matchsettings to ¤white¤${file}`, login);
                         return;
@@ -297,9 +297,9 @@ export default class AdminPlugin extends Plugin {
             '//rml',
             async (login: string, params: string[]) => {
                 let file = 'tracklist';
-                if (params[0]) file = params[0].replace('.txt', '') + '.txt';
+                if (params[0]) file = `${params[0].replace('.txt', '')}.txt`;
                 try {
-                    const answer = await tmc.server.call('LoadMatchSettings', 'MatchSettings/' + file);
+                    const answer = await tmc.server.call('LoadMatchSettings', `MatchSettings/${file}`);
                     if (!answer) {
                         tmc.chat(`¤error¤Couldn't read matchsettings from ¤white¤${file}`, login);
                         return;
@@ -316,18 +316,18 @@ export default class AdminPlugin extends Plugin {
             '//shuffle',
             async (login: string, params: string[]) => {
                 try {
-                    let maps: Map[] = await tmc.server.call('GetMapList', -1, 0);
+                    let maps: TmMap[] = await tmc.server.call('GetMapList', -1, 0);
                     maps = maps.sort(() => Math.random() - 0.5);
-                    let toserver: string[] = [];
+                    const toserver: string[] = [];
                     for (const map of maps) {
                         toserver.push(map.FileName);
                     }
                     await tmc.server.call('RemoveMapList', toserver);
                     tmc.server.send('AddMapList', toserver);
                     await tmc.maps.syncMaplist();
-                    tmc.chat(`¤info¤Maplist Shuffled.`);
+                    tmc.chat("¤info¤Maplist Shuffled.");
                 } catch (err: any) {
-                    tmc.chat('¤error¤' + err.message, login);
+                    tmc.chat(`¤error¤${err.message}`, login);
                 }
             },
             'Shuffles maplist'
@@ -336,12 +336,12 @@ export default class AdminPlugin extends Plugin {
             '//remove',
             async (login: string, params: string[]) => {
                 let map: any = tmc.maps.currentMap;
-                if (params[0] != undefined) {
+                if (params[0] !== undefined) {
                     if (params[0].toString().length < 5) {
-                        let index = Number.parseInt(params[0]) - 1;
+                        const index = Number.parseInt(params[0]) - 1;
                         map = tmc.maps.getMaplist()[index];
                     } else {
-                        map = tmc.maps.getMaplist().find((m: any) => m.UId == params[0]);
+                        map = tmc.maps.getMaplist().find((m: any) => m.UId === params[0]);
                     }
                 }
 
@@ -362,7 +362,7 @@ export default class AdminPlugin extends Plugin {
         tmc.addCommand(
             '//wu',
             async (login: string, params: string[]) => {
-                if (tmc.game.Name == 'TmForever') {
+                if (tmc.game.Name === 'TmForever') {
                     tmc.server.send('SetWarmUp', true);
                 }
             },
@@ -371,7 +371,7 @@ export default class AdminPlugin extends Plugin {
         tmc.addCommand(
             '//endwu',
             async (login: string, params: string[]) => {
-                if (tmc.game.Name == 'TmForever') {
+                if (tmc.game.Name === 'TmForever') {
                     tmc.server.send('SetWarmUp', false);
                 } else {
                     tmc.server.callScript('Trackmania.WarmUp.ForceStop');
@@ -382,7 +382,7 @@ export default class AdminPlugin extends Plugin {
         tmc.addCommand(
             '//timeout',
             async (login: string, params: string[]) => {
-                if (!params[0] && isNaN(Number.parseInt(params[0]))) {
+                if (!params[0] && Number.isNaN(Number.parseInt(params[0]))) {
                     return tmc.chat('¤cmd¤//timeout ¤info¤needs numeric value', login);
                 }
                 try {
@@ -397,7 +397,7 @@ export default class AdminPlugin extends Plugin {
         tmc.addCommand(
             '//cupwinners',
             async (login: string, params: string[]) => {
-                if (!params[0] && isNaN(Number.parseInt(params[0]))) {
+                if (!params[0] && Number.isNaN(Number.parseInt(params[0]))) {
                     return tmc.chat('¤cmd¤//cupwinners ¤info¤needs numeric value', login);
                 }
                 try {
@@ -431,7 +431,7 @@ export default class AdminPlugin extends Plugin {
         tmc.addCommand(
             '//pointlimit',
             async (login: string, params: string[]) => {
-                if (!params[0] && isNaN(Number.parseInt(params[0]))) {
+                if (!params[0] && Number.isNaN(Number.parseInt(params[0]))) {
                     return tmc.chat('¤cmd¤//pointlimit ¤info¤needs numeric value', login);
                 }
                 try {
@@ -482,10 +482,10 @@ export default class AdminPlugin extends Plugin {
             if (array.length < 2) {
                 return tmc.chat('¤cmd¤//rpoints ¤info¤needs atleast 2 values', login);
             }
-            let newArray: number[] = [];
-            for (let number of array) {
-                if (!isNaN(Number.parseInt(number.trim()))) {
-                    newArray.push(parseInt(number.trim()));
+            const newArray: number[] = [];
+            for (const number of array) {
+                if (!Number.isNaN(Number.parseInt(number.trim()))) {
+                    newArray.push(Number.parseInt(number.trim()));
                 }
             }
             try {
@@ -503,14 +503,14 @@ export default class AdminPlugin extends Plugin {
             async (login: string, params: string[]) => {
                 const mode = await tmc.server.call('GetGameMode');
 
-                if (params[0] == 'true') {
-                    if (mode == TmnfMode.Rounds) tmc.server.send('SetUseNewRulesRound', true);
-                    if (mode == TmnfMode.Team) tmc.server.send('SetUseNewRulesTeam', true);
-                    tmc.chat(`¤info¤Using new rounds rules`, login);
-                } else if (params[0] == 'false') {
-                    if (mode == TmnfMode.Rounds) tmc.server.send('SetUseNewRulesRound', false);
-                    if (mode == TmnfMode.Team) tmc.server.send('SetUseNewRulesTeam', false);
-                    tmc.chat(`¤info¤Using old rounds rules`, login);
+                if (params[0] === 'true') {
+                    if (mode === TmnfMode.Rounds) tmc.server.send('SetUseNewRulesRound', true);
+                    if (mode === TmnfMode.Team) tmc.server.send('SetUseNewRulesTeam', true);
+                    tmc.chat("¤info¤Using new rounds rules", login);
+                } else if (params[0] === 'false') {
+                    if (mode === TmnfMode.Rounds) tmc.server.send('SetUseNewRulesRound', false);
+                    if (mode === TmnfMode.Team) tmc.server.send('SetUseNewRulesTeam', false);
+                    tmc.chat("¤info¤Using old rounds rules", login);
                 } else {
                     tmc.chat('¤cmd¤//usenewrules ¤info¤needs a boolean value', login);
                 }
@@ -520,7 +520,7 @@ export default class AdminPlugin extends Plugin {
         tmc.addCommand(
             '//laps',
             async (login: string, params: string[]) => {
-                if (!params[0] && isNaN(Number.parseInt(params[0]))) {
+                if (!params[0] && Number.isNaN(Number.parseInt(params[0]))) {
                     return tmc.chat('¤cmd¤//laps ¤info¤needs numeric value', login);
                 }
                 try {
@@ -544,12 +544,12 @@ export default class AdminPlugin extends Plugin {
                     return tmc.chat(`¤cmd¤//modecommand ${params[0]} ¤info¤needs a parameter`, login);
                 }
                 const outCommand: any = {};
-                outCommand['Command_' + params[0]] = castType(params[1]);
+                outCommand[`Command_${params[0]}`] = castType(params[1]);
 
                 try {
                     await tmc.server.call('SendModeScriptCommands', outCommand);
                 } catch (err: any) {
-                    tmc.chat('¤error¤' + err.message, login);
+                    tmc.chat(`¤error¤${err.message}`, login);
                 }
             },
             'Send mode command'
@@ -590,7 +590,7 @@ export default class AdminPlugin extends Plugin {
         tmc.removeCommand('//call');
         tmc.removeCommand('//wu');
         tmc.removeCommand('//endwu');
-        if (tmc.game.Name != 'TmForever') {
+        if (tmc.game.Name !== 'TmForever') {
             tmc.removeCommand('//modesettings');
             tmc.removeCommand('//set');
         }
@@ -660,7 +660,7 @@ export default class AdminPlugin extends Plugin {
                 admin: true
             });
 
-            if (tmc.game.Name == 'Trackmania') {
+            if (tmc.game.Name === 'Trackmania') {
                 menu.addItem({
                     category: 'Server',
                     title: 'Mode Settings',
@@ -724,7 +724,7 @@ export default class AdminPlugin extends Plugin {
         window.size = { width: 160, height: 95 };
         window.title = 'Mode Settings';
         const settings = await tmc.server.call('GetModeScriptSettings');
-        let out: any = [];
+        const out: any = [];
         for (const data in settings) {
             out.push({
                 setting: data,
@@ -746,12 +746,12 @@ export default class AdminPlugin extends Plugin {
         if (args.length < 1) {
             const window = new LocalMapsWindow(login);
             window.size = { width: 175, height: 95 };
-            let out: any = [];
-            for (let file of fs.readdirSync(tmc.mapsPath, { withFileTypes: true, recursive: true, encoding: 'utf8' })) {
+            const out: any = [];
+            for (const file of fs.readdirSync(tmc.mapsPath, { withFileTypes: true, recursive: true, encoding: 'utf8' })) {
                 if (file.name.toLowerCase().endsWith('.gbx')) {
-                    let name = htmlEntities(file.name.replaceAll(/[.](Map|Challenge)[.]Gbx/gi, ''));
-                    let filename = fsPath.resolve(tmc.mapsPath, file.parentPath, file.name);
-                    let path = file.parentPath.replace(tmc.mapsPath, '');
+                    const name = htmlEntities(file.name.replaceAll(/[.](Map|Challenge)[.]Gbx/gi, ''));
+                    const filename = fsPath.resolve(tmc.mapsPath, file.parentPath, file.name);
+                    const path = file.parentPath.replace(tmc.mapsPath, '');
                     out.push({
                         File: filename,
                         FileName: name,
@@ -777,7 +777,7 @@ export default class AdminPlugin extends Plugin {
                 await tmc.maps.syncMaplist();
                 tmc.chat(`Added ${args.length} maps to the playlist`, login);
             } catch (e: any) {
-                tmc.chat('Error: ' + e.message, login);
+                tmc.chat(`Error: ${e.message}`, login);
             }
         }
     }
@@ -788,9 +788,9 @@ export default class AdminPlugin extends Plugin {
             return;
         }
         try {
-            let ignores = await tmc.server.call('GetIgnoreList', 1000, 0);
+            const ignores = await tmc.server.call('GetIgnoreList', 1000, 0);
             for (const ignore of ignores) {
-                if (ignore.Login == args[0]) {
+                if (ignore.Login === args[0]) {
                     tmc.server.send('UnIgnore', args[0]);
                     tmc.chat(`¤info¤UnIgnoring ¤white¤${args[0]}`, login);
                     return;
@@ -814,7 +814,7 @@ export default class AdminPlugin extends Plugin {
         try {
             await tmc.server.call('SetModeScriptSettings', { [setting]: castType(value) });
         } catch (e: any) {
-            tmc.chat('Error: ' + e.message, login);
+            tmc.chat(`Error: ${e.message}`, login);
             return;
         }
         tmc.chat(`Set ${setting} to ${value}`, login);
@@ -831,7 +831,7 @@ export default class AdminPlugin extends Plugin {
                     await tmc.server.call('CleanGuestList');
                     tmc.chat('¤info¤Guestlist cleared', login);
                 } catch (e: any) {
-                    tmc.chat('¤error¤' + e.message, login);
+                    tmc.chat(`¤error¤${e.message}`, login);
                 }
                 return;
             }
@@ -889,7 +889,7 @@ export default class AdminPlugin extends Plugin {
                     await tmc.server.call('CleanBanList');
                     tmc.chat('¤info¤Banlist cleared', login);
                 } catch (e: any) {
-                    tmc.chat('¤error¤' + e.message, login);
+                    tmc.chat(`¤error¤${e.message}`, login);
                 }
                 return;
             }
@@ -943,7 +943,7 @@ export default class AdminPlugin extends Plugin {
                     await tmc.server.call('CleanIgnoreList');
                     tmc.chat('¤info¤Ignorelist cleared', login);
                 } catch (e: any) {
-                    tmc.chat('¤error¤' + e.message, login);
+                    tmc.chat(`¤error¤${e.message}`, login);
                 }
                 return;
             }
@@ -998,7 +998,7 @@ export default class AdminPlugin extends Plugin {
                     await tmc.server.call('ClearBlackList');
                     tmc.chat('¤info¤Blacklist cleared', login);
                 } catch (e: any) {
-                    tmc.chat('¤error¤' + e.message, login);
+                    tmc.chat(`¤error¤${e.message}`, login);
                 }
                 return;
             }
@@ -1047,7 +1047,7 @@ export default class AdminPlugin extends Plugin {
     }
 
     async cmdSetSetting(login: any, args: string[]) {
-        if (this.currentSetting[login] == undefined) {
+        if (this.currentSetting[login] === undefined) {
             tmc.chat('¤info¤No setting selected.', login);
             return;
         }
@@ -1067,7 +1067,7 @@ export default class AdminPlugin extends Plugin {
             try {
                 tmc.settings.setColor(setting.key, color);
             } catch (e: any) {
-                tmc.chat('Error: ' + e.message, login);
+                tmc.chat(`Error: ${e.message}`, login);
                 return;
             }
             tmc.chat(`¤info¤Set $fff${setting.key} ¤info¤to $fff"$${color}${color}$fff"`, login);
@@ -1078,7 +1078,10 @@ export default class AdminPlugin extends Plugin {
 
         const value: any = castType(args.join(' ').trim(), setting.type);
 
-        if (typeof value != setting.type || value == undefined || (setting.type == 'number' && isNaN(value))) {
+        if ((setting.type === 'string' && typeof value !== 'string') ||
+            (setting.type === 'number' && (typeof value !== 'number' || Number.isNaN(value))) ||
+            (setting.type === 'boolean' && typeof value !== 'boolean') ||
+            value === undefined) {
             tmc.chat('¤error¤Invalid value', login);
             return;
         }
@@ -1086,7 +1089,7 @@ export default class AdminPlugin extends Plugin {
         try {
             tmc.settings.set(setting.key, value);
         } catch (e: any) {
-            tmc.chat('Error: ' + e.message, login);
+            tmc.chat(`Error: ${e.message}`, login);
             return;
         }
         tmc.chat(`¤info¤Set $fff${setting.key} ¤info¤to $fff"${value}"`, login);
@@ -1099,21 +1102,21 @@ export default class AdminPlugin extends Plugin {
         window.size = { width: 165, height: 95 };
         window.title = 'Settings';
         const settings = tmc.settings.getSettings();
-        let out: any = [];
+        const out: any = [];
         for (const data in settings.defaults) {
             let value = settings.settings[data];
             let defaultValue = settings.defaults[data];
-            let description = settings.descriptions[data];
+            const description = settings.descriptions[data];
 
-            if (typeof settings.defaults[data] == 'boolean') {
+            if (typeof settings.defaults[data] === 'boolean') {
                 value = value ? '$0f0true' : '$f00false';
                 defaultValue = defaultValue ? '$0f0true' : '$f00false';
             }
-            if (typeof settings.defaults[data] == 'number') {
-                value = '$df0' + value;
-                defaultValue = '$df0' + defaultValue;
+            if (typeof settings.defaults[data] === 'number') {
+                value = `$df0${value}`;
+                defaultValue = `$df0${defaultValue}`;
             }
-            if (typeof settings.defaults[data] == 'string') {
+            if (typeof settings.defaults[data] === 'string') {
                 value = `${value}`;
                 defaultValue = `${defaultValue}`;
             }
@@ -1149,11 +1152,11 @@ export default class AdminPlugin extends Plugin {
         window.size = { width: 165, height: 95 };
         window.title = 'Colors';
         const settings = tmc.settings.getColors();
-        let out: any = [];
+        const out: any = [];
         for (const data in settings.defaults) {
-            let value = settings.colors[data];
-            let defaultValue = settings.defaults[data];
-            let description = settings.descriptions[data];
+            const value = settings.colors[data];
+            const defaultValue = settings.defaults[data];
+            const description = settings.descriptions[data];
 
             const changed = value !== defaultValue;
 

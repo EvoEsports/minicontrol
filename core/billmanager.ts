@@ -1,18 +1,16 @@
-interface Callable {
-    (name: BillState): Promise<void>;
-}
+type Callable = (name: BillState) => Promise<void>;
 
 export class BillState {
-    issuerLogin: string = '';
-    amount: number = 0;
-    loginFrom: string = '';
+    issuerLogin = '';
+    amount = 0;
+    loginFrom = '';
     /** If specified, sends the bill to the specified login, defaults to server login */
-    loginTo: string = '';
-    method: string = '';
-    message: string = '';
-    transactionId: number = -1;
-    billId: number = -1;
-    stateName: string = '';
+    loginTo = '';
+    method = '';
+    message = '';
+    transactionId = -1;
+    billId = -1;
+    stateName = '';
 
     onIssued?: Callable;
     onPayed?: Callable;
@@ -42,7 +40,7 @@ export default class BillManager {
 
     /** @ignore */
     afterInit() {
-        if (tmc.game.Name == 'TmForever' || tmc.game.Name == 'ManiaPlanet') {
+        if (tmc.game.Name === 'TmForever' || tmc.game.Name === 'ManiaPlanet') {
             tmc.server.addListener('Trackmania.BillUpdated', this.onBillUpdated, this);
         }
     }
@@ -64,13 +62,13 @@ export default class BillManager {
         state.transactionId = -1;
         state.stateName = '';
 
-        if (type == 'Pay') {
+        if (type === 'Pay') {
             if (!tmc.admins.includes(issuerLogin)) throw new Error('Not allowed.');
         }
-        if (type == 'SendBill') {
+        if (type === 'SendBill') {
             if (!tmc.admins.includes(issuerLogin)) throw new Error('Not allowed.');
         }
-        if (type == 'Donate') {
+        if (type === 'Donate') {
             state.method = 'SendBill';
         }
         if (amount < 10) {
@@ -92,8 +90,8 @@ export default class BillManager {
     }
 
     /** @ignore */
-    removeBill(billId:Number) {
-        const index = this.billStates.findIndex((val) => val.billId == billId);
+    removeBill(billId: number) {
+        const index = this.billStates.findIndex((val) => val.billId === billId);
         if (index >= 0) {
             this.billStates.splice(index, 1);
         } else {
@@ -107,7 +105,8 @@ export default class BillManager {
         const State = data[1];
         const StateName = data[2];
         const TransactionId = data[3];
-        const bill = this.billStates.find((val) => (val.billId = BillId));
+
+        const bill = this.billStates.find((val) => val.billId === BillId);
         if (bill) {
             bill.stateName = StateName;
             if (TransactionId) bill.transactionId = TransactionId;
@@ -147,7 +146,7 @@ export default class BillManager {
                     break;
                 }
                 default: {
-                    if (State == 6) {
+                    if (State === 6) {
                         if (bill.onError) {
                             await bill.onError(bill);
                         }

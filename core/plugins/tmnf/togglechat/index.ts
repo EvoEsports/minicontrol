@@ -24,14 +24,14 @@ export default class ToggleChat extends Plugin {
     async cmdChat(login: string, params: string[]) {
         let visible = false;
         if (params.length > 1) {
-            visible = params[1] == 'on';
+            visible = params[1] === 'on';
         }
         await this.setChat(login, visible);
     }
 
     async setChat(login: string, visible: boolean) {
         this.enabled[login] = visible;
-        let status = visible ? 'on' : 'off';
+        const status = visible ? 'on' : 'off';
         tmc.chat(`¤info¤Chat visibility: ¤white¤${status}`, login);
         const manialink = this.getTmnfManialink(visible);
         await tmc.server.call('SendDisplayManialinkPageToLogin', login, manialink, 0, false);
@@ -46,14 +46,14 @@ export default class ToggleChat extends Plugin {
     getTmnfManialink(chatStatus: boolean): string {
         const chatStatusString = chatStatus ? 'true' : 'false';
         let xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks><custom_ui>`;
-        for (let key in tmc.ui.tmnfCustomUi) {
-            if (key == 'chat') {
+        for (const key in tmc.ui.tmnfCustomUi) {
+            if (key === 'chat') {
                 xml += `<chat visible="${chatStatusString}" />`;
             } else {
                 xml += `<${key} visible="${tmc.ui.tmnfCustomUi[key] ? 'true' : 'false'}" />`;
             }
         }
-        xml += `</custom_ui></manialinks>`;
+        xml += '</custom_ui></manialinks>';
         return xml;
     }
 }

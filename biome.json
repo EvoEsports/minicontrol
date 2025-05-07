@@ -1,0 +1,22 @@
+{
+    "linter": {
+        "rules": {
+            "suspicious": {
+                "noExplicitAny": "off"
+            },
+            "complexity": {
+                "useLiteralKeys": "off"
+            }
+        }
+    },
+    "files": {
+        "include": [
+            "core/**/*.ts",
+            "userdata/plugin/**/*.ts"
+        ],
+        "ignore": [
+            "test",
+            "node_modules"
+        ]
+    }
+}

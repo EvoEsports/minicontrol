@@ -41,7 +41,7 @@ export default class MapLikes extends Plugin {
         }
         const sequelize: Sequelize = tmc.storage['db'];
         const uids = tmc.maps.getUids();
-        tmc.debug("¤info¤Starting karma sync for $fff" + uids.length + " ¤info¤maps");
+        tmc.debug(`¤info¤Starting karma sync for $fff${uids.length} ¤info¤maps`);
         console.time('karma sync');
         sequelize
             .query(
@@ -73,14 +73,14 @@ export default class MapLikes extends Plugin {
                 }
             })
             .catch((err: any) => {
-                tmc.cli('¤error¤Error while syncing karma: ' + err.message);
+                tmc.cli(`¤error¤Error while syncing karma: ${err.message}`);
             });
 
         tmc.server.emit('Plugin.MapLikes.onSync', this.votes);
     }
 
     async onPlayerChat(data: any) {
-        if (data[0] == 0) return;
+        if (data[0] === 0) return;
         if (data[2].startsWith('/')) return;
         const login = data[1];
         const text = data[2];
@@ -102,7 +102,7 @@ export default class MapLikes extends Plugin {
         await this.updateVote(login, -1);
     }
 
-    async updateVote(login: string, value: number = 0) {
+    async updateVote(login: string, value = 0) {
         if (!tmc.maps.currentMap) return;
         let mapLike = await Likes.findOne({
             where: {

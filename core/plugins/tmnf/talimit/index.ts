@@ -6,9 +6,9 @@ export default class TAlimitPlugin extends Plugin {
     static depends: string[] = ['game:TmForever', 'tmnf'];
     origTimeLimit: number = Number.parseInt(process.env.TALIMIT ?? '300');
     startTime: number = Date.now();
-    timeLimit: number = 0;
-    active: boolean = false;
-    extend: boolean = false;
+    timeLimit = 0;
+    active = false;
+    extend = false;
     widget: Widget | null = null;
     intervalId: any | null = null;
 
@@ -94,7 +94,7 @@ export default class TAlimitPlugin extends Plugin {
         const timeLeft = 3 + this.timeLimit - (Date.now() - this.startTime) / 1000;
         if (timeLeft < 60) color = 'ff0';
         if (timeLeft < 30) color = 'f00';
-        let time = tm.Time.fromSeconds(timeLeft)
+        const time = tm.Time.fromSeconds(timeLeft)
             .toTmString(true)
             .replace(/\.\d\d/, '');
 

@@ -18,9 +18,9 @@ export default class Confirm extends Widget {
         this.pos = { x: 0, y: 20, z: 10 };
         this.callback = callback;
         this.params = params;
-        this.data['question'] = htmlEntities(question);
-        this.actions['close'] = tmc.ui.addAction(this.hide.bind(this), '');
-        this.actions['apply'] = tmc.ui.addAction(this.apply.bind(this), '');
+        this.data.question = htmlEntities(question);
+        this.actions.close = tmc.ui.addAction(this.hide.bind(this), '');
+        this.actions.apply = tmc.ui.addAction(this.apply.bind(this), '');
     }
 
     /**

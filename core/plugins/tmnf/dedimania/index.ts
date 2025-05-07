@@ -1,4 +1,4 @@
-import { Player } from '@core/playermanager';
+import type { Player } from '@core/playermanager';
 import Api from './api';
 import { clone, htmlEntities, formatTime } from '@core/utils';
 import ListWindow from '@core/ui/listwindow';
@@ -17,16 +17,16 @@ export interface DediRecord {
 
 export default class Dedimania extends Plugin {
     static depends: string[] = ['game:TmForever', 'tmnf'];
-    enabled: boolean = true;
-    authError: boolean = false;
+    enabled = true;
+    authError = false;
 
-    maxRank: number = 30;
+    maxRank = 30;
     api: Api = new Api();
-    serverLogin: string = '';
+    serverLogin = '';
     server: any = {};
     serverInfo: any = {};
     records: DediRecord[] = [];
-    intervalId: NodeJS.Timeout | null = null;
+    intervalId: NodeJS.Timeout | undefined = undefined;
     pass: string = process.env.DEDIMANIA_PASS || '';
 
     async onLoad() {
@@ -39,7 +39,7 @@ export default class Dedimania extends Plugin {
         this.serverInfo = await tmc.server.call('GetMainServerPlayerInfo');
         this.serverLogin = this.serverInfo.Login;
 
-        if (this.pass == '') {
+        if (this.pass === '') {
             this.enabled = false;
             tmc.cli('¤error¤Dedimania: No password set, plugin disabled.');
             return;
@@ -47,7 +47,7 @@ export default class Dedimania extends Plugin {
     }
 
     async onUnload() {
-        clearInterval(this.intervalId!);
+        clearInterval(this.intervalId);
         tmc.removeCommand('/dedirecords');
         tmc.server.removeListener('Trackmania.BeginMap', this.onBeginMap.bind(this));
         tmc.server.removeListener('Trackmania.EndMap', this.onEndMap.bind(this));
@@ -86,17 +86,17 @@ export default class Dedimania extends Plugin {
     }
 
     async cmdDediRecords(login: string, _args: string[]) {
-        let records: any = [];
-        for (let record of this.records) {
+        const records: any = [];
+        for (const record of this.records) {
             records.push({
                 rank: record.Rank,
                 nickname: htmlEntities(record.NickName),
-                time: '$o' + formatTime(record.Best)
+                time: `$o${formatTime(record.Best)}`
             });
         }
         const window = new ListWindow(login);
         window.size = { width: 90, height: 95 };
-        window.title = 'Dedimania Records [' + this.records.length + ']';
+        window.title = `Dedimania Records [${this.records.length}]`;
         window.setItems(records);
         window.setColumns([
             { key: 'rank', title: 'Rank', width: 10 },
@@ -116,7 +116,7 @@ export default class Dedimania extends Plugin {
         try {
             if (this.authError) {
                 tmc.cli('¤info¤Dedimania: Re-authenticating.');
-                let answer = await this.authenticate();
+                const answer = await this.authenticate();
                 if (!answer) {
                     tmc.cli('¤error¤Dedimania: Failed to authenticate.');
                     return;
@@ -130,7 +130,7 @@ export default class Dedimania extends Plugin {
                 {
                     SrvName: serverInfo.Name,
                     Comment: serverInfo.Comment,
-                    Private: serverInfo.Password != '',
+                    Private: serverInfo.Password !== '',
                     SrvIP: '127.0.0.1',
                     SrvPort: '2350',
                     XmlRpcPort: '5000',
@@ -168,7 +168,7 @@ export default class Dedimania extends Plugin {
                 PlayersGame: true
             });
             const res2 = await this.api.call('dedimania.ValidateAccount');
-            if (res2 && res2.Status) {
+            if (res2?.Status) {
                 tmc.cli('¤info¤Dedimania: Account validated.');
             }
             if (res) {
@@ -303,7 +303,7 @@ export default class Dedimania extends Plugin {
 
     getDedimaniaScores(scores: any) {
         const out: any = [];
-        for (let score of scores) {
+        for (const score of scores) {
             if (score.BestCheckpoints.length < 1) continue;
             out.push({
                 Login: score.Login,
@@ -333,7 +333,7 @@ export default class Dedimania extends Plugin {
                 {
                     SrvName: serverInfo.Name,
                     Comment: serverInfo.Comment,
-                    Private: serverInfo.Password != '',
+                    Private: serverInfo.Password !== '',
                     SrvIP: '127.0.0.1',
                     SrvPort: '2350',
                     XmlRpcPort: '5000',
@@ -360,7 +360,7 @@ export default class Dedimania extends Plugin {
 
     async getDedimaniaPlayers() {
         const out: any = [];
-        for (let player of tmc.players.getAll()) {
+        for (const player of tmc.players.getAll()) {
             out.push({
                 Login: player.login,
                 NickName: player.nickname,

@@ -2,13 +2,14 @@ import { Sequelize } from 'sequelize-typescript';
 import type { Player as PlayerType } from '@core/playermanager';
 import Plugin from '@core/plugins';
 import { chunkArray, htmlEntities, sleep } from '@core/utils';
+// biome-ignore lint/suspicious/noShadowRestrictedNames: <explanation>
 import Map from '@core/schemas/map.model';
 import Player from '@core/schemas/players.model';
 import { SequelizeStorage, Umzug } from 'umzug';
 import { removeColors } from '@core/utils';
-import { GBX, CGameCtnChallenge } from 'gbx';
-import { existsSync, promises as fsPromises } from 'fs';
-import path from 'path';
+import { GBX, type CGameCtnChallenge } from 'gbx';
+import { existsSync, promises as fsPromises } from 'node:fs';
+import path from 'node:path';
 import { Op } from 'sequelize';
 import ListWindow from '@core/ui/listwindow';
 
@@ -70,7 +71,7 @@ export default class GenericDb extends Plugin {
             tmc.addCommand('/active', this.cmdActive.bind(this), 'Show playtime');
             tmc.addCommand('/topactive', this.cmdTopActive.bind(this), 'Show top100 playtime');
         } catch (e: any) {
-            tmc.cli('¤error¤' + e.message);
+            tmc.cli(`¤error¤${e.message}`);
             process.exit(1);
         }
     }
@@ -84,7 +85,7 @@ export default class GenericDb extends Plugin {
         }
 
         try {
-            let enableLog = process.env.DEBUG == 'true' && parseInt(process.env.DEBUGLEVEL || '0') >= 2;
+            const enableLog = process.env.DEBUG === 'true' && Number.parseInt(process.env.DEBUGLEVEL || '0') >= 2;
             sequelize = new Sequelize(process.env['DATABASE'] ?? '', {
                 logging(sql, _timing) {
                     if (enableLog) tmc.debug(`$d7c${removeColors(sql)}`);
@@ -94,7 +95,7 @@ export default class GenericDb extends Plugin {
             await sequelize.authenticate();
             tmc.cli('¤success¤Success!');
         } catch (e: any) {
-            tmc.cli('¤error¤' + e.message);
+            tmc.cli(`¤error¤${e.message}`);
             process.exit(1);
         }
 
@@ -102,7 +103,7 @@ export default class GenericDb extends Plugin {
             for (const path of ['./core/migrations/', './userdata/migrations/']) {
                 const migrator = new Umzug({
                     migrations: {
-                        glob: [path + '*.ts', { cwd: process.cwd() }]
+                        glob: [`${path}*.ts`, { cwd: process.cwd() }]
                     },
                     context: sequelize,
                     storage: new SequelizeStorage({
@@ -111,23 +112,23 @@ export default class GenericDb extends Plugin {
                     logger: {
                         debug: (_message) => {},
                         error: (message) => {
-                            tmc.cli('$f00' + message);
+                            tmc.cli(`$f00${message}`);
                         },
                         warn: (message) => {
-                            tmc.cli('$fa0' + message);
+                            tmc.cli(`$fa0${message}`);
                         },
                         info: (message) => {
-                            tmc.cli('$5bf' + message.event + ' $fff' + message.name);
+                            tmc.cli(`$5bf${message.event} $fff${message.name}`);
                         }
                     }
                 });
-                tmc.cli('¤info¤Running migrations for ' + path);
+                tmc.cli(`¤info¤Running migrations for ${path}`);
                 await migrator.up();
                 tmc.cli('¤success¤Success!');
             }
             sequelize.addModels([Map, Player]);
         } catch (e: any) {
-            tmc.cli('¤error¤' + e.message);
+            tmc.cli(`¤error¤${e.message}`);
         }
         tmc.storage['db'] = sequelize;
     }
@@ -135,6 +136,7 @@ export default class GenericDb extends Plugin {
     async onUnload() {
         if (tmc.storage['db']) {
             await tmc.storage['db'].close();
+            // biome-ignore lint/performance/noDelete: <explanation>
             delete tmc.storage['db'];
         }
         tmc.server.removeListener('TMC.PlayerConnect', this.onPlayerConnect.bind(this));
@@ -160,7 +162,7 @@ export default class GenericDb extends Plugin {
                 dbPlayer.connectCount = (dbPlayer.connectCount ?? 0) + 1;
                 await dbPlayer.save();
             } catch (e: any) {
-                tmc.cli('¤error¤' + e.message);
+                tmc.cli(`¤error¤${e.message}`);
             }
         }
     }
@@ -180,7 +182,7 @@ export default class GenericDb extends Plugin {
                 });
             }
         } catch (e: any) {
-            tmc.cli('¤error¤[Database.EndMap]' + e.message);
+            tmc.cli(`¤error¤[Database.EndMap]${e.message}`);
         }
     }
 
@@ -204,7 +206,7 @@ export default class GenericDb extends Plugin {
             player.set('customNick', dbPlayer?.customNick || player.nickname);
             player.set('joinedAt', new Date().getTime());
         } catch (e: any) {
-            tmc.cli('¤error¤[database.syncplayer] ' + e.message);
+            tmc.cli(`¤error¤[database.syncplayer] ${e.message}`);
         }
     }
 
@@ -224,7 +226,7 @@ export default class GenericDb extends Plugin {
             50
         );
         for (const groups of missingUids) {
-            let missingMaps: any[] = [];
+            const missingMaps: any[] = [];
             for (const uid of groups) {
                 const map = tmc.maps.getMap(uid);
                 if (!map) continue;
@@ -242,7 +244,7 @@ export default class GenericDb extends Plugin {
             try {
                 await Map.bulkCreate(missingMaps);
             } catch (e: any) {
-                tmc.cli(`¤error¤` + e.message);
+                tmc.cli(`¤error¤${e.message}`);
             }
         }
 
@@ -281,7 +283,7 @@ export default class GenericDb extends Plugin {
                                 tmc.debug(error);
                             })
                             .then(() => {
-                                let car = strToCar[map.playerModel ?? ''] || strToCar[map.environment ?? ''];
+                                const car = strToCar[map.playerModel ?? ''] || strToCar[map.environment ?? ''];
                                 mapInfo.Vehicle = car || '';
                             });
                     } else {

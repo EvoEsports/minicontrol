@@ -27,8 +27,8 @@ export default class worldRecords extends Plugin {
     private cachedLeaderboard: LeaderboardEntry[] = [];
     private displayNamesCache: { [key: string]: string } = {};
     private worldRecordsUpdate: NodeJS.Timeout | null = null;
-    envIdentifier: string = '';
-    envSecret: string = '';
+    envIdentifier = '';
+    envSecret= '';
 
     async onLoad() {
         const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
@@ -168,7 +168,7 @@ export default class worldRecords extends Plugin {
 
             const mapUid = currentMap.UId;
             const totalRecordsToFetch = this.length;
-            let allLeaderboardEntries: LeaderboardEntry[] = [];
+            const allLeaderboardEntries: LeaderboardEntry[] = [];
 
             while (allLeaderboardEntries.length < totalRecordsToFetch) {
                 const length = Math.min(totalRecordsToFetch - allLeaderboardEntries.length, 100);

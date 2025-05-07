@@ -1,7 +1,7 @@
 import type { Player } from '@core/playermanager';
 import Plugin from '../index';
 import { formatTime, getCountryFromPath } from '@core/utils';
-import { type DediRecord } from '../tmnf/dedimania';
+import type { DediRecord } from '../tmnf/dedimania';
 
 export default class Announces extends Plugin {
     async onLoad() {
@@ -46,12 +46,12 @@ export default class Announces extends Plugin {
     async onPlayerConnect(player: Player) {
         if (tmc.settings.get('announce.brand')) tmc.chat(`${tmc.brand} ¤info¤version ¤white¤${tmc.version}`, player.login);
         const nick = player.customNick ?? player.nickname;
-        let msg = `¤info¤Player ¤white¤${nick}¤info¤ from ¤white¤${getCountryFromPath(player.path)} ¤info¤joins the server!`;
+        const msg = `¤info¤Player ¤white¤${nick}¤info¤ from ¤white¤${getCountryFromPath(player.path)} ¤info¤joins the server!`;
         if (tmc.settings.get('announce.playerconnect')) tmc.chat(msg);
         tmc.cli(msg);
 
-        if (tmc.settings.get('chat.useEmotes') == true) {
-            tmc.chat(`$z$fff回$s Emoji chat is $0f0enabled$fff! For details: $3cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$L$`, player.login);
+        if (tmc.settings.get('chat.useEmotes') === true) {
+            tmc.chat('$z$fff回$s Emoji chat is $0f0enabled$fff! For details: $3cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$L$', player.login);
         }
     }
 
@@ -68,12 +68,12 @@ export default class Announces extends Plugin {
         const oldRecord: DediRecord = data.oldRecord;
 
         let extrainfo = '';
-        if (oldRecord && oldRecord.Rank) {
+        if (oldRecord?.Rank) {
             extrainfo = `(¤gray¤$n${formatTime(newRecord.Best - oldRecord.Best).replace('0:', '')}$m¤dedirec¤)`;
         }
-        let recipient = undefined;
+        const recipient = undefined;
 
-        if (oldRecord && oldRecord.Best == newRecord.Best) {
+        if (oldRecord && oldRecord.Best === newRecord.Best) {
             tmc.chat(
                 `¤white¤${newRecord.NickName}¤dedirec¤ equalled their ¤white¤${newRecord.Rank}. ¤dedirec¤dedimania record ¤white¤${formatTime(newRecord.Best)}¤dedirec¤!`,
                 recipient
@@ -117,7 +117,7 @@ export default class Announces extends Plugin {
             recipient = newRecord.login;
         }
 
-        if (oldRecord.time == newRecord.time) {
+        if (oldRecord.time === newRecord.time) {
             tmc.chat(`¤white¤${nick}¤rec¤ equalled their ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`, newRecord.login);
             return;
         }

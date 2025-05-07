@@ -78,7 +78,7 @@ export default class Checkpoints extends Plugin {
     }
 
     async onPlayerCheckpoint(data: any) {
-        this.checkpointCounter[data[0]] = parseInt(data[2])+1;
+        this.checkpointCounter[data[0]] = Number.parseInt(data[2])+1;
         if (this.checkpointCounter[data[0]] < (tmc.maps.currentMap?.NbCheckpoints || 0)) {
             await this.displayWidget(data[0]);
         }

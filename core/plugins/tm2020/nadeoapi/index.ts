@@ -30,7 +30,7 @@ export default class NadeoAPI extends Plugin {
             return;
         }
 
-        const campaign = await this.api.getClubCampaign(parseInt(params[0]), parseInt(params[1]), login);
+        const campaign = await this.api.getClubCampaign(Number.parseInt(params[0]), Number.parseInt(params[1]), login);
         if (!campaign) return;
         const playlist = campaign.campaign.playlist.map((p) => p.mapUid);
         await this.api.downloadMaps(playlist, login);

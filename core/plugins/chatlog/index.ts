@@ -38,7 +38,7 @@ export default class ChatLog extends Plugin {
     }
 
     async onPlayerChat(data: any) {
-        if (data[0] == 0) return;
+        if (data[0] === 0) return;
         if (data[2].startsWith('/')) return;
         const login = data[1];
         const text = data[2];
@@ -63,7 +63,7 @@ export default class ChatLog extends Plugin {
             { key: 'nickname', title: 'Nickname', width: 50 },
             { key: 'text', title: 'Message', width: 125 }
         ]);
-        let chatLog = clone(this.chatLog).reverse();
+        const chatLog = clone(this.chatLog).reverse();
         window.setItems(chatLog);
 
         window.pageSize = 20;

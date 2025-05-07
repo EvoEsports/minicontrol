@@ -1,5 +1,5 @@
 import Plugin from '@core/plugins';
-import { Sequelize } from 'sequelize-typescript';
+import type { Sequelize } from 'sequelize-typescript';
 import { QueryTypes } from 'sequelize';
 import ListWindow from '@core/ui/listwindow';
 import Player from '@core/schemas/players.model';
@@ -45,7 +45,7 @@ export default class Players extends Plugin {
         const maxRank = tmc.settings.get('records.maxRecords') || 100;
         const rankedRecordCount = 3;
         console.time('rankings');
-        tmc.debug('¤info¤Fetching rankings for $fff' + mapCount + ' ¤info¤maps');
+        tmc.debug(`¤info¤Fetching rankings for $fff${mapCount} ¤info¤maps`);
 
         sequelize.query(
             `SELECT row_number() OVER (order by average) as rank, login, average as avg FROM (
@@ -75,21 +75,21 @@ export default class Players extends Plugin {
         ).then((result: any) =>
         {
             this.rankings = result as Ranking[];
-            tmc.debug('¤info¤Rankings fetched: $fff' + this.rankings.length);
+            tmc.debug(`¤info¤Rankings fetched: $fff${this.rankings.length}`);
             console.timeEnd('rankings');
         }).catch((err: any) => {
-            tmc.cli('¤error¤Error while fetching rankings: ' + err);
+            tmc.cli(`¤error¤Error while fetching rankings: ${err}`);
             this.rankings = [];
         });
     }
 
     async cmdMyRank(login: string, _args: string[]) {
-        const rank = this.rankings.find((val) => val.login == login);
+        const rank = this.rankings.find((val) => val.login === login);
         if (rank) {
             const avg = (rank.avg / 10000).toFixed(2);
             tmc.chat(`Your server rank is ${rank.rank}/${this.rankings.length} with average ${avg}`, login);
         } else {
-            tmc.chat(`No rankings found.`, login);
+            tmc.chat("No rankings found.", login);
         }
     }
 
@@ -101,7 +101,7 @@ export default class Players extends Plugin {
         for (const rank of this.rankings) {
             if (x > 100) break;
             const avg = rank.avg / 10000;
-            const player = players.find((val) => val.login == rank.login);
+            const player = players.find((val) => val.login === rank.login);
             outRanks.push({
                 rank: rank.rank,
                 nickname: player?.customNick ?? player?.nickname ?? 'Unknown',

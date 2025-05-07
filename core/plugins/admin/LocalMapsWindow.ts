@@ -1,6 +1,6 @@
 import ListWindow from '@core/ui/listwindow';
-import { GBX, CGameCtnChallenge } from "gbx";
-import { existsSync, promises as fspromises } from "fs";
+import { GBX, type CGameCtnChallenge } from "gbx";
+import { existsSync, promises as fspromises } from "node:fs";
 import { htmlEntities } from '@core/utils';
 
 export default class LocalMapsWindow extends ListWindow {
@@ -15,7 +15,7 @@ export default class LocalMapsWindow extends ListWindow {
                         (
                             file => {
                                 item.MapAuthor = file.mapInfo.author || "";
-                                if (tmc.game.Name == "Trackmania") {
+                                if (tmc.game.Name === "Trackmania") {
                                     item.MapAuthor = htmlEntities(file.authorNickname || "");
                                 }
                                 let name = file.mapName || "";
@@ -26,14 +26,14 @@ export default class LocalMapsWindow extends ListWindow {
                             }
                         );
                 } catch (e: any) {
-                    tmc.cli("¤error¤" + e.message);
+                    tmc.cli(`¤error¤${e.message}`);
                 }
             }
         }
     }
 
     async onAction(login: string, action: string, item: any) {
-        if (action == "Add") {
+        if (action === "Add") {
             await tmc.chatCmd.execute(login, `//addlocal "${item.File}"`);
         }
     }

@@ -75,15 +75,15 @@ export default class Jukebox extends Plugin {
             tmc.chat('¤info¤Map queue is disabled', login);
             return;
         }
-        if (params.length == 0) {
-            tmc.chat(`¤info¤Usage: /addqueue < map index or map uid >`, login);
+        if (params.length === 0) {
+            tmc.chat("¤info¤Usage: /addqueue < map index or map uid >", login);
             return;
         }
         if (params[0].toString().length < 5) {
-            let index = Number.parseInt(params[0]) - 1;
+            const index = Number.parseInt(params[0]) - 1;
             map = tmc.maps.getMaplist()[index];
         } else {
-            map = tmc.maps.getMaplist().find((m: any) => m.UId == params[0]);
+            map = tmc.maps.getMaplist().find((m: any) => m.UId === params[0]);
         }
         if (!map) {
             tmc.chat('¤info¤map not found', login);
@@ -116,11 +116,11 @@ export default class Jukebox extends Plugin {
         let index: number;
         let map: any;
         if (tmc.admins.includes(login) && args.length > 0) {
-            index = parseInt(args[0]) - 1;
+            index = Number.parseInt(args[0]) - 1;
             map = this.queue[index];
         } else {
             map = this.queue.find((m) => m.QueueBy === login);
-            index = this.queue.findIndex((m) => m == map);
+            index = this.queue.findIndex((m) => m === map);
             if (index === -1) {
                 tmc.chat(`¤info¤You don't have any map in queue`, login);
                 return;
@@ -145,7 +145,7 @@ export default class Jukebox extends Plugin {
         const player = await tmc.players.getPlayer(login);
 
         if (map) {
-            if (this.queue[0]?.UId == map.UId) return tmc.chat('¤info¤Map already in queue', login);
+            if (this.queue[0]?.UId === map.UId) return tmc.chat('¤info¤Map already in queue', login);
 
             this.queue.unshift({
                 UId: map.UId,
@@ -159,7 +159,7 @@ export default class Jukebox extends Plugin {
             });
             tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤requeued by ¤white¤${player.nickname}`);
         } else {
-            tmc.chat(`¤info¤Could not requeue map`, login);
+            tmc.chat("¤info¤Could not requeue map", login);
         }
     }
 
@@ -168,7 +168,7 @@ export default class Jukebox extends Plugin {
         const player = await tmc.players.getPlayer(login);
 
         if (!map) return tmc.chat('¤error¤No previous map', login);
-        if (map.UId == tmc.maps.currentMap?.UId) return tmc.chat('¤error¤Previous map is the same as the current map', login);
+        if (map.UId === tmc.maps.currentMap?.UId) return tmc.chat('¤error¤Previous map is the same as the current map', login);
 
         this.queue.unshift({
             UId: map.UId,
@@ -213,7 +213,7 @@ export default class Jukebox extends Plugin {
                 })
             );
         }
-        window.title = 'Map Queue [' + maps.length + ']';
+        window.title = `Map Queue [${maps.length}]`;
         window.size = { width: 205, height: 95 };
         window.setItems(maps);
         window.setColumns([

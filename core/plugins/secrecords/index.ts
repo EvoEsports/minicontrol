@@ -44,7 +44,7 @@ export default class RecordsSector extends Plugin {
     }
 
     getSectorTime(login: string, checkpoint: number, racetime: number): number {
-        if (checkpoint == 0) return racetime;
+        if (checkpoint === 0) return racetime;
         const prev = this.lastCheckpoint[login];
         return racetime - prev;
     }
@@ -72,7 +72,7 @@ export default class RecordsSector extends Plugin {
             this.recordCache[login] = record;
             this.sectorRecords[login] = JSON.parse(record.jsonData ?? '[]');
         } catch (err: any) {
-            tmc.cli(`¤error¤Error loading sector records for ${login}: ` + err.message);
+            tmc.cli(`¤error¤Error loading sector records for ${login}: ${err.message}`);
         }
     }
 
@@ -82,8 +82,8 @@ export default class RecordsSector extends Plugin {
         this.recordCache = {};
         this.lastCheckpoint = {};
 
-        let filter: string[] = [];
-        for (let player of tmc.players.getAll()) {
+        const filter: string[] = [];
+        for (const player of tmc.players.getAll()) {
             if (player.login) {
                 filter.push(player.login);
             }
@@ -100,8 +100,8 @@ export default class RecordsSector extends Plugin {
 
         if (!records) return;
 
-        for (let recData of records) {
-            let login = recData.login;
+        for (const recData of records) {
+            const login = recData.login;
             if (!login) continue;
             this.recordCache[login] = recData;
             if (login === '*Best Records*') continue;
@@ -123,12 +123,12 @@ export default class RecordsSector extends Plugin {
                 }
             });
 
-            for (let recData of data) {
+            for (const recData of data) {
                 const login = recData.login;
                 if (!login) continue;
                 const playerInfo = playerInfos.find((info) => info.login === login);
                 let nickname = 'unknown';
-                if (playerInfo && playerInfo.nickname) nickname = playerInfo.nickname;
+                if (playerInfo?.nickname) nickname = playerInfo.nickname;
                 const formattedRecord = {
                     nickname: nickname,
                     login: recData.login,
@@ -156,13 +156,13 @@ export default class RecordsSector extends Plugin {
         }
 
         let update = true;
-        if (!this.lastCheckpoint[login] && checkpoint != 0) {
+        if (!this.lastCheckpoint[login] && checkpoint !== 0) {
             update = false;
         }
 
         if (update) {
             // process pb
-            if (sectorTime !== Number.NaN && sectorTime < 0) {
+            if (!Number.isNaN(sectorTime) && sectorTime < 0) {
                 this.lastCheckpoint[login] = data[1];
                 return;
             }
@@ -187,7 +187,7 @@ export default class RecordsSector extends Plugin {
                         });
                     }
                 } catch (err: any) {
-                    tmc.cli(`¤error¤Error saving sector records for login ${login}: ` + err.message);
+                    tmc.cli(`¤error¤Error saving sector records for login ${login}: ${err.message}`);
                 }
 
                 tmc.server.emit('Plugin.secRecords.newPB', [player, checkpoint, sectorTime, oldRecord]);
@@ -215,9 +215,9 @@ export default class RecordsSector extends Plugin {
                     date: new Date().toISOString()
                 };
 
-                let out: any[] = [];
+                const out: any[] = [];
 
-                for (let i in this.topRecord) {
+                for (const i in this.topRecord) {
                     const rec = this.topRecord[i];
                     out[i] = {
                         login: rec.login,
@@ -231,8 +231,8 @@ export default class RecordsSector extends Plugin {
                         this.recordCache['*Best Records*'].jsonData = JSON.stringify(out);
                         this.recordCache['*Best Records*'].updatedAt = new Date();
                         this.recordCache['*Best Records*'].save().catch((err: any) => {
-                            if (process.env.debug == 'true') console.log(err);
-                            tmc.cli('¤error¤Error saving best sector records: ' + err.message);
+                            if (process.env.debug === 'true') console.log(err);
+                            tmc.cli(`¤error¤Error saving best sector records: ${err.message}`);
                         });
                         tmc.debug('Best sector record updated.');
                     } else {
@@ -245,7 +245,7 @@ export default class RecordsSector extends Plugin {
                     }
                 } catch (err: any) {
                     console.log(err);
-                    tmc.cli('¤error¤Error saving best sector records: ' + err.message);
+                    tmc.cli(`¤error¤Error saving best sector records: ${err.message}`);
                 }
 
                 tmc.server.emit('Plugin.secRecords.newBest', [player, checkpoint, clone(this.topRecord[checkpoint]), oldRecord]);
@@ -302,8 +302,8 @@ export default class RecordsSector extends Plugin {
             }
         ]);
 
-        let items: any = [];
-        for (let i in this.topRecord) {
+        const items: any = [];
+        for (const i in this.topRecord) {
             const rec = this.topRecord[i];
             if (!rec) {
                 items[i] = {
@@ -319,14 +319,14 @@ export default class RecordsSector extends Plugin {
             let diff = '';
             let color = '$f00';
             let myTime = '-';
-            if (this.sectorRecords[login] && this.sectorRecords[login][i]) {
+            if (this.sectorRecords[login]?.[i]) {
                 const playerTime = this.sectorRecords[login][i];
                 myTime = formatTime(playerTime);
                 diff = formatTime(playerTime - rec.time);
                 if (playerTime < rec.time) {
                     color = '$00f';
                 } else {
-                    diff = '+' + diff;
+                    diff = `+${diff}`;
                 }
 
                 if (playerTime === rec.time) {
@@ -335,7 +335,7 @@ export default class RecordsSector extends Plugin {
                 }
             }
 
-            let formattedDate = new Date(rec.date).toLocaleString('en-GB');
+            const formattedDate = new Date(rec.date).toLocaleString('en-GB');
 
             items[i] = {
                 cp: Number.parseInt(i) + 1,

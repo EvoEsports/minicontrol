@@ -23,7 +23,7 @@ export default class ATime extends Plugin {
 
     async setMultiplier(value: number) {
         if (value < 1) {
-            tmc.storage['minicontrol.taTimeLimit'] = parseInt(process.env['TALIMIT'] || '300');
+            tmc.storage['minicontrol.taTimeLimit'] = Number.parseInt(process.env['TALIMIT'] || '300');
         }
     }
 
@@ -42,20 +42,20 @@ export default class ATime extends Plugin {
         const time = formatTime(newLimit * 1000);
         const goldTime = formatTime(tmc.maps.currentMap.GoldTime);
         try {
-            if (tmc.game.Name == 'TmForever') {
+            if (tmc.game.Name === 'TmForever') {
                 tmc.server.send('SetTimeAttackLimit', newLimit * 1000);
                 tmc.chat(`¤info¤Timelimit set to ¤white¤${time} ¤info¤(¤white¤${multiply} x ${goldTime}¤info¤)`);
                 return;
             }
 
-            if (tmc.game.Name == 'Trackmania' || tmc.game.Name == 'ManiaPlanet') {
+            if (tmc.game.Name === 'Trackmania' || tmc.game.Name === 'ManiaPlanet') {
                 const settings = { S_TimeLimit: newLimit };
                 tmc.server.send('SetModeScriptSettings', settings);
                 tmc.chat(`¤info¤Timelimit set to ¤white¤${time} ¤info¤(¤white¤${multiply} x ${goldTime}¤info¤)`);
                 return;
             }
         } catch (e: any) {
-            tmc.chat('¤error¤' + e.message);
+            tmc.chat(`¤error¤${e.message}`);
         }
     }
 }

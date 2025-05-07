@@ -2,7 +2,6 @@ import Plugin from '@core/plugins';
 import type { Player } from '@core/playermanager';
 import { clone, htmlEntities, formatTime } from '@core/utils';
 import RecordsWindow from '@core/plugins/records/recordsWindow';
-import { pl } from '@faker-js/faker';
 
 interface LiveRecord {
     login: string;
@@ -14,7 +13,6 @@ interface LiveRecord {
 
 export default class liverankings extends Plugin {
     liverankings: LiveRecord[] = [];
-    currentMapUid: string = '';
     private playerCheckpoints: { [login: string]: string[] } = {};
 
     async onLoad() {
@@ -40,13 +38,12 @@ export default class liverankings extends Plugin {
                 action: '/liverankings'
             });
         }
-        if (!tmc.maps.currentMap?.UId) return;
-        this.currentMapUid = tmc.maps.currentMap.UId;
+        if (!tmc.maps.currentMap.UId) return;
     }
 
     async onBeginMap(data: any) {
         const map = data[0];
-        this.currentMapUid = map.UId;
+
         this.liverankings = [];
         this.playerCheckpoints = {};
         tmc.server.emit('Plugin.LiveRankings.onSync', {
@@ -55,7 +52,7 @@ export default class liverankings extends Plugin {
     }
 
     async cmdRecords(login: string, _args: string[]) {
-        let liverankings: any = [];
+        const liverankings: any = [];
         for (const record of this.liverankings) {
             liverankings.push({
                 rank: record.rank,
@@ -120,7 +117,7 @@ export default class liverankings extends Plugin {
         this.playerCheckpoints[login].push(raceTime.toString());
         const nbCp = tmc.maps.currentMap?.NbCheckpoints || 1;
 
-        if (checkpointIndex % nbCp == nbCp) {
+        if (checkpointIndex % nbCp === nbCp) {
             this.playerCheckpoints[login].push(';');
         } else {
             this.playerCheckpoints[login].push(',');

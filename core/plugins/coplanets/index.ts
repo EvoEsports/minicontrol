@@ -6,10 +6,10 @@ export default class CoPlanets extends Plugin {
     static depends: string[] = [];
 
     async onLoad() {
-        if (tmc.game.Name == 'TmForever') tmc.addCommand('//coppers', this.coppers.bind(this), 'Display coppers');
-        if (tmc.game.Name == 'ManiaPlanet') tmc.addCommand('//planets', this.planets.bind(this), 'Display planets');
+        if (tmc.game.Name === 'TmForever') tmc.addCommand('//coppers', this.coppers.bind(this), 'Display coppers');
+        if (tmc.game.Name === 'ManiaPlanet') tmc.addCommand('//planets', this.planets.bind(this), 'Display planets');
 
-        if (tmc.game.Name == 'TmForever' || tmc.game.Name == 'ManiaPlanet') {
+        if (tmc.game.Name === 'TmForever' || tmc.game.Name === 'ManiaPlanet') {
             tmc.addCommand('//pay', this.pay.bind(this), 'Pay from server');
             tmc.addCommand('//bill', this.bill.bind(this), 'Bill');
             tmc.addCommand('/donate', this.donate.bind(this), 'Donate to the server');
@@ -47,7 +47,7 @@ export default class CoPlanets extends Plugin {
             tmc.chat('¤info¤No amount specified', login);
             return;
         }
-        if (isNaN(Number.parseInt(params[1]))) {
+        if (Number.isNaN(Number.parseInt(params[1]))) {
             tmc.chat('¤info¤Invalid amount specified', login);
             return;
         }
@@ -61,7 +61,7 @@ export default class CoPlanets extends Plugin {
                 tmc.chat(`¤info¤${player.nickname}¤info¤ issued a bill of ¤white¤${bill.amount} ¤info¤ to ¤white¤${targetPlayer.nickname}¤info¤.`);
             };
             bill.onPayed = async (_bill) => {
-                tmc.chat(`¤info¤Bill was paid successfully.`);
+                tmc.chat("¤info¤Bill was paid successfully.");
             };
             bill.onRefused = async (bill) => {
                 const targetPlayer = await tmc.getPlayer(bill.loginFrom);
@@ -72,7 +72,7 @@ export default class CoPlanets extends Plugin {
             };
             await bill.send();
         } catch (e: any) {
-            tmc.chat('¤error¤' + e.message);
+            tmc.chat(`¤error¤${e.message}`);
         }
     }
 
@@ -81,7 +81,7 @@ export default class CoPlanets extends Plugin {
             tmc.chat('¤info¤Usage: ¤cmd¤/donate ¤white¤<amount>', login);
             return;
         }
-        if (isNaN(Number.parseInt(params[0]))) {
+        if (Number.isNaN(Number.parseInt(params[0]))) {
             tmc.chat('¤info¤Invalid amount specified', login);
             return;
         }
@@ -94,11 +94,11 @@ export default class CoPlanets extends Plugin {
                 tmc.chat(`¤info¤${player.nickname}¤info¤ donated ¤white¤${bill.amount} ¤info¤ - thanks!`);
             };
             bill.onError = async (bill) => {
-                tmc.chat("¤error¤"+bill.stateName, bill.issuerLogin);
+                tmc.chat(`¤error¤${bill.stateName}`, bill.issuerLogin);
             };
             await bill.send();
         } catch (e: any) {
-            tmc.chat('¤error¤' + e.message);
+            tmc.chat(`¤error¤${e.message}`);
         }
     }
 
@@ -116,7 +116,7 @@ export default class CoPlanets extends Plugin {
             tmc.chat('¤info¤No amount specified', login);
             return;
         }
-        if (isNaN(Number.parseInt(params[1]))) {
+        if (Number.isNaN(Number.parseInt(params[1]))) {
             tmc.chat('¤info¤Invalid amount specified', login);
             return;
         }
@@ -134,11 +134,11 @@ export default class CoPlanets extends Plugin {
                 tmc.chat(`¤info¤${targetPlayer.nickname}¤info¤ was paid out ¤white¤${bill.amount}¤info¤ from the server¤info¤.`);
             };
             bill.onError = async (bill) => {
-                tmc.chat("¤error¤"+bill.stateName, bill.issuerLogin);
+                tmc.chat(`¤error¤${bill.stateName}`, bill.issuerLogin);
             };
             await bill.send();
         } catch (e: any) {
-            tmc.chat('¤error¤' + e.message);
+            tmc.chat(`¤error¤${e.message}`);
         }
     }
 }

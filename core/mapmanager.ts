@@ -33,7 +33,7 @@ class MapManager {
     previousMap: Map = {} as Map;
     currentMap: Map = {} as Map;
     nextMap: Map = {} as Map;
-    private startTime: number = 0;
+    private startTime = 0;
 
     /**
      * @ignore
@@ -55,7 +55,7 @@ class MapManager {
             this.currentMap = await tmc.server.call('GetCurrentMapInfo');
             this.nextMap = await tmc.server.call('GetNextMapInfo');
         } catch (e: any) {
-            tmc.cli('¤error¤' + e.message);
+            tmc.cli(`¤error¤${e.message}`);
         }
 
         await this.syncMaplist();
@@ -92,10 +92,11 @@ class MapManager {
     async syncMaplist() {
         const chunckedMaps: any = chunkArray(await tmc.server.call('GetMapList', -1, 0), 100);
         let method = 'GetMapInfo';
-        if (tmc.game.Name == 'TmForever') method = 'GetChallengeInfo';
-        let newMaps = {};
+        if (tmc.game.Name === 'TmForever') method = 'GetChallengeInfo';
+
+        const newMaps = {};
         for (const infos of chunckedMaps) {
-            let out: any[] = [];
+            const out: any[] = [];
 
             for (const map of infos) {
                 out.push([method, map.FileName]);

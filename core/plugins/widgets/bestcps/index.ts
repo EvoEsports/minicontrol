@@ -13,10 +13,10 @@ interface Time {
 export default class BestCps extends Plugin {
     static depends = ['widgets'];
 
-    id: string = '';
+    id = '';
     bestTimes: Time[] = [];
-    nbCheckpoints: number = -1;
-    maxCp: number = 16;
+    nbCheckpoints = -1;
+    maxCp = 16;
     widget: Widget | null = null;
 
     async onLoad() {
@@ -78,7 +78,7 @@ export default class BestCps extends Plugin {
             tmc.chat('¤error¤No Checkpoints found!', login);
             return;
         }
-        let checkpoints: any = [];
+        const checkpoints: any = [];
         let checkpointNumber = 1;
         for (const checkpoint of this.bestTimes) {
             checkpoints.push({

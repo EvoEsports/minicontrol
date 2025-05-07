@@ -1,5 +1,5 @@
-import fs from "fs";
-import { sleep } from "@core/utils";
+import fs from 'node:fs';
+import { sleep } from '@core/utils';
 
 interface Tokens {
     accessToken: string;
@@ -47,30 +47,30 @@ interface LeaderboardResponse {
 }
 
 enum AUDIENCES {
-    NadeoServices = "NadeoServices",
-    NadeoLiveServices = "NadeoLiveServices",
-    NadeoClubServices = "NadeoClubServices",
+    NadeoServices = 'NadeoServices',
+    NadeoLiveServices = 'NadeoLiveServices',
+    NadeoClubServices = 'NadeoClubServices'
 }
 
 export default class API {
     readonly toolName: string = `MINIcontrol@${process.env.npm_package_version} / ${process.env.CONTACT_INFO}`;
     readonly commonHeader = {
-        "Content-Type": "application/json",
-        "User-Agent": this.toolName,
+        'Content-Type': 'application/json',
+        'User-Agent': this.toolName
     };
 
     readonly SERVER_LOGIN = process.env.SERVER_LOGIN;
     readonly SERVER_PASS = process.env.SERVER_PASS;
 
-    readonly CORE_URL = "https://prod.trackmania.core.nadeo.online";
-    readonly LIVE_URL = "https://live-services.trackmania.nadeo.live";
+    readonly CORE_URL = 'https://prod.trackmania.core.nadeo.online';
+    readonly LIVE_URL = 'https://live-services.trackmania.nadeo.live';
 
     private tokens: {
         [key in AUDIENCES]: (Tokens & { expire: number }) | undefined;
     } = {
         [AUDIENCES.NadeoServices]: undefined,
         [AUDIENCES.NadeoLiveServices]: undefined,
-        [AUDIENCES.NadeoClubServices]: undefined,
+        [AUDIENCES.NadeoClubServices]: undefined
     };
 
     async getClubCampaign(clubId: number, campaignId: number, login: string) {
@@ -82,16 +82,16 @@ export default class API {
 
     // Helper functions
 
-    async fetchUrl(url: string, token: string, login: string, method: "GET" | "POST" | "PUT" | "DELETE" = "GET", body?: any) {
+    async fetchUrl(url: string, token: string, login: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET', body?: any) {
         const response = await fetch(url, {
             method,
             headers: { Authorization: `nadeo_v1 t=${token}` },
-            body: JSON.stringify(body),
+            body: JSON.stringify(body)
         });
         const data = (await response.json()) as NadeoError | any;
-        if (Array.isArray(data) || "code" in data) {
-            let errorMessage = "Could not fetch URL";
-            if ("message" in data) errorMessage += ` - ${data.message}`;
+        if (Array.isArray(data) || 'code' in data) {
+            let errorMessage = 'Could not fetch URL';
+            if ('message' in data) errorMessage += ` - ${data.message}`;
             tmc.chat(`¤error¤${errorMessage}`, login);
             return;
         }
@@ -101,20 +101,19 @@ export default class API {
     async getMapInfoMultiple(mapUids: string[], login: string) {
         const token = await this.getToken(AUDIENCES.NadeoLiveServices, login);
         if (!token) return;
-        const url = `${this.LIVE_URL}/api/token/map/get-multiple?mapUidList=${mapUids.join(",")}`;
-        return (await this.fetchUrl(url, token, login))["mapList"] as MapInfo[];
+        const url = `${this.LIVE_URL}/api/token/map/get-multiple?mapUidList=${mapUids.join(',')}`;
+        return (await this.fetchUrl(url, token, login))['mapList'] as MapInfo[];
     }
 
-    async getLeaderboard(mapUid: string, login: string, length: number = 50, offset: number = 0) {
+    async getLeaderboard(mapUid: string, login: string, length = 50, offset = 0) {
         const token = await this.getToken(AUDIENCES.NadeoLiveServices, login);
         if (!token) return;
         const url = `${this.LIVE_URL}/api/token/leaderboard/group/Personal_Best/map/${mapUid}/top?length=${length}&onlyWorld=true&offset=${offset}`;
         return (await this.fetchUrl(url, token, login)) as LeaderboardResponse;
     }
-    
 
     async downloadMap(url: string, uid: string, login: string) {
-        let filePath = `nadeo/${uid}.Map.Gbx`;
+        const filePath = `nadeo/${uid}.Map.Gbx`;
         const res = await fetch(url, { keepalive: false });
 
         if (!res || !res.ok) {
@@ -125,26 +124,25 @@ export default class API {
         if (!fs.existsSync(tmc.mapsPath)) {
             try {
                 const abuffer = await (await res.blob()).arrayBuffer();
-                const status = await tmc.server.call("WriteFile", filePath, Buffer.from(abuffer));
+                const status = await tmc.server.call('WriteFile', filePath, Buffer.from(abuffer));
                 if (!status) {
                     tmc.chat(`¤error¤Map path "${tmc.mapsPath}" is unreachable`, login);
                     return;
                 }
-                await tmc.server.call("AddMap", filePath);
+                await tmc.server.call('AddMap', filePath);
                 await sleep(50); // wait for dedicated server since sc is too fast
                 await tmc.maps.syncMaplist();
 
                 const info = tmc.maps.getMap(uid);
                 if (info) {
-                    const author = info.AuthorNickname || info.Author || "n/a";
+                    const author = info.AuthorNickname || info.Author || 'n/a';
                     tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author}!`);
-                    if (Object.keys(tmc.plugins).includes("jukebox")) {
+                    if (Object.keys(tmc.plugins).includes('jukebox')) {
                         await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
                     }
                     return;
-                } else {
-                    tmc.chat(`¤info¤Added map but couldn't find map info!`);
                 }
+                tmc.chat(`¤info¤Added map but couldn't find map info!`);
             } catch (e: any) {
                 tmc.chat(e, login);
                 return;
@@ -155,20 +153,19 @@ export default class API {
         const abuffer = await (await res.blob()).arrayBuffer();
 
         fs.writeFileSync(`${tmc.mapsPath}${filePath}`, Buffer.from(abuffer));
-        await tmc.server.call("AddMap", filePath);
+        await tmc.server.call('AddMap', filePath);
         await sleep(50); // wait for dedicated server since sc is too fast
         await tmc.maps.syncMaplist();
         const info = tmc.maps.getMap(uid);
         if (info) {
-            const author = info.AuthorNickname || info.Author || "n/a";
+            const author = info.AuthorNickname || info.Author || 'n/a';
             tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author}!`);
-            if (Object.keys(tmc.plugins).includes("jukebox")) {
+            if (Object.keys(tmc.plugins).includes('jukebox')) {
                 await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
             }
             return;
-        } else {
-            tmc.chat(`¤info¤Added map but couldn't find map info!`);
         }
+        tmc.chat(`¤info¤Added map but couldn't find map info!`);
     }
 
     async downloadMaps(mapUids: string[], login: string) {
@@ -192,18 +189,18 @@ export default class API {
         const tokens = await this.loginDedicatedServer(audience, login);
         if (!tokens) return;
         return Object.assign(tokens, {
-            expire: Math.round(Date.now() / 1000) + 3600,
+            expire: Math.round(Date.now() / 1000) + 3600
         });
     }
 
     async loginDedicatedServer(audience: AUDIENCES, login: string) {
         const headers = Object.assign(this.commonHeader, {
-            Authorization: `Basic ${Buffer.from(`${this.SERVER_LOGIN}:${this.SERVER_PASS}`).toString("base64")}`,
+            Authorization: `Basic ${Buffer.from(`${this.SERVER_LOGIN}:${this.SERVER_PASS}`).toString('base64')}`
         });
         const body = JSON.stringify({ audience });
-        const response = await fetch(`${this.CORE_URL}/v2/authentication/token/basic`, { method: "POST", headers, body });
+        const response = await fetch(`${this.CORE_URL}/v2/authentication/token/basic`, { method: 'POST', headers, body });
         const data = (await response.json()) as Tokens | NadeoError;
-        if ("code" in data) {
+        if ('code' in data) {
             tmc.chat(`¤error¤Could not login with dedicated server account - ${data.message}`, login);
             return;
         }

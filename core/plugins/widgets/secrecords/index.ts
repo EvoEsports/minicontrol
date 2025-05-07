@@ -28,22 +28,22 @@ export default class SecRecordsWidget extends Plugin {
         const checkpoint: number = data[1];
         const newRecord: TopRecord = data[2];
         const oldRecord: TopRecord = data[3];
-        let time = newRecord.time - oldRecord.time;
+        const time = newRecord.time - oldRecord.time;
         let color = 'f00';
-        let outTime = formatTime(time);
+        const outTime = formatTime(time);
 
         if (time < 0) color = '00f';
         let prefix = '';
         if (time > 0) prefix = '+';
 
         if (isNew) color = '00f';
-        if (oldRecord.time == newRecord.time) {
+        if (oldRecord.time === newRecord.time) {
             prefix = '';
             color = '0f0';
         }
         let xml = '';
 
-        if (tmc.game.Name == 'TmForever') {
+        if (tmc.game.Name === 'TmForever') {
             xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>
                 <manialink id="-3" version="3">
                     <frame pos="-25 48" z-index="0">
@@ -87,7 +87,7 @@ export default class SecRecordsWidget extends Plugin {
 
         let time = newTime - oldTime;
         let color = '$f00';
-        if (oldTime == -1) {
+        if (oldTime === -1) {
             time = newTime;
             color = '$999';
             if (isNew) color = '$0f0';

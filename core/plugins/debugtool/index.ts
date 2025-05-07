@@ -8,10 +8,10 @@ export default class DebugTool extends Plugin {
     intervalId: any = null;
 
     async onLoad() {
-        if (process.env.DEBUG == 'true') {
+        if (process.env.DEBUG === 'true') {
             this.widget = new Widget('core/plugins/debugtool/widget.xml.twig');
             this.widget.pos = { x: 159, y: -60, z: 0 };
-            if (tmc.game.Name != 'TmForever') {
+            if (tmc.game.Name !== 'TmForever') {
                 tmc.addCommand('//addfake', this.cmdFakeUsers.bind(this), 'Connect Fake users');
                 tmc.addCommand('//removefake', this.cmdRemoveFakeUsers.bind(this), 'Connect Fake users');
             }
@@ -34,7 +34,7 @@ export default class DebugTool extends Plugin {
             const currentMem = process.memoryUsage().rss / 1048576;
             const diff = currentMem - startValueMem;
             if (diff > 350) {
-                const msg = 'Stopping MINIcontrol, Memory usage is too high: $fff' + currentMem.toFixed(2) + 'MB ¤error¤(' + diff.toFixed(2) + 'MB)'
+                const msg = `Stopping MINIcontrol, Memory usage is too high: $fff${currentMem.toFixed(2)}MB ¤error¤(${diff.toFixed(2)}MB)`
                 console.log(msg);
                 tmc.chat(msg);
                 process.exit(1);
@@ -47,7 +47,7 @@ export default class DebugTool extends Plugin {
     }
 
     async onUnload() {
-        clearInterval(this.intervalId!);
+        clearInterval(this.intervalId);
         tmc.removeCommand('//mem');
         tmc.removeCommand('//uptime');
         tmc.removeCommand('//addfake');
@@ -71,30 +71,26 @@ export default class DebugTool extends Plugin {
 
     async cmdMeminfo(login: string, _args: string[]) {
         const mem = memInfo();
-        tmc.chat('¤info¤Memory usage: ' + mem, login);
+        tmc.chat(`¤info¤Memory usage: ${mem}`, login);
     }
 
     async cmdUptime(login: string, _args: string[]) {
-        let diff = Date.now() - Number.parseInt(tmc.startTime);
+        const diff = Date.now() - Number.parseInt(tmc.startTime);
         tmc.chat(
-            '¤info¤Uptime: ¤white¤' +
-            tm.Time.fromMilliseconds(diff)
+            `¤info¤Uptime: ¤white¤${tm.Time.fromMilliseconds(diff)
                 .toTmString()
-                .replace(/[.]\d{3}/, ''),
+                .replace(/[.]\d{3}/, '')}`,
             login
         );
     }
 
     async displayMemInfo() {
         const mem = memInfo();
-        let start = Date.now() - Number.parseInt(tmc.startTime);
+        const start = Date.now() - Number.parseInt(tmc.startTime);
         tmc.cli(
-            '¤info¤Memory usage: $fff' +
-            mem +
-            ' ¤info¤uptime: ¤white¤' +
-            tm.Time.fromMilliseconds(start)
+            `¤info¤Memory usage: $fff${mem} ¤info¤uptime: ¤white¤${tm.Time.fromMilliseconds(start)
                 .toTmString()
-                .replace(/[.]\d{3}/, '')
+                .replace(/[.]\d{3}/, '')}`
         );
         if (this.widget) {
             this.widget.setData({ mem: mem });
