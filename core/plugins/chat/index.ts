@@ -44,7 +44,7 @@ export default class Chat extends Plugin {
                 tmc.settings.register('chat.useEmotes', false, null, 'Chat: Enable emote replacements in chat $z(see: $lhttp://bit.ly/Celyans_emotes_sheet$l)');
                 tmc.chatCmd.addCommand('/emotes', this.cmdTmfEmotes.bind(this), 'Emotes help');
                 this.widget = new Widget('core/plugins/chat/widget.xml.twig');
-                this.widget.pos = { x: -160, y: -45, z: 5 };
+                this.widget.pos = { x: -160, y: -35, z: 5 };
                 this.widget.size = { width: 15, height: 3 };
                 this.widget.setOpenAction(this.cmdTmfEmotes.bind(this));
                 this.widget.display();
