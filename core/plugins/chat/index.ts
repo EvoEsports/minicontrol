@@ -152,7 +152,7 @@ export default class Chat extends Plugin {
         window.setActions(['Chat']);
         window.onAction = async (login: string, action: string, item: any) => {
             if (action === 'Chat') {
-                this.onPlayerChat([1, login, `$fff${item.glyph}`]);
+                this.onPlayerChat([1, login, `$z$fff${item.glyph}`]);
             }
         };
         window.display();
