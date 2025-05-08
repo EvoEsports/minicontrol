@@ -50,8 +50,9 @@ export default class Announces extends Plugin {
         if (tmc.settings.get('announce.playerconnect')) tmc.chat(msg);
         tmc.cli(msg);
 
-        if (tmc.settings.get('chat.useEmotes') === true) {
-            tmc.chat('$z$fff回$s Emoji chat is $0f0enabled$fff! For details: $3cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$L$', player.login);
+        if (tmc.game.Name === 'TmForever' && tmc.settings.get('chat.useEmotes') === true) {
+            tmc.chat('$z$fff回$s Emoji chat is $0f0enabled$fff! Your version: 攻龚 Server support: $d0025apr', player.login);
+            tmc.chat('$fffInstall or update: $3cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$L', player.login);
         }
     }
 

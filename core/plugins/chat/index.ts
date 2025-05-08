@@ -1,7 +1,9 @@
 import Plugin from '../index.ts';
 import { emotesMap } from './tmnf_emojis';
 import badwords from './badwords.json';
-import { removeColors } from '@core/utils';
+import { clone, removeColors } from '@core/utils';
+import ListWindow from '@core/ui/listwindow.ts';
+import Widget from '@core/ui/widget.ts';
 
 const regex: RegExp[] = [];
 
@@ -26,6 +28,7 @@ export default class Chat extends Plugin {
     pluginEnabled = false;
     publicChatEnabled = true;
     playersDisabled: string[] = [];
+    widget: Widget | null = null;
 
     async onLoad() {
         try {
@@ -38,18 +41,16 @@ export default class Chat extends Plugin {
             tmc.settings.register('chat.profanityFilter', true, null, 'Chat: Enable profanity filter');
 
             if (tmc.game.Name === 'TmForever') {
-                tmc.settings.register('chat.useEmotes', false, null, 'Chat: Enable emote replacements in chat $z(see: http://bit.ly/Celyans_emotes_sheet)');
-                tmc.chatCmd.addCommand(
-                    '/emotes',
-                    async (login: string) => {
-                        tmc.chat('$fffEmojis for tmnf: $3cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$l$z$s$fff for instructions!', login);
-                    },
-                    'How to apply emotes'
-                );
+                tmc.settings.register('chat.useEmotes', false, null, 'Chat: Enable emote replacements in chat $z(see: $lhttp://bit.ly/Celyans_emotes_sheet$l)');
+                tmc.chatCmd.addCommand('/emotes', this.cmdTmfEmotes.bind(this), 'Emotes help');
+                this.widget = new Widget('core/plugins/chat/widget.xml.twig');
+                this.widget.pos = { x: -160, y: -45, z: 5 };
+                this.widget.size = { width: 15, height: 3 };
+                this.widget.setOpenAction(this.cmdTmfEmotes.bind(this));
+                this.widget.display();
             } else {
                 // TODO: Add support for openplanet Better chat
-                tmc.chatCmd.addCommand(
-                    '/chatformat', async () => {}, '');
+                tmc.chatCmd.addCommand('/chatformat', async () => {}, '');
             }
         } catch (e: any) {
             this.pluginEnabled = false;
@@ -70,7 +71,7 @@ export default class Chat extends Plugin {
 
     async cmdChat(login: string, params: string[]) {
         if (params.length === 0) {
-            tmc.chat("¤info¤usage: ¤cmd¤//chat <on/off> ¤info¤ or ¤cmd¤//chat <login> <on/off>");
+            tmc.chat('¤info¤usage: ¤cmd¤//chat <on/off> ¤info¤ or ¤cmd¤//chat <login> <on/off>');
             return;
         }
         if (params.length === 1 && ['on', 'off'].includes(params[0])) {
@@ -131,5 +132,29 @@ export default class Chat extends Plugin {
         if (process.env.DEBUG === 'true') {
             tmc.cli(msg);
         }
+    }
+
+    async cmdTmfEmotes(login: string, _params: string[]) {
+        const window = new ListWindow(login);
+        window.title = 'Emotes';
+        window.size = {width: 82, height: 95};
+        window.setColumns([
+            { key: 'emote', title: 'Name', width: 50 },
+            { key: 'glyph', title: 'Emote', width: 15 }
+        ]);
+        const outItems = clone(emotesMap).map((item) => {
+            return {
+                emote: `:${item.emote}:`,
+                glyph: item.glyph
+            };
+        });
+        window.setItems(outItems);
+        window.setActions(['Chat']);
+        window.onAction = async (login: string, action: string, item: any) => {
+            if (action === 'Chat') {
+                this.onPlayerChat([1, login, `$fff${item.glyph}`]);
+            }
+        };
+        window.display();
     }
 }

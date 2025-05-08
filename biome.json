@@ -12,7 +12,7 @@
     "files": {
         "include": [
             "core/**/*.ts",
-            "userdata/plugin/**/*.ts"
+            "userdata/plugins/**/*.ts"
         ],
         "ignore": [
             "test",
