@@ -51,7 +51,7 @@ class MiniControl {
     /**
      * The start time of MiniControl.
      */
-    readonly startTime: string = Date.now().toString();
+    readonly startTime: number = Date.now();
     /**
      * The admins of MiniControl.
      */
@@ -481,7 +481,7 @@ class MiniControl {
             }
         }
 
-        this.server.send('Echo', this.startTime, 'MiniControl');
+        this.server.send('Echo', this.startTime.toString(), 'MiniControl');
     }
 
     /**

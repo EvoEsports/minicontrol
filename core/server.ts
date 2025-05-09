@@ -67,10 +67,10 @@ export default class Server {
 
         // Handle Trackmania.Echo
         if (normalizedMethod === 'Trackmania.Echo') {
-            if (data[0] === 'MiniControl' && data[1] !== tmc.startTime) {
+            if (data[0] === 'MiniControl' && data[1] !== tmc.startTime.toString()) {
                 tmc.cli('¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!');
                 process.exit(1);
-            } else if (data[0] === 'MiniControl' && data[1] === tmc.startTime) {
+            } else if (data[0] === 'MiniControl' && data[1] === tmc.startTime.toString()) {
                 await tmc.afterStart();
             }
             return;

@@ -76,11 +76,10 @@ export function parseEntries(entries: any[]) {
 }
 
 export function htmlEntities(str: string): string {
-    const val = (str || '')
-        .replace(/[\u00A0-\uFFFF<>\&"']/g, (i) => `&#${i.charCodeAt(0)};`)
-        .replaceAll(/[$][lh]\[.*?](.*?)([$][lh])?/gi, '$1')
-        .replaceAll(/[$][lh]/gi, '')
-        .replaceAll('--', '-&#45;');
+    let val = (str || '').replace(/[\u00A0-\uFFFF<>\&"']/g, (i) => `&#${i.charCodeAt(0)};`);
+    val = val.replaceAll(/[$][lh]\[.*?](.*?)([$][lh])?/gi, '$1');
+    val = val.replaceAll(/[$][lh]/gi, '');
+    val = val.replaceAll('--', '-&#45;');
     return val;
 }
 
@@ -181,7 +180,9 @@ export function getCallerName() {
         const caller: any = stack[2];
         if (caller) {
             log.debug(
-                `$fff└ $4cb${caller.getTypeName()}$fff.$eea${caller.getMethodName()}$fb1()    $333vscode://vscode-remote/wsl+ubuntu/${caller.getFileName().replace('file:///', '')}:${caller.getLineNumber()}`
+                `$fff└ $4cb${caller.getTypeName()}$fff.$eea${caller.getMethodName()}$fb1()    $333vscode://vscode-remote/wsl+ubuntu/${caller
+                    .getFileName()
+                    .replace('file:///', '')}:${caller.getLineNumber()}`
             );
         }
     }

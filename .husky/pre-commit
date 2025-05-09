@@ -1,0 +1,2 @@
+# npx @biomejs/biome lint --fix
+# npx @biomejs/biome format ./core/*.ts
