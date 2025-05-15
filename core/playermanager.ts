@@ -76,7 +76,7 @@ export class Player {
  * PlayerManager class
  */
 export default class PlayerManager {
-    private players: any = {};
+    private players: { [key: string]: Player } = {};
 
     /**
      * Initialize the player manager
@@ -165,7 +165,7 @@ export default class PlayerManager {
      */
     async getPlayer(login: string): Promise<Player> {
         if (login === tmc.server.login) {
-            tmc.cli("¤error¤Tried to fetch server login as a player.");
+            tmc.cli('¤error¤Tried to fetch server login as a player.');
             return new Player();
         }
         if (this.players[login]) return this.players[login];

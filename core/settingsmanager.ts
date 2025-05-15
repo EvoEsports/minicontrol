@@ -88,6 +88,7 @@ export default class SettingsManager {
                 process.exit();
             }
         }
+
         tmc.cli('¤info¤Settings loaded!');
     }
 
@@ -184,7 +185,8 @@ export default class SettingsManager {
         this._defaultColors[key] = value;
         this.callbacks[`color.${key}`] = callback;
         this.colorDescriptions[key] = description;
-        if (!Object.keys(this.colors).includes(key)) this.colors[key] = value;
+        const envVar = `COLOR_${key.toString().toUpperCase()}`;
+        if (!Object.keys(this.colors).includes(key)) this.colors[key] = process.env[envVar] || value;
     }
 
     getColor(key: string) {
