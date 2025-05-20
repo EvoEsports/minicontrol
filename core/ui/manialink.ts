@@ -1,6 +1,5 @@
 import { createEnvironment, createFilesystemLoader, type TwingTemplate } from 'twing';
 import * as fs from 'node:fs';
-import { clone } from '@core/utils';
 
 const loader = createFilesystemLoader(fs);
 const environment = createEnvironment(loader, { charset: 'utf-8', parserOptions: { level: 3 } });
@@ -27,6 +26,7 @@ export default class Manialink {
     title = '';
     displayDuration = 0;
     private _firstDisplay = true;
+    canHide = true;
     _templateData: TwingTemplate | undefined = undefined;
 
     constructor(login: string | undefined = undefined) {
@@ -56,8 +56,8 @@ export default class Manialink {
         }
     }
 
-    async destroy() {
-        tmc.ui.destroyManialink(this);
+    async destroy(hide = true) {
+        tmc.ui.destroyManialink(this, hide);
     }
 
     /**
@@ -73,7 +73,7 @@ export default class Manialink {
             colors: tmc.settings.colors,
             data: this.data,
             title: this.title,
-            recipient: this.recipient
+            recipient: this.recipient,
         };
 
         if (!this._templateData) {

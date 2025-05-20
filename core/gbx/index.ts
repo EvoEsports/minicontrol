@@ -19,11 +19,22 @@ export class GbxClient {
     server: Server;
     options: any = {
         showErrors: false,
-        throwErrors: true
+        throwErrors: true,
     };
     timeoutHandler: any;
     promiseCallbacks: { [key: string]: { resolve: CallableFunction; reject: CallableFunction } } = {};
     game = 'Trackmania';
+    counters = {
+        methodsSend: 0,
+        methodsReceive: 0,
+        callbackReceived: 0,
+        sendKbsec: 0,
+        sendKbsecLast: 0,
+        receiveKbsec: 0,
+        receiverKbSecLast: 0,
+    };
+    private useCounters = process.env.DEBUG_GBX_COUNTERS === 'true';
+    private counterInterval = 5;
 
     /**
      * Creates an instance of GbxClient.
@@ -39,6 +50,36 @@ export class GbxClient {
         this.dataPointer = 0;
         this.doHandShake = false;
         this.server = server;
+        if (this.counterInterval < 1) {
+            this.counterInterval = 1;
+        }
+        if (this.useCounters) {
+            setInterval(() => {
+                const c = this.counters;
+                c.sendKbsec = c.sendKbsec - c.sendKbsecLast;
+                c.receiveKbsec = c.receiveKbsec - c.receiverKbSecLast;
+                if (c.sendKbsec < 0) {
+                    c.sendKbsec = 0;
+                }
+                if (c.receiveKbsec < 0) {
+                    c.receiveKbsec = 0;
+                }
+
+                this.server.onCallback('GbxClient.Counters', {
+                    methodsSend: c.methodsSend,
+                    methodsReceive: c.methodsReceive,
+                    callbackReceived: c.callbackReceived,
+                    sendKbsec: c.sendKbsec,
+                    receiverKbSec: c.receiveKbsec,
+                });
+
+                c.methodsSend = 0;
+                c.methodsReceive = 0;
+                c.callbackReceived = 0;
+                c.sendKbsecLast = c.sendKbsec;
+                c.receiverKbSecLast = c.receiveKbsec;
+            }, this.counterInterval * 1000);
+        }
     }
 
     /**
@@ -67,7 +108,7 @@ export class GbxClient {
                 port: normalizedPort,
                 keepAlive: true,
                 family: 4,
-                noDelay: true
+                noDelay: true,
             },
             () => {
                 socket.on('connect', () => {
@@ -95,7 +136,7 @@ export class GbxClient {
                     tmc.cli('¤error¤XMLRPC Connection timeout');
                     process.exit(1);
                 });
-            }
+            },
         );
 
         this.timeoutHandler = setTimeout(() => {
@@ -134,6 +175,8 @@ export class GbxClient {
             // Wait until the full message is available.
             if (this.responseLength && this.recvData.length >= this.responseLength) {
                 const message = this.recvData.subarray(0, this.responseLength);
+                if (this.useCounters) this.counters.receiveKbsec += this.responseLength / 1024;
+
                 this.recvData = this.recvData.subarray(this.responseLength);
                 // Reset state for the next message.
                 this.responseLength = null;
@@ -161,6 +204,7 @@ export class GbxClient {
                     const requestHandle = message.readUInt32LE(0);
                     const readable = Readable.from(message.subarray(4));
                     if (requestHandle >= 0x80000000) {
+                        if (this.useCounters) this.counters.methodsReceive++;
                         const cb = this.promiseCallbacks[requestHandle];
                         if (cb) {
                             deserializer.deserializeMethodResponse(readable, async (err: any, res: any) => {
@@ -169,6 +213,7 @@ export class GbxClient {
                             });
                         }
                     } else {
+                        if (this.useCounters) this.counters.callbackReceived++;
                         deserializer.deserializeMethodCall(readable, async (err: any, method: any, res: any) => {
                             if (err && this.options.showErrors) {
                                 console.error(err);
@@ -255,8 +300,8 @@ export class GbxClient {
         return Serializer.serializeMethodCall('system.multicall', [
             methods.map((method) => ({
                 methodName: method[0],
-                params: method.slice(1)
-            }))
+                params: method.slice(1),
+            })),
         ]);
     }
 
@@ -310,12 +355,13 @@ export class GbxClient {
     private async query(xml: string, wait = true) {
         const HEADER_LENGTH = 8;
         const requestSize = xml.length + HEADER_LENGTH;
+        if (this.useCounters) this.counters.methodsSend++;
 
         // Define request size limits per game
         const limits: { [key: string]: number } = {
             Trackmania: 7 * 1024 * 1024,
             TmForever: 1 * 1024 * 1024,
-            ManiaPlanet: 4 * 1024 * 1024
+            ManiaPlanet: 4 * 1024 * 1024,
         };
 
         const limit = limits[this.game];
@@ -336,6 +382,7 @@ export class GbxClient {
         buf.writeInt32LE(len, 0); // write length at offset 0
         buf.writeUInt32LE(handle, 4); // write request handle at offset 4
         buf.write(xml, HEADER_LENGTH, 'utf-8'); // write xml starting at offset 8
+        if (this.useCounters) this.counters.sendKbsec += (len + HEADER_LENGTH) / 1024;
 
         // Write buffer to the socket
         await new Promise((resolve, reject) => {
@@ -354,7 +401,7 @@ export class GbxClient {
         if (!wait) {
             this.promiseCallbacks[handle] = {
                 resolve: () => {},
-                reject: () => {}
+                reject: () => {},
             };
             return {};
         }
