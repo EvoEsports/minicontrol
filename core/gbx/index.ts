@@ -282,7 +282,7 @@ export class GbxClient {
     }
 
     /**
-     * execute a script method call
+     * call script method
      *
      * @param {string} method
      * @param {...any} params
@@ -294,6 +294,21 @@ export class GbxClient {
             return undefined;
         }
         return await this.call('TriggerModeScriptEventArray', method, params);
+    }
+
+    /**
+     * send a script method
+     *
+     * @param {string} method
+     * @param {...any} params
+     * @returns any
+     * @memberof GbxClient
+     */
+    async sendScript(method: string, ...params: any) {
+        if (!this.isConnected) {
+            return undefined;
+        }
+        return await this.send('TriggerModeScriptEventArray', method, params);
     }
 
     private serializeMulticall(methods: Array<any>) {

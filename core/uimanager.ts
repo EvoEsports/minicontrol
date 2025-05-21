@@ -94,7 +94,7 @@ export default class UiManager {
     async getUiProperties() {
         const uuid = this.uuid();
         this.scriptCalls.push(uuid);
-        tmc.server.callScript('Common.UIModules.GetProperties', uuid);
+        tmc.server.sendScript('Common.UIModules.GetProperties', uuid);
     }
 
     async setUiProperty(id: string, property: string, value: any) {
@@ -123,7 +123,7 @@ export default class UiManager {
                 const json = {
                     uimodules: reset,
                 };
-                tmc.server.callScript('Common.UIModules.ResetProperties', `${JSON.stringify(json)}`);
+                tmc.server.sendScript('Common.UIModules.ResetProperties', `${JSON.stringify(json)}`);
             }
         }
     }

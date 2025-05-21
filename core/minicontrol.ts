@@ -357,17 +357,16 @@ class MiniControl {
         this.game = this.server.version;
         this.server.send('EnableCallbacks', true);
         this.server.send('SendHideManialinkPage');
-
         if (this.game.Name === 'Trackmania') {
             await this.server.call('SetApiVersion', '2023-03-25');
             this.mapsPath = await this.server.call('GetMapsDirectory');
-            await this.server.callScript('XmlRpc.EnableCallbacks', 'true');
+            await this.server.sendScript('XmlRpc.EnableCallbacks', 'true');
         } else if (this.game.Name === 'TmForever') {
             this.mapsPath = await this.server.call('GetTracksDirectory');
         } else if (this.game.Name === 'ManiaPlanet') {
             await this.server.call('SetApiVersion', '2013-04-16');
             this.mapsPath = await this.server.call('GetMapsDirectory');
-            await this.server.callScript('XmlRpc.EnableCallbacks', 'true');
+            await this.server.sendScript('XmlRpc.EnableCallbacks', 'true');
             try {
                 const settings = { S_UseLegacyXmlRpcCallbacks: false };
                 tmc.server.send('SetModeScriptSettings', settings);
@@ -375,6 +374,7 @@ class MiniControl {
                 tmc.cli(e.message);
             }
         }
+        await this.server.limitScriptCallbacks();
         this.settings.load();
         await this.maps.init();
         await this.players.init();
