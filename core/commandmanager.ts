@@ -31,7 +31,7 @@ export default class CommandManager {
                     outCommands.push({
                         command: htmlEntities(this.commands[command].trigger),
                         help: htmlEntities(this.commands[command].help),
-                        rawCommand: this.commands[command].trigger
+                        rawCommand: this.commands[command].trigger,
                     });
                 }
                 const window = new HelpWindow(login);
@@ -40,12 +40,12 @@ export default class CommandManager {
                 window.setItems(outCommands.sort((a: any, b: any) => a.command.localeCompare(b.command)));
                 window.setColumns([
                     { key: 'command', title: 'Command', width: 50 },
-                    { key: 'help', title: 'Help', width: 90 }
+                    { key: 'help', title: 'Help', width: 90 },
                 ]);
                 window.setActions(['Invoke']);
                 window.display();
             },
-            'Display help for command'
+            'Display help for command',
         );
 
         this.addCommand(
@@ -56,7 +56,7 @@ export default class CommandManager {
                     if (!this.commands[command]?.admin) continue;
                     outCommands.push({
                         command: htmlEntities(this.commands[command].trigger),
-                        help: htmlEntities(this.commands[command].help)
+                        help: htmlEntities(this.commands[command].help),
                     });
                 }
                 const window = new ListWindow(login);
@@ -65,11 +65,11 @@ export default class CommandManager {
                 window.setItems(outCommands.sort((a: any, b: any) => a.command.localeCompare(b.command)));
                 window.setColumns([
                     { key: 'command', title: 'Command', width: 50 },
-                    { key: 'help', title: 'Help', width: 100 }
+                    { key: 'help', title: 'Help', width: 100 },
                 ]);
                 window.display();
             },
-            'Display help for command'
+            'Display help for command',
         );
 
         this.addCommand('/serverlogin', async () => {}, 'Display server login');
@@ -78,14 +78,14 @@ export default class CommandManager {
             async (login: string) => {
                 tmc.chat(`MiniController version: ${tmc.version}`, login);
             },
-            'Display server versions'
+            'Display server versions',
         );
         this.addCommand(
             '//shutdown',
             async () => {
                 process.exit();
             },
-            'Close MINIcontroller'
+            'Close MINIcontroller',
         );
         //this.addCommand("//plugins", this.cmdPluginManager.bind(this), "Open plugin manager");
         /*this.addCommand("//plugin", async (login: string, args: string[]) => {
@@ -206,7 +206,7 @@ export default class CommandManager {
                     }
                 }
             },
-            'Manage admins'
+            'Manage admins',
         );
         this.addCommand(
             '//call',
@@ -252,7 +252,7 @@ export default class CommandManager {
                         out.push({
                             method: htmlEntities(`${methods[i]}(${type.join('$fff, ')}$fff)`),
                             value: htmlEntities(returnvalue ?? ''),
-                            help: htmlEntities(methodHelp[i].replace(/Only available to (Super)?Admin./, ''))
+                            help: htmlEntities(methodHelp[i].replace(/Only available to (Super)?Admin./, '')),
                         });
                     }
 
@@ -263,7 +263,7 @@ export default class CommandManager {
                     window.setColumns([
                         { key: 'method', title: 'Method', width: 60 },
                         { key: 'value', title: 'Return', width: 15 },
-                        { key: 'help', title: 'Help', width: 150 }
+                        { key: 'help', title: 'Help', width: 150 },
                     ]);
                     window.size = { width: 230, height: 95 };
                     window.display();
@@ -283,7 +283,7 @@ export default class CommandManager {
                     tmc.chat(err.message, login);
                 }
             },
-            'Calls server method'
+            'Calls server method',
         );
     }
 
@@ -317,7 +317,7 @@ export default class CommandManager {
             out.push({
                 pluginName: name,
                 depends: deps.join(', '),
-                active: tmc.plugins[name] ? '$0f0Yes' : '$f00No'
+                active: tmc.plugins[name] ? '$0f0Yes' : '$f00No',
             });
         }
 
@@ -325,7 +325,7 @@ export default class CommandManager {
             out.push({
                 pluginName: name,
                 depends: '',
-                active: tmc.plugins[name] ? '$0f0Yes' : '$f00No'
+                active: tmc.plugins[name] ? '$0f0Yes' : '$f00No',
             });
         }
         out = out.sort((a: any, b: any) => {
@@ -336,7 +336,7 @@ export default class CommandManager {
         window.setColumns([
             { key: 'active', title: 'Running', width: 25, action: 'toggle' },
             { key: 'pluginName', title: 'Plugin', width: 50 },
-            { key: 'depends', title: 'Dependencies', width: 50 }
+            { key: 'depends', title: 'Dependencies', width: 50 },
         ]);
 
         window.display();
@@ -365,7 +365,7 @@ export default class CommandManager {
             trigger: command,
             callback: callback,
             admin: isAdmin,
-            help: help
+            help: help,
         };
     }
     /**
@@ -397,7 +397,7 @@ export default class CommandManager {
                 if (exp.test(text)) {
                     const words = text.replace(new RegExp(escapeRegex(command.trigger), 'i'), '').trim();
                     const params = (words.match(/(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|[^\s"]+/gi) || []).map((word) =>
-                        word.replace(/^"(.+(?="$))"$/, '$1').replaceAll('\\', '')
+                        word.replace(/^"(.+(?="$))"$/, '$1'),
                     );
                     await command.callback(login, params);
                     return;

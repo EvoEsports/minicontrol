@@ -773,11 +773,16 @@ export default class AdminPlugin extends Plugin {
             window.display();
         } else {
             try {
-                await tmc.server.call('AddMapList', args);
+                const val = await tmc.server.call('CheckMapForCurrentServerParams', args[0]);
+                if (!val) {
+                    tmc.chat(`¤error¤Map ¤white¤${args[0]} ¤error¤is not valid for this server`, login);
+                    return;
+                }
+                await tmc.server.call('AddMap', args[0]);
                 await tmc.maps.syncMaplist();
-                tmc.chat(`Added ${args.length} maps to the playlist`, login);
+                tmc.chat(`¤info¤Added $fff${args.length} ¤info¤map to the playlist`, login);
             } catch (e: any) {
-                tmc.chat(`Error: ${e.message}`, login);
+                tmc.chat(`¤error¤${e.message}`, login);
             }
         }
     }
@@ -805,7 +810,7 @@ export default class AdminPlugin extends Plugin {
 
     async cmdSetModeSetting(login: any, args: string[]) {
         if (args.length < 2) {
-            tmc.chat('Usage: ¤cmd¤//setscript ¤white¤<setting> <value>', login);
+            tmc.chat('¤info¤Usage: ¤cmd¤//setscript ¤white¤<setting> <value>', login);
             return;
         }
         const setting = args[0];
@@ -814,10 +819,10 @@ export default class AdminPlugin extends Plugin {
         try {
             await tmc.server.call('SetModeScriptSettings', { [setting]: castType(value) });
         } catch (e: any) {
-            tmc.chat(`Error: ${e.message}`, login);
+            tmc.chat(`¤error¤${e.message}`, login);
             return;
         }
-        tmc.chat(`Set ${setting} to ${value}`, login);
+        tmc.chat(`¤info¤Set $fff${setting} ¤info¤to $fff${value}`, login);
     }
 
     async cmdGuestlist(login: string, args: string[]) {
