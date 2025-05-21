@@ -2,17 +2,20 @@ import type { Player } from '@core/playermanager';
 import Plugin from '@core/plugins';
 import type { DediRecord } from '@core/plugins/tmnf/dedimania';
 import recordsWidget from '@core/plugins/widgets/records/recordsWidget';
+import Widget from '@core/ui/widget';
 import { formatTime, htmlEntities } from '@core/utils';
 
 export default class RecordsWidget extends Plugin {
     static depends: string[] = ['widgets', 'records'];
     widgets: { [key: string]: recordsWidget } = {};
+    performanceWidget: Widget | undefined;
     records: any[] = [];
     liverankings: any[] = [];
     worldRecords: any[] = [];
     dediRecords: DediRecord[] = [];
     myIndex: number | undefined;
     private widgetType: { [login: string]: string } = {};
+
     private lastClick: { [login: string]: number } = {};
     update = false;
     timeout: NodeJS.Timeout | undefined = undefined;
@@ -129,8 +132,11 @@ export default class RecordsWidget extends Plugin {
         const minPlayers = tmc.settings.get('widgets.performance') ?? 35;
         const logins = tmc.players.getAllLogins();
         if (logins.length >= minPlayers) {
+            this.updatePerformanceWidget();
             return;
         }
+        this.performanceWidget?.destroy();
+        this.performanceWidget = undefined;
 
         for (const login of logins) {
             if (!this.widgetType[login]) {
@@ -139,6 +145,33 @@ export default class RecordsWidget extends Plugin {
             this.updateWidget(login);
         }
         tmc.ui.displayManialinks(Object.values(this.widgets));
+    }
+
+    async updatePerformanceWidget() {
+        if (!this.performanceWidget) {
+            const widget = new Widget('core/plugins/widgets/records/performance.xml.twig');
+            widget.title = 'RECORDS';
+            if (tmc.game.Name === 'TmForever') {
+                widget.pos = { x: -159, y: 38, z: 0 };
+            } else {
+                widget.pos = { x: 121, y: 30, z: 0 };
+            }
+            widget.size = { width: 38, height: 45 };
+            widget.setOpenAction(this.widgetClick.bind(this));
+
+            this.performanceWidget = widget;
+        }
+        const outRecords = this.records.slice(0, 10);
+        for (const rec of outRecords) {
+            rec.formattedTime = formatTime(rec.time);
+            rec.nickname = rec.player ? htmlEntities(rec.player?.customNick ?? rec.player?.nickname ?? '') : 'Unknown';
+        }
+        this.performanceWidget.setData({ records: outRecords, game: tmc.game.Name });
+        this.performanceWidget.size.height = 4 * outRecords.length + 5;
+        if (outRecords.length < 1) {
+            this.performanceWidget.size.height = 8;
+        }
+        this.performanceWidget.display();
     }
 
     async updateWidget(login: string) {
@@ -256,6 +289,7 @@ export default class RecordsWidget extends Plugin {
         } else if (this.widgetType[login] === 'dedimania') {
             await tmc.chatCmd.execute(login, '/dedirecords');
         }
+        await tmc.chatCmd.execute(login, '/records');
     }
 
     async liveAction(login: string) {
