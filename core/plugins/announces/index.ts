@@ -72,18 +72,27 @@ export default class Announces extends Plugin {
         if (oldRecord?.Rank) {
             extrainfo = `(¤gray¤$n${formatTime(newRecord.Best - oldRecord.Best).replace('0:', '')}$m¤dedirec¤)`;
         }
+
         const recipient = undefined;
 
         if (oldRecord && oldRecord.Best === newRecord.Best) {
             tmc.chat(
                 `¤white¤${newRecord.NickName}¤dedirec¤ equalled their ¤white¤${newRecord.Rank}. ¤dedirec¤dedimania record ¤white¤${formatTime(newRecord.Best)}¤dedirec¤!`,
-                recipient
+                recipient,
+            );
+            return;
+        }
+
+        if (oldRecord) {
+            tmc.chat(
+                `¤white¤${newRecord.NickName}¤dedirec¤ improved ¤white¤${newRecord.Rank}. ¤dedirec¤dedimania record ¤white¤${formatTime(newRecord.Best)}¤dedirec¤ ${extrainfo}!`,
+                recipient,
             );
             return;
         }
 
         tmc.chat(
-            `¤white¤${newRecord.NickName}¤dedirec¤ improved ¤white¤${newRecord.Rank}. ¤dedirec¤dedimania record ¤white¤${formatTime(newRecord.Best)}¤dedirec¤ ${extrainfo}!`,
+            `¤white¤${newRecord.NickName}¤dedirec¤ has set a new ¤white¤${newRecord.Rank}. ¤dedirec¤dedimania record ¤white¤${formatTime(newRecord.Best)}`,
             recipient
         );
     }
@@ -119,11 +128,17 @@ export default class Announces extends Plugin {
         }
 
         if (oldRecord.time === newRecord.time) {
-            tmc.chat(`¤white¤${nick}¤rec¤ equalled their ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`, newRecord.login);
+            tmc.chat(
+                `¤white¤${nick}¤rec¤ equalled their ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤!`,
+                newRecord.login,
+            );
             return;
         }
 
-        tmc.chat(`¤white¤${nick}¤rec¤ improved ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤ ${extrainfo}!`, recipient);
+        tmc.chat(
+            `¤white¤${nick}¤rec¤ improved ¤white¤${newRecord.rank}. ¤rec¤server record ¤white¤${formatTime(newRecord.time)}¤rec¤ ${extrainfo}!`,
+            recipient,
+        );
     }
 
     async onSyncRecord(data: any) {

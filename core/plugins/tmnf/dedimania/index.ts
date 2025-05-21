@@ -215,7 +215,7 @@ export default class Dedimania extends Plugin {
         if (oldRecord && time > oldRecord.Best) return;
         let newRecord = clone(oldRecord);
         if (oldRecord) {
-            if (time < oldRecord.Best) {
+            if (time <= oldRecord.Best) {
                 const record = this.records[oldRecord.Rank - 1];
                 record.Best = time;
                 newRecord.Best = time;
