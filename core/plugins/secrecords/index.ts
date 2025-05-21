@@ -1,7 +1,7 @@
 import Plugin from '@core/plugins';
 import SectorRec from '@core/schemas/sectors.model';
 import Player from '@core/schemas/players.model';
-import { clone, htmlEntities, formatTime } from '@core/utils';
+import { htmlEntities, formatTime } from '@core/utils';
 import { Op } from 'sequelize';
 import ListWindow from '@core/ui/listwindow';
 import Confirm from '@core/ui/confirm';
@@ -29,6 +29,11 @@ export default class RecordsSector extends Plugin {
     async onStart() {
         await this.onBeginMap();
         tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
+        if (tmc.game.Name === 'TmForever') {
+            tmc.server.addListener('Trackmania.EndMap', this.onEndRace, this);
+        } else {
+            tmc.server.addListener('Trackmania.EndMatch', this.onEndRace, this);
+        }
         tmc.server.addListener('TMC.PlayerCheckpoint', this.onPlayerCheckpoint, this);
         tmc.server.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
         tmc.server.addListener('TMC.PlayerFinish', this.onPlayerFinish, this);
@@ -37,16 +42,48 @@ export default class RecordsSector extends Plugin {
         Menu.getInstance().addItem({
             category: 'Records',
             title: 'Sector Records',
-            action: '/sectors'
+            action: '/sectors',
         });
-
-
     }
 
     getSectorTime(login: string, checkpoint: number, racetime: number): number {
         if (checkpoint === 0) return racetime;
         const prev = this.lastCheckpoint[login];
         return racetime - prev;
+    }
+
+    async onEndRace(_data: any) {
+        // Bulk save sectorRecords and topRecord cache
+        try {
+            const recordsToSave: SectorRec[] = [];
+            for (const [login, sectors] of Object.entries(this.sectorRecords)) {
+                const jsonData = JSON.stringify(sectors);
+                const rec =
+                    this.recordCache[login] ??
+                    SectorRec.build({
+                        mapUuid: tmc.maps.currentMap.UId,
+                        login: login,
+                        jsonData: jsonData,
+                    });
+                rec.jsonData = jsonData;
+                recordsToSave.push(rec);
+            }
+            // also save best records summary
+            const bestJson = JSON.stringify(this.topRecord);
+            const bestRec =
+                this.recordCache['*Best Records*'] ??
+                SectorRec.build({
+                    mapUuid: tmc.maps.currentMap.UId,
+                    login: '*Best Records*',
+                    jsonData: bestJson,
+                });
+            bestRec.jsonData = bestJson;
+            recordsToSave.push(bestRec);
+            // Bulk upsert
+            await Promise.all(recordsToSave.map((rec) => rec.save()));
+        } catch (err: any) {
+            tmc.cli(`¤error¤Error saving sector records: ${err.message}`);
+        }
     }
 
     async onPlayerFinish(data: any) {
@@ -65,8 +102,8 @@ export default class RecordsSector extends Plugin {
             const record = await SectorRec.findOne({
                 where: {
                     mapUuid: tmc.maps.currentMap.UId,
-                    login: login
-                }
+                    login: login,
+                },
             });
             if (!record) return;
             this.recordCache[login] = record;
@@ -93,9 +130,9 @@ export default class RecordsSector extends Plugin {
             where: {
                 mapUuid: tmc.maps.currentMap.UId,
                 login: {
-                    [Op.in]: filter
-                }
-            }
+                    [Op.in]: filter,
+                },
+            },
         });
 
         if (!records) return;
@@ -118,9 +155,9 @@ export default class RecordsSector extends Plugin {
             const playerInfos = await Player.findAll({
                 where: {
                     login: {
-                        [Op.in]: playerLogins
-                    }
-                }
+                        [Op.in]: playerLogins,
+                    },
+                },
             });
 
             for (const recData of data) {
@@ -133,7 +170,7 @@ export default class RecordsSector extends Plugin {
                     nickname: nickname,
                     login: recData.login,
                     time: recData.time,
-                    date: recData.date
+                    date: recData.date,
                 };
                 this.topRecord.push(formattedRecord);
             }
@@ -174,22 +211,6 @@ export default class RecordsSector extends Plugin {
             if (sectorTime < this.sectorRecords[login][checkpoint]) {
                 const oldRecord = this.sectorRecords[login][checkpoint] || -1;
                 this.sectorRecords[login][checkpoint] = sectorTime;
-
-                try {
-                    if (this.recordCache[login]) {
-                        this.recordCache[login].jsonData = JSON.stringify(this.sectorRecords[login]);
-                        this.recordCache[login].save();
-                    } else {
-                        this.recordCache[login] = await SectorRec.create({
-                            mapUuid: tmc.maps.currentMap?.UId,
-                            login: login,
-                            jsonData: JSON.stringify(this.sectorRecords[login])
-                        });
-                    }
-                } catch (err: any) {
-                    tmc.cli(`¤error¤Error saving sector records for login ${login}: ${err.message}`);
-                }
-
                 tmc.server.emit('Plugin.secRecords.newPB', [player, checkpoint, sectorTime, oldRecord]);
             } else {
                 const oldRecord = this.sectorRecords[login][checkpoint] || -1;
@@ -202,64 +223,24 @@ export default class RecordsSector extends Plugin {
                     nickname: player.nickname,
                     login: login,
                     time: sectorTime,
-                    date: new Date().toISOString()
+                    date: new Date().toISOString(),
                 };
             }
-            if (sectorTime < this.topRecord[checkpoint]?.time) {
-                const oldRecord = clone(this.topRecord[checkpoint] || {});
-
+            if (sectorTime < this.topRecord[checkpoint].time) {
+                const oldBest = { ...this.topRecord[checkpoint] };
                 this.topRecord[checkpoint] = {
                     nickname: player.nickname,
                     login: login,
                     time: sectorTime,
-                    date: new Date().toISOString()
+                    date: new Date().toISOString(),
                 };
-
-                const out: any[] = [];
-
-                for (const i in this.topRecord) {
-                    const rec = this.topRecord[i];
-                    out[i] = {
-                        login: rec.login,
-                        time: rec.time,
-                        date: rec.date
-                    };
-                }
-
-                try {
-                    if (this.recordCache['*Best Records*']) {
-                        this.recordCache['*Best Records*'].jsonData = JSON.stringify(out);
-                        this.recordCache['*Best Records*'].updatedAt = new Date();
-                        this.recordCache['*Best Records*'].save().catch((err: any) => {
-                            if (process.env.debug === 'true') console.log(err);
-                            tmc.cli(`¤error¤Error saving best sector records: ${err.message}`);
-                        });
-                        tmc.debug('Best sector record updated.');
-                    } else {
-                        this.recordCache['*Best Records*'] = await SectorRec.create({
-                            mapUuid: tmc.maps.currentMap?.UId,
-                            login: '*Best Records*',
-                            jsonData: JSON.stringify(out)
-                        });
-                        tmc.debug('Best sector record created.');
-                    }
-                } catch (err: any) {
-                    console.log(err);
-                    tmc.cli(`¤error¤Error saving best sector records: ${err.message}`);
-                }
-
-                tmc.server.emit('Plugin.secRecords.newBest', [player, checkpoint, clone(this.topRecord[checkpoint]), oldRecord]);
+                tmc.server.emit('Plugin.secRecords.newBest', [player, checkpoint, this.topRecord[checkpoint], oldBest]);
             } else if (this.topRecord[checkpoint]) {
                 tmc.server.emit('Plugin.secRecords.diffBest', [
                     player,
                     checkpoint,
-                    {
-                        nickname: player.nickname,
-                        login: login,
-                        time: sectorTime,
-                        date: new Date().toISOString()
-                    },
-                    clone(this.topRecord[checkpoint])
+                    { nickname: player.nickname, login, time: sectorTime, date: new Date().toISOString() },
+                    this.topRecord[checkpoint],
                 ]);
             }
         }
@@ -273,33 +254,33 @@ export default class RecordsSector extends Plugin {
             {
                 key: 'cp',
                 title: 'CP',
-                width: 5
+                width: 5,
             },
             {
                 key: 'nickname',
                 title: 'Nickname',
-                width: 40
+                width: 40,
             },
             {
                 key: 'time',
                 title: 'Time',
-                width: 20
+                width: 20,
             },
             {
                 key: 'diff',
                 title: 'Difference',
-                width: 20
+                width: 20,
             },
             {
                 key: 'myTime',
                 title: 'My Time',
-                width: 20
+                width: 20,
             },
             {
                 key: 'date',
                 title: 'Date',
-                width: 50
-            }
+                width: 50,
+            },
         ]);
 
         const items: any = [];
@@ -311,7 +292,7 @@ export default class RecordsSector extends Plugin {
                     nickname: '-',
                     time: '-',
                     diff: '-',
-                    date: '-'
+                    date: '-',
                 };
                 continue;
             }
@@ -343,7 +324,7 @@ export default class RecordsSector extends Plugin {
                 time: formatTime(rec.time),
                 myTime: myTime,
                 diff: color + diff,
-                date: formattedDate
+                date: formattedDate,
             };
         }
 
@@ -365,13 +346,13 @@ export default class RecordsSector extends Plugin {
                 async () => {
                     await SectorRec.destroy({
                         where: {
-                            mapUuid: tmc.maps.currentMap?.UId
-                        }
+                            mapUuid: tmc.maps.currentMap?.UId,
+                        },
                     });
                     tmc.chat('¤info¤Sector records deleted for this map', login);
                     await this.onBeginMap();
                 },
-                []
+                [],
             );
             await confirm.display();
             return;
@@ -386,7 +367,7 @@ export default class RecordsSector extends Plugin {
                     tmc.chat('¤info¤All sector records deleted.', login);
                     await this.onBeginMap();
                 },
-                []
+                [],
             );
             await confirm.display();
             return;
