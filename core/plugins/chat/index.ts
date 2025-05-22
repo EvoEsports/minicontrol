@@ -44,17 +44,14 @@ export default class Chat extends Plugin {
                 tmc.settings.register(
                     "chat.useEmotes",
                     false,
-                    null,
+                    this.toggleWidget.bind(this),
                     "Chat: Enable emote replacements in chat $z(see: $lhttp://bit.ly/Celyans_emotes_sheet$l)",
                 );
                 tmc.chatCmd.addCommand("/emotes", this.cmdTmfEmotes.bind(this), "Emotes help");
-                this.widget = new Widget("core/plugins/chat/widget.xml.twig");
-                this.widget.pos = { x: -160, y: -35, z: 5 };
-                this.widget.size = { width: 15, height: 3 };
-                this.widget.setOpenAction(this.cmdTmfEmotes.bind(this));
-                this.widget.display();
+                if (tmc.settings.get("chat.useEmotes")) {
+                    this.toggleWidget(true);
+                }
             } else {
-                // TODO: Add support for openplanet Better chat
                 tmc.chatCmd.addCommand("/chatformat", async () => {}, "");
             }
         } catch (e: any) {
@@ -96,6 +93,19 @@ export default class Chat extends Plugin {
             return;
         }
         tmc.chat("¤info¤usage: ¤cmd¤//chat <on/off> ¤info¤or ¤cmd¤//chat <login> <on/off>");
+    }
+
+    async toggleWidget(enabled: boolean) {
+        if (enabled && this.widget === null) {
+            this.widget = new Widget("core/plugins/chat/widget.xml.twig");
+            this.widget.pos = { x: -160, y: -35, z: 5 };
+            this.widget.size = { width: 15, height: 3 };
+            this.widget.setOpenAction(this.cmdTmfEmotes.bind(this));
+            this.widget.display();
+        } else if (!enabled && this.widget !== null) {
+            this.widget.destroy();
+            this.widget = null;
+        }
     }
 
     async onPlayerChat(data: any) {
