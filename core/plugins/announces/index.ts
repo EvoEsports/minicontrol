@@ -45,7 +45,7 @@ export default class Announces extends Plugin {
     }
 
     async onPlayerConnect(player: Player) {
-        if (tmc.settings.get("announce.brand")) tmc.chat(`${tmc.brand} ¤info¤version ¤white¤${version.build} (${tmc.version})`, player.login);
+        if (tmc.settings.get("announce.brand")) tmc.chat(`${tmc.brand} ¤info¤version ¤white¤${tmc.version}`, player.login);
         const nick = player.customNick ?? player.nickname;
         const msg = `¤info¤Player ¤white¤${nick}¤info¤ from ¤white¤${getCountryFromPath(player.path)} ¤info¤joins the server!`;
         if (tmc.settings.get("announce.playerconnect")) tmc.chat(msg);
@@ -53,7 +53,7 @@ export default class Announces extends Plugin {
 
         if (tmc.game.Name === "TmForever" && tmc.settings.get("chat.useEmotes") === true) {
             tmc.chat("$z$fff回$s Emoji chat is $0f0enabled$fff! Your version: 攻龚 Server support: $d0025apr", player.login);
-            tmc.chat("$fffInstall or update: $3cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$L", player.login);
+            tmc.chat("$fffUpdate? $3cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$L", player.login);
         }
     }
 

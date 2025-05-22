@@ -47,7 +47,7 @@ class MiniControl {
     /**
      * The version of MiniControl.
      */
-    readonly brand: string = "$n$o$eeeMINI$o$z$s$abccontrol$z$s¤white¤";
+    readonly brand: string = "$eeeΜΙΝΙ$abccontrol$z$s¤white¤";
     readonly version: string = process.env.npm_package_version || version.version || "unknown";
     /**
      * The start time of MiniControl.
@@ -468,8 +468,8 @@ class MiniControl {
                 if (!dependency.startsWith("game:")) {
                     try {
                         this.pluginDependecies.addDependency(name, dependency);
-                    } catch (error) {
-                        this.cli(error);
+                    } catch (error: any) {
+                        // silent exception
                     }
                 }
             }
@@ -500,7 +500,7 @@ class MiniControl {
         this.startComplete = true;
         if (gc) gc();
         setMemStart();
-        const msg = `¤info¤Welcome to ${this.brand} ¤info¤version ¤white¤${version.build} (${this.version})¤info¤!`;
+        const msg = `¤info¤Welcome to ${this.brand} ¤info¤version ¤white¤${this.version}¤info¤!`;
         this.chat(msg);
         this.cli(msg);
         for (const plugin of Object.values(this.plugins)) {
