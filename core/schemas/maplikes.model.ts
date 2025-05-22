@@ -1,4 +1,18 @@
-import { Table, Column, Model, HasMany, PrimaryKey, Unique, Index, DataType, NotNull, BelongsTo, HasOne, AllowNull, AutoIncrement } from 'sequelize-typescript';
+import {
+    Table,
+    Column,
+    Model,
+    HasMany,
+    PrimaryKey,
+    Unique,
+    Index,
+    DataType,
+    NotNull,
+    BelongsTo,
+    HasOne,
+    AllowNull,
+    AutoIncrement,
+} from "sequelize-typescript";
 
 @Table({ tableName: "maplikes", timestamps: true })
 class MapLikes extends Model {

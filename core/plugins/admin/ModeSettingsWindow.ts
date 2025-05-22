@@ -1,12 +1,10 @@
 import ListWindow from "@core/ui/listwindow";
 
 export default class ModeSettingsWindow extends ListWindow {
-
     async uiPaginate(login: string, answer: any, entries: any) {
         this.parseEntries(entries);
         await super.uiPaginate(login, answer, entries);
     }
-
 
     async onApply(login: string, data: any, entries: any) {
         this.parseEntries(entries);

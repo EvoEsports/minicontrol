@@ -1,27 +1,26 @@
-import Plugin from '@core/plugins';
-import Confirm from '@core/ui/confirm';
-
+import Plugin from "@core/plugins";
+import Confirm from "@core/ui/confirm";
 
 export default class CoPlanets extends Plugin {
     static depends: string[] = [];
 
     async onLoad() {
-        if (tmc.game.Name === 'TmForever') tmc.addCommand('//coppers', this.coppers.bind(this), 'Display coppers');
-        if (tmc.game.Name === 'ManiaPlanet') tmc.addCommand('//planets', this.planets.bind(this), 'Display planets');
+        if (tmc.game.Name === "TmForever") tmc.addCommand("//coppers", this.coppers.bind(this), "Display coppers");
+        if (tmc.game.Name === "ManiaPlanet") tmc.addCommand("//planets", this.planets.bind(this), "Display planets");
 
-        if (tmc.game.Name === 'TmForever' || tmc.game.Name === 'ManiaPlanet') {
-            tmc.addCommand('//pay', this.pay.bind(this), 'Pay from server');
-            tmc.addCommand('//bill', this.bill.bind(this), 'Bill');
-            tmc.addCommand('/donate', this.donate.bind(this), 'Donate to the server');
+        if (tmc.game.Name === "TmForever" || tmc.game.Name === "ManiaPlanet") {
+            tmc.addCommand("//pay", this.pay.bind(this), "Pay from server");
+            tmc.addCommand("//bill", this.bill.bind(this), "Bill");
+            tmc.addCommand("/donate", this.donate.bind(this), "Donate to the server");
         }
     }
 
     async onUnload() {
-        tmc.removeCommand('//coppers');
-        tmc.removeCommand('//planets');
-        tmc.removeCommand('//pay');
-        tmc.removeCommand('//bill');
-        tmc.removeCommand('/donate');
+        tmc.removeCommand("//coppers");
+        tmc.removeCommand("//planets");
+        tmc.removeCommand("//pay");
+        tmc.removeCommand("//bill");
+        tmc.removeCommand("/donate");
     }
 
     async coppers(login: string) {
@@ -36,25 +35,31 @@ export default class CoPlanets extends Plugin {
 
     async bill(login: string, params: string[]) {
         if (params.length < 2) {
-            tmc.chat('¤info¤Usage: ¤cmd¤//bill ¤white¤<login> <amount>', login);
+            tmc.chat("¤info¤Usage: ¤cmd¤//bill ¤white¤<login> <amount>", login);
             return;
         }
         if (!params[0]) {
-            tmc.chat('¤info¤No bill recipient specified', login);
+            tmc.chat("¤info¤No bill recipient specified", login);
             return;
         }
         if (!params[1]) {
-            tmc.chat('¤info¤No amount specified', login);
+            tmc.chat("¤info¤No amount specified", login);
             return;
         }
         if (Number.isNaN(Number.parseInt(params[1]))) {
-            tmc.chat('¤info¤Invalid amount specified', login);
+            tmc.chat("¤info¤Invalid amount specified", login);
             return;
         }
 
         const amount = Number.parseInt(params[1]);
         try {
-            const bill = tmc.billMgr.createTransaction('SendBill', login, params[0], amount, `You were billed ${amount} coppers by an admin. Do you want to pay this bill?`);
+            const bill = tmc.billMgr.createTransaction(
+                "SendBill",
+                login,
+                params[0],
+                amount,
+                `You were billed ${amount} coppers by an admin. Do you want to pay this bill?`,
+            );
             bill.onIssued = async (bill) => {
                 const targetPlayer = await tmc.getPlayer(bill.loginFrom);
                 const player = await tmc.getPlayer(bill.issuerLogin);
@@ -78,17 +83,17 @@ export default class CoPlanets extends Plugin {
 
     async donate(login: string, params: string[]) {
         if (params.length < 1 || params.length > 1) {
-            tmc.chat('¤info¤Usage: ¤cmd¤/donate ¤white¤<amount>', login);
+            tmc.chat("¤info¤Usage: ¤cmd¤/donate ¤white¤<amount>", login);
             return;
         }
         if (Number.isNaN(Number.parseInt(params[0]))) {
-            tmc.chat('¤info¤Invalid amount specified', login);
+            tmc.chat("¤info¤Invalid amount specified", login);
             return;
         }
 
         const amount = Number.parseInt(params[0]);
         try {
-            const bill = tmc.billMgr.createTransaction('Donate', login, login, amount, `Donate ${amount} coppers to the server?`);
+            const bill = tmc.billMgr.createTransaction("Donate", login, login, amount, `Donate ${amount} coppers to the server?`);
             bill.onPayed = async (bill) => {
                 const player = await tmc.getPlayer(bill.loginFrom);
                 tmc.chat(`¤info¤${player.nickname}¤info¤ donated ¤white¤${bill.amount} ¤info¤ - thanks!`);
@@ -104,20 +109,20 @@ export default class CoPlanets extends Plugin {
 
     async pay(login: string, params: string[]) {
         if (params.length < 2 || params.length > 3) {
-            tmc.chat('¤info¤Usage: ¤cmd¤//pay ¤white¤<login> <amount> <optional:label>', login);
+            tmc.chat("¤info¤Usage: ¤cmd¤//pay ¤white¤<login> <amount> <optional:label>", login);
             return;
         }
 
         if (!params[0]) {
-            tmc.chat('¤info¤No login specified', login);
+            tmc.chat("¤info¤No login specified", login);
             return;
         }
         if (!params[1]) {
-            tmc.chat('¤info¤No amount specified', login);
+            tmc.chat("¤info¤No amount specified", login);
             return;
         }
         if (Number.isNaN(Number.parseInt(params[1]))) {
-            tmc.chat('¤info¤Invalid amount specified', login);
+            tmc.chat("¤info¤Invalid amount specified", login);
             return;
         }
         const amount = Number.parseInt(params[1]);
@@ -128,7 +133,7 @@ export default class CoPlanets extends Plugin {
 
     async confirmPay(login: string, to: string, amount: number, label: string) {
         try {
-            const bill = tmc.billMgr.createTransaction('Pay', login, to, amount, label);
+            const bill = tmc.billMgr.createTransaction("Pay", login, to, amount, label);
             bill.onPayed = async (bill) => {
                 const targetPlayer = await tmc.getPlayer(bill.loginFrom);
                 tmc.chat(`¤info¤${targetPlayer.nickname}¤info¤ was paid out ¤white¤${bill.amount}¤info¤ from the server¤info¤.`);

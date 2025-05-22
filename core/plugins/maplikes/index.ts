@@ -1,6 +1,6 @@
-import Plugin from '@core/plugins';
-import Likes from '@core/schemas/maplikes.model';
-import { QueryTypes, type Sequelize } from 'sequelize';
+import Plugin from "@core/plugins";
+import Likes from "@core/schemas/maplikes.model";
+import { QueryTypes, type Sequelize } from "sequelize";
 
 export interface Like {
     login: string;
@@ -9,15 +9,15 @@ export interface Like {
 }
 
 export default class MapLikes extends Plugin {
-    static depends: string[] = ['database'];
+    static depends: string[] = ["database"];
     votes: Like[] = [];
 
     async onLoad() {
-        tmc.storage['db'].addModels([Likes]);
+        tmc.storage["db"].addModels([Likes]);
         //tmc.addCommand('/++', this.onLike.bind(this), 'Like a map');
         //tmc.addCommand('/--', this.onDislike.bind(this), 'Dislike a map');
-        tmc.server.addListener('Trackmania.BeginMap', this.syncVotes, this);
-        tmc.server.addListener('Trackmania.PlayerChat', this.onPlayerChat, this);
+        tmc.server.addListener("Trackmania.BeginMap", this.syncVotes, this);
+        tmc.server.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
     }
 
     async onStart() {
@@ -25,10 +25,10 @@ export default class MapLikes extends Plugin {
     }
 
     async onUnload() {
-        tmc.removeCommand('/++');
-        tmc.removeCommand('/--');
-        tmc.server.removeListener('Trackmania.BeginMap', this.syncVotes);
-        tmc.server.removeListener('Trackmania.PlayerChat', this.onPlayerChat);
+        tmc.removeCommand("/++");
+        tmc.removeCommand("/--");
+        tmc.server.removeListener("Trackmania.BeginMap", this.syncVotes);
+        tmc.server.removeListener("Trackmania.PlayerChat", this.onPlayerChat);
         this.votes = [];
     }
 
@@ -37,12 +37,12 @@ export default class MapLikes extends Plugin {
         const votes = await Likes.findAll({ where: { mapUuid: tmc.maps.currentMap.UId } });
         this.votes = [];
         for (const vote of votes) {
-            this.votes.push({ login: vote.login || '', vote: vote.vote || 0, updatedAt: vote.updatedAt || '' });
+            this.votes.push({ login: vote.login || "", vote: vote.vote || 0, updatedAt: vote.updatedAt || "" });
         }
-        const sequelize: Sequelize = tmc.storage['db'];
+        const sequelize: Sequelize = tmc.storage["db"];
         const uids = tmc.maps.getUids();
         tmc.debug(`¤info¤Starting karma sync for $fff${uids.length} ¤info¤maps`);
-        console.time('karma sync');
+        console.time("karma sync");
         sequelize
             .query(
                 `SELECT *, (positive/(positive+abs(negative)+0.00001))*100 as total from (
@@ -55,19 +55,19 @@ export default class MapLikes extends Plugin {
                 {
                     type: QueryTypes.SELECT,
                     raw: true,
-                    replacements: [uids]
-                }
+                    replacements: [uids],
+                },
             )
             .then((result: any) => {
-                tmc.debug('¤info¤Sync complete.');
-                console.timeEnd('karma sync');
+                tmc.debug("¤info¤Sync complete.");
+                console.timeEnd("karma sync");
                 for (const info of result) {
                     const map = tmc.maps.getMap(info.Uid);
                     if (map) {
                         map.Karma = {
                             positive: info.positive,
                             negative: info.negative,
-                            total: info.total
+                            total: info.total,
                         };
                     }
                 }
@@ -76,20 +76,20 @@ export default class MapLikes extends Plugin {
                 tmc.cli(`¤error¤Error while syncing karma: ${err.message}`);
             });
 
-        tmc.server.emit('Plugin.MapLikes.onSync', this.votes);
+        tmc.server.emit("Plugin.MapLikes.onSync", this.votes);
     }
 
     async onPlayerChat(data: any) {
         if (data[0] === 0) return;
-        if (data[2].startsWith('/')) return;
+        if (data[2].startsWith("/")) return;
         const login = data[1];
         const text = data[2];
 
-        if (text === '++' || text === '+++') {
+        if (text === "++" || text === "+++") {
             await this.updateVote(login, 1);
         }
 
-        if (text === '--' || text === '---') {
+        if (text === "--" || text === "---") {
             await this.updateVote(login, -1);
         }
     }
@@ -107,14 +107,14 @@ export default class MapLikes extends Plugin {
         let mapLike = await Likes.findOne({
             where: {
                 mapUuid: tmc.maps.currentMap.UId,
-                login: login
-            }
+                login: login,
+            },
         });
         if (!mapLike) {
             mapLike = await Likes.create({
                 mapUuid: tmc.maps.currentMap.UId,
                 login: login,
-                vote: value
+                vote: value,
             });
         }
         await mapLike.update({ vote: value });

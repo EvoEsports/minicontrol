@@ -1,10 +1,10 @@
-import Widget from '@core/ui/widget';
-import Plugin from '@core/plugins';
-import tm from 'tm-essentials';
+import Widget from "@core/ui/widget";
+import Plugin from "@core/plugins";
+import tm from "tm-essentials";
 
 export default class TAlimitPlugin extends Plugin {
-    static depends: string[] = ['game:TmForever', 'tmnf'];
-    origTimeLimit: number = Number.parseInt(process.env.TALIMIT ?? '300');
+    static depends: string[] = ["game:TmForever", "tmnf"];
+    origTimeLimit: number = Number.parseInt(process.env.TALIMIT ?? "300");
     startTime: number = Date.now();
     timeLimit = 0;
     active = false;
@@ -14,10 +14,10 @@ export default class TAlimitPlugin extends Plugin {
 
     async onBeginRound() {
         this.startTime = Date.now();
-        const gamemode = await tmc.server.call('GetGameMode'); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
-        const warmup = await tmc.server.call('GetWarmUp');
+        const gamemode = await tmc.server.call("GetGameMode"); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
+        const warmup = await tmc.server.call("GetWarmUp");
         this.active = gamemode === 1 && !warmup;
-        this.timeLimit = tmc.storage['minicontrol.taTimeLimit'] ?? this.origTimeLimit;
+        this.timeLimit = tmc.storage["minicontrol.taTimeLimit"] ?? this.origTimeLimit;
     }
 
     async onEndRound() {
@@ -26,44 +26,44 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async onLoad() {
-        this.widget = new Widget('core/plugins/tmnf/talimit/widget.xml.twig');
+        this.widget = new Widget("core/plugins/tmnf/talimit/widget.xml.twig");
         this.widget.pos = { x: 128, y: 45, z: 1 };
         this.widget.size = { width: 38, height: 10 };
-        this.timeLimit = tmc.storage['minicontrol.taTimeLimit'] ?? this.origTimeLimit;
+        this.timeLimit = tmc.storage["minicontrol.taTimeLimit"] ?? this.origTimeLimit;
         this.startTime = Date.now();
-        tmc.server.addListener('Trackmania.BeginRound', this.onBeginRound, this);
-        tmc.server.addListener('Trackmania.EndRound', this.onEndRound, this);
-        const gamemode = await tmc.server.call('GetGameMode'); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
+        tmc.server.addListener("Trackmania.BeginRound", this.onBeginRound, this);
+        tmc.server.addListener("Trackmania.EndRound", this.onEndRound, this);
+        const gamemode = await tmc.server.call("GetGameMode"); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
         if (gamemode === 1) {
-            const limit = await tmc.server.call('GetTimeAttackLimit');
+            const limit = await tmc.server.call("GetTimeAttackLimit");
             if (limit.CurrentValue > 0) {
-                await tmc.server.send('SetTimeAttackLimit', 0);
-                tmc.chat('¤info¤TALimit: TimeAttackLimit was set, disabling it.');
-                tmc.server.send('NextMap');
+                await tmc.server.send("SetTimeAttackLimit", 0);
+                tmc.chat("¤info¤TALimit: TimeAttackLimit was set, disabling it.");
+                tmc.server.send("NextMap");
             }
             this.active = true;
         }
-        tmc.server.addOverride('SetTimeAttackLimit', this.overrideSetLimit.bind(this));
-        tmc.server.addOverride('GetTimeAttackLimit', this.overrideGetLimit.bind(this));
+        tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
+        tmc.server.addOverride("GetTimeAttackLimit", this.overrideGetLimit.bind(this));
         this.intervalId = setInterval(() => this.tick(), 1000);
     }
 
     async onStart() {
-        this.timeLimit = tmc.storage['minicontrol.taTimeLimit'] ?? this.origTimeLimit;
-     }
+        this.timeLimit = tmc.storage["minicontrol.taTimeLimit"] ?? this.origTimeLimit;
+    }
 
     async onUnload() {
         if (this.intervalId) {
             clearInterval(this.intervalId);
         }
-        tmc.server.removeOverride('SetTimeAttackLimit');
-        tmc.server.removeOverride('GetTimeAttackLimit');
-        tmc.server.removeListener('Trackmania.BeginRound', this.onBeginRound.bind(this));
-        tmc.server.removeListener('Trackmania.EndRound', this.onEndRound.bind(this));
+        tmc.server.removeOverride("SetTimeAttackLimit");
+        tmc.server.removeOverride("GetTimeAttackLimit");
+        tmc.server.removeListener("Trackmania.BeginRound", this.onBeginRound.bind(this));
+        tmc.server.removeListener("Trackmania.EndRound", this.onEndRound.bind(this));
         this.active = false;
         await this.hideWidget();
-        tmc.server.send('SetTimeAttackLimit', this.timeLimit * 1000);
-        tmc.chat('¤white¤ALimit: Native TimeLimit restored, skip map required to apply.');
+        tmc.server.send("SetTimeAttackLimit", this.timeLimit * 1000);
+        tmc.chat("¤white¤ALimit: Native TimeLimit restored, skip map required to apply.");
     }
 
     async tick() {
@@ -73,7 +73,7 @@ export default class TAlimitPlugin extends Plugin {
         const timeLeft = 3 + this.timeLimit - (Date.now() - this.startTime) / 1000;
         if (this.active && timeLeft <= 0) {
             this.active = false;
-            tmc.server.send('NextMap');
+            tmc.server.send("NextMap");
         } else if (this.active) {
             await this.showWidget();
         }
@@ -90,17 +90,17 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async showWidget() {
-        let color = 'fff';
+        let color = "fff";
         const timeLeft = 3 + this.timeLimit - (Date.now() - this.startTime) / 1000;
-        if (timeLeft < 60) color = 'ff0';
-        if (timeLeft < 30) color = 'f00';
+        if (timeLeft < 60) color = "ff0";
+        if (timeLeft < 30) color = "f00";
         const time = tm.Time.fromSeconds(timeLeft)
             .toTmString(true)
-            .replace(/\.\d\d/, '');
+            .replace(/\.\d\d/, "");
 
         if (this.widget) {
             this.widget.setData({
-                time: `$${color}$s${time}`
+                time: `$${color}$s${time}`,
             });
             await this.widget.display();
         }

@@ -1,8 +1,8 @@
-import { createEnvironment, createFilesystemLoader, type TwingTemplate } from 'twing';
-import * as fs from 'node:fs';
+import { createEnvironment, createFilesystemLoader, type TwingTemplate } from "twing";
+import * as fs from "node:fs";
 
 const loader = createFilesystemLoader(fs);
-const environment = createEnvironment(loader, { charset: 'utf-8', parserOptions: { level: 3 } });
+const environment = createEnvironment(loader, { charset: "utf-8", parserOptions: { level: 3 } });
 
 export interface MlSize {
     width: number;
@@ -19,11 +19,11 @@ export default class Manialink {
     id: string = tmc.ui.uuid();
     size: MlSize = { width: 160, height: 95 };
     pos: MlPos = { x: 0, y: 10, z: 1 };
-    template = 'core/templates/manialink.xml.twig';
+    template = "core/templates/manialink.xml.twig";
     actions: { [key: string]: string } = {};
     data: { [key: string]: any } = {};
     recipient: string | undefined = undefined;
-    title = '';
+    title = "";
     displayDuration = 0;
     private _firstDisplay = true;
     canHide = true;
@@ -78,7 +78,7 @@ export default class Manialink {
 
         if (!this._templateData) {
             try {
-                this._templateData = await environment.loadTemplate(`${process.cwd()}/${this.template}`, 'utf-8');
+                this._templateData = await environment.loadTemplate(`${process.cwd()}/${this.template}`, "utf-8");
                 return this._templateData.render(environment, obj);
             } catch (e: any) {
                 tmc.cli(`Manialink error: ¤error¤ ${e.message}`);
@@ -86,7 +86,7 @@ export default class Manialink {
             }
         } else {
             try {
-                return (await this._templateData?.render(environment, obj)) ?? '';
+                return (await this._templateData?.render(environment, obj)) ?? "";
             } catch (e: any) {
                 tmc.cli(`Manialink error: ¤error¤ ${e.message}`);
                 throw new Error(`Failed to render template: ${e.message}`);

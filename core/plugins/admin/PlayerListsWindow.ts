@@ -1,7 +1,6 @@
 import ListWindow from "@core/ui/listwindow";
 
 export default class PlayerListWindow extends ListWindow {
-
     async onAction(login: string, action: string, item: any) {
         if (action === "UnBan") {
             await tmc.chatCmd.execute(login, `//banlist remove ${item.Login}`);

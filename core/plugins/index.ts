@@ -1,4 +1,3 @@
-
 export default abstract class Plugin {
     /** "game:TmForever | game:ManiaPlanet | game:Trackmania or plugin name to depend" */
     static depends: string[] = [];

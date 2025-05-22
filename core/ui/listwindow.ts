@@ -1,5 +1,5 @@
-import { castType, removeColors } from '../utils.ts';
-import Window from './window';
+import { castType, removeColors } from "../utils.ts";
+import Window from "./window";
 
 /**
  * Columns is a map of column names to column widths
@@ -8,7 +8,7 @@ interface Column {
     title: string;
     key: string;
     width: number;
-    type?: 'entry';
+    type?: "entry";
     action?: string;
 }
 
@@ -22,9 +22,9 @@ interface PaginationResult<T> {
 
 export default class ListWindow extends Window {
     items: any = [];
-    template = 'core/templates/list.xml.twig';
+    template = "core/templates/list.xml.twig";
     pageSize = 15;
-    sortColumn = '';
+    sortColumn = "";
     private currentPage: number;
     private sortDirection = 1;
 
@@ -32,18 +32,18 @@ export default class ListWindow extends Window {
 
     constructor(login: string) {
         super(login);
-        this.actions.pg_start = tmc.ui.addAction(this.uiPaginate.bind(this), 'start');
-        this.actions.pg_prev = tmc.ui.addAction(this.uiPaginate.bind(this), 'prev');
-        this.actions.pg_next = tmc.ui.addAction(this.uiPaginate.bind(this), 'next');
-        this.actions.pg_end = tmc.ui.addAction(this.uiPaginate.bind(this), 'end');
+        this.actions.pg_start = tmc.ui.addAction(this.uiPaginate.bind(this), "start");
+        this.actions.pg_prev = tmc.ui.addAction(this.uiPaginate.bind(this), "prev");
+        this.actions.pg_next = tmc.ui.addAction(this.uiPaginate.bind(this), "next");
+        this.actions.pg_end = tmc.ui.addAction(this.uiPaginate.bind(this), "end");
         this.currentPage = 0;
     }
 
     parseEntries(entries: any): void {
         if (!entries || entries.length === 0) return; // no entries
         for (const entry of entries) {
-            const variable_name = entry.Name.split('_')[0];
-            const index = Number.parseInt(entry.Name.split('_')[1]) - 1;
+            const variable_name = entry.Name.split("_")[0];
+            const index = Number.parseInt(entry.Name.split("_")[1]) - 1;
             this.items[index][variable_name] = castType(entry.Value, this.items[index].type);
         }
     }
@@ -67,7 +67,7 @@ export default class ListWindow extends Window {
     }
 
     async hide(): Promise<void> {
-        this.template = '';
+        this.template = "";
         this.items = [];
         super.hide();
     }
@@ -94,7 +94,7 @@ export default class ListWindow extends Window {
             totalPages: Math.ceil(items.length / pageSize),
             pageSize,
             totalItems: items.length,
-            items: slicedItems
+            items: slicedItems,
         };
     }
 
@@ -105,25 +105,26 @@ export default class ListWindow extends Window {
             this.sortColumn = answer;
             this.sortDirection = 1;
         }
-        await this.uiPaginate(login, 'start', []);
+        await this.uiPaginate(login, "start", []);
     }
 
     async uiPaginate(login: string, answer: any, _entries: any): Promise<void> {
-        if (answer === 'start') {
+        if (answer === "start") {
             this.currentPage = 0;
-        } else if (answer === 'prev') {
+        } else if (answer === "prev") {
             this.currentPage -= 1;
-        } else if (answer === 'next') {
+        } else if (answer === "next") {
             this.currentPage += 1;
-        } else if (answer === 'end') {
+        } else if (answer === "end") {
             this.currentPage = Math.floor((this.items.length - 1) / this.pageSize);
         }
 
         if (this.currentPage < 0) this.currentPage = 0;
-        if (this.currentPage > Math.floor((this.items.length - 1) / this.pageSize)) this.currentPage = Math.floor((this.items.length - 1) / this.pageSize);
-        if (this.sortColumn !== '') {
+        if (this.currentPage > Math.floor((this.items.length - 1) / this.pageSize))
+            this.currentPage = Math.floor((this.items.length - 1) / this.pageSize);
+        if (this.sortColumn !== "") {
             this.items.sort((a: any, b: any) => {
-                if (removeColors(a[this.sortColumn]).localeCompare(removeColors(b[this.sortColumn]), 'en', { numeric: true }) > 0) {
+                if (removeColors(a[this.sortColumn]).localeCompare(removeColors(b[this.sortColumn]), "en", { numeric: true }) > 0) {
                     return this.sortDirection;
                 }
                 return -this.sortDirection;
@@ -139,7 +140,7 @@ export default class ListWindow extends Window {
         }
 
         for (const id in this.actions) {
-            if (id.startsWith('item_')) {
+            if (id.startsWith("item_")) {
                 tmc.ui.removeAction(this.actions[id]);
                 delete this.actions[id];
             }
@@ -167,12 +168,12 @@ export default class ListWindow extends Window {
     }
 
     async display() {
-        this.uiPaginate('', 'start', []);
+        this.uiPaginate("", "start", []);
     }
 
     addApplyButtons(): void {
-        this.actions.apply = tmc.ui.addAction(this.onApply.bind(this), '');
-        this.actions.cancel = tmc.ui.addAction(this.hide.bind(this), '');
+        this.actions.apply = tmc.ui.addAction(this.onApply.bind(this), "");
+        this.actions.cancel = tmc.ui.addAction(this.hide.bind(this), "");
     }
 
     uiAction(login: string, answer: any, entries: any[]): void {

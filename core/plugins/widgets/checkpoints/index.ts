@@ -2,9 +2,8 @@ import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
 
-
 export default class Checkpoints extends Plugin {
-    static depends = ['widgets'];
+    static depends = ["widgets"];
     checkpointCounter: { [key: string]: number } = {};
     widgets: { [key: string]: Widget } = {};
 
@@ -49,7 +48,6 @@ export default class Checkpoints extends Plugin {
         }
     }
 
-
     async onPlayerDisconnect(player: Player) {
         const login = player.login;
         if (this.widgets[login]) {
@@ -78,7 +76,7 @@ export default class Checkpoints extends Plugin {
     }
 
     async onPlayerCheckpoint(data: any) {
-        this.checkpointCounter[data[0]] = Number.parseInt(data[2])+1;
+        this.checkpointCounter[data[0]] = Number.parseInt(data[2]) + 1;
         if (this.checkpointCounter[data[0]] < (tmc.maps.currentMap?.NbCheckpoints || 0)) {
             await this.displayWidget(data[0]);
         }

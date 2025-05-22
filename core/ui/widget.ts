@@ -1,5 +1,4 @@
-import Manialink, { type MlSize } from './manialink';
-
+import Manialink, { type MlSize } from "./manialink";
 
 export default class Widget extends Manialink {
     size: MlSize = { width: 32, height: 50 };

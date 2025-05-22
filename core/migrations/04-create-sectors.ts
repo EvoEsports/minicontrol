@@ -1,37 +1,37 @@
-import { DataTypes } from 'sequelize';
-import type { Migration } from '../../migrate';
+import { DataTypes } from "sequelize";
+import type { Migration } from "../../migrate";
 
 export const up: Migration = async ({ context: sequelize }) => {
     const queryInterface = sequelize.getQueryInterface();
 
-    await queryInterface.createTable('sectors', {
+    await queryInterface.createTable("sectors", {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
-            primaryKey: true
+            primaryKey: true,
         },
         mapUuid: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
         login: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
         jsonData: {
             type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: '[]'
+            defaultValue: "[]",
         },
         updatedAt: {
-            type: DataTypes.DATE
+            type: DataTypes.DATE,
         },
         createdAt: {
-            type: DataTypes.DATE
-        }
+            type: DataTypes.DATE,
+        },
     });
 };
 
 export const down: Migration = async ({ context: sequelize }) => {
-    await sequelize.getQueryInterface().dropTable('sectors');
+    await sequelize.getQueryInterface().dropTable("sectors");
 };

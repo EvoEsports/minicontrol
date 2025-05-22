@@ -1,8 +1,8 @@
-import type { Player } from '@core/playermanager';
-import Api from './api';
-import { clone, htmlEntities, formatTime } from '@core/utils';
-import ListWindow from '@core/ui/listwindow';
-import Plugin from '@core/plugins';
+import type { Player } from "@core/playermanager";
+import Api from "./api";
+import { clone, htmlEntities, formatTime } from "@core/utils";
+import ListWindow from "@core/ui/listwindow";
+import Plugin from "@core/plugins";
 
 export interface DediRecord {
     Game?: string;
@@ -16,58 +16,58 @@ export interface DediRecord {
 }
 
 export default class Dedimania extends Plugin {
-    static depends: string[] = ['game:TmForever', 'tmnf'];
+    static depends: string[] = ["game:TmForever", "tmnf"];
     enabled = true;
     authError = false;
 
     maxRank = 30;
     api: Api = new Api();
-    serverLogin = '';
+    serverLogin = "";
     server: any = {};
     serverInfo: any = {};
     records: DediRecord[] = [];
     intervalId: NodeJS.Timeout | undefined = undefined;
-    pass: string = process.env.DEDIMANIA_PASS || '';
+    pass: string = process.env.DEDIMANIA_PASS || "";
 
     async onLoad() {
-        tmc.cli('¤info¤Dedimania: TmForever detected, enabling plugin.');
-        tmc.addCommand('/dedirecords', this.cmdDediRecords.bind(this), 'Show dedimania records');
-        tmc.server.addListener('TMC.PlayerFinish', this.onPlayerFinish, this);
-        tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
-        tmc.server.addListener('Trackmania.EndMap', this.onEndMap, this);
+        tmc.cli("¤info¤Dedimania: TmForever detected, enabling plugin.");
+        tmc.addCommand("/dedirecords", this.cmdDediRecords.bind(this), "Show dedimania records");
+        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
+        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
 
-        this.serverInfo = await tmc.server.call('GetMainServerPlayerInfo');
+        this.serverInfo = await tmc.server.call("GetMainServerPlayerInfo");
         this.serverLogin = this.serverInfo.Login;
 
-        if (this.pass === '') {
+        if (this.pass === "") {
             this.enabled = false;
-            tmc.cli('¤error¤Dedimania: No password set, plugin disabled.');
+            tmc.cli("¤error¤Dedimania: No password set, plugin disabled.");
             return;
         }
     }
 
     async onUnload() {
         clearInterval(this.intervalId);
-        tmc.removeCommand('/dedirecords');
-        tmc.server.removeListener('Trackmania.BeginMap', this.onBeginMap.bind(this));
-        tmc.server.removeListener('Trackmania.EndMap', this.onEndMap.bind(this));
-        tmc.server.removeListener('TMC.PlayerFinish', this.onPlayerFinish);
+        tmc.removeCommand("/dedirecords");
+        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
+        tmc.server.removeListener("Trackmania.EndMap", this.onEndMap.bind(this));
+        tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish);
     }
 
     async onStart() {
-        const menu = tmc.storage['menu'];
+        const menu = tmc.storage["menu"];
         if (menu) {
             menu.addItem({
-                category: 'Records',
-                title: 'Dedimania Records',
-                action: '/dedirecords'
+                category: "Records",
+                title: "Dedimania Records",
+                action: "/dedirecords",
             });
         }
 
         this.authenticate()
             .then((res) => {
                 if (res) {
-                    tmc.cli('¤info¤Dedimania: Authenticated.');
+                    tmc.cli("¤info¤Dedimania: Authenticated.");
                     this.intervalId = setInterval(async () => {
                         try {
                             await this.updatePlayers();
@@ -77,7 +77,7 @@ export default class Dedimania extends Plugin {
                     }, 180 * 1000);
                     this.updatePlayers().then(async () => await this.getRecords(tmc.maps.currentMap));
                 } else {
-                    tmc.cli('¤error¤Dedimania: Failed to authenticate.');
+                    tmc.cli("¤error¤Dedimania: Failed to authenticate.");
                 }
             })
             .catch((e) => {
@@ -91,7 +91,7 @@ export default class Dedimania extends Plugin {
             records.push({
                 rank: record.Rank,
                 nickname: htmlEntities(record.NickName),
-                time: `$o${formatTime(record.Best)}`
+                time: `$o${formatTime(record.Best)}`,
             });
         }
         const window = new ListWindow(login);
@@ -99,9 +99,9 @@ export default class Dedimania extends Plugin {
         window.title = `Dedimania Records [${this.records.length}]`;
         window.setItems(records);
         window.setColumns([
-            { key: 'rank', title: 'Rank', width: 10 },
-            { key: 'nickname', title: 'Nickname', width: 50 },
-            { key: 'time', title: 'Time', width: 20 }
+            { key: "rank", title: "Rank", width: 10 },
+            { key: "nickname", title: "Nickname", width: 50 },
+            { key: "time", title: "Time", width: 20 },
         ]);
         window.display();
     }
@@ -111,39 +111,39 @@ export default class Dedimania extends Plugin {
      */
     async updatePlayers() {
         if (!this.enabled) return;
-        const serverGameMode = await tmc.server.call('GetGameMode');
-        const serverInfo = await tmc.server.call('GetServerOptions', 0);
+        const serverGameMode = await tmc.server.call("GetGameMode");
+        const serverInfo = await tmc.server.call("GetServerOptions", 0);
         try {
             if (this.authError) {
-                tmc.cli('¤info¤Dedimania: Re-authenticating.');
+                tmc.cli("¤info¤Dedimania: Re-authenticating.");
                 const answer = await this.authenticate();
                 if (!answer) {
-                    tmc.cli('¤error¤Dedimania: Failed to authenticate.');
+                    tmc.cli("¤error¤Dedimania: Failed to authenticate.");
                     return;
                 }
             }
 
             await this.api.call(
-                'dedimania.UpdateServerPlayers',
-                'TMF',
+                "dedimania.UpdateServerPlayers",
+                "TMF",
                 serverGameMode,
                 {
                     SrvName: serverInfo.Name,
                     Comment: serverInfo.Comment,
-                    Private: serverInfo.Password !== '',
-                    SrvIP: '127.0.0.1',
-                    SrvPort: '2350',
-                    XmlRpcPort: '5000',
+                    Private: serverInfo.Password !== "",
+                    SrvIP: "127.0.0.1",
+                    SrvPort: "2350",
+                    XmlRpcPort: "5000",
                     NumPlayers: tmc.players.getAll().filter((pl: Player) => !pl.isSpectator).length,
                     MaxPlayers: serverInfo.CurrentMaxPlayers,
                     NumSpectators: tmc.players.getAll().filter((pl: Player) => pl.isSpectator).length,
                     MaxSpectators: serverInfo.CurrentMaxSpectators,
                     LadderMode: serverInfo.LadderMode,
-                    NextFiveUID: ''
+                    NextFiveUID: "",
                 },
-                this.getDedimaniaPlayers()
+                this.getDedimaniaPlayers(),
             );
-            tmc.debug('¤info¤Dedimania: Updated players.');
+            tmc.debug("¤info¤Dedimania: Updated players.");
         } catch (e: any) {
             tmc.cli(`¤error¤Dedimania: ${e.message}`);
             this.authError = true;
@@ -155,21 +155,21 @@ export default class Dedimania extends Plugin {
      * @returns
      */
     async authenticate(): Promise<boolean> {
-        this.server = await tmc.server.call('GetDetailedPlayerInfo', this.serverInfo.Login);
+        this.server = await tmc.server.call("GetDetailedPlayerInfo", this.serverInfo.Login);
         try {
-            const res: any = await this.api.call('dedimania.Authenticate', {
-                Game: 'TMF',
+            const res: any = await this.api.call("dedimania.Authenticate", {
+                Game: "TMF",
                 Login: this.serverLogin,
                 Password: this.pass.toString(),
-                Tool: 'MINIcontrol',
+                Tool: "MINIcontrol",
                 Version: tmc.version,
                 Nation: this.server.Path,
                 Packmask: tmc.server.packmask,
-                PlayersGame: true
+                PlayersGame: true,
             });
-            const res2 = await this.api.call('dedimania.ValidateAccount');
+            const res2 = await this.api.call("dedimania.ValidateAccount");
             if (res2?.Status) {
-                tmc.cli('¤info¤Dedimania: Account validated.');
+                tmc.cli("¤info¤Dedimania: Account validated.");
             }
             if (res) {
                 this.enabled = true;
@@ -197,13 +197,13 @@ export default class Dedimania extends Plugin {
                 Best: time,
                 Rank: 1,
                 Checks: [],
-                Vote: 0
+                Vote: 0,
             };
             this.records.push(record);
-            tmc.server.emit('Plugin.Dedimania.onNewRecord', {
+            tmc.server.emit("Plugin.Dedimania.onNewRecord", {
                 oldRecord: null,
                 record: clone(record || {}),
-                records: clone(this.records)
+                records: clone(this.records),
             });
             return;
         }
@@ -227,7 +227,7 @@ export default class Dedimania extends Plugin {
                 Best: time,
                 Rank: 0,
                 Checks: [],
-                Vote: 0
+                Vote: 0,
             };
             this.records.push(newRecord);
         }
@@ -247,52 +247,52 @@ export default class Dedimania extends Plugin {
             }
         }
 
-        tmc.server.emit('Plugin.Dedimania.onNewRecord', {
+        tmc.server.emit("Plugin.Dedimania.onNewRecord", {
             oldRecord: clone(oldRecord),
             record: clone(newRecord),
-            records: clone(this.records)
+            records: clone(this.records),
         });
     }
 
     async onEndMap(data: any) {
         if (!this.enabled) return;
-        const serverGameMode = await tmc.server.call('GetGameMode');
+        const serverGameMode = await tmc.server.call("GetGameMode");
         const scores: any = data[0];
         const map: any = data[1];
         try {
             await this.api.call(
-                'dedimania.ChallengeRaceTimes',
+                "dedimania.ChallengeRaceTimes",
                 map.UId,
                 map.Name,
                 map.Environnement,
                 map.Author,
-                'TMF',
+                "TMF",
                 serverGameMode,
                 map.NbCheckpoints,
                 this.maxRank,
-                this.getDedimaniaScores(scores)
+                this.getDedimaniaScores(scores),
             );
-            tmc.debug('¤info¤Dedimania: Sent scores.');
+            tmc.debug("¤info¤Dedimania: Sent scores.");
         } catch (e: any) {
             tmc.cli(`¤error¤Dedimania: ${e.message}`);
             this.authError = true;
             try {
-                tmc.cli('¤info¤Dedimania: Error occurred, re-authenticating and retrying...');
+                tmc.cli("¤info¤Dedimania: Error occurred, re-authenticating and retrying...");
                 const authRes = await this.authenticate();
                 if (authRes) {
                     await this.api.call(
-                        'dedimania.ChallengeRaceTimes',
+                        "dedimania.ChallengeRaceTimes",
                         map.UId,
                         map.Name,
                         map.Environnement,
                         map.Author,
-                        'TMF',
+                        "TMF",
                         serverGameMode,
                         map.NbCheckpoints,
                         this.maxRank,
-                        this.getDedimaniaScores(scores)
+                        this.getDedimaniaScores(scores),
                     );
-                    tmc.cli('¤info¤Dedimania: Scores sent after retry.');
+                    tmc.cli("¤info¤Dedimania: Scores sent after retry.");
                     return;
                 }
             } catch (retryError: any) {
@@ -308,7 +308,7 @@ export default class Dedimania extends Plugin {
             out.push({
                 Login: score.Login,
                 Best: score.BestTime,
-                Checks: score.BestCheckpoints.join(',')
+                Checks: score.BestCheckpoints.join(","),
             });
         }
         return out;
@@ -318,42 +318,42 @@ export default class Dedimania extends Plugin {
         if (!this.enabled) return;
         if (!map) return;
         // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
-        const serverGameMode = await tmc.server.call('GetGameMode');
+        const serverGameMode = await tmc.server.call("GetGameMode");
         const serverInfo = tmc.server.serverOptions;
 
         try {
             const res: any = await this.api.call(
-                'dedimania.CurrentChallenge',
+                "dedimania.CurrentChallenge",
                 map.UId,
                 map.Name,
                 map.Environnement,
                 map.Author,
-                'TMF',
+                "TMF",
                 serverGameMode,
                 {
                     SrvName: serverInfo.Name,
                     Comment: serverInfo.Comment,
-                    Private: serverInfo.Password !== '',
-                    SrvIP: '127.0.0.1',
-                    SrvPort: '2350',
-                    XmlRpcPort: '5000',
+                    Private: serverInfo.Password !== "",
+                    SrvIP: "127.0.0.1",
+                    SrvPort: "2350",
+                    XmlRpcPort: "5000",
                     NumPlayers: tmc.players.getAll().filter((pl: Player) => !pl.isSpectator).length,
                     MaxPlayers: serverInfo.CurrentMaxPlayers,
                     NumSpectators: tmc.players.getAll().filter((pl: Player) => pl.isSpectator).length,
                     MaxSpectators: serverInfo.CurrentMaxSpectators,
                     LadderMode: serverInfo.LadderMode,
-                    NextFiveUID: ''
+                    NextFiveUID: "",
                 },
                 this.maxRank,
-                this.getDedimaniaPlayers()
+                this.getDedimaniaPlayers(),
             );
             this.records = res?.Records ?? [];
-            tmc.debug('Dedimania: Got records.');
-            tmc.server.emit('Plugin.Dedimania.onSync', clone(this.records));
+            tmc.debug("Dedimania: Got records.");
+            tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
         } catch (e: any) {
             this.records = [];
             this.authError = true;
-            tmc.server.emit('Plugin.Dedimania.onSync', clone(this.records));
+            tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
             tmc.cli(`¤error¤Dedimania: ${e.message}`);
         }
     }
@@ -368,7 +368,7 @@ export default class Dedimania extends Plugin {
                 TeamId: -1,
                 IsSpec: player.isSpectator,
                 Ranking: player.ladderRank,
-                isOff: false
+                isOff: false,
             });
         }
         return out;

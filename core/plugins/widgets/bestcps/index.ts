@@ -1,8 +1,8 @@
-import Plugin from '@core/plugins';
-import ListWindow from '@core/ui/listwindow';
-import Widget from '@core/ui/widget';
-import { formatTime, htmlEntities } from '@core/utils';
-import Menu from '@core/plugins/menu/menu';
+import Plugin from "@core/plugins";
+import ListWindow from "@core/ui/listwindow";
+import Widget from "@core/ui/widget";
+import { formatTime, htmlEntities } from "@core/utils";
+import Menu from "@core/plugins/menu/menu";
 
 interface Time {
     nickname: string;
@@ -11,19 +11,19 @@ interface Time {
 }
 
 export default class BestCps extends Plugin {
-    static depends = ['widgets'];
+    static depends = ["widgets"];
 
-    id = '';
+    id = "";
     bestTimes: Time[] = [];
     nbCheckpoints = -1;
     maxCp = 16;
     widget: Widget | null = null;
 
     async onLoad() {
-        tmc.server.addListener('Trackmania.BeginMap', this.beginMap, this);
-        tmc.server.addListener('TMC.PlayerCheckpoint', this.checkpoint, this);
-        tmc.chatCmd.addCommand('/checkpoints', this.cmdCheckpoints.bind(this), 'Display best Checkpoints');
-        this.widget = new Widget('core/plugins/widgets/bestcps/widget.xml.twig');
+        tmc.server.addListener("Trackmania.BeginMap", this.beginMap, this);
+        tmc.server.addListener("TMC.PlayerCheckpoint", this.checkpoint, this);
+        tmc.chatCmd.addCommand("/checkpoints", this.cmdCheckpoints.bind(this), "Display best Checkpoints");
+        this.widget = new Widget("core/plugins/widgets/bestcps/widget.xml.twig");
         this.widget.pos = { x: -160, z: 0, y: 90 };
         this.widget.size = { width: 240, height: 20 };
         const info = tmc.maps.currentMap;
@@ -32,9 +32,9 @@ export default class BestCps extends Plugin {
     }
 
     async onUnload() {
-        tmc.server.removeListener('Trackmania.BeginMap', this.beginMap.bind(this));
-        tmc.server.removeListener('TMC.PlayerCheckpoint', this.checkpoint.bind(this));
-        tmc.chatCmd.removeCommand('/checkpoints');
+        tmc.server.removeListener("Trackmania.BeginMap", this.beginMap.bind(this));
+        tmc.server.removeListener("TMC.PlayerCheckpoint", this.checkpoint.bind(this));
+        tmc.chatCmd.removeCommand("/checkpoints");
 
         this.widget?.destroy();
         this.widget = null;
@@ -43,9 +43,9 @@ export default class BestCps extends Plugin {
     async onStart() {
         const menu = Menu.getInstance();
         menu.addItem({
-            category: 'Records',
-            title: 'Live Checkpoints',
-            action: '/checkpoints'
+            category: "Records",
+            title: "Live Checkpoints",
+            action: "/checkpoints",
         });
     }
 
@@ -68,14 +68,14 @@ export default class BestCps extends Plugin {
     async display() {
         this.widget?.setData({
             maxCps: this.maxCp,
-            checkpoints: this.bestTimes
+            checkpoints: this.bestTimes,
         });
         this.widget?.display();
     }
 
     async cmdCheckpoints(login: string, args: string[]) {
         if (this.bestTimes.length === 0) {
-            tmc.chat('¤error¤No Checkpoints found!', login);
+            tmc.chat("¤error¤No Checkpoints found!", login);
             return;
         }
         const checkpoints: any = [];
@@ -84,7 +84,7 @@ export default class BestCps extends Plugin {
             checkpoints.push({
                 checkpoint: checkpointNumber,
                 nickname: checkpoint.nickname,
-                time: checkpoint.prettyTime
+                time: checkpoint.prettyTime,
             });
             checkpointNumber++;
         }
@@ -93,9 +93,9 @@ export default class BestCps extends Plugin {
         window.title = `Best Checkpoints [${this.bestTimes.length}]`;
         window.setItems(checkpoints);
         window.setColumns([
-            { key: 'checkpoint', title: 'Checkpoint', width: 20 },
-            { key: 'nickname', title: 'Nickname', width: 50 },
-            { key: 'time', title: 'Time', width: 20 }
+            { key: "checkpoint", title: "Checkpoint", width: 20 },
+            { key: "nickname", title: "Nickname", width: 50 },
+            { key: "time", title: "Time", width: 20 },
         ]);
 
         window.display();

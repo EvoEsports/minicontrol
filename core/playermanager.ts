@@ -1,4 +1,4 @@
-import { clone } from './utils';
+import { clone } from "./utils";
 
 interface PlayerRanking {
     Path: string;
@@ -24,14 +24,14 @@ interface LadderStats {
  * Player class
  */
 export class Player {
-    login = '';
-    nickname = '';
+    login = "";
+    nickname = "";
     playerId = -1;
     teamId = -1;
-    path = '';
-    language = 'en';
-    clientVersion = '';
-    iPAddress = '';
+    path = "";
+    language = "en";
+    clientVersion = "";
+    iPAddress = "";
     downloadRate = -1;
     uploadRate = -1;
     isSpectator = false;
@@ -49,11 +49,11 @@ export class Player {
     syncFromDetailedPlayerInfo(data: any) {
         for (const key in data) {
             let k = key[0].toLowerCase() + key.slice(1);
-            if (k === 'nickName') {
-                k = 'nickname';
-                data[key] = data[key].replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, '$1').replaceAll(/[$][lh]/gi, '');
+            if (k === "nickName") {
+                k = "nickname";
+                data[key] = data[key].replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "");
             }
-            if (k === 'flags') {
+            if (k === "flags") {
                 this.spectatorTarget = Math.floor(data.SpecatorStatus / 10000);
             }
             this[k] = data[key];
@@ -84,8 +84,8 @@ export default class PlayerManager {
      * @ignore
      */
     async init(): Promise<void> {
-        tmc.server.addListener('Trackmania.PlayerInfoChanged', this.onPlayerInfoChanged, this);
-        const players = await tmc.server.call('GetPlayerList', -1, 0);
+        tmc.server.addListener("Trackmania.PlayerInfoChanged", this.onPlayerInfoChanged, this);
+        const players = await tmc.server.call("GetPlayerList", -1, 0);
         for (const data of players) {
             if (data.PlayerId === 0) continue;
             await this.getPlayer(data.Login);
@@ -97,8 +97,8 @@ export default class PlayerManager {
      * @ignore
      */
     afterInit() {
-        tmc.server.addListener('Trackmania.PlayerConnect', this.onPlayerConnect, this);
-        tmc.server.addListener('Trackmania.PlayerDisconnect', this.onPlayerDisconnect, this);
+        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
     }
 
     /**
@@ -109,13 +109,13 @@ export default class PlayerManager {
         if (login) {
             if (this.players[login]) {
                 tmc.cli(`$888Player ${login} already connected, kicking player due a bug to allow them joining again.`);
-                tmc.server.send('Kick', login, 'You are already connected, please rejoin.');
+                tmc.server.send("Kick", login, "You are already connected, please rejoin.");
                 return;
             }
             const player = await this.getPlayer(login);
-            tmc.server.emit('TMC.PlayerConnect', player);
+            tmc.server.emit("TMC.PlayerConnect", player);
         } else {
-            tmc.debug('¤error¤Unknown player tried to connect, ignored.');
+            tmc.debug("¤error¤Unknown player tried to connect, ignored.");
         }
     }
 
@@ -127,7 +127,7 @@ export default class PlayerManager {
     private async onPlayerDisconnect(data: any) {
         const login = data[0].toString();
         if (login && this.players[login]) {
-            tmc.server.emit('TMC.PlayerDisconnect', clone(this.players[login]));
+            tmc.server.emit("TMC.PlayerDisconnect", clone(this.players[login]));
             delete this.players[login];
         } else {
             tmc.debug(`¤Error¤Unknown player ($fff${login}¤error¤) tried to disconnect or player not found at server. ignored.`);
@@ -165,14 +165,14 @@ export default class PlayerManager {
      */
     async getPlayer(login: string): Promise<Player> {
         if (login === tmc.server.login) {
-            tmc.cli('¤error¤Tried to fetch server login as a player.');
+            tmc.cli("¤error¤Tried to fetch server login as a player.");
             return new Player();
         }
         if (this.players[login]) return this.players[login];
 
         try {
             tmc.debug(`$888Player "${login}" not found, fetching from server.`);
-            const data = await tmc.server.call('GetDetailedPlayerInfo', login);
+            const data = await tmc.server.call("GetDetailedPlayerInfo", login);
             const player = new Player();
             player.syncFromDetailedPlayerInfo(data);
             this.players[login] = player;

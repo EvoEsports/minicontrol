@@ -1,11 +1,11 @@
-import { Buffer } from 'node:buffer';
-import { Socket } from 'node:net';
-import type Server from '../../core/server';
-import { Readable } from 'node:stream';
+import { Buffer } from "node:buffer";
+import { Socket } from "node:net";
+import type Server from "../../core/server";
+import { Readable } from "node:stream";
 /** @ts-ignore */
-import Serializer from 'xmlrpc/lib/serializer';
+import Serializer from "xmlrpc/lib/serializer";
 /** @ts-ignore */
-import Deserializer from 'xmlrpc/lib/deserializer';
+import Deserializer from "xmlrpc/lib/deserializer";
 
 export class GbxClient {
     isConnected: boolean;
@@ -23,7 +23,7 @@ export class GbxClient {
     };
     timeoutHandler: any;
     promiseCallbacks: { [key: string]: { resolve: CallableFunction; reject: CallableFunction } } = {};
-    game = 'Trackmania';
+    game = "Trackmania";
     counters = {
         methodsSend: 0,
         methodsReceive: 0,
@@ -33,7 +33,7 @@ export class GbxClient {
         receiveKbsec: 0,
         receiverKbSecLast: 0,
     };
-    private useCounters = process.env.DEBUG_GBX_COUNTERS === 'true';
+    private useCounters = process.env.DEBUG_GBX_COUNTERS === "true";
     private counterInterval = 5;
 
     /**
@@ -65,7 +65,7 @@ export class GbxClient {
                     c.receiveKbsec = 0;
                 }
 
-                this.server.onCallback('GbxClient.Counters', {
+                this.server.onCallback("GbxClient.Counters", {
                     methodsSend: c.methodsSend,
                     methodsReceive: c.methodsReceive,
                     callbackReceived: c.callbackReceived,
@@ -93,7 +93,7 @@ export class GbxClient {
      * @memberof GbxClient
      */
     async connect(host?: string, port?: number): Promise<boolean> {
-        const normalizedHost = host || '127.0.0.1';
+        const normalizedHost = host || "127.0.0.1";
         const normalizedPort = port || 5000;
         const socket = new Socket();
 
@@ -111,38 +111,38 @@ export class GbxClient {
                 noDelay: true,
             },
             () => {
-                socket.on('connect', () => {
+                socket.on("connect", () => {
                     if (this.timeoutHandler) {
                         clearTimeout(this.timeoutHandler);
                         this.timeoutHandler = null;
                     }
                 });
-                socket.on('end', () => {
+                socket.on("end", () => {
                     this.isConnected = false;
-                    this.server.onDisconnect('end');
+                    this.server.onDisconnect("end");
                 });
-                socket.on('error', (error: any) => {
+                socket.on("error", (error: any) => {
                     this.isConnected = false;
                     this.server.onDisconnect(error.message);
                 });
-                socket.on('data', async (data: Buffer) => {
+                socket.on("data", async (data: Buffer) => {
                     if (this.timeoutHandler) {
                         clearTimeout(this.timeoutHandler);
                         this.timeoutHandler = null;
                     }
                     this.handleData(data);
                 });
-                socket.on('timeout', () => {
-                    tmc.cli('¤error¤XMLRPC Connection timeout');
+                socket.on("timeout", () => {
+                    tmc.cli("¤error¤XMLRPC Connection timeout");
                     process.exit(1);
                 });
             },
         );
 
         this.timeoutHandler = setTimeout(() => {
-            tmc.cli('¤error¤[ERROR] Attempt at connection exceeded timeout value.');
+            tmc.cli("¤error¤[ERROR] Attempt at connection exceeded timeout value.");
             socket.end();
-            this.promiseCallbacks.onConnect?.reject(new Error('Connection timeout'));
+            this.promiseCallbacks.onConnect?.reject(new Error("Connection timeout"));
             // biome-ignore lint/performance/noDelete: <explanation>
             delete this.promiseCallbacks.onConnect;
         }, timeout);
@@ -183,8 +183,8 @@ export class GbxClient {
 
                 // Processing handshake response.
                 if (!this.isConnected) {
-                    const msgStr = message.toString('utf-8');
-                    if (msgStr === 'GBXRemote 2') {
+                    const msgStr = message.toString("utf-8");
+                    if (msgStr === "GBXRemote 2") {
                         this.isConnected = true;
                         const handshakeCb = this.promiseCallbacks.onConnect;
                         handshakeCb?.resolve(true);
@@ -198,7 +198,7 @@ export class GbxClient {
                     }
                 } else {
                     // Processing regular messages.
-                    const deserializer = new Deserializer('utf-8');
+                    const deserializer = new Deserializer("utf-8");
 
                     // The first 4 bytes in the message represent the request handle.
                     const requestHandle = message.readUInt32LE(0);
@@ -293,7 +293,7 @@ export class GbxClient {
         if (!this.isConnected) {
             return undefined;
         }
-        return await this.call('TriggerModeScriptEventArray', method, params);
+        return await this.call("TriggerModeScriptEventArray", method, params);
     }
 
     /**
@@ -308,11 +308,11 @@ export class GbxClient {
         if (!this.isConnected) {
             return undefined;
         }
-        return await this.send('TriggerModeScriptEventArray', method, params);
+        return await this.send("TriggerModeScriptEventArray", method, params);
     }
 
     private serializeMulticall(methods: Array<any>) {
-        return Serializer.serializeMethodCall('system.multicall', [
+        return Serializer.serializeMethodCall("system.multicall", [
             methods.map((method) => ({
                 methodName: method[0],
                 params: method.slice(1),
@@ -392,11 +392,11 @@ export class GbxClient {
         const handle = this.reqHandle;
 
         // Allocate buffer and write header and XML payload
-        const len = Buffer.byteLength(xml, 'utf-8');
+        const len = Buffer.byteLength(xml, "utf-8");
         const buf = Buffer.alloc(HEADER_LENGTH + len);
         buf.writeInt32LE(len, 0); // write length at offset 0
         buf.writeUInt32LE(handle, 4); // write request handle at offset 4
-        buf.write(xml, HEADER_LENGTH, 'utf-8'); // write xml starting at offset 8
+        buf.write(xml, HEADER_LENGTH, "utf-8"); // write xml starting at offset 8
         if (this.useCounters) this.counters.sendKbsec += (len + HEADER_LENGTH) / 1024;
 
         // Write buffer to the socket
@@ -406,7 +406,7 @@ export class GbxClient {
                     if (err) reject(err);
                 })
             ) {
-                this.socket?.once('drain', resolve);
+                this.socket?.once("drain", resolve);
             } else {
                 process.nextTick(resolve);
             }
@@ -450,7 +450,7 @@ export class GbxClient {
     async disconnect(): Promise<true> {
         this.socket?.destroy();
         this.isConnected = false;
-        this.server.onDisconnect('disconnect');
+        this.server.onDisconnect("disconnect");
         return true;
     }
 }

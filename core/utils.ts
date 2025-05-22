@@ -1,6 +1,6 @@
-import tm from 'tm-essentials';
-import fs from 'node:fs';
-import log from '@core/log';
+import tm from "tm-essentials";
+import fs from "node:fs";
+import log from "@core/log";
 
 export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -12,14 +12,14 @@ export function randomInt(min: number, max: number) {
 
 export function uuidv4(): string {
     // Generates a RFC4122 version 4 UUID
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-        const r = Math.random() * 16 | 0;
-        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
         return v.toString(16);
     });
 }
 
-export function processColorString(str: string, prefix = ''): string {
+export function processColorString(str: string, prefix = ""): string {
     let result = str;
     const matches = str.matchAll(/¤(\w+)¤/g);
     for (const match of matches) {
@@ -40,7 +40,7 @@ export function modLightness(color: string, percent: number) {
 
     if (color.length === 3) {
         const c = (str: string) => (Number.parseInt(str, 16) * 17) / 255;
-        const [r, g, b] = color.split('');
+        const [r, g, b] = color.split("");
         [h, s, l] = rgb2hsl(c(r), c(g), c(b));
     } else {
         const [r, g, b] = color.matchAll(/[0-9a-f]{2}/gi);
@@ -49,7 +49,7 @@ export function modLightness(color: string, percent: number) {
     let newL = l + percent / 100;
     if (newL > 1) newL = 1;
     if (newL < 0) newL = 0;
-    return hsl2rgb(h, s, newL).join('');
+    return hsl2rgb(h, s, newL).join("");
 }
 
 export function hsl2rgb(h: number, s: number, l: number) {
@@ -67,10 +67,10 @@ export function rgb2hsl(r: number, g: number, b: number) {
     return [60 * (h < 0 ? h + 6 : h), f ? c / f : 0, (v + v - c) / 2];
 }
 export function getCountryFromPath(path: string) {
-    if (!path) return 'World';
-    if (path.indexOf('World|') === -1) return path;
-    const pathSplit = path.split('|');
-    if (tmc.game.Name === 'TmForever') {
+    if (!path) return "World";
+    if (path.indexOf("World|") === -1) return path;
+    const pathSplit = path.split("|");
+    if (tmc.game.Name === "TmForever") {
         return pathSplit[1] || pathSplit[0];
     }
     return pathSplit[2] || pathSplit[1] || pathSplit[0];
@@ -85,53 +85,53 @@ export function parseEntries(entries: any[]) {
 }
 
 export function htmlEntities(str: string): string {
-    let val = (str || '').replace(/[\u00A0-\uFFFF<>\&"']/g, (i) => `&#${i.charCodeAt(0)};`);
-    val = val.replaceAll(/[$][lh]\[.*?](.*?)([$][lh])?/gi, '$1');
-    val = val.replaceAll(/[$][lh]/gi, '');
-    val = val.replaceAll('--', '-&#45;');
+    let val = (str || "").replace(/[\u00A0-\uFFFF<>\&"']/g, (i) => `&#${i.charCodeAt(0)};`);
+    val = val.replaceAll(/[$][lh]\[.*?](.*?)([$][lh])?/gi, "$1");
+    val = val.replaceAll(/[$][lh]/gi, "");
+    val = val.replaceAll("--", "-&#45;");
     return val;
 }
 
 export function removeLinks(str: string): string {
-    return (str || '').replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, '$1').replaceAll(/[$][lh]/gi, '');
+    return (str || "").replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "");
 }
 
 export function removeColors(str: any): string {
-    if (typeof str === 'string') return tm.TextFormatter.deformat(str ?? '');
-    return (str ?? '').toString();
+    if (typeof str === "string") return tm.TextFormatter.deformat(str ?? "");
+    return (str ?? "").toString();
 }
 
 export function clone(obj: any): any {
-    if (obj === undefined || obj === null || typeof obj !== 'object') return obj;
+    if (obj === undefined || obj === null || typeof obj !== "object") return obj;
     return JSON.parse(JSON.stringify(obj));
 }
 
 export function formatTime(time: number): string {
     const parsedTime = tm.Time.fromMilliseconds(time).toTmString();
-    if (tmc.game.Name === 'TmForever') return parsedTime.replace(/0$/, '');
+    if (tmc.game.Name === "TmForever") return parsedTime.replace(/0$/, "");
     return parsedTime;
 }
 
 export function castType(value: string, type?: string): any {
     if (type !== undefined) {
-        if (type === 'string') return value;
-        if (type === 'int') return Number.parseInt(value);
-        if (type === 'float') return Number.parseFloat(value);
-        if (type === 'number') {
-            if (value.indexOf('.') !== undefined) return Number.parseFloat(value);
+        if (type === "string") return value;
+        if (type === "int") return Number.parseInt(value);
+        if (type === "float") return Number.parseFloat(value);
+        if (type === "number") {
+            if (value.indexOf(".") !== undefined) return Number.parseFloat(value);
             return Number.parseInt(value);
         }
-        if (type === 'bool' || type === 'boolean') return value === 'true' || value === '1';
-        if (type === 'array') return value.split(',');
+        if (type === "bool" || type === "boolean") return value === "true" || value === "1";
+        if (type === "array") return value.split(",");
         console.log(`Unknown type: ${type}`);
         return null;
     }
 
-    if (value === 'true') return true;
-    if (value === 'false') return false;
-    if (value === 'null') return null;
+    if (value === "true") return true;
+    if (value === "false") return false;
+    if (value === "null") return null;
     if (!Number.isNaN(Number.parseFloat(value))) {
-        if (value.includes('.')) return Number.parseFloat(value);
+        if (value.includes(".")) return Number.parseFloat(value);
         return Number.parseInt(value);
     }
     return value;
@@ -147,13 +147,13 @@ export function setMemStart() {
     startValueMem = process.memoryUsage().rss / 1048576;
 }
 
-export function memInfo(section = '') {
+export function memInfo(section = "") {
     const memMB = process.memoryUsage().rss / 1048576;
-    let prefix = '$f22+';
+    let prefix = "$f22+";
     if (memMB < startValueMem) {
-        prefix = '$0f0-';
+        prefix = "$0f0-";
     }
-    const sectionInfo = section !== '' ? `¤info¤${section} ` : '';
+    const sectionInfo = section !== "" ? `¤info¤${section} ` : "";
     const out = `${sectionInfo} ¤info¤Mem: $fff${memMB.toFixed(1)}Mb ¤info¤Diff: ${prefix}${Math.abs(memMB - startValueMem).toFixed(1)}Mb`;
     prevValueMem = memMB;
     return processColorString(out);
@@ -162,7 +162,7 @@ export function memInfo(section = '') {
 export function isDocker() {
     const hasEnv = () => {
         try {
-            fs.statSync('/.dockerenv');
+            fs.statSync("/.dockerenv");
             return true;
         } catch {
             return false;
@@ -170,7 +170,7 @@ export function isDocker() {
     };
     const hasGroup = () => {
         try {
-            return fs.readFileSync('/proc/self/cgroup', 'utf8').includes('docker');
+            return fs.readFileSync("/proc/self/cgroup", "utf8").includes("docker");
         } catch {
             return false;
         }
@@ -191,12 +191,12 @@ export function getCallerName() {
             log.debug(
                 `$fff└ $4cb${caller.getTypeName()}$fff.$eea${caller.getMethodName()}$fb1()    $333vscode://vscode-remote/wsl+ubuntu/${caller
                     .getFileName()
-                    .replace('file:///', '')}:${caller.getLineNumber()}`
+                    .replace("file:///", "")}:${caller.getLineNumber()}`,
             );
         }
     }
 }
 
 export function escapeRegex(text: string) {
-    return text.replaceAll(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    return text.replaceAll(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }

@@ -1,6 +1,6 @@
-import Confirm from '@core/ui/confirm';
-import ListWindow from '@core/ui/listwindow';
-import { formatTime, htmlEntities, clone, removeColors } from '@core/utils';
+import Confirm from "@core/ui/confirm";
+import ListWindow from "@core/ui/listwindow";
+import { formatTime, htmlEntities, clone, removeColors } from "@core/utils";
 
 export default class MapsWindowAdmin extends ListWindow {
     params: string[] = [];
@@ -15,16 +15,18 @@ export default class MapsWindowAdmin extends ListWindow {
         const maps: any[] = [];
         let i = 1;
         for (const map of clone(tmc.maps.get())) {
-            if (!this.params[0] || (removeColors(map.Name).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
+            if (
+                !this.params[0] ||
+                removeColors(map.Name).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1 ||
                 removeColors(map.Author).toLocaleLowerCase().indexOf(this.params[0].toLocaleLowerCase()) !== -1
-            )) {
+            ) {
                 maps.push(
                     Object.assign(map, {
                         Index: i++,
                         Name: htmlEntities(map.Name),
                         AuthorName: htmlEntities(map.AuthorNickname || map.Author || ""),
                         ATime: formatTime(map.AuthorTime || map.GoldTime),
-                    })
+                    }),
                 );
             }
         }

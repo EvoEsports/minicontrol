@@ -1,4 +1,3 @@
-
 import { Server, type Socket } from "node:net";
 import Plugin from "..";
 import { isDocker } from "@core/utils";
@@ -16,7 +15,7 @@ export default class HealthCheck extends Plugin {
         this.server = new Server((socket: Socket) => {
             socket.on("error", (error: any) => {
                 tmc.cli(`¤error¤HealthCheck: ${error.message}`);
-            })
+            });
 
             socket.on("data", (data: Buffer) => {
                 const message = data.toString("utf-8").trim();

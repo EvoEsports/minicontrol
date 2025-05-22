@@ -28,30 +28,30 @@
  * SOFTWARE.
  */
 
-import Plugin from '@core/plugins';
-import http, { type ClientRequest } from 'node:http';
+import Plugin from "@core/plugins";
+import http, { type ClientRequest } from "node:http";
 
 export default class Freezone extends Plugin {
-    static depends: string[] = ['game:TmForever', 'tmnf'];
+    static depends: string[] = ["game:TmForever", "tmnf"];
     isConnected = false;
     password: string | null = process.env.FREEZONE_PASS ?? null;
-    mlHash = '6f116833b419fe7cb9c912fdaefb774845f60e79';
-    mlUrl = 'ws.trackmania.com';
-    mlVersion = '239';
+    mlHash = "6f116833b419fe7cb9c912fdaefb774845f60e79";
+    mlUrl = "ws.trackmania.com";
+    mlVersion = "239";
     heartbeatInterval: any = null;
 
     onLoad = async () => {
         if (!this.password) {
-            tmc.chat('¤error¤Freezone: Cannot enable plugin - Freezone password was not set, please check your .env file.');
-            await tmc.unloadPlugin('tmnf/freezone');
+            tmc.chat("¤error¤Freezone: Cannot enable plugin - Freezone password was not set, please check your .env file.");
+            await tmc.unloadPlugin("tmnf/freezone");
         }
         const status = await this.sendHeartbeat();
         if (status instanceof Error) {
             tmc.chat(`¤error¤Freezone: ${status.message}`);
-            await tmc.unloadPlugin('tmnf/freezone');
+            await tmc.unloadPlugin("tmnf/freezone");
         } else {
             this.isConnected = true;
-            tmc.cli('¤info¤Freezone: Authenticated.');
+            tmc.cli("¤info¤Freezone: Authenticated.");
             this.heartbeatInterval = setInterval(async (): Promise<void> => {
                 await this.sendHeartbeat();
             }, 3600000);
@@ -66,8 +66,8 @@ export default class Freezone extends Plugin {
     };
 
     sendHeartbeat = async (): Promise<true | Error> => {
-        const serverInfo = await tmc.server.call('GetServerOptions', 0);
-        const serverPass = await tmc.server.call('GetServerPassword');
+        const serverInfo = await tmc.server.call("GetServerOptions", 0);
+        const serverPass = await tmc.server.call("GetServerPassword");
         const data = {
             serverLogin: encodeURI(tmc.server.login),
             serverName: serverInfo.Name,
@@ -75,24 +75,24 @@ export default class Freezone extends Plugin {
             manialiveVersion: encodeURI(this.mlVersion),
             maxPlayers: encodeURI(serverInfo.CurrentMaxPlayers),
             visibility: 0,
-            classHash: encodeURI(this.mlHash)
+            classHash: encodeURI(this.mlHash),
         };
-        if (!serverInfo.Name.toLowerCase().includes('freezone')) {
+        if (!serverInfo.Name.toLowerCase().includes("freezone")) {
             data.serverName = `Freezone|${data.serverName}`.substring(0, 80);
         }
 
-        const authHeader: string = `Basic ${Buffer.from(`${tmc.server.login}:${this.password}`).toString('base64')}`;
+        const authHeader: string = `Basic ${Buffer.from(`${tmc.server.login}:${this.password}`).toString("base64")}`;
         const options = {
             host: this.mlUrl,
-            path: '/freezone/live/',
-            method: 'POST',
+            path: "/freezone/live/",
+            method: "POST",
             headers: {
                 Authorization: authHeader,
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                'User-Agent': 'ManiaLib Rest Client'
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                "User-Agent": "ManiaLib Rest Client",
             },
-            timeout: 10000
+            timeout: 10000,
         };
 
         return new Promise<true | Error>((resolve, reject): void => {
@@ -101,17 +101,17 @@ export default class Freezone extends Plugin {
                     resolve(true);
                     return;
                 }
-                let data = '';
-                res.on('data', (chunk): void => {
+                let data = "";
+                res.on("data", (chunk): void => {
                     data += chunk;
                 });
             });
             req.write(JSON.stringify(data));
-            req.on('error', (): void => {
-                reject(new Error('HTTP request error.'));
+            req.on("error", (): void => {
+                reject(new Error("HTTP request error."));
             })
-                .on('timeout', (): void => {
-                    reject(new Error('HTTP request timeout.'));
+                .on("timeout", (): void => {
+                    reject(new Error("HTTP request timeout."));
                 })
                 .end();
         }).catch((err): Error => {

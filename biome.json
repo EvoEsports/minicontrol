@@ -10,14 +10,8 @@
         }
     },
     "files": {
-        "include": [
-            "core/**/*.ts",
-            "userdata/plugins/**/*.ts"
-        ],
-        "ignore": [
-            "test",
-            "node_modules"
-        ]
+        "include": ["core/**/*.ts", "userdata/plugins/**/*.ts"],
+        "ignore": ["test", "node_modules"]
     },
     "formatter": {
         "enabled": true,
@@ -35,7 +29,7 @@
             "indentWidth": 4,
             "lineWidth": 150,
             "lineEnding": "lf",
-            "quoteStyle": "single"
+            "quoteStyle": "double"
         }
     }
 }

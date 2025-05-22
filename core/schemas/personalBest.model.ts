@@ -1,12 +1,25 @@
-import { Table, Column, Model, PrimaryKey, Unique, Index, DataType, NotNull, AllowNull, HasOne, ForeignKey, AutoIncrement } from 'sequelize-typescript';
-import Player from './players.model';
+import {
+    Table,
+    Column,
+    Model,
+    PrimaryKey,
+    Unique,
+    Index,
+    DataType,
+    NotNull,
+    AllowNull,
+    HasOne,
+    ForeignKey,
+    AutoIncrement,
+} from "sequelize-typescript";
+import Player from "./players.model";
 
 @Table({ tableName: "personalbest", timestamps: true })
 class PersonalBest extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
-    id: number |undefined;
+    id: number | undefined;
 
     @Column(DataType.STRING)
     mapUuid: string | undefined;
@@ -31,7 +44,6 @@ class PersonalBest extends Model {
 
     @Column(DataType.INTEGER)
     finishCount: number | undefined;
-
 }
 
 export default PersonalBest;

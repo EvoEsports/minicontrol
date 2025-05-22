@@ -1,4 +1,4 @@
-import { chunkArray, clone } from './utils';
+import { chunkArray, clone } from "./utils";
 
 export interface Map {
     UId: string;
@@ -48,12 +48,12 @@ class MapManager {
      **/
     async init() {
         this.maps = {};
-        tmc.server.addListener('Trackmania.BeginMap', this.onBeginMap, this);
-        tmc.server.addListener('Trackmania.MapListModified', this.onMapListModified, this);
-        tmc.server.addListener('Trackmania.BeginRound', this.onBeginRound, this);
+        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        tmc.server.addListener("Trackmania.MapListModified", this.onMapListModified, this);
+        tmc.server.addListener("Trackmania.BeginRound", this.onBeginRound, this);
         try {
-            this.currentMap = await tmc.server.call('GetCurrentMapInfo');
-            this.nextMap = await tmc.server.call('GetNextMapInfo');
+            this.currentMap = await tmc.server.call("GetCurrentMapInfo");
+            this.nextMap = await tmc.server.call("GetNextMapInfo");
         } catch (e: any) {
             tmc.cli(`¤error¤${e.message}`);
         }
@@ -83,16 +83,16 @@ class MapManager {
         if (data[2] === true) {
             await this.syncMaplist();
         }
-        tmc.server.emit('TMC.MapListModified', data);
+        tmc.server.emit("TMC.MapListModified", data);
     }
 
     /**
      * Sync the maplist with the server
      */
     async syncMaplist() {
-        const chunckedMaps: any = chunkArray(await tmc.server.call('GetMapList', -1, 0), 100);
-        let method = 'GetMapInfo';
-        if (tmc.game.Name === 'TmForever') method = 'GetChallengeInfo';
+        const chunckedMaps: any = chunkArray(await tmc.server.call("GetMapList", -1, 0), 100);
+        let method = "GetMapInfo";
+        if (tmc.game.Name === "TmForever") method = "GetChallengeInfo";
 
         const newMaps = {};
         for (const infos of chunckedMaps) {
@@ -139,7 +139,7 @@ class MapManager {
      * get timing infos for current map
      */
     getTimeInfo(): { timePlayed: number; timeLeft: number; timeLimit: number } {
-        const timeLimit = tmc.storage['minicontrol.taTimeLimit'] ?? Number.parseInt(process.env.TALIMIT ?? '300');
+        const timeLimit = tmc.storage["minicontrol.taTimeLimit"] ?? Number.parseInt(process.env.TALIMIT ?? "300");
         const timeLeft = 3 + timeLimit - (Date.now() - this.startTime) / 1000;
         const timePlayed = 3 + (Date.now() - this.startTime) / 1000;
         return { timePlayed, timeLeft, timeLimit };

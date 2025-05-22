@@ -1,5 +1,5 @@
-import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
-import { rgb2hsl, removeColors } from './utils';
+import { appendFileSync, existsSync, mkdirSync } from "node:fs";
+import { rgb2hsl, removeColors } from "./utils";
 
 export function Tm2Console(input: string, ansiLevel = 0) {
     if (ansiLevel === 0) return removeColors(input);
@@ -8,14 +8,14 @@ export function Tm2Console(input: string, ansiLevel = 0) {
     const ansi_esc = String.fromCharCode(0x1b);
     const colorize = (str: string) => {
         const c = (str: string) => (Number.parseInt(str, 16) * 17) / 255;
-        if (!str.startsWith('$')) return str;
-        if (str === '$n') return '';
-        if (str === '$z') return `${ansi_esc}[0m`;
-        if (str === '$s') return `${ansi_esc}[0m`;
-        if (str === '$i') return `${ansi_esc}[3m`;
+        if (!str.startsWith("$")) return str;
+        if (str === "$n") return "";
+        if (str === "$z") return `${ansi_esc}[0m`;
+        if (str === "$s") return `${ansi_esc}[0m`;
+        if (str === "$i") return `${ansi_esc}[3m`;
         if (str.match(/[$][obw]/gi)) return `${ansi_esc}[1m`;
 
-        const [r, g, b] = str.replace('$', '').split('');
+        const [r, g, b] = str.replace("$", "").split("");
         const [h, s, l] = rgb2hsl(c(r), c(g), c(b));
         let ansi: number;
         switch (Math.round(((h - 10) % 360) / 60)) {
@@ -55,16 +55,16 @@ export function Tm2Console(input: string, ansiLevel = 0) {
     return `${
         chunks
             .map((str) => {
-                return str.startsWith('$') ? colorize(str) : str;
+                return str.startsWith("$") ? colorize(str) : str;
             })
-            .join('') + ansi_esc
+            .join("") + ansi_esc
     }[0m`;
 }
 
 class log {
     ansiLevel = 0;
     constructor() {
-        this.ansiLevel = Number.parseInt(process.env.ANSILEVEL || '0');
+        this.ansiLevel = Number.parseInt(process.env.ANSILEVEL || "0");
         const path = `${process.cwd()}/userdata/log/`;
         try {
             if (!existsSync(path)) mkdirSync(path);
@@ -94,11 +94,11 @@ class log {
     }
 
     writeLog(message: string) {
-        if (process.env.WRITELOG?.toLowerCase() === 'true') {
+        if (process.env.WRITELOG?.toLowerCase() === "true") {
             const date = new Date();
             const file = `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}_console.log`;
             try {
-                appendFileSync(`${process.cwd()}/userdata/log/${file}`, Tm2Console(`${date.toISOString()} ${message}\n`, 0), { encoding: 'utf-8' });
+                appendFileSync(`${process.cwd()}/userdata/log/${file}`, Tm2Console(`${date.toISOString()} ${message}\n`, 0), { encoding: "utf-8" });
             } catch (e) {}
         }
     }

@@ -1,6 +1,6 @@
-import type Manialink from './ui/manialink';
-import Window from './ui/window';
-import { chunkArray, parseEntries } from './utils';
+import type Manialink from "./ui/manialink";
+import Window from "./ui/window";
+import { chunkArray, parseEntries } from "./utils";
 
 export interface uiModule {
     id: string;
@@ -52,20 +52,20 @@ export default class UiManager {
      * @ignore
      */
     async init() {
-        tmc.server.addListener('Trackmania.PlayerManialinkPageAnswer', this.onManialinkAnswer, this);
-        tmc.server.addListener('Trackmania.PlayerConnect', this.onPlayerConnect, this);
-        tmc.server.addListener('Trackmania.PlayerDisconnect', this.onPlayerDisconnect, this);
-        if (tmc.game.Name === 'Trackmania') {
-            tmc.server.addListener('Common.UIModules.Properties', this.onCallbackArray, this);
+        tmc.server.addListener("Trackmania.PlayerManialinkPageAnswer", this.onManialinkAnswer, this);
+        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
+        if (tmc.game.Name === "Trackmania") {
+            tmc.server.addListener("Common.UIModules.Properties", this.onCallbackArray, this);
             await this.getUiProperties();
         }
 
-        if (tmc.game.Name === 'TmForever') {
-            tmc.settings.register('tmf.hud.round_scores', true, this.uiSettingsChange.bind(this), 'TmForever HUD: Show round scores');
-            tmc.settings.register('tmf.hud.checkpoint_list', false, this.uiSettingsChange.bind(this), 'TmForever HUD: Show checkpoint list');
-            tmc.settings.register('tmf.hud.net_infos', true, this.uiSettingsChange.bind(this), 'TmForever HUD: Show net infos');
-            tmc.settings.register('tmf.hud.challenge_info', false, this.uiSettingsChange.bind(this), 'TmForever HUD: Show challenge info');
-            tmc.settings.register('tmf.hud.notice', false, this.uiSettingsChange.bind(this), 'TmForever HUD: Show notice');
+        if (tmc.game.Name === "TmForever") {
+            tmc.settings.register("tmf.hud.round_scores", true, this.uiSettingsChange.bind(this), "TmForever HUD: Show round scores");
+            tmc.settings.register("tmf.hud.checkpoint_list", false, this.uiSettingsChange.bind(this), "TmForever HUD: Show checkpoint list");
+            tmc.settings.register("tmf.hud.net_infos", true, this.uiSettingsChange.bind(this), "TmForever HUD: Show net infos");
+            tmc.settings.register("tmf.hud.challenge_info", false, this.uiSettingsChange.bind(this), "TmForever HUD: Show challenge info");
+            tmc.settings.register("tmf.hud.notice", false, this.uiSettingsChange.bind(this), "TmForever HUD: Show notice");
         }
     }
 
@@ -73,28 +73,28 @@ export default class UiManager {
      *  @ignore
      */
     async afterInit() {
-        if (tmc.game.Name === 'TmForever') {
+        if (tmc.game.Name === "TmForever") {
             await this.syncTmfHudSettings();
         }
-        if (tmc.game.Name === 'Trackmania') {
-            this.setUiProperty('Race_RespawnHelper', 'visible', false);
-            this.setUiProperty('Race_DisplayMessage', 'visible', false);
-            this.setUiProperty('Race_BestRaceViewer', 'visible', false);
-            this.setUiProperty('Race_DisplayMessage', 'visible', false);
-            this.setUiProperty('Race_Record', 'scale', 0.8);
-            this.setUiProperty('Race_Countdown', 'position', [155, -50]);
+        if (tmc.game.Name === "Trackmania") {
+            this.setUiProperty("Race_RespawnHelper", "visible", false);
+            this.setUiProperty("Race_DisplayMessage", "visible", false);
+            this.setUiProperty("Race_BestRaceViewer", "visible", false);
+            this.setUiProperty("Race_DisplayMessage", "visible", false);
+            this.setUiProperty("Race_Record", "scale", 0.8);
+            this.setUiProperty("Race_Countdown", "position", [155, -50]);
             // checkpoint counter is integrated with laps counter for some reason
-            this.setUiProperty('Race_LapsCounter', 'position', [155.7, -77]);
-            this.setUiProperty('Race_LapsCounter', 'scale', 0.7);
+            this.setUiProperty("Race_LapsCounter", "position", [155.7, -77]);
+            this.setUiProperty("Race_LapsCounter", "scale", 0.7);
             await this.sendUiProperties();
         }
-        tmc.server.send('SendDisplayManialinkPage', this.convert(this.getGlobalManialink()), 0, false);
+        tmc.server.send("SendDisplayManialinkPage", this.convert(this.getGlobalManialink()), 0, false);
     }
 
     async getUiProperties() {
         const uuid = this.uuid();
         this.scriptCalls.push(uuid);
-        tmc.server.sendScript('Common.UIModules.GetProperties', uuid);
+        tmc.server.sendScript("Common.UIModules.GetProperties", uuid);
     }
 
     async setUiProperty(id: string, property: string, value: any) {
@@ -108,7 +108,7 @@ export default class UiManager {
     }
 
     async sendUiProperties() {
-        tmc.server.send('TriggerModeScriptEventArray', 'Common.UIModules.SetProperties', [`{"uimodules": ${JSON.stringify(this.uiProperties)}}`]);
+        tmc.server.send("TriggerModeScriptEventArray", "Common.UIModules.SetProperties", [`{"uimodules": ${JSON.stringify(this.uiProperties)}}`]);
     }
 
     private async onCallbackArray(data: any) {
@@ -123,7 +123,7 @@ export default class UiManager {
                 const json = {
                     uimodules: reset,
                 };
-                tmc.server.sendScript('Common.UIModules.ResetProperties', `${JSON.stringify(json)}`);
+                tmc.server.sendScript("Common.UIModules.ResetProperties", `${JSON.stringify(json)}`);
             }
         }
     }
@@ -140,11 +140,11 @@ export default class UiManager {
             const x = (Number.parseFloat(match[2]) / 160) * 64;
             const y = (Number.parseFloat(match[3]) / 90) * 48;
             let z = 0;
-            const zindex = line.match(/z-index="([\-\d]+)"/) || ['0', '0'];
+            const zindex = line.match(/z-index="([\-\d]+)"/) || ["0", "0"];
             z = Number.parseInt(zindex[1]) ?? 1;
-            if (match[1] === 'pos') {
-                out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="[-\d]+"/, '');
-            } else if (match[1] === 'size') {
+            if (match[1] === "pos") {
+                out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="[-\d]+"/, "");
+            } else if (match[1] === "size") {
                 out = out.replaceAll(match[0], `${match[1]}n="${x} ${y}"`);
             }
         }
@@ -157,10 +157,10 @@ export default class UiManager {
      * @returns
      */
     convert(text: string): string {
-        if (tmc.game.Name !== 'TmForever') return text;
+        if (tmc.game.Name !== "TmForever") return text;
 
-        const lines = text.split('\n');
-        let out = '';
+        const lines = text.split("\n");
+        let out = "";
         for (let i = 0; i < lines.length; i++) {
             out += this.convertLine(lines[i]);
         }
@@ -173,7 +173,7 @@ export default class UiManager {
      */
     uuid(): string {
         this.manialinkUUID += 1;
-        const prefix = tmc.game.Name === 'TmForever' ? '' : 'tmc';
+        const prefix = tmc.game.Name === "TmForever" ? "" : "tmc";
         // tmc.debug('¤info¤new manialink uuid: ¤white¤' + prefix + this.manialinkUUID.toString());
         return prefix + this.manialinkUUID.toString();
     }
@@ -205,7 +205,7 @@ export default class UiManager {
             return this.hash(salt);
         };
         let iHash = getHash();
-        const prefix = tmc.game.Name === 'TmForever' ? '' : 'tmc';
+        const prefix = tmc.game.Name === "TmForever" ? "" : "tmc";
         if (this.actions[prefix + iHash.toString()]) {
             while (this.actions[prefix + iHash.toString()]) {
                 tmc.debug(`¤error¤action already exists: ¤white¤${iHash}¤white¤ increase and trying again...`);
@@ -236,7 +236,7 @@ export default class UiManager {
         const login = data[1];
         const answer = data[2].toString();
         const entries = data[3];
-        if (answer === '-2') {
+        if (answer === "-2") {
             if (!this.hiddenManialinks.includes(login)) {
                 this.hiddenManialinks.push(login);
                 let hide = '<?xml version="1.0" encoding="UTF-8"?><manialinks>';
@@ -250,8 +250,8 @@ export default class UiManager {
                         hide += `<manialink id="${manialink.id}"></manialink>`;
                     }
                 }
-                hide += '</manialinks>';
-                tmc.server.send('SendDisplayManialinkPageToLogin', login, hide, 0, false);
+                hide += "</manialinks>";
+                tmc.server.send("SendDisplayManialinkPageToLogin", login, hide, 0, false);
             } else {
                 this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
                 await this.onPlayerConnect([login]);
@@ -267,22 +267,22 @@ export default class UiManager {
     private async onPlayerConnect(data: any) {
         const login = data[0];
 
-        const multi = [['SendDisplayManialinkPage', this.convert(this.getGlobalManialink()), 0, false]];
+        const multi = [["SendDisplayManialinkPage", this.convert(this.getGlobalManialink()), 0, false]];
         for (const manialink of Object.values(this.publicManialinks)) {
             const render = await (manialink as Manialink).render();
             const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
-            multi.push(['SendDisplayManialinkPageToLogin', login, xml, manialink.displayDuration, false]);
+            multi.push(["SendDisplayManialinkPageToLogin", login, xml, manialink.displayDuration, false]);
         }
         if (this.playerManialinks[login] === undefined) this.playerManialinks[login] = {};
 
         for (const manialink of Object.values(this.playerManialinks[login])) {
             const render = await (manialink as Manialink).render();
             const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
-            multi.push(['SendDisplayManialinkPageToLogin', login, xml, manialink.displayDuration, false]);
+            multi.push(["SendDisplayManialinkPageToLogin", login, xml, manialink.displayDuration, false]);
         }
         tmc.server.multicall(multi);
 
-        if (tmc.game.Name === 'TmForever') {
+        if (tmc.game.Name === "TmForever") {
             this.sendTmnfCustomUI();
         }
     }
@@ -355,15 +355,15 @@ export default class UiManager {
         // Dispatch the manialink depending on whether it is public or player-specific.
         if (manialink.recipient !== undefined) {
             if (!this.hiddenManialinks.includes(manialink.recipient) || !manialink.canHide) {
-                tmc.server.send('SendDisplayManialinkPageToLogin', manialink.recipient, xml, manialink.displayDuration, false);
+                tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, manialink.displayDuration, false);
             }
         } else {
             if (this.hiddenManialinks.length > 0) {
                 const logins = tmc.players.getAllLogins();
                 const recipients = logins.filter((login: string) => !this.hiddenManialinks.includes(login) || !manialink.canHide);
-                tmc.server.send('SendDisplayManialinkPageToLogin', recipients.join(','), xml, manialink.displayDuration, false);
+                tmc.server.send("SendDisplayManialinkPageToLogin", recipients.join(","), xml, manialink.displayDuration, false);
             } else {
-                tmc.server.send('SendDisplayManialinkPage', xml, manialink.displayDuration, false);
+                tmc.server.send("SendDisplayManialinkPage", xml, manialink.displayDuration, false);
             }
         }
     }
@@ -426,7 +426,7 @@ export default class UiManager {
                 // Build the call array entry based on the recipient.
                 if (manialink.recipient !== undefined) {
                     if (!this.hiddenManialinks.includes(manialink.recipient) || !manialink.canHide) {
-                        callArray.push(['SendDisplayManialinkPageToLogin', manialink.recipient, xmlContent, manialink.displayDuration, false]);
+                        callArray.push(["SendDisplayManialinkPageToLogin", manialink.recipient, xmlContent, manialink.displayDuration, false]);
                     }
                 } else {
                     // For public manialinks, check if there are hidden manialinks.
@@ -434,9 +434,9 @@ export default class UiManager {
                         // Retrieve logins and filter out those with hidden manialinks.
                         const logins = tmc.players.getAll().map((player) => player.login);
                         const recipients = logins.filter((login: string) => !this.hiddenManialinks.includes(login) || !manialink.canHide);
-                        callArray.push(['SendDisplayManialinkPageToLogin', recipients.join(','), xmlContent, manialink.displayDuration, false]);
+                        callArray.push(["SendDisplayManialinkPageToLogin", recipients.join(","), xmlContent, manialink.displayDuration, false]);
                     } else {
-                        callArray.push(['SendDisplayManialinkPage', xmlContent, manialink.displayDuration, false]);
+                        callArray.push(["SendDisplayManialinkPage", xmlContent, manialink.displayDuration, false]);
                     }
                 }
             }),
@@ -463,15 +463,15 @@ export default class UiManager {
         <manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
             if (!this.hiddenManialinks.includes(manialink.recipient) || !manialink.canHide) {
-                tmc.server.send('SendDisplayManialinkPageToLogin', manialink.recipient, xml, manialink.displayDuration, false);
+                tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, manialink.displayDuration, false);
             }
         } else {
             if (this.hiddenManialinks.length > 0) {
                 const logins = tmc.players.getAllLogins();
                 const recipients = logins.filter((login) => !this.hiddenManialinks.includes(login) || !manialink.canHide);
-                tmc.server.send('SendDisplayManialinkPageToLogin', recipients.join(','), xml, manialink.displayDuration, false);
+                tmc.server.send("SendDisplayManialinkPageToLogin", recipients.join(","), xml, manialink.displayDuration, false);
             } else {
-                tmc.server.send('SendDisplayManialinkPage', xml, manialink.displayDuration, false);
+                tmc.server.send("SendDisplayManialinkPage", xml, manialink.displayDuration, false);
             }
         }
     }
@@ -487,10 +487,10 @@ export default class UiManager {
             const xml = `<?xml version="1.0" encoding="UTF-8"?>
             <manialinks><manialink id="${manialink.id}"></manialink></manialinks>`;
             if (manialink.recipient !== undefined) {
-                tmc.server.send('SendDisplayManialinkPageToLogin', manialink.recipient, xml, 0, false);
+                tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, 0, false);
                 return;
             }
-            tmc.server.send('SendDisplayManialinkPage', xml, 0, false);
+            tmc.server.send("SendDisplayManialinkPage", xml, 0, false);
         } catch (e) {
             tmc.debug(e);
         }
@@ -532,12 +532,12 @@ export default class UiManager {
         <manialink id="${this.uuid()}" version="3">
         <script><!--
         main() {
-            System.ClipboardSet("${text.replace(/"/g, '\\"').replaceAll('--', '—-')}");
+            System.ClipboardSet("${text.replace(/"/g, '\\"').replaceAll("--", "—-")}");
         }
         --></script>
         </manialink>
         </manialinks>`;
-        tmc.server.send('SendDisplayManialinkPageToLogin', login, xml, 1000, false);
+        tmc.server.send("SendDisplayManialinkPageToLogin", login, xml, 1000, false);
     }
 
     setCustomUI(key: string, value: boolean) {
@@ -554,7 +554,7 @@ export default class UiManager {
     }
 
     async uiSettingsChange(value: string, oldValue: boolean, _key: string) {
-        const key = _key.replace('tmf.hud.', '');
+        const key = _key.replace("tmf.hud.", "");
         if (Object.keys(this.tmnfCustomUi).includes(key)) {
             this.tmnfCustomUi[key] = value;
             this.sendTmnfCustomUI();
@@ -572,14 +572,14 @@ export default class UiManager {
     }
 
     sendTmnfCustomUI() {
-        if (tmc.game.Name === 'TmForever') {
+        if (tmc.game.Name === "TmForever") {
             let xml = `<?xml version="1.0" encoding="UTF-8"?>
         <manialinks><custom_ui>`;
             for (const key in this.tmnfCustomUi) {
-                xml += `<${key} visible="${this.tmnfCustomUi[key] ? 'true' : 'false'}" />`;
+                xml += `<${key} visible="${this.tmnfCustomUi[key] ? "true" : "false"}" />`;
             }
-            xml += '</custom_ui></manialinks>';
-            tmc.server.send('SendDisplayManialinkPage', xml, 0, false);
+            xml += "</custom_ui></manialinks>";
+            tmc.server.send("SendDisplayManialinkPage", xml, 0, false);
         }
     }
 

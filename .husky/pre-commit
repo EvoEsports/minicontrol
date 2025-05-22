@@ -1,2 +1,4 @@
-# npx @biomejs/biome lint --fix
-# npx @biomejs/biome format ./core/*.ts
+#!/usr/bin/env sh
+npx @biomejs/biome lint
+npx @biomejs/biome format --write --use-editorconfig=true
+tsx ./updateVersion.ts

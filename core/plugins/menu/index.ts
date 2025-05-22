@@ -1,7 +1,7 @@
-import Plugin from '@core/plugins';
-import Widget from '@core/ui/widget';
-import MenuWidget from './menuWidget';
-import Menu from './menu';
+import Plugin from "@core/plugins";
+import Widget from "@core/ui/widget";
+import MenuWidget from "./menuWidget";
+import Menu from "./menu";
 
 export default class MenuPlugin extends Plugin {
     menuButton: Widget | null = null;
@@ -9,21 +9,21 @@ export default class MenuPlugin extends Plugin {
 
     async onLoad() {
         Menu.getInstance().addItem({
-            category: 'Server',
-            title: 'Show Help',
-            action: '/help'
+            category: "Server",
+            title: "Show Help",
+            action: "/help",
         });
 
         Menu.getInstance().addItem({
-            category: 'Server',
-            title: 'Show Admin Help',
-            action: '//help',
-            admin: true
+            category: "Server",
+            title: "Show Admin Help",
+            action: "//help",
+            admin: true,
         });
     }
 
     async onStart() {
-        this.menuButton = new Widget('core/plugins/menu/menuButton.xml.twig');
+        this.menuButton = new Widget("core/plugins/menu/menuButton.xml.twig");
         this.menuButton.pos = { x: 120, y: -65, z: 10 };
         this.menuButton.size = { width: 12, height: 5 };
         this.menuButton.setOpenAction(this.toggleMenu.bind(this));
@@ -37,7 +37,7 @@ export default class MenuPlugin extends Plugin {
 
     async toggleMenu(login: string) {
         if (!this.menuInstances[login]) {
-            const menu = new MenuWidget(login, 'core/plugins/menu/menu.xml.twig', this);
+            const menu = new MenuWidget(login, "core/plugins/menu/menu.xml.twig", this);
             menu.pos = { x: 70, y: -15, z: 10 };
             menu.size = { width: 300, height: 400 };
             this.menuInstances[login] = menu;

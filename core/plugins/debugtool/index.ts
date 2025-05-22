@@ -1,7 +1,7 @@
-import { memInfo, processColorString, startValueMem } from '@core/utils';
-import Plugin from '@core/plugins';
-import tm from 'tm-essentials';
-import Widget from '@core/ui/widget';
+import { memInfo, processColorString, startValueMem } from "@core/utils";
+import Plugin from "@core/plugins";
+import tm from "tm-essentials";
+import Widget from "@core/ui/widget";
 
 interface Counters {
     methodsSend: number;
@@ -17,37 +17,37 @@ export default class DebugTool extends Plugin {
     intervalId: any = null;
 
     async onLoad() {
-        if (process.env.DEBUG_GBX_COUNTERS === 'true') {
-            this.gbxWidget = new Widget('core/plugins/debugtool/widget.xml.twig');
+        if (process.env.DEBUG_GBX_COUNTERS === "true") {
+            this.gbxWidget = new Widget("core/plugins/debugtool/widget.xml.twig");
             this.gbxWidget.pos = { x: 159, y: -85, z: 0 };
-            tmc.server.addListener('GbxClient.Counters', this.onCounters, this);
+            tmc.server.addListener("GbxClient.Counters", this.onCounters, this);
         }
 
-        if (process.env.DEBUG === 'true') {
-            this.memoryWidget = new Widget('core/plugins/debugtool/widget.xml.twig');
+        if (process.env.DEBUG === "true") {
+            this.memoryWidget = new Widget("core/plugins/debugtool/widget.xml.twig");
             this.memoryWidget.pos = { x: 159, y: -60, z: 0 };
 
-            if (tmc.game.Name !== 'TmForever') {
-                tmc.addCommand('//addfake', this.cmdFakeUsers.bind(this), 'Connect Fake users');
-                tmc.addCommand('//removefake', this.cmdRemoveFakeUsers.bind(this), 'Connect Fake users');
+            if (tmc.game.Name !== "TmForever") {
+                tmc.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
+                tmc.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
             }
             this.intervalId = setInterval(() => {
                 this.displayMemInfo();
             }, 30000) as any;
         }
-        tmc.addCommand('//mem', this.cmdMeminfo.bind(this), 'Show Memory usage');
-        tmc.addCommand('//uptime', this.cmdUptime.bind(this), 'Show Uptime');
+        tmc.addCommand("//mem", this.cmdMeminfo.bind(this), "Show Memory usage");
+        tmc.addCommand("//uptime", this.cmdUptime.bind(this), "Show Uptime");
         tmc.addCommand(
-            '//gc',
+            "//gc",
             async (login: string) => {
                 if (gc) {
-                    tmc.chat('¤info¤Running garbage collector...', login);
+                    tmc.chat("¤info¤Running garbage collector...", login);
                     gc();
                 } else {
-                    tmc.chat('¤error¤Garbage collector is not available', login);
+                    tmc.chat("¤error¤Garbage collector is not available", login);
                 }
             },
-            'Run garbage collector',
+            "Run garbage collector",
         );
 
         setInterval(() => {
@@ -76,16 +76,16 @@ export default class DebugTool extends Plugin {
 
     async onUnload() {
         clearInterval(this.intervalId);
-        tmc.removeCommand('//mem');
-        tmc.removeCommand('//uptime');
-        tmc.removeCommand('//addfake');
-        tmc.removeCommand('//removefake');
+        tmc.removeCommand("//mem");
+        tmc.removeCommand("//uptime");
+        tmc.removeCommand("//addfake");
+        tmc.removeCommand("//removefake");
         this.memoryWidget?.destroy();
         this.memoryWidget = null;
     }
 
     async cmdRemoveFakeUsers(_login: string, _args: string[]) {
-        tmc.server.send('DisconnectFakePlayer', '*');
+        tmc.server.send("DisconnectFakePlayer", "*");
     }
 
     async cmdFakeUsers(_login: string, args: string[]) {
@@ -93,7 +93,7 @@ export default class DebugTool extends Plugin {
         if (count > 100) count = 100;
         if (count < 1) count = 1;
         for (let i = 0; i < count; i++) {
-            tmc.server.send('ConnectFakePlayer');
+            tmc.server.send("ConnectFakePlayer");
         }
     }
 
@@ -107,7 +107,7 @@ export default class DebugTool extends Plugin {
         tmc.chat(
             `¤info¤Uptime: ¤white¤${tm.Time.fromMilliseconds(diff)
                 .toTmString()
-                .replace(/[.]\d{3}/, '')}`,
+                .replace(/[.]\d{3}/, "")}`,
             login,
         );
     }
@@ -118,7 +118,7 @@ export default class DebugTool extends Plugin {
         tmc.cli(
             `¤info¤Memory usage: $fff${mem} ¤info¤uptime: ¤white¤${tm.Time.fromMilliseconds(start)
                 .toTmString()
-                .replace(/[.]\d{3}/, '')}`,
+                .replace(/[.]\d{3}/, "")}`,
         );
         if (this.memoryWidget) {
             this.memoryWidget.setData({ text: mem });

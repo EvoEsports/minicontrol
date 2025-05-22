@@ -1,5 +1,4 @@
-import { Table, Column, Model, HasMany, PrimaryKey, Unique, Index, DataType, NotNull, AllowNull } from 'sequelize-typescript';
-
+import { Table, Column, Model, HasMany, PrimaryKey, Unique, Index, DataType, NotNull, AllowNull } from "sequelize-typescript";
 
 @Table({ tableName: "players", timestamps: true })
 class Player extends Model {

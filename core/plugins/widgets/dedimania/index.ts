@@ -1,20 +1,19 @@
-import type { Player } from '@core/playermanager';
-import Plugin from '@core/plugins';
-import type { DediRecord } from '@core/plugins/tmnf/dedimania';
-import Widget from '@core/ui/widget';
-import { formatTime, htmlEntities } from '@core/utils';
+import type { Player } from "@core/playermanager";
+import Plugin from "@core/plugins";
+import type { DediRecord } from "@core/plugins/tmnf/dedimania";
+import Widget from "@core/ui/widget";
+import { formatTime, htmlEntities } from "@core/utils";
 
 export default class DedimaniaWidget extends Plugin {
     static depends: string[] = ["game:TmForever", "tmnf/dedimania"];
     records: DediRecord[] = [];
     widgets: { [key: string]: Widget } = {};
 
-
     async onLoad() {
         tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
         tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
-        tmc.server.addListener('Plugin.Dedimania.onSync', this.onSync, this);
-        tmc.server.addListener('Plugin.Dedimania.onNewRecord', this.onUpdate, this);
+        tmc.server.addListener("Plugin.Dedimania.onSync", this.onSync, this);
+        tmc.server.addListener("Plugin.Dedimania.onNewRecord", this.onUpdate, this);
     }
 
     async onUnload() {
@@ -22,8 +21,8 @@ export default class DedimaniaWidget extends Plugin {
             await this.widgets[login].destroy();
             delete this.widgets[login];
         }
-        tmc.server.removeListener('Plugin.Dedimania.onSync', this.onSync);
-        tmc.server.removeListener('Plugin.Dedimania.onNewRecord', this.onUpdate);
+        tmc.server.removeListener("Plugin.Dedimania.onSync", this.onSync);
+        tmc.server.removeListener("Plugin.Dedimania.onNewRecord", this.onUpdate);
     }
 
     async onPlayerConnect(player: Player) {
@@ -100,5 +99,4 @@ export default class DedimaniaWidget extends Plugin {
     async widgetClick(login: string, data: any) {
         await tmc.chatCmd.execute(login, "/dedirecords");
     }
-
 }
