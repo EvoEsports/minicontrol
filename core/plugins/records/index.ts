@@ -399,8 +399,8 @@ export default class Records extends Plugin {
 
             // Sort and slice records, assign ranks
             this.records.sort((a, b) => {
-                const timeA = a.time ?? Number.POSITIVE_INFINITY;
-                const timeB = b.time ?? Number.POSITIVE_INFINITY;
+                const timeA = a.time ?? 0;
+                const timeB = b.time ?? 0;
                 if (timeA === timeB) {
                     const dateA = new Date(a.updatedAt ?? 0).getTime();
                     const dateB = new Date(b.updatedAt ?? 0).getTime();

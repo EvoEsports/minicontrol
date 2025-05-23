@@ -350,8 +350,14 @@ export default class Dedimania extends Plugin {
                 this.maxRank,
                 this.getDedimaniaPlayers(),
             );
+            if (res.Uid !== map.UId) {
+                tmc.cli("¤error¤Dedimania: Map UId does not match.");
+                this.records = [];
+                tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
+                return;
+            }
             this.records = res?.Records ?? [];
-            tmc.debug("Dedimania: Got records.");
+            tmc.debug("¤info¤Dedimania: Got records.");
             tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
         } catch (e: any) {
             this.records = [];
