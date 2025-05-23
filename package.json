@@ -6,7 +6,6 @@
     "migrate": "tsx --env-file=.env migrate.ts",
     "migrate:docker": "tsx migrate.ts",
     "docker": "tsx --expose-gc ./core/minicontrol.ts",
-    "prepare": "husky"
   },
   "type": "module",
   "engines": {
