@@ -1,6 +1,6 @@
-import tm from 'tm-essentials';
-import fs from 'fs';
-import log from '@core/log';
+import tm from "tm-essentials";
+import fs from "node:fs";
+import log from "@core/log";
 
 export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -10,15 +10,25 @@ export function randomInt(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export function processColorString(str: string, prefix: string = ''): string {
+export function uuidv4(): string {
+    // Generates a RFC4122 version 4 UUID
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
+
+export function processColorString(str: string, prefix = ""): string {
+    let result = str;
     const matches = str.matchAll(/¤(\w+)¤/g);
-    for (let match of matches) {
+    for (const match of matches) {
         const code = match[1].toString().toLowerCase();
         if (tmc.settings.colors[code]) {
-            str = str.replaceAll(match[0], `${prefix}$${tmc.settings.colors[code]}`);
+            result = result.replaceAll(match[0], `${prefix}$${tmc.settings.colors[code]}`);
         }
     }
-    return str;
+    return result;
 }
 
 export function chunkArray<T>(array: T[], chunkSize: number): T[][] {
@@ -28,107 +38,107 @@ export function chunkArray<T>(array: T[], chunkSize: number): T[][] {
 export function modLightness(color: string, percent: number) {
     let [h, s, l] = [0, 0, 0];
 
-    if (color.length == 3) {
-        const c = (str: string) => (parseInt(str, 16) * 17) / 255;
-        let [r, g, b] = color.split('');
+    if (color.length === 3) {
+        const c = (str: string) => (Number.parseInt(str, 16) * 17) / 255;
+        const [r, g, b] = color.split("");
         [h, s, l] = rgb2hsl(c(r), c(g), c(b));
     } else {
-        let [r, g, b] = color.matchAll(/[0-9a-f]{2}/gi);
-        [h, s, l] = rgb2hsl(parseInt(r[0], 16) / 255, parseInt(g[0], 16) / 255, parseInt(b[0], 16) / 255);
+        const [r, g, b] = color.matchAll(/[0-9a-f]{2}/gi);
+        [h, s, l] = rgb2hsl(Number.parseInt(r[0], 16) / 255, Number.parseInt(g[0], 16) / 255, Number.parseInt(b[0], 16) / 255);
     }
     let newL = l + percent / 100;
     if (newL > 1) newL = 1;
     if (newL < 0) newL = 0;
-    return hsl2rgb(h, s, newL).join('');
+    return hsl2rgb(h, s, newL).join("");
 }
 
 export function hsl2rgb(h: number, s: number, l: number) {
-    let a = s * Math.min(l, 1 - l);
-    let f = (n: number, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
     const cc = (nb: number) => Math.round(nb * 15).toString(16);
     return [cc(f(0)), cc(f(8)), cc(f(4))];
 }
 
 export function rgb2hsl(r: number, g: number, b: number) {
-    let v = Math.max(r, g, b),
-        c = v - Math.min(r, g, b),
-        f = 1 - Math.abs(v + v - c - 1);
-    let h = c && (v == r ? (g - b) / c : v == g ? 2 + (b - r) / c : 4 + (r - g) / c);
+    const v = Math.max(r, g, b);
+    const c = v - Math.min(r, g, b);
+    const f = 1 - Math.abs(v + v - c - 1);
+    const h = c && (v === r ? (g - b) / c : v === g ? 2 + (b - r) / c : 4 + (r - g) / c);
     return [60 * (h < 0 ? h + 6 : h), f ? c / f : 0, (v + v - c) / 2];
+}
+export function getCountryFromPath(path: string) {
+    if (!path) return "World";
+    if (path.indexOf("World|") === -1) return path;
+    const pathSplit = path.split("|");
+    if (tmc.game.Name === "TmForever") {
+        return pathSplit[1] || pathSplit[0];
+    }
+    return pathSplit[2] || pathSplit[1] || pathSplit[0];
 }
 
 export function parseEntries(entries: any[]) {
-    let out: { [key: string]: any } = {};
+    const out: { [key: string]: any } = {};
     for (const value of entries) {
         out[value.Name] = castType(value.Value);
     }
     return out;
 }
 
-/** @deprecated please use htmlEntities() */
-export function escape(str: string): string {
-    tmc.cli("$fffescape() ¤info¤is deprecated, please use $fffhtmlEntities()");
-    return htmlEntities(str);
-}
-
 export function htmlEntities(str: string): string {
-    const val = (str || '')
-        .replace(/[\u00A0-\u9999<>\&"']/g, i => '&#'+i.charCodeAt(0)+';')
-        .replaceAll(/[$][lh]\[.*?](.*?)([$][lh])?/ig, '$1')
-        .replaceAll(/[$][lh]/gi, '')
-        .replaceAll('--', '-&#45;');
+    let val = (str || "").replace(/[\u00A0-\uFFFF<>\&"']/g, (i) => `&#${i.charCodeAt(0)};`);
+    val = val.replaceAll(/[$][lh]\[.*?](.*?)([$][lh])?/gi, "$1");
+    val = val.replaceAll(/[$][lh]/gi, "");
+    val = val.replaceAll("--", "-&#45;");
     return val;
 }
 
 export function removeLinks(str: string): string {
-    return (str || '').replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, '$1').replaceAll(/[$][lh]/gi, '');
+    return (str || "").replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "");
 }
 
 export function removeColors(str: any): string {
-    if (typeof str == 'string') return tm.TextFormatter.deformat(str ?? '');
-    return (str ?? '').toString();
+    if (typeof str === "string") return tm.TextFormatter.deformat(str ?? "");
+    return (str ?? "").toString();
 }
 
 export function clone(obj: any): any {
-    if (obj === undefined || obj === null || typeof obj !== 'object') return obj;
+    if (obj === undefined || obj === null || typeof obj !== "object") return obj;
     return JSON.parse(JSON.stringify(obj));
 }
 
 export function formatTime(time: number): string {
-    let parsedTime = tm.Time.fromMilliseconds(time).toTmString();
-    if (tmc.game.Name == 'TmForever') return parsedTime.replace(/0$/, '');
+    const parsedTime = tm.Time.fromMilliseconds(time).toTmString();
+    if (tmc.game.Name === "TmForever") return parsedTime.replace(/0$/, "");
     return parsedTime;
 }
 
 export function castType(value: string, type?: string): any {
     if (type !== undefined) {
-        if (type == 'string') return value;
-        else if (type == 'int') return Number.parseInt(value);
-        else if (type == 'float') return Number.parseFloat(value);
-        else if (type == 'number') {
-            if (value.indexOf('.') !== undefined) return Number.parseFloat(value);
-            else return Number.parseInt(value);
-        } else if (type == 'bool' || type == 'boolean') return value == 'true' || value == '1';
-        else if (type == 'array') return value.split(',');
-        else {
-            console.log('Unknown type: ' + type);
-            return null;
+        if (type === "string") return value;
+        if (type === "int") return Number.parseInt(value);
+        if (type === "float") return Number.parseFloat(value);
+        if (type === "number") {
+            if (value.indexOf(".") !== undefined) return Number.parseFloat(value);
+            return Number.parseInt(value);
         }
+        if (type === "bool" || type === "boolean") return value === "true" || value === "1";
+        if (type === "array") return value.split(",");
+        console.log(`Unknown type: ${type}`);
+        return null;
     }
 
-    if (value == 'true') return true;
-    else if (value == 'false') return false;
-    else if (value == 'null') return null;
-    else if (!isNaN(Number.parseFloat(value))) {
-        if (value.includes('.')) return Number.parseFloat(value);
-        else return Number.parseInt(value);
-    } else {
-        return value;
+    if (value === "true") return true;
+    if (value === "false") return false;
+    if (value === "null") return null;
+    if (!Number.isNaN(Number.parseFloat(value))) {
+        if (value.includes(".")) return Number.parseFloat(value);
+        return Number.parseInt(value);
     }
+    return value;
 }
 
-let prevValueMem: number = -1;
-let startValueMem: number = 0;
+let prevValueMem = -1;
+export let startValueMem = 0;
 
 /**
  * @ignore
@@ -137,14 +147,14 @@ export function setMemStart() {
     startValueMem = process.memoryUsage().rss / 1048576;
 }
 
-export function memInfo(section = '') {
+export function memInfo(section = "") {
     const memMB = process.memoryUsage().rss / 1048576;
-    let prefix = '$f22+';
+    let prefix = "$f22+";
     if (memMB < startValueMem) {
-        prefix = '$0f0-';
+        prefix = "$0f0-";
     }
-    section = section != '' ? `¤info¤${section} ` : '';
-    const out = section + ' Mem:' + memMB.toFixed(1) + 'Mb  Diff:' + prefix + Math.abs(memMB - startValueMem).toFixed(1) + 'Mb';
+    const sectionInfo = section !== "" ? `¤info¤${section} ` : "";
+    const out = `${sectionInfo} ¤info¤Mem: $fff${memMB.toFixed(1)}Mb ¤info¤Diff: ${prefix}${Math.abs(memMB - startValueMem).toFixed(1)}Mb`;
     prevValueMem = memMB;
     return processColorString(out);
 }
@@ -152,7 +162,7 @@ export function memInfo(section = '') {
 export function isDocker() {
     const hasEnv = () => {
         try {
-            fs.statSync('/.dockerenv');
+            fs.statSync("/.dockerenv");
             return true;
         } catch {
             return false;
@@ -160,7 +170,7 @@ export function isDocker() {
     };
     const hasGroup = () => {
         try {
-            return fs.readFileSync('/proc/self/cgroup', 'utf8').includes('docker');
+            return fs.readFileSync("/proc/self/cgroup", "utf8").includes("docker");
         } catch {
             return false;
         }
@@ -179,19 +189,14 @@ export function getCallerName() {
         const caller: any = stack[2];
         if (caller) {
             log.debug(
-                '$fff└ $4cb' +
-                    caller.getTypeName() +
-                    '$fff.$eea' +
-                    caller.getMethodName() +
-                    '$fb1()    $333vscode://vscode-remote/wsl+ubuntu/' +
-                    caller.getFileName().replace('file:///', '') +
-                    ':' +
-                    caller.getLineNumber()
+                `$fff└ $4cb${caller.getTypeName()}$fff.$eea${caller.getMethodName()}$fb1()    $333vscode://vscode-remote/wsl+ubuntu/${caller
+                    .getFileName()
+                    .replace("file:///", "")}:${caller.getLineNumber()}`,
             );
         }
     }
 }
 
 export function escapeRegex(text: string) {
-    return text.replaceAll(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    return text.replaceAll(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }

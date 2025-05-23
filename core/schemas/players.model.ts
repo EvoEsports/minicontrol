@@ -1,5 +1,4 @@
-import { Table, Column, Model, HasMany, PrimaryKey, Unique, Index, DataType, NotNull, AllowNull } from 'sequelize-typescript';
-
+import { Table, Column, Model, HasMany, PrimaryKey, Unique, Index, DataType, NotNull, AllowNull } from "sequelize-typescript";
 
 @Table({ tableName: "players", timestamps: true })
 class Player extends Model {
@@ -16,11 +15,16 @@ class Player extends Model {
     customNick?: string | null;
 
     @Column(DataType.BOOLEAN)
-    allowOverride?: boolean | null = true;
+    allowOverride?: boolean | null;
 
     @Column(DataType.STRING)
     zone?: string | null;
 
+    @Column(DataType.INTEGER)
+    totalPlaytime?: number | null;
+
+    @Column(DataType.INTEGER)
+    connectCount?: number | null;
 }
 
 export default Player;

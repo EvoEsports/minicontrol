@@ -1,7 +1,6 @@
-import Plugin from '@core/plugins';
+import Plugin from "@core/plugins";
 
 export default class FunCommands extends Plugin {
-
     async onLoad() {
         tmc.addCommand("/afk", this.command_afk.bind(this), "Go AFK");
         tmc.addCommand("/bootme", this.command_bootme.bind(this), "Boot yourself");
@@ -37,25 +36,24 @@ export default class FunCommands extends Plugin {
     async command_afk(login: string, _data: any) {
         const player = await tmc.getPlayer(login);
         tmc.chat(`¤white¤${player.nickname} ¤info¤is now away from keyboard.`);
-        tmc.server.send(`ForceSpectator`, login, 1);
-        tmc.server.send(`ForceSpectator`, login, 0);
-
+        tmc.server.send("ForceSpectator", login, 1);
+        tmc.server.send("ForceSpectator", login, 0);
     }
 
     async command_bootme(login: string, _data: any) {
         const player = await tmc.getPlayer(login);
         tmc.chat(`¤white¤${player.nickname}$z$s¤white¤ chooses to boot back to real life!`);
-        await tmc.server.call(`Kick`, login, `chooses to boot to real life`);
+        await tmc.server.call("Kick", login, "chooses to boot to real life");
     }
 
     async command_rq(login: string, _data: any) {
         const player = await tmc.getPlayer(login);
         tmc.chat(`$f00ARRRGGGGHHHHHH!!! ${player.nickname}$z$s$o$f00 RAGE QUITS!!`);
-        await tmc.server.call(`Kick`, login, `rage quit.`);
+        await tmc.server.call("Kick", login, "rage quit.");
     }
 
     async command_bwoah(_login: string, _data: any) {
-        tmc.chat(`$o$i$f00B$f30W$f50O$f70A$f80H$f90!$fa0!`);
+        tmc.chat("$o$i$f00B$f30W$f50O$f70A$f80H$f90!$fa0!");
     }
 
     async command_gg(login: string, _data: any) {
@@ -94,10 +92,10 @@ export default class FunCommands extends Plugin {
     }
 
     async command_posture(_login: string, _data: any) {
-        tmc.chat(`$o$0f9P$0faO$0faS$0fbT$0ecU$0ecR$0edE$0ed $0deC$0deH$0dfE$0dfC$0cfK`);
+        tmc.chat("$o$0f9P$0faO$0faS$0fbT$0ecU$0ecR$0edE$0ed $0deC$0deH$0dfE$0dfC$0cfK");
     }
 
     async command_hydrate(_login: string, _data: any) {
-        tmc.chat(`$o$18fH$09fY$09fD$0afR$0bfA$0bfT$0cfI$0dfO$1dfN  $1dfC$0cfH$0bfE$09fC$18fK`);
+        tmc.chat("$o$18fH$09fY$09fD$0afR$0bfA$0bfT$0cfI$0dfO$1dfN  $1dfC$0cfH$0bfE$09fC$18fK");
     }
 }

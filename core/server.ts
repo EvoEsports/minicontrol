@@ -1,7 +1,8 @@
-import { GbxClient } from './gbx';
-import EventEmitter from 'node:events';
+import { GbxClient } from "./gbx";
+import EventEmitter from "node:events";
 
 export interface ServerOptions {
+    LadderMode: any;
     Name: string;
     Comment: string;
     Password: string;
@@ -23,6 +24,11 @@ export interface ServerOptions {
     AutoSaveReplays: boolean;
 }
 
+export interface VersionStruct {
+    Name: string;
+    Version?: string;
+    Build?: string;
+}
 /**
  * Server class
  */
@@ -39,10 +45,11 @@ export default class Server {
     /** @ignore */
     scriptCalls: { [key: string]: Promise<any> } = {};
 
-    login: string = '';
-    name: string = '';
-    packmask: string = '';
+    login = "";
+    name = "";
+    packmask = "";
     serverOptions: ServerOptions = {} as ServerOptions;
+    version: VersionStruct = {} as VersionStruct;
 
     constructor() {
         this.events.setMaxListeners(100);
@@ -50,71 +57,70 @@ export default class Server {
     }
 
     onDisconnect(str: string) {
-        tmc.cli('¤error¤Disconnected from server. ' + str);
+        tmc.cli(`¤error¤Disconnected from server. ${str}`);
         process.exit(1);
     }
 
     async onCallback(method: string, data: any) {
-        method = method.replace(/(ManiaPlanet\.)|(TrackMania\.)/i, 'Trackmania.').replace('Challenge', 'Map');
-        if (method == 'Trackmania.Echo') {
-            if (data[0] == 'MiniControl' && data[1] != tmc.startTime) {
-                tmc.cli('¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!');
+        const normalizedMethod = method.replace(/(ManiaPlanet\.)|(TrackMania\.)/i, "Trackmania.").replace("Challenge", "Map");
+        const isDebug = process.env.DEBUG_GBX === "true";
+
+        // Handle Trackmania.Echo
+        if (normalizedMethod === "Trackmania.Echo") {
+            if (data[0] === "MiniControl" && data[1] !== tmc.startTime.toString()) {
+                tmc.cli("¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!");
                 process.exit(1);
-            } else if (data[0] == 'MiniControl' && data[1] == tmc.startTime) {
+            } else if (data[0] === "MiniControl" && data[1] === tmc.startTime.toString()) {
                 await tmc.afterStart();
             }
+            return;
         }
-        // convert script events to legacy
-        if (method == 'Trackmania.ModeScriptCallbackArray') {
+
+        // Handle ModeScriptCallbackArray
+        if (normalizedMethod === "Trackmania.ModeScriptCallbackArray") {
             let params = data[1];
             try {
                 params = JSON.parse(params);
             } catch (err) {
                 console.log(err);
             }
-            const outmethod = data[0].replace(/(ManiaPlanet\.)|(TrackMania\.)/i, 'Trackmania.');
+            const outmethod = data[0].replace(/(ManiaPlanet\.)|(TrackMania\.)/i, "Trackmania.");
 
-            // convert waypoints to checkpoints
-            if (outmethod == 'Trackmania.Event.WayPoint') {
-                if (params.isendrace) {
-                    this.events.emit('TMC.PlayerFinish', [params.login, params.racetime, params]);
+            switch (outmethod) {
+                case "Trackmania.Event.WayPoint":
+                    if (params.isendrace) {
+                        this.events.emit("TMC.PlayerFinish", [params.login, params.racetime, params]);
+                    } else {
+                        this.events.emit("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace, params]);
+                    }
                     return;
-                } else {
-                    this.events.emit('TMC.PlayerCheckpoint', [params.login, params.racetime, params.checkpointinrace, params]);
+                case "Trackmania.Event.GiveUp":
+                    this.events.emit("TMC.PlayerGiveup", [params.login]);
                     return;
-                }
+                default:
+                    if (isDebug) console.log(outmethod, params);
+                    this.events.emit(outmethod, params);
+                    return;
             }
-            if (outmethod == 'Trackmania.Event.GiveUp') {
-                this.events.emit('TMC.PlayerGiveup', [params.login]);
-                return;
-            }
-            if (process.env.DEBUG == 'true') {
-                console.log(outmethod, params);
-            }
-
-            this.events.emit(outmethod, params);
-            return;
         }
 
-        switch (method) {
-            case 'Trackmania.PlayerCheckpoint': {
-                this.events.emit('TMC.PlayerCheckpoint', [data[1], data[2], data[4]]);
+        // Handle legacy events
+        switch (normalizedMethod) {
+            case "Trackmania.PlayerCheckpoint":
+                this.events.emit("TMC.PlayerCheckpoint", [data[1].toString(), data[2], data[4]]);
                 return;
-            }
-            case 'Trackmania.PlayerFinish': {
+            case "Trackmania.PlayerFinish":
+                if (data[0] === 0) return;
                 if (data[2] < 1) {
-                    this.events.emit('TMC.PlayerGiveup', [data[1]]);
-                    return;
+                    this.events.emit("TMC.PlayerGiveup", [data[1].toString()]);
+                } else {
+                    this.events.emit("TMC.PlayerFinish", [data[1].toString(), data[2]]);
                 }
-                this.events.emit('TMC.PlayerFinish', [data[1], data[2]]);
                 return;
-            }
+            default:
+                if (isDebug) console.log(normalizedMethod, data);
+                this.events.emit(normalizedMethod, data);
         }
-        if (process.env.DEBUG == 'true') {
-            console.log(method, data);
-        }
-
-        this.events.emit(method, data);
     }
 
     /**
@@ -124,33 +130,31 @@ export default class Server {
      * @returns
      */
     async call(method: string, ...args: any) {
-        if (tmc.game.Name == 'TmForever') {
-            method = method.replace('Map', 'Challenge');
+        let callMethod = method;
+        if (this.version.Name === "TmForever") {
+            callMethod = callMethod.replace("Map", "Challenge");
         }
-        tmc.debug('$27fcall ¤white¤<> $89a' + method);
-        if (tmc.game.Name == 'Trackmania' || tmc.game.Name == 'ManiaPlanet') {
-            if (method == 'SetTimeAttackLimit') {
+        tmc.debug(`$27fcall ¤white¤<> $89a${callMethod}`);
+        if (this.methodOverrides[callMethod]) {
+            return this.methodOverrides[callMethod](...args);
+        }
+
+        if (this.version.Name === "Trackmania" || this.version.Name === "ManiaPlanet") {
+            if (method === "SetTimeAttackLimit") {
                 const settings = { S_TimeLimit: Number.parseInt(args[0]) / 1000 };
-                await tmc.server.call('SetModeScriptSettings', settings);
+                tmc.server.send("SetModeScriptSettings", settings);
                 return;
             }
         }
-        if (this.methodOverrides[method]) {
-            return await this.methodOverrides[method](...args);
-        }
-        try {
-            return await this.gbx.call(method, ...args);
-        } catch (e: any) {
-            tmc.cli(e.message);
-            return undefined;
-        }
+
+        return this.gbx.call(callMethod, ...args);
     }
     /**
      * adds override for a method
      * @param method method to override
      * @param callback callback function
      */
-    addOverride(method: string, callback: Function) {
+    addOverride(method: string, callback: CallableFunction) {
         this.methodOverrides[method] = callback;
     }
 
@@ -165,7 +169,13 @@ export default class Server {
     addListener(method: string, callback: any, obj: object) {
         const wrapper = callback.bind(obj);
         wrapper.listener = callback;
-        this.events.on(method, wrapper);
+        this.events.addListener(method, wrapper);
+    }
+
+    prependListener(method: string, callback: any, obj: object) {
+        const wrapper = callback.bind(obj);
+        wrapper.listener = callback;
+        this.events.prependListener(method, wrapper);
     }
 
     removeListener(method: string, callback: any) {
@@ -183,22 +193,25 @@ export default class Server {
      * @returns
      */
     send(method: string, ...args: any) {
-        if (tmc.game.Name == 'TmForever') {
-            method = method.replace('Map', 'Challenge');
+        let sendMethod = method;
+        if (this.version.Name === "TmForever") {
+            sendMethod = sendMethod.replace("Map", "Challenge");
         }
-        //  tmc.debug("$4a2send ¤white¤>> $89a" + method);
-        if (tmc.game.Name == 'Trackmania' || tmc.game.Name == 'ManiaPlanet') {
-            if (method == 'SetTimeAttackLimit') {
+        //  tmc.debug("$4a2send ¤white¤>> $89a" + sendMethod);
+        if (this.methodOverrides[sendMethod]) {
+            return this.methodOverrides[sendMethod](...args);
+        }
+
+        if (this.version.Name === "Trackmania" || this.version.Name === "ManiaPlanet") {
+            if (sendMethod === "SetTimeAttackLimit") {
                 const settings = { S_TimeLimit: Number.parseInt(args[0]) / 1000 };
-                this.gbx.send('SetModeScriptSettings', settings);
+                this.gbx.send("SetModeScriptSettings", settings);
                 return;
             }
         }
-        if (this.methodOverrides[method]) {
-            return this.methodOverrides[method](...args);
-        }
+
         try {
-            this.gbx.send(method, ...args);
+            return this.gbx.send(sendMethod, ...args);
         } catch (e: any) {
             tmc.cli(e.message);
             return undefined;
@@ -211,14 +224,48 @@ export default class Server {
      * @param args
      * @returns
      */
-    async callScript(method: string, ...args: any) {
-        return this.gbx.callScript(method, ...args);
+    async callScript(method: string, ...args: any): Promise<any> {
+        const response = new Promise((resolve, reject) => {
+            try {
+                this.gbx.callScript(method, ...args);
+                const timeout = setTimeout(() => {
+                    reject(new Error(`Script call to ${method} timed out after 1 seconds`));
+                }, 1000);
+                this.events.once(method.replace("Get", ""), (result: any) => {
+                    clearTimeout(timeout);
+                    resolve(result);
+                });
+            } catch (e: any) {
+                reject(e);
+            }
+        });
+        return response;
+    }
+
+    /**
+     * call script method
+     * @param method
+     * @param args
+     * @returns
+     */
+    async sendScript(method: string, ...args: any): Promise<any> {
+        await this.gbx.callScript(method, ...args);
     }
 
     /** perform multicall */
     async multicall(methods: any[]) {
         try {
             return this.gbx.multicall(methods);
+        } catch (e: any) {
+            tmc.cli(e.message);
+            return undefined;
+        }
+    }
+
+    /** perform multicall */
+    async multisend(methods: any[]) {
+        try {
+            return this.gbx.multisend(methods);
         } catch (e: any) {
             tmc.cli(e.message);
             return undefined;
@@ -232,7 +279,7 @@ export default class Server {
      */
     async connect(host: string, port: number): Promise<boolean> {
         try {
-            return await this.gbx.connect(host, port);
+            return this.gbx.connect(host, port);
         } catch (e: any) {
             tmc.cli(e.message);
         }
@@ -241,17 +288,45 @@ export default class Server {
 
     /**
      * Fetch server name and server login
+     * @ignore
      */
-    async fetchServerInfo(): Promise<void> {
-        let serverPlayerInfo = await this.gbx.call('GetMainServerPlayerInfo');
-        let serverOptions = await this.gbx.call('GetServerOptions');
-        let version = await this.gbx.call('GetVersion');
-        this.packmask ='Stadium';
-        if (version.Name != 'Trackmania') {
-            this.packmask = await this.gbx.call('GetServerPackMask');
+    async fetchServerInfo() {
+        const serverPlayerInfo = await this.gbx.call("GetMainServerPlayerInfo");
+        const serverOptions = await this.gbx.call("GetServerOptions");
+        this.version = await this.gbx.call("GetVersion");
+        this.packmask = "Stadium";
+        if (this.version.Name !== "Trackmania") {
+            this.packmask = await this.gbx.call("GetServerPackMask");
         }
+        this.gbx.game = this.version.Name;
         this.login = serverPlayerInfo.Login;
         this.name = serverOptions.Name;
         this.serverOptions = serverOptions;
+    }
+
+    /**
+     * @ignore
+     */
+    async limitScriptCallbacks() {
+        if (this.version.Name !== "Trackmania") return;
+        const cbList = await tmc.server.callScript("XmlRpc.GetCallbacksList");
+        const filteredList = cbList.callbacks.filter((cb: string) => {
+            let bool = false;
+            if (
+                cb.endsWith("_Start") ||
+                cb.endsWith("_End") ||
+                cb.startsWith("Trackmania.Event.On") ||
+                cb === "Trackmania.Event.SkipOutro" ||
+                cb === "Trackmania.Event.StartLine"
+            ) {
+                bool = true;
+            }
+            return bool;
+        });
+        tmc.server.sendScript("XmlRpc.BlockCallbacks", ...filteredList);
+        const enabledCb = await tmc.server.callScript("XmlRpc.GetCallbacksList_Enabled", "123");
+        tmc.debug(
+            `¤info¤Enabled Script Callbacks: $fff${enabledCb.callbacks.length}/${cbList.callbacks.length} ¤gray¤(${enabledCb.callbacks.join(", ")})`,
+        );
     }
 }

@@ -3,4 +3,5 @@
 {% block content %}
     <label pos="{{size.width / 2}} -{{ 0.5 * size.width + 2}}" z-index="2" size="20 4" text="${{colors.widget_text}}{{ data.text }}" halign="center" valign="center2" textfont="RobotoCondensed" textsize="1" />
 	<label pos="{{size.width / 2}} -{{ 0.5 * size.width - 1.5}}" z-index="2" size="20 4" text="${{colors.widget_text}}{{ data.amount }}" style="TextRaceChrono" halign="center" valign="center2" scale="0.3" />
+    <label pos="0 0" z-index="1" size="{{size.width}} {{size.height}}" text=" " focusareacolor1="{{ colors.widget_bg }}9" focusareacolor2="{{colors.highlight}}9" action="{{ actions['openWidget'] }}" />
 {% endblock %}

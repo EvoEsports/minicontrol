@@ -7,8 +7,8 @@ export default class TmnfUi extends Plugin {
 
     async onLoad() {
         this.widget = new Widget("core/plugins/tmnf/ui/widget.xml.twig");
-        this.widget.pos = {x: 121, y: 72.5, z: -20};
-        this.widget.size = {width: 38, height: 10};
+        this.widget.pos = { x: 121, y: 72.5, z: -20 };
+        this.widget.size = { width: 38, height: 10 };
         await this.widget.display();
     }
 
@@ -16,5 +16,4 @@ export default class TmnfUi extends Plugin {
         this.widget?.hide();
         this.widget = null;
     }
-
 }

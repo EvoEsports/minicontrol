@@ -1,0 +1,69 @@
+# Minicontorl and Trackmania Forever server
+
+# usage:
+# 1. chmod -R 777 tracks
+# 2. chmod -R 777 userdata
+# 3. docker-compose up -d
+
+services:
+  trackmania:
+    image: evoesports/trackmaniaforever:latest
+    restart: unless-stopped
+    ports:
+      # increase all by one ex: 2351:2350/upd for more servers
+      - 2350:2350/udp
+      - 2350:2350/tcp
+      - 3450:3450/udp
+      - 3450:3450/tcp
+      # - 5000:5000/tcp     # Be careful opening XMLRPC! Only if you know what you're doing.
+    environment:
+      # change to your external ip address for others to join, notice right port as well
+      TMF_SYSTEM_FORCE_IP_ADDRESS: "127.0.0.1:2350"
+
+      # get from https://players.trackmaniaforever.com/
+      TMF_MASTERSERVER_LOGIN: ""
+      TMF_MASTERSERVER_PASSWORD: ""
+      # TMF_MASTERSERVER_VALIDATION_KEY: ""             # to enable coppers for server
+
+      TMF_SERVER_NAME: "MINIcontrol test server"        # CHANGE THIS
+      TMF_SERVER_COMMENT: ""
+      TMF_SERVER_NAME_OVERWRITE: true
+      TMF_SYSTEM_XMLRPC_ALLOWREMOTE: true
+      TMF_GAME_SETTINGS: "tracklist.txt"
+      TMF_SYSTEM_PACKMASK: "stadium"
+      TMF_SERVER_ENABLE_P2P_UPLOAD: false
+      TMF_SERVER_ENABLE_P2P_DOWNLOAD: false
+      TMF_SERVER_MAX_PLAYERS: 100
+      TMF_SERVER_MAX_SPECTATORS: 32
+      TMF_SYSTEM_CONNECTION_UPLOADRATE: 10240
+      TMF_SYSTEM_CONNECTION_DOWNLOADRATE: 10240
+
+    volumes:
+      - "./tracks:/server/GameData/Tracks"
+      - GameData:/server/GameData
+  minicontrol:
+    image: evoesports/minicontrol:latest
+    restart: unless-stopped
+    depends_on:
+        trackmania:
+            condition: service_healthy
+    environment:
+      XMLRPC_HOST: "trackmania"
+      XMLRPC_PORT: "5000"
+      XMLRPC_USER: "SuperAdmin"
+      XMLRPC_PASS: "SuperAdmin"
+      EXCLUDED_PLUGINS: "tm2020, tmnf/freezone"
+      DEDIMANIA_PASS: ""                                # use same pass as TMF_MASTERSERVER_PASSWORD
+      DATABASE: "sqlite://userdata/local.sqlite"        # or "mysql://user:pass@host:port/db"
+      ERROR_REPORTING: true
+      DEBUG: false
+      DEBUGLEVEL: 1
+      ANSILEVEL: 2
+      TALIMIT: 300
+      # initial admin access, you can add more admin ingame later with //admin add <login>
+      ADMINS: ""
+    volumes:
+      - "./tracks:/server/GameData/Tracks"
+      - "./userdata:/minicontrol/userdata"
+volumes:
+    GameData: null

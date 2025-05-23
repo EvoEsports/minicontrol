@@ -1,6 +1,7 @@
-import {clone, htmlEntities, formatTime} from '@core/utils';
-import Plugin from '..';
-import QueueWindow from './queueWIndow';
+import { clone, htmlEntities, formatTime } from "@core/utils";
+import Plugin from "..";
+import QueueWindow from "./queueWIndow";
+import Menu from "@core/plugins/menu/menu";
 
 export interface Map {
     UId: string;
@@ -24,6 +25,8 @@ export default class Jukebox extends Plugin {
         tmc.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
         tmc.addCommand("//requeue", this.cmdRequeue.bind(this), "Add current map to the front of the queue");
         tmc.addCommand("//prev", this.cmdPrev.bind(this), "Skip to previous map");
+        tmc.settings.register("jukebox.enabled", true, null, "Jukebox: Enable/Disable jukebox");
+
         if (tmc.game.Name === "TmForever") {
             tmc.server.addListener("Trackmania.EndMap", this.onEndRace, this);
         } else {
@@ -41,62 +44,58 @@ export default class Jukebox extends Plugin {
         tmc.removeCommand("//cjb");
         tmc.removeCommand("//requeue");
         tmc.removeCommand("//prev");
-        tmc.storage["menu"]?.removeItem("Show: Queue");
-        tmc.storage["menu"]?.removeItem("Adm: Requeue");
-        tmc.storage["menu"]?.removeItem("Adm: Prev");
     }
 
     async onStart() {
-        if (tmc.storage["menu"]) {
-            tmc.storage["menu"].addItem({
-                category: "Map",
-                title: "Show: Queue",
-                action: "/jb"
-            });
+        const menu = Menu.getInstance();
+        menu.addItem({
+            category: "Map",
+            title: "Jukebox",
+            action: "/jb",
+        });
 
-            tmc.storage["menu"].addItem({
-                category: "Map",
-                title: "Adm: Requeue",
-                action: "//requeue",
-                admin: true
-            });
+        menu.addItem({
+            category: "Map",
+            title: "Replay Map again",
+            action: "//requeue",
+            admin: true,
+        });
 
-            tmc.storage["menu"].addItem({
-                category: "Map",
-                title: "Adm: Prev",
-                action: "//prev",
-                admin: true
-            });
-        }
+        menu.addItem({
+            category: "Map",
+            title: "Previous Map",
+            action: "//prev",
+            admin: true,
+        });
     }
 
     async cmdQueue(login: any, params: string[]) {
         let map: any = null;
-        if (process.env.DISABLE_MAP_QUEUE == "true") {
+        if (!tmc.settings.get("jukebox.enabled")) {
             tmc.chat("¤info¤Map queue is disabled", login);
             return;
         }
-        if (params.length == 0) {
-            tmc.chat(`¤info¤Usage: /addqueue < map index or map uid >`, login);
+        if (params.length === 0) {
+            tmc.chat("¤info¤Usage: /addqueue < map index or map uid >", login);
             return;
         }
         if (params[0].toString().length < 5) {
-            let index = Number.parseInt(params[0]) - 1;
+            const index = Number.parseInt(params[0]) - 1;
             map = tmc.maps.getMaplist()[index];
         } else {
-            map = tmc.maps.getMaplist().find((m: any) => m.UId == params[0]);
+            map = tmc.maps.getMaplist().find((m: any) => m.UId === params[0]);
         }
         if (!map) {
             tmc.chat("¤info¤map not found", login);
             return;
         }
         const player = await tmc.players.getPlayer(login);
-        const previous = this.queue.find(m => m.QueueBy === login);
+        const previous = this.queue.find((m) => m.QueueBy === login);
         if (previous && !tmc.admins.includes(login)) {
             tmc.chat("¤info¤You already have a map in queue", login);
             return;
         }
-        if (this.queue.find(m => m.UId === map.UId)) {
+        if (this.queue.find((m) => m.UId === map.UId)) {
             tmc.chat("¤info¤Map already in queue", login);
             return;
         }
@@ -117,11 +116,11 @@ export default class Jukebox extends Plugin {
         let index: number;
         let map: any;
         if (tmc.admins.includes(login) && args.length > 0) {
-            index = parseInt(args[0]) - 1;
+            index = Number.parseInt(args[0]) - 1;
             map = this.queue[index];
         } else {
-            map = this.queue.find(m => m.QueueBy === login);
-            index = this.queue.findIndex(m => m == map);
+            map = this.queue.find((m) => m.QueueBy === login);
+            index = this.queue.findIndex((m) => m === map);
             if (index === -1) {
                 tmc.chat(`¤info¤You don't have any map in queue`, login);
                 return;
@@ -146,7 +145,7 @@ export default class Jukebox extends Plugin {
         const player = await tmc.players.getPlayer(login);
 
         if (map) {
-            if (this.queue[0]?.UId == map.UId) return tmc.chat("¤info¤Map already in queue", login);
+            if (this.queue[0]?.UId === map.UId) return tmc.chat("¤info¤Map already in queue", login);
 
             this.queue.unshift({
                 UId: map.UId,
@@ -160,7 +159,7 @@ export default class Jukebox extends Plugin {
             });
             tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤requeued by ¤white¤${player.nickname}`);
         } else {
-            tmc.chat(`¤info¤Could not requeue map`, login);
+            tmc.chat("¤info¤Could not requeue map", login);
         }
     }
 
@@ -169,7 +168,7 @@ export default class Jukebox extends Plugin {
         const player = await tmc.players.getPlayer(login);
 
         if (!map) return tmc.chat("¤error¤No previous map", login);
-        if (map.UId == tmc.maps.currentMap?.UId) return tmc.chat("¤error¤Previous map is the same as the current map", login);
+        if (map.UId === tmc.maps.currentMap?.UId) return tmc.chat("¤error¤Previous map is the same as the current map", login);
 
         this.queue.unshift({
             UId: map.UId,
@@ -211,22 +210,21 @@ export default class Jukebox extends Plugin {
                     Author: htmlEntities(map.Author),
                     AuthorTime: formatTime(map.AuthorTime),
                     QueueNickName: htmlEntities(map.QueueNickName),
-                })
+                }),
             );
         }
-        window.title = "Map Queue [" + maps.length + "]";
-        window.size = {width: 205, height: 95};
+        window.title = `Map Queue [${maps.length}]`;
+        window.size = { width: 205, height: 95 };
         window.setItems(maps);
         window.setColumns([
-            {key: "Index", title: "#", width: 4},
-            {key: "Name", title: "Name", width: 50},
-            {key: "Author", title: "Author", width: 30},
-            {key: "Environment", title: "Environment", width: 25},
-            {key: "QueueNickName", title: "Wish by", width: 50}
+            { key: "Index", title: "#", width: 4 },
+            { key: "Name", title: "Name", width: 50 },
+            { key: "Author", title: "Author", width: 30 },
+            { key: "Environment", title: "Environment", width: 25 },
+            { key: "QueueNickName", title: "Wish by", width: 50 },
         ]);
 
         window.setActions(["Drop"]);
-        await window.display()
+        window.display();
     }
-
 }

@@ -1,4 +1,4 @@
-import { clone, sleep } from './utils';
+import { clone } from "./utils";
 
 interface PlayerRanking {
     Path: string;
@@ -24,36 +24,36 @@ interface LadderStats {
  * Player class
  */
 export class Player {
-    login: string = '';
-    nickname: string = '';
-    playerId: number = -1;
-    teamId: number = -1;
-    path = '';
-    language = 'en';
-    clientVersion = '';
-    iPAddress = '';
-    downloadRate: number = -1;
-    uploadRate: number = -1;
-    isSpectator: boolean = false;
-    ladderRanking: number = 0;
+    login = "";
+    nickname = "";
+    playerId = -1;
+    teamId = -1;
+    path = "";
+    language = "en";
+    clientVersion = "";
+    iPAddress = "";
+    downloadRate = -1;
+    uploadRate = -1;
+    isSpectator = false;
+    ladderRanking = 0;
     ladderStats?: LadderStats;
     avatar?: Avatar;
-    hoursSinceZoneInscription: number = -1;
+    hoursSinceZoneInscription = -1;
     /** 3 for united */
     onlineRights = -1;
-    isAdmin: boolean = false;
-    spectatorTarget: number = 0;
-    flags: number = 0;
+    isAdmin = false;
+    spectatorTarget = 0;
+    flags = 0;
     [key: string]: any; // Add index signature
 
-    async syncFromDetailedPlayerInfo(data: any) {
-        for (let key in data) {
+    syncFromDetailedPlayerInfo(data: any) {
+        for (const key in data) {
             let k = key[0].toLowerCase() + key.slice(1);
-            if (k == 'nickName') {
-                k = 'nickname';
-                data[key] = data[key].replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, '$1').replaceAll(/[$][lh]/gi, '');
+            if (k === "nickName") {
+                k = "nickname";
+                data[key] = data[key].replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "");
             }
-            if (k == 'flags') {
+            if (k === "flags") {
                 this.spectatorTarget = Math.floor(data.SpecatorStatus / 10000);
             }
             this[k] = data[key];
@@ -71,13 +71,12 @@ export class Player {
     set(key: string, value: any) {
         this[key] = value;
     }
-
 }
 /**
  * PlayerManager class
  */
 export default class PlayerManager {
-    private players: any = {};
+    private players: { [key: string]: Player } = {};
 
     /**
      * Initialize the player manager
@@ -85,8 +84,8 @@ export default class PlayerManager {
      * @ignore
      */
     async init(): Promise<void> {
-        tmc.server.addListener('Trackmania.PlayerInfoChanged', this.onPlayerInfoChanged, this);
-        const players = await tmc.server.call('GetPlayerList', -1, 0);
+        tmc.server.addListener("Trackmania.PlayerInfoChanged", this.onPlayerInfoChanged, this);
+        const players = await tmc.server.call("GetPlayerList", -1, 0);
         for (const data of players) {
             if (data.PlayerId === 0) continue;
             await this.getPlayer(data.Login);
@@ -98,25 +97,25 @@ export default class PlayerManager {
      * @ignore
      */
     afterInit() {
-        tmc.server.addListener('Trackmania.PlayerConnect', this.onPlayerConnect, this);
-        tmc.server.addListener('Trackmania.PlayerDisconnect', this.onPlayerDisconnect, this);
+        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
     }
 
     /**
      * @ignore
      */
     private async onPlayerConnect(data: any) {
-        const login = data[0];
+        const login = data[0].toString();
         if (login) {
             if (this.players[login]) {
                 tmc.cli(`$888Player ${login} already connected, kicking player due a bug to allow them joining again.`);
-                await tmc.server.call('Kick', login, "You are already connected, please rejoin.");
+                tmc.server.send("Kick", login, "You are already connected, please rejoin.");
                 return;
             }
             const player = await this.getPlayer(login);
-            tmc.server.emit('TMC.PlayerConnect', player);
+            tmc.server.emit("TMC.PlayerConnect", player);
         } else {
-            tmc.debug('¤error¤Unknown player tried to connect, ignored.');
+            tmc.debug("¤error¤Unknown player tried to connect, ignored.");
         }
     }
 
@@ -126,12 +125,12 @@ export default class PlayerManager {
      * @param data data from the server
      */
     private async onPlayerDisconnect(data: any) {
-        const login = data[0];
+        const login = data[0].toString();
         if (login && this.players[login]) {
-            tmc.server.emit('TMC.PlayerDisconnect', clone(this.players[login]));
+            tmc.server.emit("TMC.PlayerDisconnect", clone(this.players[login]));
             delete this.players[login];
         } else {
-            tmc.debug('¤Error¤Unknown player tried to disconnect or player not found at server. ignored.');
+            tmc.debug(`¤Error¤Unknown player ($fff${login}¤error¤) tried to disconnect or player not found at server. ignored.`);
         }
     }
 
@@ -143,14 +142,18 @@ export default class PlayerManager {
         return Object.values(this.players);
     }
 
+    getAllLogins(): string[] {
+        return Object.keys(this.players);
+    }
+
     /**
      * get player by nickname
      * @param nickname
      * @returns {Player | null} Returns the player object or null if not found
      */
     getPlayerbyNick(nickname: string): Player | null {
-        for (let player in this.players) {
-            if (this.players[player].nick == nickname) return this.players[player];
+        for (const player in this.players) {
+            if (this.players[player].nick === nickname) return this.players[player];
         }
         return null;
     }
@@ -161,13 +164,17 @@ export default class PlayerManager {
      * @returns {Player} Returns the player object
      */
     async getPlayer(login: string): Promise<Player> {
+        if (login === tmc.server.login) {
+            tmc.cli("¤error¤Tried to fetch server login as a player.");
+            return new Player();
+        }
         if (this.players[login]) return this.players[login];
 
         try {
             tmc.debug(`$888Player "${login}" not found, fetching from server.`);
-            const data = await tmc.server.call('GetDetailedPlayerInfo', login);
+            const data = await tmc.server.call("GetDetailedPlayerInfo", login);
             const player = new Player();
-            await player.syncFromDetailedPlayerInfo(data);
+            player.syncFromDetailedPlayerInfo(data);
             this.players[login] = player;
             return player;
         } catch (e: any) {
@@ -182,14 +189,14 @@ export default class PlayerManager {
      * @returns
      */
     private async onPlayerInfoChanged(data: any) {
-        data = data[0];
-        if (data.PlayerId === 0) return;
-        if (this.players[data.Login]) {
-            this.players[data.Login].syncFromPlayerInfo(data);
+        const playerData = data[0].toString();
+        if (playerData.PlayerId === 0 || playerData.Login === tmc.server.login) return;
+        if (this.players[playerData.Login]) {
+            this.players[playerData.Login].syncFromPlayerInfo(playerData);
         } else {
             // if player is joined, fetch detailed info
-            if (Math.floor(data.Flags / 100000000) % 10 === 1) {
-                await this.getPlayer(data.Login);
+            if (Math.floor(playerData.Flags / 100000000) % 10 === 1) {
+                this.getPlayer(playerData.Login);
             }
         }
     }

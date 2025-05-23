@@ -1,21 +1,19 @@
-import type { Player } from '@core/playermanager';
-import Plugin from '@core/plugins';
-import type { DediRecord } from '@core/plugins/tmnf/dedimania';
-import Widget from '@core/ui/widget';
-import { formatTime, escape, removeColors } from '@core/utils';
-
+import type { Player } from "@core/playermanager";
+import Plugin from "@core/plugins";
+import type { DediRecord } from "@core/plugins/tmnf/dedimania";
+import Widget from "@core/ui/widget";
+import { formatTime, htmlEntities } from "@core/utils";
 
 export default class DedimaniaWidget extends Plugin {
-    static depends: string[] = ["tmnf/dedimania"];
+    static depends: string[] = ["game:TmForever", "tmnf/dedimania"];
     records: DediRecord[] = [];
     widgets: { [key: string]: Widget } = {};
-
 
     async onLoad() {
         tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
         tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
-        tmc.server.addListener('Plugin.Dedimania.onSync', this.onSync, this);
-        tmc.server.addListener('Plugin.Dedimania.onNewRecord', this.onUpdate, this);
+        tmc.server.addListener("Plugin.Dedimania.onSync", this.onSync, this);
+        tmc.server.addListener("Plugin.Dedimania.onNewRecord", this.onUpdate, this);
     }
 
     async onUnload() {
@@ -23,8 +21,8 @@ export default class DedimaniaWidget extends Plugin {
             await this.widgets[login].destroy();
             delete this.widgets[login];
         }
-        tmc.server.removeListener('Plugin.Dedimania.onSync', this.onSync);
-        tmc.server.removeListener('Plugin.Dedimania.onNewRecord', this.onUpdate);
+        tmc.server.removeListener("Plugin.Dedimania.onSync", this.onSync);
+        tmc.server.removeListener("Plugin.Dedimania.onNewRecord", this.onUpdate);
     }
 
     async onPlayerConnect(player: Player) {
@@ -65,13 +63,13 @@ export default class DedimaniaWidget extends Plugin {
             widget = new Widget("core/plugins/widgets/dedimania/widget.xml.twig");
             widget.title = "DEDIMANIA";
             widget.recipient = login;
-            widget.pos = { x: -158, y: 30 };
+            widget.pos = { x: 121, y: 35, z: 0 };
             widget.size = { width: 38, height: 45 };
             widget.setOpenAction(this.widgetClick.bind(this));
         }
 
         let outRecords: any[] = this.records.slice(0, 5);
-        let myIndex = this.records.findIndex((val: any) => val.login == login);
+        const myIndex = this.records.findIndex((val: any) => val.login === login);
 
         let addRecords = true;
         if (myIndex !== -1) {
@@ -85,13 +83,14 @@ export default class DedimaniaWidget extends Plugin {
         }
 
         for (const rec of outRecords) {
+            rec.rank = rec.Rank;
             rec.formattedTime = formatTime(rec.Best);
-            rec.nickname = escape(rec.NickName);
+            rec.nickname = htmlEntities(rec.NickName);
         }
 
         widget.setData({ records: outRecords });
         widget.size.height = 4 * outRecords.length + 1;
-        if (outRecords.length == 0) {
+        if (outRecords.length === 0) {
             widget.size.height = 4;
         }
         this.widgets[login] = widget;
@@ -100,5 +99,4 @@ export default class DedimaniaWidget extends Plugin {
     async widgetClick(login: string, data: any) {
         await tmc.chatCmd.execute(login, "/dedirecords");
     }
-
 }

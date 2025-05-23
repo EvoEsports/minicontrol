@@ -1,7 +1,8 @@
-import Plugin from '@core/plugins';
-import ListWindow from '@core/ui/listwindow';
-import Widget from '@core/ui/widget';
-import {formatTime, htmlEntities} from '@core/utils';
+import Plugin from "@core/plugins";
+import ListWindow from "@core/ui/listwindow";
+import Widget from "@core/ui/widget";
+import { formatTime, htmlEntities } from "@core/utils";
+import Menu from "@core/plugins/menu/menu";
 
 interface Time {
     nickname: string;
@@ -10,10 +11,12 @@ interface Time {
 }
 
 export default class BestCps extends Plugin {
-    id: string = "";
+    static depends = ["widgets"];
+
+    id = "";
     bestTimes: Time[] = [];
-    nbCheckpoints: number = -1;
-    maxCp: number = 16;
+    nbCheckpoints = -1;
+    maxCp = 16;
     widget: Widget | null = null;
 
     async onLoad() {
@@ -21,8 +24,8 @@ export default class BestCps extends Plugin {
         tmc.server.addListener("TMC.PlayerCheckpoint", this.checkpoint, this);
         tmc.chatCmd.addCommand("/checkpoints", this.cmdCheckpoints.bind(this), "Display best Checkpoints");
         this.widget = new Widget("core/plugins/widgets/bestcps/widget.xml.twig");
-        this.widget.pos = {x: -160, z: 0, y: 90};
-        this.widget.size = {width: 240, height: 20};
+        this.widget.pos = { x: -160, z: 0, y: 90 };
+        this.widget.size = { width: 240, height: 20 };
         const info = tmc.maps.currentMap;
         this.nbCheckpoints = info?.NbCheckpoints || -1;
         await this.display();
@@ -38,14 +41,12 @@ export default class BestCps extends Plugin {
     }
 
     async onStart() {
-        const menu = tmc.storage["menu"];
-        if (menu) {
-            menu.addItem({
-                category: "Map",
-                title: "Show: Best Checkpoints",
-                action: "/checkpoints"
-            });
-        }
+        const menu = Menu.getInstance();
+        menu.addItem({
+            category: "Records",
+            title: "Live Checkpoints",
+            action: "/checkpoints",
+        });
     }
 
     async checkpoint(data: any) {
@@ -54,7 +55,7 @@ export default class BestCps extends Plugin {
         const nb = data[2];
         if (!this.bestTimes[nb - 1] && nb > 0) return;
         if (!this.bestTimes[nb] || time < this.bestTimes[nb].time) {
-            this.bestTimes[nb] = {nickname: htmlEntities((await tmc.getPlayer(login)).nickname), time: time, prettyTime: formatTime(time)};
+            this.bestTimes[nb] = { nickname: htmlEntities((await tmc.getPlayer(login)).nickname), time: time, prettyTime: formatTime(time) };
             await this.display();
         }
     }
@@ -67,7 +68,7 @@ export default class BestCps extends Plugin {
     async display() {
         this.widget?.setData({
             maxCps: this.maxCp,
-            checkpoints: this.bestTimes
+            checkpoints: this.bestTimes,
         });
         this.widget?.display();
     }
@@ -77,27 +78,26 @@ export default class BestCps extends Plugin {
             tmc.chat("¤error¤No Checkpoints found!", login);
             return;
         }
-        let checkpoints:any = [];
+        const checkpoints: any = [];
         let checkpointNumber = 1;
         for (const checkpoint of this.bestTimes) {
-            checkpoints.push(
-                {
-                    checkpoint: checkpointNumber,
-                    nickname: checkpoint.nickname,
-                    time: checkpoint.prettyTime
-                });
+            checkpoints.push({
+                checkpoint: checkpointNumber,
+                nickname: checkpoint.nickname,
+                time: checkpoint.prettyTime,
+            });
             checkpointNumber++;
         }
         const window = new ListWindow(login);
-        window.size = {width: 100, height: 100};
+        window.size = { width: 100, height: 100 };
         window.title = `Best Checkpoints [${this.bestTimes.length}]`;
         window.setItems(checkpoints);
         window.setColumns([
-            {key: "checkpoint", title: "Checkpoint", width: 20},
-            {key: "nickname", title: "Nickname", width: 50},
-            {key: "time", title: "Time", width: 20},
+            { key: "checkpoint", title: "Checkpoint", width: 20 },
+            { key: "nickname", title: "Nickname", width: 50 },
+            { key: "time", title: "Time", width: 20 },
         ]);
 
-        await window.display();
+        window.display();
     }
 }

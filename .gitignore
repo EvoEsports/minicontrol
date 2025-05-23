@@ -142,3 +142,8 @@ userdata/schemas/*
 !userdata/migrations/.gitkeep
 !userdata/plugins/.gitkeep
 docker-compose.yml
+tracks/*.Gbx
+tracks/MatchSettings/*.txt
+!tracks/example.Challenge.Gbx
+!tracks/MatchSettings/tracklist.txt
+!tracks/MatchSettings/example.txt

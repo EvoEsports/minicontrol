@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { sleep } from "@core/utils";
 
 interface Tokens {
@@ -105,16 +105,15 @@ export default class API {
         return (await this.fetchUrl(url, token, login))["mapList"] as MapInfo[];
     }
 
-    async getLeaderboard(mapUid: string, login: string, length: number = 50, offset: number = 0) {
+    async getLeaderboard(mapUid: string, login: string, length = 50, offset = 0) {
         const token = await this.getToken(AUDIENCES.NadeoLiveServices, login);
         if (!token) return;
         const url = `${this.LIVE_URL}/api/token/leaderboard/group/Personal_Best/map/${mapUid}/top?length=${length}&onlyWorld=true&offset=${offset}`;
         return (await this.fetchUrl(url, token, login)) as LeaderboardResponse;
     }
-    
 
     async downloadMap(url: string, uid: string, login: string) {
-        let filePath = `nadeo/${uid}.Map.Gbx`;
+        const filePath = `nadeo/${uid}.Map.Gbx`;
         const res = await fetch(url, { keepalive: false });
 
         if (!res || !res.ok) {
@@ -142,9 +141,8 @@ export default class API {
                         await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
                     }
                     return;
-                } else {
-                    tmc.chat(`¤info¤Added map but couldn't find map info!`);
                 }
+                tmc.chat(`¤info¤Added map but couldn't find map info!`);
             } catch (e: any) {
                 tmc.chat(e, login);
                 return;
@@ -166,9 +164,8 @@ export default class API {
                 await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
             }
             return;
-        } else {
-            tmc.chat(`¤info¤Added map but couldn't find map info!`);
         }
+        tmc.chat(`¤info¤Added map but couldn't find map info!`);
     }
 
     async downloadMaps(mapUids: string[], login: string) {

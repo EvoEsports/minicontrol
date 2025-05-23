@@ -1,8 +1,9 @@
-import Plugin from '@core/plugins';
-import { Sequelize } from 'sequelize-typescript';
-import { QueryTypes } from 'sequelize';
-import ListWindow from '@core/ui/listwindow';
-import Player from '@core/schemas/players.model';
+import Plugin from "@core/plugins";
+import type { Sequelize } from "sequelize-typescript";
+import { QueryTypes } from "sequelize";
+import ListWindow from "@core/ui/listwindow";
+import Player from "@core/schemas/players.model";
+import Menu from "../menu/menu";
 
 interface Ranking {
     rank: number;
@@ -11,32 +12,44 @@ interface Ranking {
 }
 
 export default class Players extends Plugin {
-    static depends: string[] = ['database', 'records'];
+    static depends: string[] = ["database", "records"];
     rankings: Ranking[] = [];
 
     async onLoad() {
-        tmc.server.addListener('Trackmania.EndMap', this.onEndMap, this);
-        tmc.addCommand('/topranks', this.cmdRankings.bind(this), 'Show ranks');
-        tmc.addCommand('/rank', this.cmdMyRank.bind(this), 'Show my rank');
-        this.rankings = await this.getPlayerRanking();
+        tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
+        tmc.addCommand("/top100", this.cmdRankings.bind(this), "Show top ranks");
+        tmc.addCommand("/topranks", this.cmdRankings.bind(this), "Show top ranks");
+        tmc.addCommand("/rank", this.cmdMyRank.bind(this), "Show my rank");
+        this.onEndMap(null);
+
+        Menu.getInstance().addItem({
+            category: "Records",
+            title: "Top Rankings",
+            action: "/topranks",
+        });
+        Menu.getInstance().addItem({
+            category: "Records",
+            title: "My Rank",
+            action: "/rank",
+        });
     }
 
     async onUnload() {
-        tmc.server.removeListener('Trackmania.EndMap', this.onEndMap);
+        tmc.server.removeListener("Trackmania.EndMap", this.onEndMap);
     }
 
-    async onEndMap(data: any) {
-        this.rankings = await this.getPlayerRanking();
-    }
-
-    async getPlayerRanking(): Promise<Ranking[]> {
-        const sequelize: Sequelize = tmc.storage['db'];
+    async onEndMap(_data: any) {
+        const sequelize: Sequelize = tmc.storage["db"];
         const mapUids = tmc.maps.getUids();
         const mapCount = mapUids.length;
-        const maxRank = parseInt(process.env.MAX_RECORDS || '100');
+        const maxRank = tmc.settings.get("records.maxRecords") || 100;
         const rankedRecordCount = 3;
-        const rankings: Ranking[] = await sequelize.query(
-            `SELECT row_number() OVER (order by average) as rank, login, average as avg FROM (
+        console.time("rankings");
+        tmc.debug(`¤info¤Fetching rankings for $fff${mapCount} ¤info¤maps`);
+
+        sequelize
+            .query(
+                `SELECT row_number() OVER (order by average) as rank, login, average as avg FROM (
             SELECT
                 login,
                 (1.0 * (SUM(player_rank) + (? - COUNT(player_rank)) * ?) / ? * 10000) AS average,
@@ -55,29 +68,30 @@ export default class Players extends Plugin {
             ) grouped_ranks
             WHERE ranked_records_count >= ? order by average asc
             `,
-            {
-                type: QueryTypes.SELECT,
-                raw: true,
-                replacements: [
-                    mapCount,
-                    maxRank,
-                    mapCount,
-                    mapUids,
-                    maxRank,
-                    rankedRecordCount
-                ],
-            }
-        );
-        return rankings;
+                {
+                    type: QueryTypes.SELECT,
+                    raw: true,
+                    replacements: [mapCount, maxRank, mapCount, mapUids, maxRank, rankedRecordCount],
+                },
+            )
+            .then((result: any) => {
+                this.rankings = result as Ranking[];
+                tmc.debug(`¤info¤Rankings fetched: $fff${this.rankings.length}`);
+                console.timeEnd("rankings");
+            })
+            .catch((err: any) => {
+                tmc.cli(`¤error¤Error while fetching rankings: ${err}`);
+                this.rankings = [];
+            });
     }
 
     async cmdMyRank(login: string, _args: string[]) {
-        const rank = this.rankings.find((val) => val.login == login);
+        const rank = this.rankings.find((val) => val.login === login);
         if (rank) {
             const avg = (rank.avg / 10000).toFixed(2);
             tmc.chat(`Your server rank is ${rank.rank}/${this.rankings.length} with average ${avg}`, login);
         } else {
-            tmc.chat(`No rankings found.`, login);
+            tmc.chat("No rankings found.", login);
         }
     }
 
@@ -89,21 +103,21 @@ export default class Players extends Plugin {
         for (const rank of this.rankings) {
             if (x > 100) break;
             const avg = rank.avg / 10000;
-            const player = players.find((val) => val.login == rank.login);
+            const player = players.find((val) => val.login === rank.login);
             outRanks.push({
                 rank: rank.rank,
                 nickname: player?.customNick ?? player?.nickname ?? "Unknown",
-                avg: avg.toFixed(2)
+                avg: avg.toFixed(2),
             });
             x += 1;
         }
 
         window.setItems(outRanks);
         window.setColumns([
-            { key: 'rank', title: 'Rank', width: 20 },
-            { key: 'nickname', title: 'Name', width: 60 },
-            { key: 'avg', title: 'Average', width: 20 }
+            { key: "rank", title: "Rank", width: 20 },
+            { key: "nickname", title: "Name", width: 60 },
+            { key: "avg", title: "Average", width: 20 },
         ]);
-        await window.display();
+        window.display();
     }
 }

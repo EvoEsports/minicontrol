@@ -1,10 +1,10 @@
 import Plugin from "@core/plugins";
-import Widget from '@core/ui/widget';
+import Widget from "@core/ui/widget";
 import type { Like } from "@core/plugins/maplikes";
-import MapLikes from "@core/plugins/maplikes";
+import type MapLikes from "@core/plugins/maplikes";
 
 export default class MapLikesWidget extends Plugin {
-    static depends: string[] = ["database", 'maplikes'];
+    static depends: string[] = ["widgets", "database", "maplikes"];
     widget: Widget | null = null;
     records: any[] = [];
 
@@ -12,23 +12,19 @@ export default class MapLikesWidget extends Plugin {
         tmc.server.addListener("Plugin.MapLikes.onSync", this.onSync, this);
         this.widget = new Widget("core/plugins/widgets/maplikes/widget.xml.twig");
         if (tmc.game.Name === "TmForever") {
-            this.widget.pos = { x: -159, y: 54, z: 1 };
-        }
-        else {
+            this.widget.pos = { x: 121, y: 60, z: 1 };
+        } else {
             this.widget.pos = { x: 121, y: 60, z: 1 };
         }
 
         this.widget.size = { width: 38, height: 10 };
-        this.widget.actions['like'] = tmc.ui.addAction(this.actionLike.bind(this), 1);
-        this.widget.actions['dislike'] = tmc.ui.addAction(this.actionLike.bind(this), -1);
-    };
-
+        this.widget.actions["like"] = tmc.ui.addAction(this.actionLike.bind(this), 1);
+        this.widget.actions["dislike"] = tmc.ui.addAction(this.actionLike.bind(this), -1);
+    }
 
     async actionLike(login: string, value: number) {
-        if (value > 0)
-        (tmc.plugins['maplikes'] as MapLikes)?.updateVote(login,1);
-        else
-        (tmc.plugins['maplikes'] as MapLikes)?.updateVote(login,-1);
+        if (value > 0) (tmc.plugins["maplikes"] as MapLikes)?.updateVote(login, 1);
+        else (tmc.plugins["maplikes"] as MapLikes)?.updateVote(login, -1);
     }
 
     async onUnload() {
@@ -56,8 +52,8 @@ export default class MapLikesWidget extends Plugin {
                 }
                 total++;
             }
-            let percentage = ((positive / total * 100).toFixed(0) || 0) + "%";
-            const percent = positive / total * 100;
+            let percentage = `${((positive / total) * 100).toFixed(0) || 0}%`;
+            const percent = (positive / total) * 100;
 
             if (percent < 40) wording = "Not Fun";
             if (percent > 50) wording = "Fun";
@@ -67,18 +63,16 @@ export default class MapLikesWidget extends Plugin {
                 wording = "Neutral";
             }
 
-
             this.widget.setData({
                 percentage: percentage,
                 wording: wording,
                 positive: positive,
                 negative: negative,
-                width: (positive / total * (this.widget.size.width-12)).toFixed(0)
+                width: ((positive / total) * (this.widget.size.width - 12)).toFixed(0),
             });
 
-            this.widget.title = "MAP KARMA ["+data.length+"]";
+            this.widget.title = `MAP KARMA [${data.length}]`;
             await this.widget.display();
         }
     }
-
 }

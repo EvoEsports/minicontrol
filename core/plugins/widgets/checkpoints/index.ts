@@ -2,8 +2,8 @@ import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
 
-
 export default class Checkpoints extends Plugin {
+    static depends = ["widgets"];
     checkpointCounter: { [key: string]: number } = {};
     widgets: { [key: string]: Widget } = {};
 
@@ -44,10 +44,9 @@ export default class Checkpoints extends Plugin {
                 currentCheckpoint: this.checkpointCounter[login] || 0,
             };
             this.widgets[login] = widget;
-            await widget.display();
+            widget.display();
         }
     }
-
 
     async onPlayerDisconnect(player: Player) {
         const login = player.login;
@@ -57,10 +56,12 @@ export default class Checkpoints extends Plugin {
     }
 
     async onHideWidget(data: any) {
-        const players = tmc.players.getAll();
-        for (const player of players) {
-            if (this.widgets[player.login]) {
-                await this.widgets[player.login].hide();
+        const minPlayers = tmc.settings.get("widgets.performance");
+        const logins = tmc.players.getAllLogins();
+        if (logins.length >= minPlayers) return;
+        for (const login of logins) {
+            if (this.widgets[login]) {
+                await this.widgets[login].hide();
             }
         }
     }
@@ -75,7 +76,7 @@ export default class Checkpoints extends Plugin {
     }
 
     async onPlayerCheckpoint(data: any) {
-        this.checkpointCounter[data[0]] = parseInt(data[2])+1;
+        this.checkpointCounter[data[0]] = Number.parseInt(data[2]) + 1;
         if (this.checkpointCounter[data[0]] < (tmc.maps.currentMap?.NbCheckpoints || 0)) {
             await this.displayWidget(data[0]);
         }
@@ -87,11 +88,14 @@ export default class Checkpoints extends Plugin {
     }
 
     async onPlayerGiveup(data: any) {
-        this.checkpointCounter[data[0]] = 0;
+        this.checkpointCounter[data[0].toString()] = 0;
         await this.displayWidget(data[0]);
     }
 
     async displayWidget(login: string) {
+        const minPlayers = tmc.settings.get("widgets.performance");
+        if (tmc.players.getAllLogins().length >= minPlayers) return;
+
         if (!this.widgets[login]) {
             const player = await tmc.getPlayer(login);
             await this.onPlayerConnect(player);

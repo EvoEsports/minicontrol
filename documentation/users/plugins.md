@@ -173,19 +173,10 @@ Provides voting.
 |:---                 |:---         |
 |`/skip` | start vote to skip map |
 |`/extend` | start vote to extend |
+|`/res` | start vote to restart map |
 |`/yes` | vote yes |
 |`/no` | vote no |
-|`//vote <custom,skip,extend> "question here"` | start custom, extend or skip vote |
+|`//vote <custom,skip,extend,res> "question here"` | start custom, extend or skip vote |
 |`//extend <seconds>` | force extend map in seconds, can be negative |
 |`//pass` | force pass vote |
 |`//cancel`| force cancel vote |
-
-## Environment
-
-| Config Var            | Description       |
-|:---                   |:---               |
-| VOTE_TIMEOUT          | defaults to 30    |
-| VOTE_RATIO            | defaults to 0.55  |
-| MAX_RECORDS           | defaults to 100  |
-| WORLD_RECORDS         | defaults to 100  |
-| UPDATE_RECORDS        | defaults to 60  |

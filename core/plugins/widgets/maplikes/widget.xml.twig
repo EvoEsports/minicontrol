@@ -1,12 +1,12 @@
 {% extends "core/templates/widget.xml.twig" %}
 
 {% block content %}
-    <frame pos="1 -1.5">
-        <quad pos="5 -3" z-index="2" size="{{ data.width }} 3" bgcolor="FFF" valign="center"/>
-        <quad pos="5 -3" z-index="1" size="{{ size.width - 12 }} 3" bgcolor="aaa" valign="center"/>
-        <label pos="{{ size.width * 0.5}} -3" z-index="3" size="{{ size.width }} 3" text="{{ data.percentage }}" halign="center" valign="center2" textcolor="000" textsize="1.5"/>
-        <label pos="2.5 -3" z-index="4" size="5 3" text="-" halign="center" valign="center2" focusareacolor1="C00" action="{{ actions.dislike }}" focusareacolor2="F00"/>
-        <label pos="{{ size.width - 5 }} -3" z-index="4" size="5 3" text="+" halign="center" valign="center" focusareacolor1="0d0" focusareacolor2="0f0" action="{{ actions.like }}"/>
+    <frame pos="1 -2">
+        <quad pos="6 -3" z-index="2" size="{{ data.width - 2 }} 3" bgcolor="FFF" valign="center"/>
+        <quad pos="6 -3" z-index="1" size="{{ size.width - 14 }} 3" bgcolor="aaa" valign="center"/>
+        <label pos="{{ size.width * 0.5}} -3.25" z-index="3" size="{{ size.width }} 3" text="{{ data.percentage }}" halign="center" valign="center2" textcolor="000" textsize="1.25"/>
+        <label pos="2.5 -3" z-index="4" size="5 3" text="--" halign="center" valign="center2" focusareacolor1="{{colors.button_bg}}" action="{{ actions.dislike }}" focusareacolor2="{{colors.highlight}}" textsize="1.1"/>
+        <label pos="{{ size.width - 5 }} -3" z-index="4" size="5 3" text="++" halign="center" valign="center" focusareacolor1="{{colors.button_bg}}" focusareacolor2="{{colors.highlight}}" action="{{ actions.like }}" textsize="1.1"/>
     </frame>
     <quad pos="0 0" z-index="-1" size="{{ size.width }} {{ size.height }}" bgcolor="{{ colors.widget_bg }}9" />
 {% endblock %}

@@ -1,5 +1,5 @@
 import sqlite3 from 'sqlite3';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync} from 'fs';
 import { Sequelize, UpdatedAt } from 'sequelize-typescript';
 import { removeColors, chunkArray } from './core/utils';
 import log from './core/log';
@@ -90,19 +90,21 @@ async function main() {
     await init();
     let sql = readFileSync(process.argv[2], 'utf-8');
     sql = sql
-        .replaceAll('int(11) NOT NULL AUTO_INCREMENT', 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT')
-        .replaceAll('mediumint(9) NOT NULL AUTO_INCREMENT', 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT')
-        .replaceAll(/PRIMARY KEY \(`.*?`\),/g, '');
+        .replaceAll(/UNSIGNED /ig, '')
+        .replaceAll(/PRIMARY KEY \(`.*?`\),/g, '')
+        .replaceAll(/PRIMARY KEY /g, '')
+        .replaceAll(/mediumint.*? NOT NULL AUTO_INCREMENT/gi, 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT')
+        .replaceAll(/int.*? NOT NULL AUTO_INCREMENT/gi, 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT');
+
     sql = sql.replaceAll(/UNIQUE KEY `.*?` \((.*?)\),?/g, 'UNIQUE ($1)').replaceAll(/KEY `(.*?)` \(`.*?`\),?/g, '');
     sql = sql
         .replaceAll(/(UN)?LOCK TABLES.*?;/g, '')
         .replaceAll(/ENGINE=.*?;/g, ';')
         .replaceAll(/[\\]'(?!,)/g, '`')
-        .replaceAll('unsigned', '');
     sql = sql
-        .replaceAll('CHARACTER SET utf8 COLLATE utf8_bin', '')
-        .replaceAll(/COMMENT .*?,/g, ',')
-        .replaceAll("enum('true','false')", 'text');
+        .replaceAll(/CHARACTER SET (.*?) COLLATE (.*?) /g, '')
+        .replaceAll(/COMMENT ('.*?'),?/gi, ',')
+        .replaceAll(/enum\(.*?\)/gi, 'text');
     sql = sql
         .replaceAll(/,(\s*?)(\)|$)/g, '$2')
         .replaceAll(/,(\s*?)$/g, '')
@@ -123,10 +125,12 @@ async function main() {
     log.info('$5bfMigrating $fffXAseco $5bfdatabase to $fffMINIcontrol...');
     log.info('$5bfPlease wait and do not interrupt the process...');
     log.info('$5bfProcessing maps...');
-    const dbMaps: any = await query('SELECT Id, * FROM challenges;');
+    const dbMaps: any = await query('SELECT DISTINCT Uid, * FROM challenges;');
     log.info('Total: ' + dbMaps.length);
     let outMaps: any = [];
     for (const map of dbMaps) {
+        if (outMaps.find((m: any) => m.uuid == map.Uid)) continue;
+        if (map.Uid == null) continue;
         maps[map.Id] = map.Uid;
         outMaps.push({
             uuid: map.Uid,
@@ -173,6 +177,7 @@ async function main() {
     let outRecords: any = [];
     for (const record of dbRecords) {
         if (!players[record.PlayerId]) continue;
+        if (!maps[record.ChallengeId]) continue;
         outRecords.push({
             mapUuid: maps[record.ChallengeId],
             login: players[record.PlayerId],
@@ -181,6 +186,7 @@ async function main() {
             updatedAt: record.UpdatedAt
         });
     }
+
     try {
         for (const tempRecords of chunkArray(outRecords, 500)) {
             await Score.bulkCreate(tempRecords as any);

@@ -9,11 +9,11 @@
 
 # Requirements
 
-- Node.js LTS installed
-- (optional) MySQL or PostgreSQL database
-- Windows, Linux or MacOS host
+-   Node.js LTS installed
+-   (optional) MySQL or PostgreSQL database
+-   Windows, Linux or MacOS host
 
-# Quick  Start
+# Quick Start
 
 ## With Node.js
 
@@ -22,22 +22,56 @@
 3. Copy `.env.example` to `.env` and fill out all necessary information in the `.env` file.
 4. Run `npm start`
 
-## With Docker
+## With Docker + TMNF server
 
-- See `docker/compose.yml` for an example Docker Compose file.
+1. Run `chmod -R 777 tracks`
+2. Run `chmod -R 777 userdata`
+3. Run `cp docker-compose.yml.example docker-compose.yml`
+4. Edit `docker-compose.yml`
+5. Run `docker compose up -d`
 
 See [documentation](./documentation/index.md) for more info!
 
+## Notes for migrating databases
+
+Minicontrol migrate tool uses in-memory sqlite database to process the MySQL data.
+This means not all MySQL features works, its adviced to remove transactions and creating indexes from the .sql dumpfile. With your favourite text editor, remove these lines, if exists:
+
+```sql
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+-- keep everything between
+-- and remove ending COMMIT:
+
+COMMIT;
+
+```
+
+You also need to remove all `ALTER TABLE` instructions from the .sql dump
+
+**Example:**
+
+```sql
+-- remove ALTER TABLE until semicolon ;
+ALTER TABLE `rs_times`
+  ADD PRIMARY KEY (`ID`),
+  ADD KEY `playerID` (`playerID`,`challengeID`),
+  ADD KEY `challengeID` (`challengeID`),
+  ADD KEY `score` (`score`);
+```
+
 # Migrating from XAseco?
 
-1. Export your old XAseco database with `mysqldump -u root -p databasename > xaseco.sql`
+1. Export your XAseco database with `mysqldump -u root -p databasename > xaseco.sql`
 2. Move `xaseco.sql` to the main folder of MINIcontrol
 3. Run in MINIControl folder: `tsx --env-file=.env xaseco.ts xaseco.sql`
 4. Start MINIcontrol
 
 # Migrating from PyPlanet?
 
-1. Export your old XAseco database with `mysqldump -u root -p databasename > pyplanet.sql`
+1. Export your PyPlanet database with `mysqldump -u root -p databasename > pyplanet.sql`
 2. Move `pyplanet.sql` to the main folder of MINIcontrol
 3. Run in MINIControl folder: `tsx --env-file=.env pyplanet.ts pyplanet.sql`
 4. Start MINIcontrol
@@ -58,4 +92,4 @@ We will not respond to random pull requests.
 
 ## If you want to test your core changes in Docker
 
-- Build a local docker image: `docker build -t minicontrol:test -f docker/Dockerfile . `
+-   Build a local docker image: `docker build -t minicontrol:test -f docker/Dockerfile . `

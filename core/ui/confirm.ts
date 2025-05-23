@@ -1,5 +1,5 @@
-import Widget from './widget';
-import { htmlEntities } from '../utils';
+import Widget from "./widget";
+import { htmlEntities } from "../utils";
 
 /**
     @example
@@ -18,22 +18,20 @@ export default class Confirm extends Widget {
         this.pos = { x: 0, y: 20, z: 10 };
         this.callback = callback;
         this.params = params;
-        this.data['question'] = htmlEntities(question);
-        this.actions['close'] = tmc.ui.addAction(this.hide.bind(this), "");
-        this.actions['apply'] = tmc.ui.addAction(this.apply.bind(this), "");
+        this.data.question = htmlEntities(question);
+        this.actions.close = tmc.ui.addAction(this.hide.bind(this), "");
+        this.actions.apply = tmc.ui.addAction(this.apply.bind(this), "");
     }
 
     /**
      * closes the window
      */
     async hide() {
-        await super.destroy();
+        super.destroy();
     }
 
     async apply(_login: string, _answer: any, _entries: string[]) {
-            await this.callback(...this.params);
-            await super.destroy();
+        this.callback(...this.params);
+        super.destroy();
     }
 }
-
-
