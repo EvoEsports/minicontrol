@@ -2,3 +2,4 @@
 npx @biomejs/biome lint
 npx @biomejs/biome format --write --use-editorconfig=true
 tsx ./updateVersion.ts
+git add version.json
