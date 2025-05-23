@@ -239,7 +239,6 @@ export default class Dedimania extends Plugin {
             return 0;
         });
 
-        this.records = this.records.slice(0, this.maxRank);
         for (let i = 0; i < this.records.length; i++) {
             this.records[i].Rank = i + 1;
             if (this.records[i].Login === player.login) {
@@ -247,11 +246,15 @@ export default class Dedimania extends Plugin {
             }
         }
 
-        tmc.server.emit("Plugin.Dedimania.onNewRecord", {
-            oldRecord: clone(oldRecord),
-            record: clone(newRecord),
-            records: clone(this.records),
-        });
+        this.records = this.records.slice(0, this.maxRank);
+
+        if (newRecord.Rank < this.maxRank) {
+            tmc.server.emit("Plugin.Dedimania.onNewRecord", {
+                oldRecord: clone(oldRecord),
+                record: clone(newRecord),
+                records: clone(this.records),
+            });
+        }
     }
 
     async onEndMap(data: any) {
