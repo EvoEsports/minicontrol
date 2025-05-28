@@ -213,6 +213,12 @@ class MiniControl {
                     if (this.startComplete) this.chat(msg);
                     return;
                 }
+                if (!depend.startsWith("game:") && this.pluginDependecies.dependentsOf(depend).includes(name) && !this.plugins[depend]) {
+                    const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Plugin ¤cmd¤${depend}¤white¤ is not loaded.`;
+                    this.cli(msg);
+                    if (this.startComplete) this.chat(msg);
+                    return;
+                }
             }
 
             // load and init the plugin
