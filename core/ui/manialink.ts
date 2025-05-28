@@ -73,6 +73,7 @@ export default class Manialink {
             colors: tmc.settings.colors,
             data: this.data,
             title: this.title,
+            game: tmc.game.Name,
             recipient: this.recipient,
         };
 

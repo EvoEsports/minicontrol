@@ -1,4 +1,4 @@
-<manialink id="{{ id }}" version="3">
+<manialink id="{{ id }}" version="3" name="{{ title }}">
     <frame pos="-{{ size.width / 2 }} {{ size.height / 2 + pos.y }}" z-index="{{ pos.z }}">
         <quad pos="0 0" z-index="1" size="{{ size.width }} 6" bgcolor="{{ colors.title_bg }}e" halign="left" valign="bottom"/>
         <quad pos="{{ size.width }} 0" z-index="3" size="{{ size.width }} 0.4" bgcolor="{{ colors.highlight }}" opacity="1" valign="top" halign="right"/>
@@ -17,4 +17,7 @@
         <quad/>
     </frame>
     {% block maniascript %}{% endblock %}
+    {% if game == "Trackmania" %}
+        {{ block('maniascript') }}
+    {% endif %}
 </manialink>
