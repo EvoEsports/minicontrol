@@ -351,7 +351,7 @@ export default class UiManager {
         // Render the manialink and build the XML payload.
         const render = await manialink.render();
         const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
-        console.log(render);
+        // console.log(render);
 
         // Dispatch the manialink depending on whether it is public or player-specific.
         if (manialink.recipient !== undefined) {
