@@ -20,6 +20,7 @@ export default class Manialink {
     size: MlSize = { width: 160, height: 95 };
     pos: MlPos = { x: 0, y: 10, z: 1 };
     template = "core/templates/manialink.xml.twig";
+    layer: "normal" | "ScoresTable" | "ScreenIn3d" | "altmenu" | "cutscene" = "normal";
     actions: { [key: string]: string } = {};
     data: { [key: string]: any } = {};
     recipient: string | undefined = undefined;
@@ -61,12 +62,13 @@ export default class Manialink {
     }
 
     /**
-     * render manialink template
-     * @returns
-     */
+    * render manialink template
+    * @returns
+    */
     async render(): Promise<string> {
         const obj = {
             id: this.id,
+            layer: this.layer,
             size: this.size,
             pos: this.pos,
             actions: this.actions,

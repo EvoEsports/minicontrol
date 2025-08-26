@@ -1,14 +1,13 @@
-#Include "TextLib" as TextLib
+#Include "TextLib" as TL
 
 Boolean CheckRightMode() {
-    declare Text[] Matches = TextLib::RegexMatch( """Openplanet ([\d.]+) \((\w+), ([A-Z]\w+), (\d{4}-\d{2}-\d{2})\)(?:\s(?:\[([A-Z]+)\]))*$""", System.ExtraTool_Info, "");
-    log(Matches);
+    declare Text[] Matches = TL::RegexMatch( """Openplanet ([\d.]+) \((\w+), ([A-Z]\w+), (\d{4}-\d{2}-\d{2})\)(?:\s(?:\[([A-Z]+)\]))*$""", System.ExtraTool_Info, "");
     if (Matches.count == 6) {
         if (Matches[5] == "{{ data.signature }}") {
             return True;
         }
     }
-    
+
     return False;
 }
 
@@ -19,14 +18,14 @@ main() {
     declare CMlEntry entry <=> (Page.GetFirstChild("entry") as CMlEntry);
     declare CMlLabel label <=> (Page.GetFirstChild("countdownText") as CMlLabel);
     declare CMlFrame frame <=> (Page.GetFirstChild("infoWindow") as CMlFrame);
-    declare Boolean ValidMode = CheckRightMode();    
-    
+    declare Boolean ValidMode = CheckRightMode();
+
     if (ValidMode) {
         frame.Hide();
     }
 
     label.Value = counter ^ " seconds";
-    
+
     while (True) {
         yield;
         foreach(Event in PendingEvents) {
@@ -42,21 +41,21 @@ main() {
                 Playground.QuitServer(False);
                 return;
             }
-            entry.Value = System.ExtraTool_Info;                        
-            label.Value = counter ^ " seconds";    
-            lastTime = Now;          
+            entry.Value = System.ExtraTool_Info;
+            label.Value = counter ^ " seconds";
+            lastTime = Now;
             counter -= 1;
         }
 
         if (lastToolInfo != System.ExtraTool_Info) {
             lastToolInfo = System.ExtraTool_Info;
-            ValidMode = CheckRightMode();            
+            ValidMode = CheckRightMode();
             if (ValidMode) {
                 frame.Hide();
             } else {
                 frame.Show();
                 counter = 30;
-            }            
-        }     
+            }
+        }
     }
 }
