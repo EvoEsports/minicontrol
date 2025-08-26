@@ -19,28 +19,28 @@ class Score extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
-    id: number | undefined;
+    id!: number;
 
     @Column(DataType.STRING)
-    mapUuid: string | undefined;
+    mapUuid!: string;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
     @HasOne(() => Player, { as: "player", sourceKey: "login", foreignKey: "login" })
-    login: string | undefined;
+    login!: string;
     player?: Player;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.INTEGER)
-    time: number | undefined;
+    time!: number;
 
     @Column(DataType.STRING)
-    checkpoints: string | undefined;
+    checkpoints!: string;
 
     @Column(DataType.VIRTUAL)
-    rank: number | null = null;
+    rank!: number | null;
 }
 
 export default Score;

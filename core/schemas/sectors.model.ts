@@ -19,22 +19,22 @@ class SectorRec extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
-    id: number | undefined;
+    id!: number;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
-    mapUuid: string | undefined;
+    mapUuid!: string;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
-    login: string | undefined;
+    login!: string;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
-    jsonData: string | undefined;
+    jsonData!: string;
 }
 
 export default SectorRec;

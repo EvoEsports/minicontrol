@@ -178,7 +178,7 @@ class MiniControl {
                 this.chat(msg);
                 return;
             }
-            if (!(plugin.default && typeof plugin.default.prototype.getDepends === 'function')) {
+            if (!(plugin.default && typeof plugin.default.prototype.getDepends === "function")) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ is not a valid plugin.`;
                 this.cli(msg);
                 this.chat(msg);
@@ -380,7 +380,11 @@ class MiniControl {
                 tmc.cli(e.message);
             }
         }
-        await this.server.limitScriptCallbacks();
+        try {
+            await this.server.limitScriptCallbacks();
+        } catch (e: any) {
+            tmc.cli(e.message);
+        }
         this.settings.load();
         await this.maps.init();
         await this.players.init();
@@ -450,7 +454,7 @@ class MiniControl {
                 continue;
             }
 
-            if (!(plugin.prototype && typeof plugin.prototype.getDepends === 'function')) {
+            if (!(plugin.prototype && typeof plugin.prototype.getDepends === "function")) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ is not a valid plugin.`;
                 this.cli(msg);
                 cls = undefined;

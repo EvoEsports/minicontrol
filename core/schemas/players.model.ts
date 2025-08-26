@@ -4,27 +4,27 @@ import { Table, Column, Model, HasMany, PrimaryKey, Unique, Index, DataType, Not
 class Player extends Model {
     @PrimaryKey
     @Column(DataType.STRING)
-    login: string | undefined;
+    login!: string;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
-    nickname: string | undefined;
+    nickname!: string;
 
     @Column(DataType.STRING)
-    customNick?: string | null;
+    customNick!: string | null;
 
     @Column(DataType.BOOLEAN)
-    allowOverride?: boolean | null;
+    allowOverride!: boolean | null;
 
     @Column(DataType.STRING)
-    zone?: string | null;
+    zone!: string | null;
 
     @Column(DataType.INTEGER)
-    totalPlaytime?: number | null;
+    totalPlaytime!: number | null;
 
     @Column(DataType.INTEGER)
-    connectCount?: number | null;
+    connectCount!: number | null;
 }
 
 export default Player;

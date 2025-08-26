@@ -10,13 +10,14 @@
         }
     },
     "files": {
-        "include": ["core/**/*.ts", "userdata/plugins/**/*.ts"],
-        "ignore": ["test", "node_modules"]
+        "includes": [
+            "core/**/*.ts",
+            "userdata/plugins/**/*.ts"
+        ]
     },
     "formatter": {
         "enabled": true,
         "formatWithErrors": false,
-        "ignore": [],
         "attributePosition": "auto",
         "indentStyle": "space",
         "indentWidth": 4,

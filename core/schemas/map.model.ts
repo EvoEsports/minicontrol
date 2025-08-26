@@ -6,17 +6,17 @@ class Map extends Model {
     @PrimaryKey
     @Unique
     @Column(DataType.STRING)
-    uuid: string | undefined;
+    uuid!: string;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
-    name: string | undefined;
+    name!: string;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
-    author: string | undefined;
+    author!: string;
 
     @Column(DataType.STRING)
     authorNickname?: string | null;
@@ -24,22 +24,22 @@ class Map extends Model {
     @NotNull
     @AllowNull(false)
     @Column(DataType.INTEGER)
-    authorTime: number | undefined;
+    authorTime!: number;
 
     @Column(DataType.STRING)
-    environment?: string | null;
+    environment!: string | null;
 
     @AllowNull(true)
     @Column(DataType.STRING)
-    playerModel?: string | null;
+    playerModel!: string | null;
 
     @AllowNull(true)
     @Column(DataType.DATE)
-    lastPlayed?: Date | null;
+    lastPlayed!: Date | null;
 
     @AllowNull(true)
     @Column(DataType.STRING)
-    tmxId?: string | null;
+    tmxId!: string | null;
 }
 
 export default Map;

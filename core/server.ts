@@ -229,8 +229,8 @@ export default class Server {
             try {
                 this.gbx.callScript(method, ...args);
                 const timeout = setTimeout(() => {
-                    reject(new Error(`Script call to ${method} timed out after 1 seconds`));
-                }, 1000);
+                    reject(new Error(`Script call to ${method} timed out after 5 seconds`));
+                }, 5000);
                 this.events.once(method.replace("Get", ""), (result: any) => {
                     clearTimeout(timeout);
                     resolve(result);
