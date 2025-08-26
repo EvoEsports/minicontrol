@@ -39,6 +39,7 @@ import path from "node:path";
 import { DepGraph } from "dependency-graph";
 import semver from "semver";
 import version from "../version.json";
+import { pathToFileURL } from "node:url";
 
 /**
  * MiniControl class
@@ -179,7 +180,7 @@ class MiniControl {
                 this.chat(msg);
                 return;
             }
-            if (!(plugin.default.prototype instanceof Plugin)) {
+            if (!(plugin.default && typeof plugin.default.prototype.getDepends === 'function')) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ is not a valid plugin.`;
                 this.cli(msg);
                 this.chat(msg);
@@ -438,11 +439,9 @@ class MiniControl {
                 continue;
             }
             let cls: any = null;
-            if (process.platform === "win32") {
-                cls = await import(`file:///${process.cwd()}/${pluginName}`);
-            } else {
-                cls = await import(`${process.cwd()}/${pluginName}`);
-            }
+            const realPath = fs.realpathSync(`${process.cwd()}/${pluginName}`);
+            const path = pathToFileURL(realPath);
+            cls = await import(path.href);
 
             let plugin: any = cls.default;
 
@@ -453,7 +452,7 @@ class MiniControl {
                 continue;
             }
 
-            if (!(plugin.prototype instanceof Plugin)) {
+            if (!(plugin.prototype && typeof plugin.prototype.getDepends === 'function')) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ is not a valid plugin.`;
                 this.cli(msg);
                 cls = undefined;
