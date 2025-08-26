@@ -168,11 +168,9 @@ class MiniControl {
 
             let plugin: any;
             const epoch = new Date().getTime();
-            if (process.platform === "win32") {
-                plugin = await import(`file:///${process.cwd()}/${pluginPath}?stamp=${epoch}`);
-            } else {
-                plugin = await import(`${process.cwd()}/${pluginPath}?stamp=${epoch}`);
-            }
+            const realPath = fs.realpathSync(`${process.cwd()}/${pluginPath}`);
+            const path = pathToFileURL(realPath);
+            plugin = await import(path.href); // path.href + "?stamp=${epoch}";
 
             if (plugin.default === undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
@@ -403,7 +401,7 @@ class MiniControl {
         const exclude = process.env.EXCLUDED_PLUGINS?.split(",") || [];
         const loadList: string[] = [];
         for (const plugin of plugins) {
-            let include = plugin?.name && plugin.isDirectory();
+            let include = plugin?.name && (plugin.isDirectory() || plugin.isSymbolicLink());
             if (plugin.name.includes(".") || plugin.parentPath.includes(".")) include = false;
             if (plugin.name.includes("node_modules") || plugin.parentPath.includes("node_modules")) include = false;
             const directory = plugin.parentPath
