@@ -26,6 +26,7 @@ interface LadderStats {
 export class Player {
     login = "";
     nickname = "";
+    customNick: string|null = null;
     playerId = -1;
     teamId = -1;
     path = "";
