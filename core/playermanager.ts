@@ -26,6 +26,7 @@ interface LadderStats {
 export class Player {
     login = "";
     nickname = "";
+    customNick: string | null = null;
     playerId = -1;
     teamId = -1;
     path = "";
@@ -63,7 +64,7 @@ export class Player {
 
     syncFromPlayerInfo(data: any) {
         this.login = data.Login;
-        this.teamId = Number.parseInt(data.TeamId);
+        this.teamId = Number.parseInt(data.TeamId, 10);
         this.isSpectator = data.SpectatorStatus !== 0;
         this.isAdmin = tmc.admins.includes(data.Login);
     }
@@ -189,7 +190,7 @@ export default class PlayerManager {
      * @returns
      */
     private async onPlayerInfoChanged(data: any) {
-        const playerData = data[0].toString();
+        const playerData = data[0];
         if (playerData.PlayerId === 0 || playerData.Login === tmc.server.login) return;
         if (this.players[playerData.Login]) {
             this.players[playerData.Login].syncFromPlayerInfo(playerData);
