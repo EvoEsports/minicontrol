@@ -15,6 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 import { require } from "tsx/cjs/api";
 import type * as SentryType from "@sentry/node";
 
@@ -34,7 +35,7 @@ import SettingsManager from "./settingsmanager";
 import { clone, getCallerName, processColorString, setMemStart } from "./utils";
 import log from "./log";
 import fs from "node:fs";
-import Plugin from "./plugins/index";
+import type Plugin from "./plugins/index";
 import path from "node:path";
 import { DepGraph } from "dependency-graph";
 import semver from "semver";
@@ -166,11 +167,11 @@ class MiniControl {
                 return;
             }
 
-            let plugin: any;
-            const epoch = new Date().getTime();
+
             const realPath = fs.realpathSync(`${process.cwd()}/${pluginPath}`);
             const path = pathToFileURL(realPath);
-            plugin = await import(path.href); // path.href + "?stamp=${epoch}";
+            // const epoch = Date.now();
+            const plugin = await import(path.href); // path.href + "?stamp=${epoch}";
 
             if (plugin.default === undefined) {
                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
@@ -311,7 +312,7 @@ class MiniControl {
      */
     debug(object: any) {
         if (process.env.DEBUG === "true") {
-            const level = Number.parseInt(process.env.DEBUGLEVEL || "1");
+            const level = Number.parseInt(process.env.DEBUGLEVEL || "1", 10);
             if (level >= 1) log.debug(processColorString(object.toString()));
             if (level >= 3) getCallerName();
         }
@@ -338,7 +339,7 @@ class MiniControl {
      */
     async run() {
         if (this.startComplete) return;
-        const port = Number.parseInt(process.env.XMLRPC_PORT || "5000");
+        const port = Number.parseInt(process.env.XMLRPC_PORT || "5000", 10);
         this.cli(`¤info¤Starting ${this.brand} ¤info¤version: $fff${version.build} (${this.version})`);
         this.cli(`¤info¤Using Node ¤white¤${process.version}`);
         if (semver.gt("21.5.0", process.version)) {
@@ -381,7 +382,8 @@ class MiniControl {
             }
         }
         try {
-            await this.server.limitScriptCallbacks();
+            const limitCb = process.env.XMLRPC_LIMIT_SCRIPT_CALLBACKS ?? "true" === "true";
+            if (limitCb) await this.server.limitScriptCallbacks();
         } catch (e: any) {
             tmc.cli(e.message);
         }
@@ -475,7 +477,7 @@ class MiniControl {
                 if (!dependency.startsWith("game:")) {
                     try {
                         this.pluginDependecies.addDependency(name, dependency);
-                    } catch (error: any) {
+                    } catch (_: any) {
                         // silent exception
                     }
                 }

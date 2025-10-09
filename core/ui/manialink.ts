@@ -1,5 +1,5 @@
-import { createEnvironment, createFilesystemLoader, type TwingTemplate } from "twing";
 import * as fs from "node:fs";
+import { createEnvironment, createFilesystemLoader, type TwingTemplate } from "twing";
 
 const loader = createFilesystemLoader(fs);
 const environment = createEnvironment(loader, { charset: "utf-8", parserOptions: { level: 3 } });
@@ -52,7 +52,6 @@ export default class Manialink {
         //tmc.debug('Cleaning references for manialink: $fff' + template);
 
         for (const key of Object.keys(this)) {
-            // @ts-ignore
             delete this[key];
         }
     }
@@ -62,9 +61,9 @@ export default class Manialink {
     }
 
     /**
-    * render manialink template
-    * @returns
-    */
+     * render manialink template
+     * @returns
+     */
     async render(): Promise<string> {
         const obj = {
             id: this.id,

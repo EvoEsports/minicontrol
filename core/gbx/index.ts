@@ -2,9 +2,7 @@ import { Buffer } from "node:buffer";
 import { Socket } from "node:net";
 import type Server from "../../core/server";
 import { Readable } from "node:stream";
-/** @ts-ignore */
 import Serializer from "xmlrpc/lib/serializer";
-/** @ts-ignore */
 import Deserializer from "xmlrpc/lib/deserializer";
 
 export class GbxClient {
@@ -143,14 +141,12 @@ export class GbxClient {
             tmc.cli("¤error¤[ERROR] Attempt at connection exceeded timeout value.");
             socket.end();
             this.promiseCallbacks.onConnect?.reject(new Error("Connection timeout"));
-            // biome-ignore lint/performance/noDelete: <explanation>
             delete this.promiseCallbacks.onConnect;
         }, timeout);
 
         const res: boolean = await new Promise((resolve, reject) => {
             this.promiseCallbacks.onConnect = { resolve, reject };
         });
-        // biome-ignore lint/performance/noDelete: <explanation>
         delete this.promiseCallbacks.onConnect;
         return res;
     }
@@ -402,7 +398,7 @@ export class GbxClient {
         // Write buffer to the socket
         await new Promise((resolve, reject) => {
             if (
-                !this.socket?.write(buf, (err?: Error) => {
+                !this.socket?.write(buf, (err?: Error|null) => {
                     if (err) reject(err);
                 })
             ) {

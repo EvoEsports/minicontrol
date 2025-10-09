@@ -52,13 +52,12 @@ export function Tm2Console(input: string, ansiLevel = 0) {
         return ansiLevel > 1 ? `${ansi_esc}[38;2;${cc(r)};${cc(g)};${cc(b)}m` : `${ansi_esc}[${prefix}${ansi}m`;
     };
 
-    return `${
-        chunks
+    return `${chunks
             .map((str) => {
                 return str.startsWith("$") ? colorize(str) : str;
             })
             .join("") + ansi_esc
-    }[0m`;
+        }[0m`;
 }
 
 class log {
@@ -99,7 +98,9 @@ class log {
             const file = `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}_console.log`;
             try {
                 appendFileSync(`${process.cwd()}/userdata/log/${file}`, Tm2Console(`${date.toISOString()} ${message}\n`, 0), { encoding: "utf-8" });
-            } catch (e) {}
+            } catch (_: any) {
+                // silent exception
+            }
         }
     }
 }

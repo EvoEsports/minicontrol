@@ -85,7 +85,7 @@ export function parseEntries(entries: any[]) {
 }
 
 export function htmlEntities(str: string): string {
-    let val = (str || "").replace(/[\u00A0-\uFFFF<>\&"']/g, (i) => `&#${i.charCodeAt(0)};`);
+    let val = (str || "").replace(/[\u00A0-\uFFFF<>&"']/g, (i) => `&#${i.charCodeAt(0)};`);
     val = val.replaceAll(/[$][lh]\[.*?](.*?)([$][lh])?/gi, "$1");
     val = val.replaceAll(/[$][lh]/gi, "");
     val = val.replaceAll("--", "-&#45;");
@@ -199,4 +199,12 @@ export function getCallerName() {
 
 export function escapeRegex(text: string) {
     return text.replaceAll(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+
+export function loginToUuid(login: string) {
+    return Buffer.from(login, "base64").toString("hex").replace(/([0-z]{8})([0-z]{4})([0-z]{4})([0-z]{4})([0-z]{12})/, "$1-$2-$3-$4-$5");
+}
+
+export function uuidToLogin(uuid: string) {
+    return Buffer.from(uuid.replaceAll("-", ""), "hex").toString("base64url");
 }

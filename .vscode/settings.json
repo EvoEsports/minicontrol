@@ -6,13 +6,6 @@
     "files.exclude": {
         "**/node_modules/**": true
     },
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.formatOnSave": true,
-    "biome.configurationPath": "./biome.json",
-    "biome.requireConfiguration": true,
-    "[typescript]": {
-        "editor.defaultFormatter": "biomejs.biome"
-    },
     "[twig]": {
         "editor.defaultFormatter": "serhatkaya.twig-formatter"
     },

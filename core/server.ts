@@ -1,5 +1,5 @@
-import { GbxClient } from "./gbx";
 import EventEmitter from "node:events";
+import { GbxClient } from "./gbx";
 
 export interface ServerOptions {
     LadderMode: any;
@@ -141,7 +141,7 @@ export default class Server {
 
         if (this.version.Name === "Trackmania" || this.version.Name === "ManiaPlanet") {
             if (method === "SetTimeAttackLimit") {
-                const settings = { S_TimeLimit: Number.parseInt(args[0]) / 1000 };
+                const settings = { S_TimeLimit: Number.parseInt(args[0], 10) / 1000 };
                 tmc.server.send("SetModeScriptSettings", settings);
                 return;
             }
@@ -204,7 +204,7 @@ export default class Server {
 
         if (this.version.Name === "Trackmania" || this.version.Name === "ManiaPlanet") {
             if (sendMethod === "SetTimeAttackLimit") {
-                const settings = { S_TimeLimit: Number.parseInt(args[0]) / 1000 };
+                const settings = { S_TimeLimit: Number.parseInt(args[0], 10) / 1000 };
                 this.gbx.send("SetModeScriptSettings", settings);
                 return;
             }
@@ -314,7 +314,7 @@ export default class Server {
             let bool = false;
             if (
                 cb.endsWith("_Start") ||
-                cb.endsWith("_End") ||
+                // cb.endsWith("_End") ||
                 cb.startsWith("Trackmania.Event.On") ||
                 cb === "Trackmania.Event.SkipOutro" ||
                 cb === "Trackmania.Event.StartLine"
@@ -325,8 +325,10 @@ export default class Server {
         });
         tmc.server.sendScript("XmlRpc.BlockCallbacks", ...filteredList);
         const enabledCb = await tmc.server.callScript("XmlRpc.GetCallbacksList_Enabled", "123");
+        const disabledCb = await tmc.server.callScript("XmlRpc.GetCallbacksList_Disabled", "456");
         tmc.debug(
             `¤info¤Enabled Script Callbacks: $fff${enabledCb.callbacks.length}/${cbList.callbacks.length} ¤gray¤(${enabledCb.callbacks.join(", ")})`,
         );
+        tmc.debug(`¤info¤Disabled Callbacks: ¤gray¤(${disabledCb.join(",")}`);
     }
 }
