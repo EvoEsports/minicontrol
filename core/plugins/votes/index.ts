@@ -39,6 +39,7 @@ export default class VotesPlugin extends Plugin {
     readonly origTimeLimit = Number.parseInt(process.env.TALIMIT || "300");
     newLimit = this.origTimeLimit;
     extendCounter = 1;
+    voteCooldowns: Map<string, string[]> = new Map();
 
     async onLoad() {
         tmc.server.addOverride("CancelVote", this.overrideCancel.bind(this));
@@ -160,6 +161,7 @@ export default class VotesPlugin extends Plugin {
             tmc.server.send("SetTimeAttackLimit", this.newLimit * 1000);
         }
         this.extendCounter = 1;
+        this.voteCooldowns.clear();
     }
 
     async passVote(_login: string, _args: string[]) {
@@ -226,6 +228,19 @@ export default class VotesPlugin extends Plugin {
             tmc.chat("¤vote¤There is already a vote in progress.", login);
             return;
         }
+
+        // check cooldown for login
+        if (!tmc.admins.includes(login) && this.voteCooldowns.has(login)) {
+            const lastVote = this.voteCooldowns.get(login) || [];
+            if (lastVote.includes(type)) {
+                tmc.chat("¤vote¤You have already started this type of vote recently. Please wait before starting it again.", login);
+                return;
+            } else {
+                lastVote.push(type);
+                this.voteCooldowns.set(login, lastVote);
+            }
+        }
+
         this.currentVote = new Vote(login, type, question, Date.now() + this.timeout * 1000, value);
         this.currentVote.voteRatio = this.ratio;
         this.newLimit += 35;

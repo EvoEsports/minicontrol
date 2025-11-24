@@ -43,8 +43,23 @@ export class Player {
     /** 3 for united */
     onlineRights = -1;
     isAdmin = false;
+
+    /** playerId in server */
     spectatorTarget = 0;
     flags = 0;
+
+    /** 0, 1 or 2*/
+    forcedSpectatorState = 0;
+    isReferee = false;
+    isPodiumReady = false;
+    isUsingStereoScopy = false
+    isManagedByOtherServer = false;
+    isServer = false
+    hasPlayerSlot = false;
+    isBroadcasting = false
+    hasJoinedGame = false;
+    ranking?: PlayerRanking;
+
     [key: string]: any; // Add index signature
 
     syncFromDetailedPlayerInfo(data: any) {
@@ -54,11 +69,20 @@ export class Player {
                 k = "nickname";
                 data[key] = data[key].replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "");
             }
-            if (k === "flags") {
-                this.spectatorTarget = Math.floor(data.SpecatorStatus / 10000);
-            }
             this[k] = data[key];
         }
+
+        this.forcedSpectatorState = data.Flags % 10;
+        this.isReferee = Math.floor(data.Flags / 10) % 10 === 1;
+        this.isPodiumReady = Math.floor(data.Flags / 100) % 10 === 1;
+        this.isUsingStereoScopy = Math.floor(data.Flags / 1000) % 10 === 1;
+        this.isManagedByOtherServer = Math.floor(data.Flags / 10000) % 10 === 1;
+        this.isServer = Math.floor(data.Flags / 100000) % 10 === 1;
+        this.hasPlayerSlot = Math.floor(data.Flags / 1000000) % 10 === 1;
+        this.isBroadcasting = Math.floor(data.Flags / 10000000) % 10 === 1;
+        this.hasJoinedGame = Math.floor(data.Flags / 100000000) % 10 === 1;
+        this.spectatorTarget = Math.floor(data.SpecatorStatus / 10000);
+
         this.isAdmin = tmc.admins.includes(data.Login);
     }
 
@@ -154,7 +178,7 @@ export default class PlayerManager {
      */
     getPlayerbyNick(nickname: string): Player | null {
         for (const player in this.players) {
-            if (this.players[player].nick === nickname) return this.players[player];
+            if (this.players[player].nickname === nickname) return this.players[player];
         }
         return null;
     }

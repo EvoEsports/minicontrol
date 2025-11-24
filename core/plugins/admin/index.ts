@@ -262,8 +262,7 @@ export default class AdminPlugin extends Plugin {
                     }
                     if (map) {
                         tmc.chat(`¤info¤Jumped to ¤white¤${map.Name}¤info¤ by ¤white¤${map.AuthorNickname ? map.AuthorNickname : map.Author}`);
-                        await tmc.server.call("ChooseNextMap", map.FileName);
-                        tmc.server.send("NextMap");
+                        tmc.server.call("JumpToMapIdent", map.UId);
                     } else {
                         tmc.chat("¤error¤Couldn't find map", login);
                     }

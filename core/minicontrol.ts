@@ -382,8 +382,7 @@ class MiniControl {
             }
         }
         try {
-            const limitCb = process.env.XMLRPC_LIMIT_SCRIPT_CALLBACKS ?? "true" === "true";
-            if (limitCb) await this.server.limitScriptCallbacks();
+            await this.server.limitScriptCallbacks();
         } catch (e: any) {
             tmc.cli(e.message);
         }
@@ -563,4 +562,4 @@ try {
     tmc.cli(`¤error¤${e.message}`);
 }
 
-tmc.debug("MINIcontrol is running, add debug point this line to get tmc object to debug console.");
+console.log("MINIcontrol is running, add debug point this line to get tmc object to debug console.");

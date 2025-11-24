@@ -309,12 +309,17 @@ export default class Server {
      */
     async limitScriptCallbacks() {
         if (this.version.Name !== "Trackmania") return;
+        const limitCb = process.env.XMLRPC_LIMIT_SCRIPT_CALLBACKS ?? "true" === "true";
+        if (!limitCb) return;
+        tmc.cli("Limiting script callbacks...");
         const cbList = await tmc.server.callScript("XmlRpc.GetCallbacksList");
+        await tmc.server.send("TriggerModeScriptEventArray","XmlRpc.UnblockCallbacks", cbList.callbacks);
+
         const filteredList = cbList.callbacks.filter((cb: string) => {
             let bool = false;
             if (
-                cb.endsWith("_Start") ||
-                // cb.endsWith("_End") ||
+                //cb.endsWith("_Start") ||
+                cb.endsWith("_End") ||
                 cb.startsWith("Trackmania.Event.On") ||
                 cb === "Trackmania.Event.SkipOutro" ||
                 cb === "Trackmania.Event.StartLine"
@@ -325,10 +330,10 @@ export default class Server {
         });
         tmc.server.sendScript("XmlRpc.BlockCallbacks", ...filteredList);
         const enabledCb = await tmc.server.callScript("XmlRpc.GetCallbacksList_Enabled", "123");
-        const disabledCb = await tmc.server.callScript("XmlRpc.GetCallbacksList_Disabled", "456");
-        tmc.debug(
+
+        tmc.cli(
             `¤info¤Enabled Script Callbacks: $fff${enabledCb.callbacks.length}/${cbList.callbacks.length} ¤gray¤(${enabledCb.callbacks.join(", ")})`,
         );
-        tmc.debug(`¤info¤Disabled Callbacks: ¤gray¤(${disabledCb.join(",")}`);
+
     }
 }

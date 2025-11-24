@@ -140,7 +140,7 @@ export default class UiManager {
             const x = (Number.parseFloat(match[2]) / 160) * 64;
             const y = (Number.parseFloat(match[3]) / 90) * 48;
             let z = 0;
-            const zindex = line.match(/z-index="([\-\d]+)"/) || ["0", "0"];
+            const zindex = line.match(/z-index="([-\d]+)"/) || ["0", "0"];
             z = Number.parseInt(zindex[1]) ?? 1;
             if (match[1] === "pos") {
                 out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="[-\d]+"/, "");
