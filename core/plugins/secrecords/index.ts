@@ -15,7 +15,6 @@ export interface TopRecord {
 }
 
 export default class RecordsSector extends Plugin {
-    static depends: string[] = ["database"];
 
     private sectorRecords: { [login: string]: number[] } = {};
     private lastCheckpoint: { [login: string]: number } = {};

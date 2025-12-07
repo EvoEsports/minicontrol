@@ -1,0 +1,11 @@
+{
+  "id": "atime",
+  "name": "Authortime limit",
+  "description": "Dynamic timelimit using authortime multipliers",
+  "authors": "MiniControl core",
+  "date": "2025-12-06",
+  "version": "1.0.0",
+  "requiresMinicontrolVersion": "*",
+  "requiresGame": null,
+  "depends": [ ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "healthcheck",
+  "name": "Healthcheck for Docker",
+  "description": "HealthCheck for Docker",
+  "authors": "MiniControl core",
+  "date": "2025-12-06",
+  "version": "1.0.0",
+  "requiresMinicontrolVersion": "*",
+  "requiresGame": null,
+  "depends": [ ]
+}

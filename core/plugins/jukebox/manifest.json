@@ -1,0 +1,16 @@
+{
+    "id": "jukebox",
+    "name": "Jukebox",
+    "description": "Jukeboxing / queue for choosing next maps",
+    "authors": "MiniControl core",
+    "date": "2025-12-06",
+    "version": "1.0.0",
+    "requiresMinicontrolVersion": "*",
+    "requiresGame": null,
+    "depends": [
+        {
+            "id": "menu",
+            "range": "~1.0.0"
+        }
+    ]
+}

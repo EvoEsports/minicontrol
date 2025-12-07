@@ -35,12 +35,15 @@ import SettingsManager from "./settingsmanager";
 import { clone, getCallerName, processColorString, setMemStart } from "./utils";
 import log from "./log";
 import fs from "node:fs";
+import fsp from "node:fs/promises";
 import type Plugin from "./plugins/index";
+import PluginLoader from './plugins/loader';
 import path from "node:path";
-import { DepGraph } from "dependency-graph";
 import semver from "semver";
 import version from "../version.json";
 import { pathToFileURL } from "node:url";
+import { resolvePluginsWithFallback } from './plugins/resolver';
+import { validateManifest, type PluginManifest } from "./plugins/schema";
 
 /**
  * MiniControl class
@@ -87,7 +90,7 @@ class MiniControl {
      * The plugins.
      */
     plugins: { [key: string]: Plugin } = {};
-    pluginDependecies: DepGraph<string> = new DepGraph();
+    discoveredPlugins: { id: string; path: string; manifest?: PluginManifest; compatible?: boolean; loaded?: boolean }[] = [];
     billMgr: BillManager;
     /**
      * The game object.
@@ -141,13 +144,105 @@ class MiniControl {
      * @returns
      */
     findPlugin(name: string): string | null {
-        const dirsToCheck = ["./core/plugins/", "./userdata/plugins/"];
-        for (const dir of dirsToCheck) {
-            if (fs.existsSync(`${dir + name}/index.ts`)) {
-                return (dir + name).replaceAll("\\", "/");
-            }
-        }
+        const entry = this.discoveredPlugins.find((p) => p.id === name);
+        if (entry) return entry.path;
         return null;
+    }
+
+    /**
+     * Discover plugins present on disk in known plugin directories
+     */
+    async discoverPlugins(): Promise<{ id: string; path: string; manifest?: PluginManifest; compatible?: boolean; loaded?: boolean }[]> {
+        // Use the shared PluginLoader discovery so we don't maintain two discovery implementations.
+        const loader = new PluginLoader();
+        const discovered = await loader.discover();
+        const out: { id: string; path: string; manifest?: PluginManifest; compatible?: boolean; loaded?: boolean }[] = [];
+
+        // Compute nested id relative to known plugin dirs (preserves nested ids like tm2020/nadeoapi)
+        const baseDirs = (loader.opts.pluginsDirs ?? ['./core/plugins', './userdata/plugins']).map((d) => path.resolve(process.cwd(), d));
+
+        for (const entry of discovered) {
+            const folder = entry.path;
+            // require manifest + an index file (same behaviour as the old implementation)
+            const hasIndex = fs.existsSync(path.join(folder, 'index.ts')) || fs.existsSync(path.join(folder, 'index.js'));
+            if (!hasIndex || !entry.manifest) continue;
+
+            let id = path.basename(folder).replaceAll('\\', '/');
+            for (const base of baseDirs) {
+                if (folder.startsWith(base)) {
+                    id = path.relative(base, folder).replaceAll('\\', '/');
+                    if (id.startsWith(path.sep)) id = id.substring(1);
+                    break;
+                }
+            }
+
+            // determine compatibility: respect loader's compatible (requiresGame) and also
+            // verify requiresMinicontrolVersion against this.version when present
+            let comp = entry.compatible;
+            try {
+                if (entry.manifest?.requiresMinicontrolVersion != null) {
+                    // if runtime version can't be parsed or doesn't satisfy, mark incompatible
+                    if (!semver.satisfies(String(this.version), String(entry.manifest.requiresMinicontrolVersion))) comp = false;
+                }
+            } catch {
+                comp = false;
+            }
+            out.push({ id, path: folder, manifest: entry.manifest, compatible: comp, loaded: Boolean(this.plugins[id]) });
+        }
+
+        return out;
+    }
+
+    /**
+     * Install a plugin folder into userdata/plugins (copy)
+     * @param fromPath path to a folder containing manifest.json
+     */
+    async installPlugin(fromPath: string): Promise<string> {
+        const resolvedFrom = path.resolve(process.cwd(), fromPath);
+        if (!fs.existsSync(resolvedFrom)) throw new Error(`Source path not found: ${resolvedFrom}`);
+
+        const manifestPath = path.join(resolvedFrom, 'manifest.json');
+        if (!fs.existsSync(manifestPath)) throw new Error('manifest.json not found in source');
+        const raw = await fsp.readFile(manifestPath, 'utf8');
+        const obj = JSON.parse(raw);
+        if (!validateManifest(obj)) throw new Error('Invalid manifest.json');
+
+        const id = obj.id;
+        const targetBase = path.resolve(process.cwd(), './userdata/plugins');
+        const dst = path.join(targetBase, id);
+        if (fs.existsSync(dst)) throw new Error(`Plugin ${id} already installed at ${dst}`);
+
+        const copyDir = async (src: string, dest: string) => {
+            await fsp.mkdir(dest, { recursive: true });
+            const entries = await fsp.readdir(src, { withFileTypes: true });
+            for (const entry of entries) {
+                const srcPath = path.join(src, entry.name);
+                const dstPath = path.join(dest, entry.name);
+                if (entry.isDirectory()) await copyDir(srcPath, dstPath);
+                else await fsp.copyFile(srcPath, dstPath);
+            }
+        };
+
+        await copyDir(resolvedFrom, dst);
+        return dst;
+    }
+
+    /**
+     * Remove an installed plugin (must not be loaded)
+     */
+    async removePlugin(id: string): Promise<void> {
+        if (this.plugins[id]) throw new Error(`Plugin ${id} is loaded; unload before removing`);
+        const targetBase = path.resolve(process.cwd(), './userdata/plugins');
+        const dst = path.join(targetBase, id);
+        if (!fs.existsSync(dst)) throw new Error(`Plugin ${id} not installed`);
+        await fsp.rm(dst, { recursive: true, force: true });
+    }
+
+    /**
+     * List installed plugins
+     */
+    async listPlugins() {
+        return this.discoverPlugins();
     }
 
     /**
@@ -155,75 +250,113 @@ class MiniControl {
      * @param name name of the plugin folder in ./plugins
      * @returns
      */
-    async loadPlugin(name: string) {
+    async loadPlugin(name: string, visited: Set<string> = new Set()) {
+        if (visited.has(name)) return; // already processing, avoid cycles
+        visited.add(name);
         if (!this.plugins[name]) {
             const pluginPath = this.findPlugin(name);
-            if (pluginPath == null) {
-                const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ does not exist.`;
-                if (this.startComplete) {
-                    this.cli(msg);
-                    this.chat(msg);
-                }
-                return;
-            }
-
-
-            const realPath = fs.realpathSync(`${process.cwd()}/${pluginPath}`);
-            const path = pathToFileURL(realPath);
-            // const epoch = Date.now();
-            const plugin = await import(path.href); // path.href + "?stamp=${epoch}";
-
-            if (plugin.default === undefined) {
-                const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
+            if (!pluginPath) {
+                const msg = `¤error¤Plugin ¤cmd¤${name}¤white¤ not found.`;
+                this.chat(msg, this.admins);
                 this.cli(msg);
-                this.chat(msg);
                 return;
             }
-            if (!(plugin.default && typeof plugin.default.prototype.getDepends === "function")) {
-                const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ is not a valid plugin.`;
-                this.cli(msg);
-                this.chat(msg);
-                return;
+            const pluginUrl = pathToFileURL(path.join(pluginPath, "index.ts")).toString();
+            // refresh discovered manifests so we can validate dependency versions
+            try {
+                this.discoveredPlugins = await this.discoverPlugins();
+            } catch {
+                // ignore discovery errors; we still try best-effort
             }
+            let manifest: PluginManifest = {} as PluginManifest;
+            // If a manifest is present for this plugin, validate dependency ranges
+            try {
+                const mfPath = path.join(pluginPath, 'manifest.json');
+                if (fs.existsSync(mfPath)) {
+                    const raw = await fsp.readFile(mfPath, 'utf8');
+                    const obj = JSON.parse(raw);
+                    if (validateManifest(obj)) {
+                        manifest = obj;
+                        // Check requiresGame against runtime
+                        if (obj.requiresGame != null && this.game?.Name && obj.requiresGame !== this.game.Name) {
+                            const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Manifest requires game ¤cmd¤${obj.requiresGame}¤white¤ but runtime is ¤cmd¤${this.game?.Name}`;
+                            this.cli(msg);
+                            if (this.startComplete) this.chat(msg);
+                            return;
+                        }
+                        // Check requiresMinicontrolVersion
+                        if (obj.requiresMinicontrolVersion != null) {
+                            try {
+                                if (!semver.satisfies(String(this.version), String(obj.requiresMinicontrolVersion))) {
+                                    const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Manifest requires MiniControl ${obj.requiresMinicontrolVersion} but runtime is ${this.version}`;
+                                    this.cli(msg);
+                                    if (this.startComplete) this.chat(msg);
+                                    return;
+                                }
+                            } catch {
+                                const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ has invalid requiresMinicontrolVersion ${obj.requiresMinicontrolVersion}; skipping.`;
+                                this.cli(msg);
+                                if (this.startComplete) this.chat(msg);
+                                return;
+                            }
+                        }
 
-            if (!this.pluginDependecies.hasNode(name)) {
-                this.pluginDependecies.addNode(name);
-                if (Reflect.has(plugin.default, "depends")) {
-                    for (const dependency of plugin.default.depends) {
-                        if (!dependency.startsWith("game:")) {
-                            this.pluginDependecies.addDependency(name, dependency);
+                        // Validate dependency version ranges using discovered manifests
+                        const byId = new Map<string, PluginManifest[]>();
+                        for (const entry of this.discoveredPlugins) {
+                            if (!entry.manifest) continue;
+                            const list = byId.get(entry.id) ?? [];
+                            list.push(entry.manifest);
+                            byId.set(entry.id, list);
+                        }
+                        for (const [id, list] of byId.entries()) list.sort((a, b) => semver.rcompare(a.version, b.version));
+
+                        for (const dep of (obj.depends ?? [])) {
+                            // find candidate that satisfies range
+                            const candidates = byId.get(dep.id) ?? [];
+                            const match = candidates.find((c) => semver.satisfies(c.version, String(dep.range)));
+                            if (!match) {
+                                if (dep.optional) continue; // optional dependency not present/compatible
+                                const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. No available version for dependency ¤cmd¤${dep.id}¤white¤ matching range ¤cmd¤${dep.range}¤white¤.`;
+                                this.cli(msg);
+                                if (this.startComplete) this.chat(msg);
+                                return;
+                            }
+                            // ensure dependency is present on disk and loaded
+                            if (!this.findPlugin(dep.id)) {
+                                const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Missing dependency manifest ¤cmd¤${dep.id}¤white¤ on disk.`;
+                                this.cli(msg);
+                                if (this.startComplete) this.chat(msg);
+                                return;
+                            }
+                            if (!this.plugins[dep.id]) {
+                                // Do not auto-load dependencies at runtime — loading dependencies
+                                // must be an explicit action (or handled by the resolver at startup).
+                                const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Dependency ¤cmd¤${dep.id}¤white¤ is present but not loaded.`;
+                                this.cli(msg);
+                                if (this.startComplete) this.chat(msg, this.admins);
+                                return;
+                            }
                         }
                     }
                 }
+            } catch (e: any) {
+                this.cli(`¤gray¤Failed to read manifest for ${name}: ${e.message}`);
+                manifest = {} as PluginManifest;
             }
 
-            for (const depend of plugin.default.depends) {
-                if (depend.startsWith("game:")) {
-                    const game = depend.split(":")[1];
-                    if (game !== this.game.Name) {
-                        const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Game is not ¤cmd¤${game}¤white¤.`;
-                        this.cli(msg);
-                        if (this.startComplete) this.chat(msg);
-                        return;
-                    }
-                }
-                if (!this.pluginDependecies.hasNode(depend) && !depend.startsWith("game:")) {
-                    const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Missing dependency ¤cmd¤${depend}¤white¤.`;
-                    this.cli(msg);
-                    if (this.startComplete) this.chat(msg);
-                    return;
-                }
-                if (!depend.startsWith("game:") && this.pluginDependecies.dependentsOf(depend).includes(name) && !this.plugins[depend]) {
-                    const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Plugin ¤cmd¤${depend}¤white¤ is not loaded.`;
-                    this.cli(msg);
-                    if (this.startComplete) this.chat(msg);
-                    return;
-                }
+            let plugin: any;
+            try {
+                plugin = await import(pluginUrl);
+            } catch (e: any) {
+                const msg = `¤error¤Failed to load plugin ¤cmd¤${name}¤white¤: ${e.message}`;
+                this.chat(msg, this.admins);
+                this.cli(msg);
+                return;
             }
-
             // load and init the plugin
             try {
-                tmc.cli(`¤gray¤Loading ¤cmd¤${name}¤white¤...`);
+                tmc.cli(`¤gray¤Loading ¤cmd¤${name}$888@${manifest.version}¤white¤...`);
                 const cls = new plugin.default();
                 this.plugins[name] = cls;
                 await cls.onLoad();
@@ -231,7 +364,7 @@ class MiniControl {
                     await cls.onStart();
                     this.chat(`¤gray¤Plugin ¤cmd¤${name} ¤white¤loaded!`);
                 }
-                this.cli("¤gray¤Success.");
+                this.cli("¤success¤Success!");
             } catch (e: any) {
                 tmc.cli(`¤gray¤Error while starting plugin ¤cmd¤${name}`);
                 sentry.captureException(e, {
@@ -249,60 +382,45 @@ class MiniControl {
     }
 
     /**
-     * unloads plugin from runtime, also checks for dependecies, runs onUnload and removes require cache
-     * @param unloadName name of the plugin folder in ./plugins
-     * @returns
+     * Unload a plugin from runtime
+     * @param name plugin id
      */
-    async unloadPlugin(unloadName: string) {
-        if (this.plugins[unloadName]) {
-            const deps = this.pluginDependecies.dependantsOf(unloadName);
-            if (deps.length > 0) {
-                const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ cannot be unloaded. It has a dependency of ¤cmd¤${deps.join(", ")}¤white¤.`;
-                this.cli(msg);
-                this.chat(msg);
-                return;
-            }
-            const pluginPath = this.findPlugin(unloadName);
-            if (pluginPath == null) {
-                const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ does not exist.`;
-                this.cli(msg);
-                this.chat(msg);
-                return;
-            }
-
-            // unload
-            await this.plugins[unloadName].onUnload();
-            // remove from dependecies
-            for (const dep of this.plugins[unloadName].getDepends()) {
-                this.pluginDependecies.removeDependency(unloadName, dep);
-            }
-            this.pluginDependecies.removeNode(unloadName);
-            delete this.plugins[unloadName];
-
-            /* disabled for now
-            const file = process.cwd() + pluginPath.replaceAll('.', '') + '/index.ts';
-            if (require.cache[file]) {
-                delete require.cache[file];
-            } else {
-                this.cli(`$fffFailed to remove require cache for ¤cmd¤${unloadName}¤white¤, hotreload will not work right.`);
-            }
-            */
-            const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ unloaded.`;
+    async unloadPlugin(name: string) {
+        const inst = this.plugins[name];
+        if (!inst) {
+            const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded.`;
             this.cli(msg);
-            this.chat(msg);
-        } else {
-            const msg = `¤gray¤Plugin ¤cmd¤${unloadName}¤white¤ not loaded.`;
-            this.cli(msg);
-            this.chat(msg);
+            return;
+        }
+
+        try {
+            this.cli(`¤gray¤Unloading ¤cmd¤${name}¤white¤...`);
+            if (typeof inst.onUnload === 'function') {
+                await inst.onUnload();
+            }
+            // remove instance from plugins map
+            delete this.plugins[name];
+            this.cli(`¤success¤Plugin ¤cmd¤${name}¤white¤ unloaded.`);
+            if (this.startComplete) this.chat(`¤gray¤Plugin ¤cmd¤${name}¤white¤ unloaded.`, this.admins);
+        } catch (e: any) {
+            this.cli(`¤error¤Error while unloading plugin ¤cmd¤${name}: ${e.message}`);
+            try {
+                sentry.captureException(e, { tags: { section: 'unloadPlugin' } });
+            } catch {
+                // ignore sentry failures
+            }
         }
     }
+
+    // (duplicate removed) - keep single unloadPlugin implementation above
 
     /**
      * send message to console
      * @param object The object to log.
      */
     cli(object: any) {
-        log.info(processColorString(object.toString()));
+        const parsed = processColorString(object.toString());
+        log.info(parsed);
         if (process.env.DEBUGLEVEL === "3") getCallerName();
     }
 
@@ -400,93 +518,108 @@ class MiniControl {
     async beforeInit() {
         await this.chatCmd.beforeInit();
 
-        // load plugins
-        let plugins = fs.readdirSync(`${process.cwd().replaceAll("\\", "/")}/core/plugins`, { withFileTypes: true, recursive: true });
-        plugins = plugins.concat(fs.readdirSync(`${process.cwd().replaceAll("\\", "/")}/userdata/plugins`, { withFileTypes: true, recursive: true }));
+        // discover plugins on disk (recursively) and build load list
+        this.discoveredPlugins = await this.discoverPlugins();
         const exclude = process.env.EXCLUDED_PLUGINS?.split(",") || [];
         const loadList: string[] = [];
-        for (const plugin of plugins) {
-            let include = plugin?.name && (plugin.isDirectory() || plugin.isSymbolicLink());
-            if (plugin.name.includes(".") || plugin.parentPath.includes(".")) include = false;
-            if (plugin.name.includes("node_modules") || plugin.parentPath.includes("node_modules")) include = false;
-            const directory = plugin.parentPath
-                .replaceAll("\\", "/")
-                .replace(path.resolve("core", "plugins").replaceAll("\\", "/"), "")
-                .replace(path.resolve("userdata", "plugins").replaceAll("\\", "/"), "");
-            if (include) {
-                let pluginName: string = plugin.name;
-                if (directory !== "") {
-                    pluginName = `${directory}/${plugin.name}`.replaceAll("\\", "/");
-                    if (pluginName.startsWith("/")) pluginName = pluginName.substring(1);
-                }
-                for (const excludeName of exclude) {
-                    if (excludeName === "") continue;
-                    if (pluginName === excludeName.trim()) {
-                        include = false;
-                    }
-                }
-                if (include) {
-                    loadList.push(pluginName);
+        for (const entry of this.discoveredPlugins) {
+            const pluginId = entry.id;
+            let include = Boolean(pluginId && typeof pluginId === 'string');
+            if (!include) continue;
+            if (pluginId.includes('.') || pluginId.includes('node_modules')) include = false;
+            // respect explicit requiresGame compatibility (if known) — skip incompatible plugins
+            if (entry.compatible === false) include = false;
+            for (const excludeName of exclude) {
+                if (excludeName.trim() === '') continue;
+                if (pluginId === excludeName.trim()) {
+                    include = false;
                 }
             }
+            if (include) loadList.push(pluginId);
         }
 
-        // load metadata
-        let dependencyByPlugin: any = {};
-
+        // load metadata from discovered manifests; require manifest.json for strict resolution
         for (const name of loadList) {
-            const pluginName = this.findPlugin(name);
-            if (pluginName == null) {
-                const msg = `¤error¤Didn't find a plugin. resolved plugin name is null.`;
+            // find discovered entry (discoveredPlugins populated earlier)
+            const entry = this.discoveredPlugins.find((p) => p.id === name);
+            if (!entry) {
+                const msg = `¤error¤Didn't find a plugin entry for ${name} in discovered plugins.`;
                 this.cli(msg);
-                continue;
-            }
-            let cls: any = null;
-            const realPath = fs.realpathSync(`${process.cwd()}/${pluginName}`);
-            const path = pathToFileURL(realPath);
-            cls = await import(path.href);
-
-            let plugin: any = cls.default;
-
-            if (plugin === undefined) {
-                const msg = `¤gray¤Plugin ¤cmd¤${name}¤error¤ failed to load. Plugin has no default export.`;
-                this.cli(msg);
-                cls = undefined;
+                if (this.startComplete) this.chat(msg, this.admins);
                 continue;
             }
 
-            if (!(plugin.prototype && typeof plugin.prototype.getDepends === "function")) {
-                const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ is not a valid plugin.`;
+            // require a valid manifest; skip otherwise (strict mode)
+            if (!entry.manifest) {
+                const msg = `¤error¤Plugin ${name} missing manifest.json — skipping (strict manifest mode).`;
                 this.cli(msg);
-                cls = undefined;
-                plugin = undefined;
+                if (this.startComplete) this.chat(msg, this.admins);
                 continue;
             }
-
-            this.pluginDependecies.addNode(name);
-            if (Reflect.has(plugin, "depends")) {
-                dependencyByPlugin[name] = clone(plugin.depends);
-            }
-            cls = undefined;
-            plugin = undefined;
         }
 
-        for (const name in dependencyByPlugin) {
-            for (const dependency of dependencyByPlugin[name]) {
-                if (!dependency.startsWith("game:")) {
-                    try {
-                        this.pluginDependecies.addDependency(name, dependency);
-                    } catch (_: any) {
-                        // silent exception
-                    }
+        // Use resolver to compute deterministic install order based on manifests + discovered deps.
+        try {
+            // prepare available manifests
+            const available: PluginManifest[] = [];
+            // helper to normalize depends to objects
+            const toDepEntry = (d: any) => {
+                if (!d) return null;
+                if (typeof d === 'string') {
+                    return { id: d, range: '*' } as any;
+                }
+                // object with id and range
+                if (typeof d === 'object' && d.id) return { id: d.id, range: d.range ?? '*' } as any;
+                return null;
+            };
+
+            // Prepare available manifests from all discovered plugins (so resolver can see dependencies)
+            // Skip any manifests explicitly excluded by EXCLUDED_PLUGINS so the resolver cannot pick
+            // excluded plugins as part of chosen set or dependency fulfilment.
+            const manifestById = new Map<string, PluginManifest>();
+            // build a set for quick exclusion checks
+            const excludedSet = new Set<string>((exclude ?? []).map((s:any) => String(s ?? '').trim()).filter(Boolean));
+
+            for (const entry of this.discoveredPlugins) {
+                if (!entry?.manifest) continue;
+                // skip discovered manifests marked incompatible (requiresGame or requiresMinicontrolVersion)
+                if (entry.compatible === false) continue;
+                // skip any manifest for a plugin that was explicitly excluded
+                if (excludedSet.has(entry.id)) continue;
+                const deps = (entry.manifest.depends ?? []).map(toDepEntry).filter(Boolean) as any[];
+                manifestById.set(entry.id, { ...entry.manifest, depends: deps });
+            }
+
+            // ensure each plugin in loadList has an available manifest entry (strict: no synthetic manifests)
+            for (const name of loadList) {
+                const entry = manifestById.get(name);
+                if (entry) {
+                    available.push(entry);
+                } else {
+                    const msg = `¤error¤Plugin ${name} selected for load but no manifest.json found; skipping.`;
+                    this.cli(msg);
+                    if (this.startComplete) this.chat(msg, this.admins);
                 }
             }
-        }
-        dependencyByPlugin = null;
 
-        for (const pluginName of this.pluginDependecies.overallOrder()) {
-            if (loadList.includes(pluginName)) {
-                await this.loadPlugin(pluginName);
+            // also include any discovered manifests not in loadList so dependencies are visible
+            // but never include manifests that are explicitly excluded
+            for (const [id, m] of manifestById.entries()) {
+                if (excludedSet.has(id)) continue;
+                if (!loadList.includes(id)) available.push(m);
+            }
+
+            const res = resolvePluginsWithFallback(available, loadList);
+            for (const m of res.order) {
+                if (loadList.includes(m.id)) await this.loadPlugin(m.id);
+            }
+        } catch (err: any) {
+            // resolver failed — fallback to naive load order
+            const msg = `¤gray¤Resolver failed: ${err?.message ?? err}. Falling back to simple load order.`;
+            this.cli(msg);
+            if (this.startComplete) this.chat(msg, this.admins);
+            for (const name of loadList) {
+                await this.loadPlugin(name);
             }
         }
 
@@ -549,9 +682,9 @@ process.on("SIGTERM", () => {
 });
 
 process.on("uncaughtException", (err) => {
-    tmc.cli(`¤error¤${err.message}`);
-    console.log(err);
+    tmc.cli(`¤error¤Uncaught error: ${err.message}`);
     if (process.env.DEBUG === "true") {
+        console.log(err);
         // process.exit(1);
     }
 });

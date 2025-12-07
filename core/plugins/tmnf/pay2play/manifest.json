@@ -1,0 +1,16 @@
+{
+  "id": "pay2play",
+  "name": "Pay to play",
+  "description": "Provides pay to queue a map functionality",
+  "authors": "MiniControl core",
+  "date": "2025-12-06",
+  "version": "1.0.0",
+  "requiresMinicontrolVersion": "*",
+  "requiresGame": "TmForever",
+  "depends": [
+    {
+        "id": "jukebox",
+        "range": "~1.0.0"
+    }
+  ]
+}

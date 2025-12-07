@@ -1,0 +1,16 @@
+{
+    "id": "widgets/checkpoints",
+    "name": "Checkpoint Widget",
+    "description": "Provides Checkpoint widget",
+    "authors": "MiniControl core",
+    "date": "2025-12-06",
+    "version": "1.0.0",
+    "requiresMinicontrolVersion": "*",
+    "requiresGame": null,
+    "depends": [
+        {
+            "id": "widgets",
+            "range": "~1.0.0"
+        }
+    ]
+}

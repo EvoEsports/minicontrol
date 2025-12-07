@@ -2,8 +2,7 @@ import { Sequelize } from "sequelize-typescript";
 import type { Player as PlayerType } from "@core/playermanager";
 import Plugin from "@core/plugins";
 import { chunkArray, htmlEntities, sleep } from "@core/utils";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: <explanation>
-import Map from "@core/schemas/map.model";
+import TmMap from "@core/schemas/map.model";
 import Player from "@core/schemas/players.model";
 import { SequelizeStorage, Umzug } from "umzug";
 import { removeColors } from "@core/utils";
@@ -132,7 +131,7 @@ export default class GenericDb extends Plugin {
             tmc.cli("¤info¤Notice: Sometimes running migrations 2x can fix this issue.");
             process.exit(1);
         }
-        sequelize.addModels([Map, Player]);
+        sequelize.addModels([TmMap, Player]);
         tmc.storage["db"] = sequelize;
     }
 
@@ -178,7 +177,7 @@ export default class GenericDb extends Plugin {
 
     async onEndMap(data: any) {
         try {
-            const map = await Map.findByPk(data[0].UId);
+            const map = await TmMap.findByPk(data[0].UId);
             if (map) {
                 await map.update({
                     lastPlayed: new Date().toISOString(),
@@ -222,7 +221,7 @@ export default class GenericDb extends Plugin {
 
     async syncMaps() {
         const serverUids = tmc.maps.getUids();
-        let result = await Map.findAll();
+        let result = await TmMap.findAll();
         const dbUids = result.map((value: any) => value.uuid);
         const missingUids = chunkArray(
             serverUids.filter((item) => dbUids.indexOf(item) < 0),
@@ -245,13 +244,13 @@ export default class GenericDb extends Plugin {
             }
 
             try {
-                await Map.bulkCreate(missingMaps);
+                await TmMap.bulkCreate(missingMaps);
             } catch (e: any) {
                 tmc.cli(`¤error¤${e.message}`);
             }
         }
 
-        result = await Map.findAll({
+        result = await TmMap.findAll({
             where: {
                 uuid: {
                     [Op.in]: serverUids,

@@ -316,9 +316,12 @@ export default class CommandManager {
             }
         }
 
-        for (const name of tmc.pluginDependecies.overallOrder()) {
-            diff.push(name);
-            const deps = tmc.pluginDependecies.dependenciesOf(name);
+        // prefer discovered plugins (manifests present) for an ordered view
+        const seen = new Set<string>();
+        for (const entry of (tmc.discoveredPlugins || [])) {
+            const name = entry.id;
+            seen.add(name);
+            const deps = (entry.manifest?.depends ?? []).map((d: any) => (typeof d === "string" ? d : d.id));
             out.push({
                 pluginName: name,
                 depends: deps.join(", "),
@@ -326,7 +329,7 @@ export default class CommandManager {
             });
         }
 
-        for (const name of all.filter((value) => !diff.includes(value))) {
+        for (const name of all.filter((value) => !seen.has(value))) {
             out.push({
                 pluginName: name,
                 depends: "",

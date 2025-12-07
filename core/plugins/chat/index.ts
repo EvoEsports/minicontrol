@@ -24,7 +24,6 @@ function filterWords(text: string) {
 }
 
 export default class Chat extends Plugin {
-    static depends: string[] = [];
     pluginEnabled = false;
     publicChatEnabled = true;
     playersDisabled: string[] = [];

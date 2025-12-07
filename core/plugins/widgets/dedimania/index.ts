@@ -5,7 +5,6 @@ import Widget from "@core/ui/widget";
 import { formatTime, htmlEntities } from "@core/utils";
 
 export default class DedimaniaWidget extends Plugin {
-    static depends: string[] = ["game:TmForever", "tmnf/dedimania"];
     records: DediRecord[] = [];
     widgets: { [key: string]: Widget } = {};
 

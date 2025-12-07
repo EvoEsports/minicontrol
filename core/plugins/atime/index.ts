@@ -2,7 +2,6 @@ import { formatTime } from "@core/utils";
 import Plugin from "../index";
 
 export default class ATime extends Plugin {
-    static depends: string[] = [];
     origTAlimit = process.env["TALIMIT"];
 
     async onLoad() {

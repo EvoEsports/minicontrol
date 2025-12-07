@@ -1,0 +1,11 @@
+{
+  "id": "dedimania",
+  "name": "Dedimania",
+  "description": "Provides Dedimania",
+  "authors": "MiniControl core",
+  "date": "2025-12-06",
+  "version": "1.0.0",
+  "requiresMinicontrolVersion": "*",
+  "requiresGame": "TmForever",
+  "depends": [  ]
+}

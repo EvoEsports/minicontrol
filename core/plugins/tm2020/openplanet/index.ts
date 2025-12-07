@@ -1,10 +1,8 @@
 import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
 import Manialink from "@core/ui/manialink";
-import { parseEntries } from "@core/utils";
 
 export default class OpenPlanet extends Plugin {
-    static depends: string[] = ["game:Trackmania", "tm2020"];
     action = "";
     envForceMode: string | undefined = process.env["FORCE_OP_MODE"];
 

@@ -1,7 +1,4 @@
 export default abstract class Plugin {
-    /** "game:TmForever | game:ManiaPlanet | game:Trackmania or plugin name to depend" */
-    static depends: string[] = [];
-
     /**
      * called after plugin is loaded to runtime.
      * you should initialize listeners here.
@@ -32,7 +29,4 @@ export default abstract class Plugin {
         return;
     }
 
-    getDepends(): string[] {
-        return Plugin.depends;
-    }
 }

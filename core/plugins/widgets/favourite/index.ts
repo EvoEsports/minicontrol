@@ -2,11 +2,9 @@ import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
 
 export default class Favourite extends Plugin {
-    static depends = ["widgets"];
     widget?: Widget;
 
     async onStart() {
-        if (tmc.game.Name === "Trackmania") return;
         this.widget = this.createWidget();
         await this.widget.display();
     }

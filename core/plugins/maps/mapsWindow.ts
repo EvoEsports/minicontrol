@@ -1,6 +1,5 @@
 import Confirm from "@core/ui/confirm";
 import ListWindow from "@core/ui/listwindow";
-import { htmlEntities } from "@core/utils";
 
 export default class MapsWindow extends ListWindow {
     params: string[] = [];

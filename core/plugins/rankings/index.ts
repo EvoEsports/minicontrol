@@ -12,7 +12,6 @@ interface Ranking {
 }
 
 export default class Players extends Plugin {
-    static depends: string[] = ["database", "records"];
     rankings: Ranking[] = [];
 
     async onLoad() {

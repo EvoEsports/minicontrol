@@ -14,8 +14,8 @@ export default class MapLikes extends Plugin {
 
     async onLoad() {
         tmc.storage["db"].addModels([Likes]);
-        //tmc.addCommand('/++', this.onLike.bind(this), 'Like a map');
-        //tmc.addCommand('/--', this.onDislike.bind(this), 'Dislike a map');
+        tmc.addCommand('/++', this.onLike.bind(this), 'Like a map');
+        tmc.addCommand('/--', this.onDislike.bind(this), 'Dislike a map');
         tmc.server.addListener("Trackmania.BeginMap", this.syncVotes, this);
         tmc.server.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
     }

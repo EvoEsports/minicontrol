@@ -12,7 +12,6 @@ export interface ModCollection {
 }
 
 export default class ForceMods extends Plugin {
-    static depends: string[] = ["game:TmForever", "tmnf"];
     enabled = false;
     environments: string[] = ["Stadium", "Island", "Speed", "Rally", "Bay", "Coast", "Alpine"];
     defaultModUrl = "http://reaby.kapsi.fi/trackmania/tmnf_mod.zip";

@@ -1,0 +1,16 @@
+{
+    "id": "worldrecords",
+    "name": "World records",
+    "description": "Provides fetching worldrecords from nadeo api",
+    "authors": "MiniControl core",
+    "date": "2025-12-06",
+    "version": "1.0.0",
+    "requiresMinicontrolVersion": "*",
+    "requiresGame": "Trackmania",
+    "depends": [
+        {
+            "id": "nadeoapi",
+            "range": "~1.0.0"
+        }
+    ]
+}

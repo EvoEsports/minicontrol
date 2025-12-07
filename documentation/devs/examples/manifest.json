@@ -1,0 +1,13 @@
+{
+  "id": "myplugin",
+  "name": "My example plugin",
+  "description": "Depends on plugin-b",
+  "authors": "Example Author",
+  "date": "2025-12-06",
+  "version": "1.0.0",
+  "requiresMinicontrolVersion": "^0.11.0",
+  "requiresGame": "Trackmania",
+  "depends": [
+    { "id": "plugin-b", "range": "^1.0.0" }
+  ]
+}

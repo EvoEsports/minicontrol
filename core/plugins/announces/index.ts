@@ -2,7 +2,6 @@ import type { Player } from "@core/playermanager";
 import Plugin from "../index";
 import { formatTime, getCountryFromPath } from "@core/utils";
 import type { DediRecord } from "../tmnf/dedimania";
-import version from "../../../version.json";
 
 export default class Announces extends Plugin {
     async onLoad() {

@@ -1,0 +1,11 @@
+{
+  "id": "debugtool",
+  "name": "Debug tool",
+  "description": "Debug tool",
+  "authors": "MiniControl core",
+  "date": "2025-12-06",
+  "version": "1.0.0",
+  "requiresMinicontrolVersion": "*",
+  "requiresGame": null,
+  "depends": [ ]
+}

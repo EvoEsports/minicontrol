@@ -1,0 +1,16 @@
+{
+    "id": "players",
+    "name": "Players",
+    "description": "Provides players list",
+    "authors": "MiniControl core",
+    "date": "2025-12-06",
+    "version": "1.0.0",
+    "requiresMinicontrolVersion": "*",
+    "requiresGame": null,
+    "depends": [
+        {
+            "id": "menu",
+            "range": "~1.0.0"
+        }
+    ]
+}
