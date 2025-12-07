@@ -23,7 +23,7 @@ RUN true \
     && addgroup -g $GID minicontrol \
     && adduser -u $UID -Hh /minicontrol -G minicontrol -s /sbin/nologin -D minicontrol \
     && install -d -o minicontrol -g minicontrol -m 775 /minicontrol \
-    && apk add --force-overwrite --no-cache tini \
+    && apk add --force-overwrite --no-cache tini python3 \
     && true
 
 USER minicontrol
