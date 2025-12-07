@@ -2,7 +2,7 @@ import Plugin from "@core/plugins";
 import ListWindow from "@core/ui/listwindow";
 import Widget from "@core/ui/widget";
 import { formatTime, htmlEntities } from "@core/utils";
-import Menu from "@core/plugins/menu/menu";
+import Menu from "@core/menu";
 
 interface Time {
     nickname: string;

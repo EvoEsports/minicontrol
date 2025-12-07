@@ -3,7 +3,7 @@ import type { Sequelize } from "sequelize-typescript";
 import { QueryTypes } from "sequelize";
 import ListWindow from "@core/ui/listwindow";
 import Player from "@core/schemas/players.model";
-import Menu from "../menu/menu";
+import Menu from "@core/menu";
 
 interface Ranking {
     rank: number;

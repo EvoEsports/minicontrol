@@ -1,7 +1,7 @@
 import { clone, htmlEntities, formatTime } from "@core/utils";
 import Plugin from "..";
 import QueueWindow from "./queueWIndow";
-import Menu from "@core/plugins/menu/menu";
+import Menu from "@core/menu";
 
 export interface Map {
     UId: string;

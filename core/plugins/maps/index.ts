@@ -1,7 +1,7 @@
 import MapsWindow from "./mapsWindow";
 import MapsWindowAdmin from "./mapsWindowAdmin";
 import Plugin from "..";
-import Menu from "@core/plugins/menu/menu";
+import Menu from "@core/menu";
 import { Op, QueryTypes, type Sequelize } from "sequelize";
 import PersonalBest from "@core/schemas/personalBest.model";
 import { clone, formatTime, htmlEntities, removeColors } from "@core/utils";

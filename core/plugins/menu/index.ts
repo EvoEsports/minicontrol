@@ -1,7 +1,7 @@
 import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
 import MenuWidget from "./menuWidget";
-import Menu from "./menu";
+import Menu from "@core/menu";
 
 export default class MenuPlugin extends Plugin {
     menuButton: Widget | null = null;

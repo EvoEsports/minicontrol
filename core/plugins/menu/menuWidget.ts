@@ -1,6 +1,6 @@
 import Widget from "@core/ui/widget";
-import type { Item } from "./menu";
-import Menu from "./menu";
+import type { Item } from "@core/menu";
+import Menu from "@core/menu";
 
 export default class MenuWidget extends Widget {
     parent: any;

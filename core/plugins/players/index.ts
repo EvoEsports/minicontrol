@@ -1,7 +1,7 @@
 import Plugin from "@core/plugins";
 import PlayerWindow from "./PlayerWindow";
 import { htmlEntities } from "@core/utils";
-import Menu from "@core/plugins/menu/menu";
+import Menu from "@core/menu";
 
 export default class Players extends Plugin {
     async onLoad() {

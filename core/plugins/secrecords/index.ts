@@ -5,7 +5,7 @@ import { htmlEntities, formatTime } from "@core/utils";
 import { Op } from "sequelize";
 import ListWindow from "@core/ui/listwindow";
 import Confirm from "@core/ui/confirm";
-import Menu from "../menu/menu";
+import Menu from "@core/menu";
 
 export interface TopRecord {
     login: string;

@@ -1,7 +1,7 @@
 import ListWindow from "@core/ui/listwindow";
 import Plugin from "..";
 import { clone } from "@core/utils";
-import Menu from "../menu/menu";
+import Menu from "@core/menu";
 
 interface ChatLogMessage {
     text: string;

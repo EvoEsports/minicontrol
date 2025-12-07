@@ -2,7 +2,7 @@ import Plugin from "@core/plugins";
 import { formatTime, htmlEntities } from "@core/utils";
 import fs from "node:fs";
 import SearchWindow from "./searchWindow";
-import Menu from "@core/plugins/menu/menu";
+import Menu from "@core/menu";
 import type { Map as TmMap } from "@core/mapmanager";
 import { QueryTypes, type Sequelize } from "sequelize";
 

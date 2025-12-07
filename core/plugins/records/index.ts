@@ -5,7 +5,7 @@ import PersonalBest from "@core/schemas/personalBest.model";
 import { clone, htmlEntities, formatTime } from "@core/utils";
 import RecordsWindow from "./recordsWindow";
 import { Op } from "sequelize";
-import Menu from "../menu/menu";
+import Menu from "@core/menu";
 
 export default class Records extends Plugin {
     static depends: string[] = ["database"];

@@ -1,7 +1,7 @@
 import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
 import { processColorString, htmlEntities } from "@core/utils";
-import Menu from "@core/plugins/menu/menu";
+import Menu from "@core/menu";
 
 export class Vote {
     type: string;

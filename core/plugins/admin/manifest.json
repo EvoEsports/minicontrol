@@ -7,10 +7,5 @@
   "version": "1.0.0",
   "requiresMinicontrolVersion": "*",
   "requiresGame": null,
-  "depends": [
-    {
-        "id": "menu",
-        "range": "~1.0.0"
-    }
-  ]
+  "depends": [ ]
 }

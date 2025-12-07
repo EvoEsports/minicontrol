@@ -10,7 +10,7 @@ import SettingsWindow from "./SettingsWindow";
 import ColorsWindow from "./ColorsWindow";
 import type { Player } from "@core/playermanager";
 import AdminWidget from "./AdminWidget";
-import Menu from "@core/plugins/menu/menu";
+import Menu from "@core/menu";
 
 enum TmnfMode {
     Rounds = 0,
