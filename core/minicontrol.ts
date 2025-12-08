@@ -492,10 +492,14 @@ class MiniControl {
         if (this.startComplete) return;
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000", 10);
         this.cli(`¤info¤Starting ${this.brand} ¤info¤version: $fff${version.build} (${this.version})`);
-        this.cli(`¤info¤Using Node ¤white¤${process.version}`);
-        if (semver.gt("21.5.0", process.version)) {
-            this.cli("¤error¤Your Node version is too old. Must be atleast 21.5.0, please upgrade!");
-            process.exit(1);
+        if (typeof Bun !== "undefined") {
+            this.cli(`¤info¤Using Bun ¤white¤${Bun.version}`);
+        } else {
+            this.cli(`¤info¤Using Node ¤white¤${process.version}`);
+            if (semver.gt("21.5.0", process.version)) {
+                this.cli("¤error¤Your Node version is too old. Must be atleast 21.5.0, please upgrade!");
+                process.exit(1);
+            }
         }
         this.cli(`¤info¤Connecting to Trackmania Dedicated server at ¤white¤${process.env.XMLRPC_HOST ?? "127.0.0.1"}:${port}`);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
@@ -670,8 +674,23 @@ class MiniControl {
         this.ui.afterInit();
         this.maps.afterInit();
 
+        // aggressive GC: prefer option-based GC (Bun / modern runtimes), then fallback to repeated plain calls
+        const maybeGc = (globalThis as any).gc ?? (typeof gc !== "undefined" ? gc : undefined);
+        if (typeof maybeGc === "function") {
+            try {
+                // try a major synchronous if runtime supports options
+                maybeGc({ type: "major", execution: "sync" });
+            } catch { /* ignore */ }
+
+            // run several plain GC passes to aggressively clean up
+            for (let i = 0; i < 5; i++) {
+                try { maybeGc(); } catch { /* ignore */ }
+            }
+            // let finalizers / async cleanup run
+            await new Promise((r) => setTimeout(r, 50));
+        }
+
         this.startComplete = true;
-        if (gc) gc();
         setMemStart();
         const msg = `¤info¤Welcome to ${this.brand} ¤info¤version ¤white¤${this.version}¤info¤!`;
         this.chat(msg);
