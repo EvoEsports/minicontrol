@@ -10,9 +10,8 @@ export default class Pay2Play extends Plugin {
     resAmount = 50;
 
     async onStart() {
-        if (tmc.game.Name === "Trackmania") return;
-        tmc.settings.register("pay2play.skipAmount", 150, this.updateSkipWidget.bind(this), "Pay2Play: Skip map amount");
-        tmc.settings.register("pay2play.resAmount", 50, this.updateResWidget.bind(this), "Pay2Play: Restart map amount");
+        this.addSetting("pay2play.skipAmount", 150, this.updateSkipWidget.bind(this), "Pay2Play: Skip map amount");
+        this.addSetting("pay2play.resAmount", 50, this.updateResWidget.bind(this), "Pay2Play: Restart map amount");
         this.skipAmount = tmc.settings.get("pay2play.skipAmount");
         this.resAmount = tmc.settings.get("pay2play.resAmount");
 

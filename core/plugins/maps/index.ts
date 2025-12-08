@@ -8,8 +8,8 @@ import { clone, formatTime, htmlEntities, removeColors } from "@core/utils";
 
 export default class Maps extends Plugin {
     async onLoad() {
-        tmc.addCommand("/list", this.cmdMaps.bind(this), "Display maps list");
-        tmc.addCommand("//list", this.cmdAdmMaps.bind(this), "Display maps list");
+       this.addCommand("/list", this.cmdMaps.bind(this), "Display maps list");
+       this.addCommand("//list", this.cmdAdmMaps.bind(this), "Display maps list");
 
         Menu.getInstance().addItem({
             category: "Map",

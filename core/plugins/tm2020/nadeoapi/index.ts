@@ -17,11 +17,11 @@ export default class NadeoAPI extends Plugin {
             return await tmc.unloadPlugin("tm2020/nadeoapi");
         }
 
-        tmc.addCommand("//addcampaign", this.addClubCampaign.bind(this), "Add a campaign from a club");
+       this.addCommand("//addcampaign", this.addClubCampaign.bind(this), "Add a campaign from a club");
     }
 
     async onUnload() {
-        tmc.removeCommand("//addcampaign");
+
     }
 
     async addClubCampaign(login: string, params: string[]) {

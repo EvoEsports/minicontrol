@@ -43,26 +43,26 @@ export default class VotesPlugin extends Plugin {
 
     async onLoad() {
         tmc.server.addOverride("CancelVote", this.overrideCancel.bind(this));
-        tmc.server.addListener("TMC.Vote.Cancel", this.onVoteCancel, this);
-        tmc.server.addListener("TMC.Vote.Deny", this.onVoteDeny, this);
-        tmc.server.addListener("TMC.Vote.Pass", this.onVotePass, this);
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginRound, this);
+        this.addListener("TMC.Vote.Cancel", this.onVoteCancel, this);
+        this.addListener("TMC.Vote.Deny", this.onVoteDeny, this);
+        this.addListener("TMC.Vote.Pass", this.onVotePass, this);
+        this.addListener("Trackmania.BeginMap", this.onBeginRound, this);
         if (tmc.game.Name === "TmForever") {
-            tmc.server.addListener("Trackmania.EndRace", this.onEndMatch, this);
+            this.addListener("Trackmania.EndRace", this.onEndMatch, this);
         } else {
-            tmc.server.addListener("Trackmania.Podium_Start", this.onEndMatch, this);
+            this.addListener("Trackmania.Podium_Start", this.onEndMatch, this);
         }
-        tmc.addCommand("//vote", this.cmdVotes.bind(this), "Start custom vote");
-        tmc.addCommand("//pass", this.cmdPassVote.bind(this), "Pass vote");
-        tmc.addCommand("/skip", this.cmdSkip.bind(this), "Start vote to Skip map");
-        tmc.addCommand("/restart", this.cmdRes.bind(this), "Start vote to Restart map");
-        tmc.addCommand("/extend", this.cmdExtend.bind(this), "Start vote to Extend map");
-        tmc.addCommand("//extend", this.cmdAdmExtend.bind(this), "Extend timelimit");
-        tmc.addCommand("/yes", this.cmdYes.bind(this), "Vote yes");
-        tmc.addCommand("/no", this.cmdNo.bind(this), "Vote no");
+        this.addCommand("//vote", this.cmdVotes.bind(this), "Start custom vote");
+        this.addCommand("//pass", this.cmdPassVote.bind(this), "Pass vote");
+        this.addCommand("/skip", this.cmdSkip.bind(this), "Start vote to Skip map");
+        this.addCommand("/restart", this.cmdRes.bind(this), "Start vote to Restart map");
+        this.addCommand("/extend", this.cmdExtend.bind(this), "Start vote to Extend map");
+        this.addCommand("//extend", this.cmdAdmExtend.bind(this), "Extend timelimit");
+        this.addCommand("/yes", this.cmdYes.bind(this), "Vote yes");
+        this.addCommand("/no", this.cmdNo.bind(this), "Vote no");
 
-        tmc.settings.registerColor("vote", "f9c", null, "Vote color");
-        tmc.settings.register(
+        this.addColor("vote", "f9c", null, "Vote color");
+        this.addSetting(
             "votes.timeout",
             30,
             async (value) => {
@@ -70,7 +70,7 @@ export default class VotesPlugin extends Plugin {
             },
             "Votes: Vote Timeout in seconds",
         );
-        tmc.settings.register(
+        this.addSetting(
             "votes.ratio",
             0.55,
             async (value) => {
@@ -78,7 +78,7 @@ export default class VotesPlugin extends Plugin {
             },
             "Votes: Vote ratio to pass",
         );
-        tmc.settings.register(
+        this.addSetting(
             "votes.native.timeout",
             0,
             (value) => tmc.server.send("SetCallVoteTimeOut", value),
@@ -90,20 +90,6 @@ export default class VotesPlugin extends Plugin {
     }
 
     async onUnload() {
-        tmc.server.removeOverride("CancelVote");
-        tmc.server.removeListener("TMC.Vote.Cancel", this.onVoteCancel);
-        tmc.server.removeListener("TMC.Vote.Deny", this.onVoteDeny);
-        tmc.server.removeListener("TMC.Vote.Pass", this.onVotePass);
-        tmc.server.removeListener("Trackmania.EndRace", this.onEndMatch);
-        tmc.server.removeListener("Trackmania.Podium_Start", this.onEndMatch);
-        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginRound);
-        tmc.removeCommand("//vote");
-        tmc.removeCommand("//pass");
-        tmc.removeCommand("/skip");
-        tmc.removeCommand("/extend");
-        tmc.removeCommand("//extend");
-        tmc.removeCommand("/yes");
-        tmc.removeCommand("/no");
         this.widget?.destroy();
         this.widget = null;
         this.currentVote = null;
@@ -372,7 +358,7 @@ export default class VotesPlugin extends Plugin {
         }
     }
 
-    onVoteDeny(_data: VoteStruct) {}
+    onVoteDeny(_data: VoteStruct) { }
 
-    onVoteCancel(_data: VoteStruct) {}
+    onVoteCancel(_data: VoteStruct) { }
 }

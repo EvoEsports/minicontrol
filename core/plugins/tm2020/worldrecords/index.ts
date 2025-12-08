@@ -17,8 +17,6 @@ interface LeaderboardEntry {
 const requiredEnvVars = ["SERVER_LOGIN", "SERVER_PASS", "CONTACT_INFO", "IDENTIFIER", "SECRET"];
 
 export default class worldRecords extends Plugin {
-    static depends: string[] = ["game:Trackmania", "tm2020"];
-
     maxRecords = 100; // Amount of World Records to be displayed in /worldrecords. Increasing this might get your Account banned (too many API calls).
     length: number = this.maxRecords > 1 ? this.maxRecords : 100;
     updateRecords = 60; // Interval of World Records being updated in seconds (min. 30). Decreasing this might get your Account banned (too many API calls).
@@ -39,13 +37,11 @@ export default class worldRecords extends Plugin {
         this.envIdentifier = process.env.IDENTIFIER || "";
         this.envSecret = process.env.SECRET || "";
 
-        tmc.server.addListener("Trackmania.BeginMap", this.onMapChanged, this);
-        tmc.addCommand("/worldrecords", this.cmdRecords.bind(this), "Display World Records");
+        this.addListener("Trackmania.BeginMap", this.onMapChanged, this);
+        this.addCommand("/worldrecords", this.cmdRecords.bind(this), "Display World Records");
     }
 
     async onUnload() {
-        tmc.removeCommand("/worldrecords");
-        tmc.server.removeListener("Trackmania.BeginMap", this.onMapChanged);
         if (this.worldRecordsUpdate) {
             clearInterval(this.worldRecordsUpdate);
             this.worldRecordsUpdate = null;

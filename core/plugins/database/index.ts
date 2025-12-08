@@ -64,11 +64,12 @@ export default class GenericDb extends Plugin {
         try {
             await this.connect();
             tmc.server.prependListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-            tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
-            tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
-            tmc.server.addListener("TMC.MapListModified", this.onMapListModified, this);
-            tmc.addCommand("/active", this.cmdActive.bind(this), "Show playtime");
-            tmc.addCommand("/topactive", this.cmdTopActive.bind(this), "Show top100 playtime");
+            this.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
+            this.addListener("Trackmania.EndMap", this.onEndMap, this);
+            this.addListener("TMC.MapListModified", this.onMapListModified, this);
+
+            this.addCommand("/active", this.cmdActive.bind(this), "Show playtime");
+            this.addCommand("/topactive", this.cmdTopActive.bind(this), "Show top100 playtime");
         } catch (e: any) {
             tmc.cli(`¤error¤${e.message}`);
             process.exit(1);
@@ -109,7 +110,7 @@ export default class GenericDb extends Plugin {
                         sequelize,
                     }),
                     logger: {
-                        debug: (_message) => {},
+                        debug: (_message) => { },
                         error: (message) => {
                             tmc.cli(`$f00${message}`);
                         },
@@ -138,7 +139,6 @@ export default class GenericDb extends Plugin {
     async onUnload() {
         if (tmc.storage["db"]) {
             await tmc.storage["db"].close();
-            // biome-ignore lint/performance/noDelete: <explanation>
             delete tmc.storage["db"];
         }
         tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect.bind(this));

@@ -5,21 +5,21 @@ import type { DediRecord } from "../tmnf/dedimania";
 
 export default class Announces extends Plugin {
     async onLoad() {
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-        tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
-        tmc.server.addListener("Plugin.Records.onNewRecord", this.onNewRecord, this);
-        tmc.server.addListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord, this);
-        tmc.server.addListener("Plugin.Records.onSync", this.onSyncRecord, this);
-        tmc.server.addListener("Plugin.Dedimania.onNewRecord", this.onDediRecord, this);
-        tmc.settings.register("announce.brand", true, null, "Announces: MINIcontrol on player connect");
-        tmc.settings.register("announce.playerconnect", true, null, "Announces: player connect and disconnects");
-        tmc.settings.register("announce.records", true, null, "Announces: Server records");
-        tmc.settings.register("announce.dedimania", true, null, "Announces: Dedimania records");
-        tmc.settings.register("announce.map", true, null, "Announces: Map info on map start");
-        tmc.settings.register("announce.localrec.threshold", 15, null, "Announces: Improved local records public threshold");
-        tmc.settings.register("announce.localrec.threshold.new", 50, null, "Announces: New local records public threshold");
-        tmc.settings.registerColor("dedirec", "0a0", null, "Dedimania record color");
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        this.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
+        this.addListener("Plugin.Records.onNewRecord", this.onNewRecord, this);
+        this.addListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord, this);
+        this.addListener("Plugin.Records.onSync", this.onSyncRecord, this);
+        this.addListener("Plugin.Dedimania.onNewRecord", this.onDediRecord, this);
+        this.addSetting("announce.brand", true, null, "Announces: MINIcontrol on player connect");
+        this.addSetting("announce.playerconnect", true, null, "Announces: player connect and disconnects");
+        this.addSetting("announce.records", true, null, "Announces: Server records");
+        this.addSetting("announce.dedimania", true, null, "Announces: Dedimania records");
+        this.addSetting("announce.map", true, null, "Announces: Map info on map start");
+        this.addSetting("announce.localrec.threshold", 15, null, "Announces: Improved local records public threshold");
+        this.addSetting("announce.localrec.threshold.new", 50, null, "Announces: New local records public threshold");
+        this.addColor("dedirec", "0a0", null, "Dedimania record color");
     }
 
     async onStart() {
@@ -27,13 +27,7 @@ export default class Announces extends Plugin {
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap);
-        tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect);
-        tmc.server.removeListener("TMC.PlayerDisconnect", this.onPlayerDisconnect);
-        tmc.server.removeListener("Plugin.Records.onNewRecord", this.onNewRecord);
-        tmc.server.removeListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord);
-        tmc.server.removeListener("Plugin.Records.onSync", this.onSyncRecord);
-        tmc.server.removeListener("Plugin.Dedimania.onNewRecord", this.onDediRecord);
+
     }
 
     async onBeginMap(data: any) {

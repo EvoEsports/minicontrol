@@ -145,6 +145,23 @@ export default class SettingsManager {
         this.descriptions[key] = description;
         if (!Object.keys(this.settings).includes(key)) this.settings[key] = value;
     }
+    unregister(key: string) {
+        if (!Object.prototype.hasOwnProperty.call(this._defaultSettings, key)) return;
+        delete this._defaultSettings[key];
+        delete this.settings[key];
+        delete this.callbacks[key];
+        delete this.descriptions[key];
+        tmc.server.emit("TMC.SettingsChanged", {});
+    }
+
+    unregisterColor(key: string) {
+        if (!Object.prototype.hasOwnProperty.call(this._defaultColors, key)) return;
+        delete this._defaultColors[key];
+        delete this.colors[key];
+        delete this.callbacks[`color.${key}`];
+        delete this.colorDescriptions[key];
+        tmc.server.emit("TMC.ColorsChanged", {});
+    }
 
     get(key: string) {
         return this.settings[key];

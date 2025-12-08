@@ -179,7 +179,20 @@ export default class Server {
     }
 
     removeListener(method: string, callback: any) {
+        // First try direct removal (if the exact function reference is in the emitter)
         this.events.removeListener(method, callback);
+        // Additionally, remove any wrapper listeners created by addListener
+        // where wrapper.listener === original callback
+        try {
+            const listeners = this.events.listeners(method) ?? [];
+            for (const l of listeners) {
+                // If listener is a wrapper and stores the original as `listener`, remove it
+                // @ts-expect-error wrapper
+                if (l && (l as any).listener === callback) this.events.removeListener(method, l);
+            }
+        } catch {
+            // ignore emitter introspection failures
+        }
     }
 
     emit(method: string, ...args: any) {

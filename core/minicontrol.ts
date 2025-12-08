@@ -383,27 +383,62 @@ class MiniControl {
 
     /**
      * Unload a plugin from runtime
-     * @param name plugin id
+     * @param id plugin id
      */
-    async unloadPlugin(name: string) {
-        const inst = this.plugins[name];
-        if (!inst) {
-            const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded.`;
+    async unloadPlugin(id: string) {
+        if (!this.plugins[id]) {
+            const msg = `¤gray¤Plugin ¤cmd¤${id}¤white¤ not loaded.`;
             this.cli(msg);
             return;
         }
+        const plugin = this.discoveredPlugins.find((p) => p.id === id);
+        // ensure we have a path for later cache cleanup
+        const pluginPath = plugin?.path ?? id;
 
+        // refuse to unload if any other loaded plugin depends on this one
+        const dependants = new Set<string>();
+        for (const otherId of Object.keys(this.plugins)) {
+            if (otherId === id) continue;
+            const entry = this.discoveredPlugins.find((p) => p.id === otherId);
+            const deps = entry?.manifest?.depends ?? [];
+            for (const d of deps) {
+                if (typeof d === "string") {
+                    if (d === id) dependants.add(otherId);
+                } else if (d && (d.id === id)) {
+                    dependants.add(otherId);
+                }
+            }
+        }
+
+        if (dependants.size > 0) {
+            const list = Array.from(dependants).map((s) => `¤cmd¤${s}`).join("$fff, ");
+            const msg = `¤gray¤Cannot unload plugin ¤cmd¤${id}¤white¤ — dependant plugin(s) still loaded: ${list}`;
+            this.cli(msg);
+            if (this.startComplete) this.chat(msg, this.admins);
+            return;
+        }
         try {
-            this.cli(`¤gray¤Unloading ¤cmd¤${name}¤white¤...`);
-            if (typeof inst.onUnload === 'function') {
-                await inst.onUnload();
+            this.cli(`¤gray¤Unloading ¤cmd¤${id}¤white¤...`);
+            if (typeof this.plugins[id].onUnload === 'function') {
+                await this.plugins[id].onUnload();
             }
             // remove instance from plugins map
-            delete this.plugins[name];
-            this.cli(`¤success¤Plugin ¤cmd¤${name}¤white¤ unloaded.`);
-            if (this.startComplete) this.chat(`¤gray¤Plugin ¤cmd¤${name}¤white¤ unloaded.`, this.admins);
+            const file = path.resolve(pluginPath + "/index.ts");
+            if (require.cache[file]) {
+                Loader.registry.delete(file);
+                delete require.cache[file];
+                tmc.cli(`¤success¤Require cache for ¤cmd¤${id}¤white¤ cleared.`);
+            } else {
+                this.cli(`$fffFailed to remove require cache for ¤cmd¤${id}¤white¤, hotreload will not work right.`);
+            }
+            this.plugins[id].destroy();
+            delete this.plugins[id];
+            if (global.gc) global.gc();
+
+            this.cli(`¤success¤Plugin ¤cmd¤${id}¤white¤ unloaded.`);
+            if (this.startComplete) this.chat(`¤gray¤Plugin ¤cmd¤${id}¤white¤ unloaded.`, this.admins);
         } catch (e: any) {
-            this.cli(`¤error¤Error while unloading plugin ¤cmd¤${name}: ${e.message}`);
+            this.cli(`¤error¤Error while unloading plugin ¤cmd¤${id}: ${e.message}`);
             try {
                 sentry.captureException(e, { tags: { section: 'unloadPlugin' } });
             } catch {
@@ -411,8 +446,6 @@ class MiniControl {
             }
         }
     }
-
-    // (duplicate removed) - keep single unloadPlugin implementation above
 
     /**
      * send message to console

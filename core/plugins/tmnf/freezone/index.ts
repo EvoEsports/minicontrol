@@ -32,7 +32,6 @@ import Plugin from "@core/plugins";
 import http, { type ClientRequest } from "node:http";
 
 export default class Freezone extends Plugin {
-    static depends: string[] = ["game:TmForever", "tmnf"];
     isConnected = false;
     password: string | null = process.env.FREEZONE_PASS ?? null;
     mlHash = "6f116833b419fe7cb9c912fdaefb774845f60e79";

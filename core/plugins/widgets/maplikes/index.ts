@@ -9,7 +9,7 @@ export default class MapLikesWidget extends Plugin {
     records: any[] = [];
 
     async onLoad() {
-        tmc.server.addListener("Plugin.MapLikes.onSync", this.onSync, this);
+        this.addListener("Plugin.MapLikes.onSync", this.onSync, this);
         this.widget = new Widget("core/plugins/widgets/maplikes/widget.xml.twig");
         if (tmc.game.Name === "TmForever") {
             this.widget.pos = { x: 121, y: 60, z: 1 };
@@ -28,7 +28,7 @@ export default class MapLikesWidget extends Plugin {
     }
 
     async onUnload() {
-        tmc.server.removeListener("Plugin.MapLikes.onSync", this.onSync);
+
         this.widget?.destroy();
         this.widget = null;
     }

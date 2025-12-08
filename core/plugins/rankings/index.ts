@@ -15,10 +15,10 @@ export default class Players extends Plugin {
     rankings: Ranking[] = [];
 
     async onLoad() {
-        tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
-        tmc.addCommand("/top100", this.cmdRankings.bind(this), "Show top ranks");
-        tmc.addCommand("/topranks", this.cmdRankings.bind(this), "Show top ranks");
-        tmc.addCommand("/rank", this.cmdMyRank.bind(this), "Show my rank");
+        this.addListener("Trackmania.EndMap", this.onEndMap, this);
+        this.addCommand("/top100", this.cmdRankings.bind(this), "Show top ranks");
+        this.addCommand("/topranks", this.cmdRankings.bind(this), "Show top ranks");
+        this.addCommand("/rank", this.cmdMyRank.bind(this), "Show my rank");
         this.onEndMap(null);
 
         Menu.getInstance().addItem({
@@ -33,9 +33,8 @@ export default class Players extends Plugin {
         });
     }
 
-    async onUnload() {
-        tmc.server.removeListener("Trackmania.EndMap", this.onEndMap);
-    }
+    async onUnload() { }
+
 
     async onEndMap(_data: any) {
         const sequelize: Sequelize = tmc.storage["db"];

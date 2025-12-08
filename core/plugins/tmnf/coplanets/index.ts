@@ -3,22 +3,18 @@ import Confirm from "@core/ui/confirm";
 
 export default class CoPlanets extends Plugin {
     async onLoad() {
-        if (tmc.game.Name === "TmForever") tmc.addCommand("//coppers", this.coppers.bind(this), "Display coppers");
-        if (tmc.game.Name === "ManiaPlanet") tmc.addCommand("//planets", this.planets.bind(this), "Display planets");
+        if (tmc.game.Name === "TmForever") this.addCommand("//coppers", this.coppers.bind(this), "Display coppers");
+        if (tmc.game.Name === "ManiaPlanet") this.addCommand("//planets", this.planets.bind(this), "Display planets");
 
         if (tmc.game.Name === "TmForever" || tmc.game.Name === "ManiaPlanet") {
-            tmc.addCommand("//pay", this.pay.bind(this), "Pay from server");
-            tmc.addCommand("//bill", this.bill.bind(this), "Bill");
-            tmc.addCommand("/donate", this.donate.bind(this), "Donate to the server");
+            this.addCommand("//pay", this.pay.bind(this), "Pay from server");
+            this.addCommand("//bill", this.bill.bind(this), "Bill");
+            this.addCommand("/donate", this.donate.bind(this), "Donate to the server");
         }
     }
 
     async onUnload() {
-        tmc.removeCommand("//coppers");
-        tmc.removeCommand("//planets");
-        tmc.removeCommand("//pay");
-        tmc.removeCommand("//bill");
-        tmc.removeCommand("/donate");
+
     }
 
     async coppers(login: string) {

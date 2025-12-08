@@ -16,17 +16,14 @@ export default class liverankings extends Plugin {
     private playerCheckpoints: { [login: string]: string[] } = {};
 
     async onLoad() {
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
-        tmc.server.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
-        tmc.chatCmd.addCommand("/liverankings", this.cmdRecords.bind(this), "Display Live Records");
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
+        this.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
+        this.addCommand("/liverankings", this.cmdRecords.bind(this), "Display Live Records");
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
-        tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish.bind(this));
-        tmc.server.removeListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint.bind(this));
-        tmc.chatCmd.removeCommand("/liverankings");
+
     }
 
     async onStart() {

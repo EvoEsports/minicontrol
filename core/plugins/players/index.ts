@@ -5,11 +5,11 @@ import Menu from "@core/menu";
 
 export default class Players extends Plugin {
     async onLoad() {
-        tmc.addCommand("/players", this.cmdPlayers.bind(this), "Show players");
+        this.addCommand("/players", this.cmdPlayers.bind(this), "Show players");
     }
 
     async onUnload() {
-        tmc.removeCommand("/players");
+
     }
 
     async onStart() {

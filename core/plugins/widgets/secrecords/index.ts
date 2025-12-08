@@ -7,10 +7,10 @@ export default class SecRecordsWidget extends Plugin {
     static depends: string[] = ["widgets", "secrecords"];
 
     async onLoad() {
-        tmc.server.addListener("Plugin.secRecords.newBest", this.newBest, this);
-        tmc.server.addListener("Plugin.secRecords.diffBest", this.diffBest, this);
-        // tmc.server.addListener('Plugin.secRecords.newPB', this.newPB, this);
-        // tmc.server.addListener('Plugin.secRecords.diffPB', this.diffPB, this);
+        this.addListener("Plugin.secRecords.newBest", this.newBest, this);
+        this.addListener("Plugin.secRecords.diffBest", this.diffBest, this);
+        // this.addListener('Plugin.secRecords.newPB', this.newPB, this);
+        // this.addListener('Plugin.secRecords.diffPB', this.diffPB, this);
     }
 
     async newBest(data: any) {

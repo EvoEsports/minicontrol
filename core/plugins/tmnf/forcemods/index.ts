@@ -29,13 +29,12 @@ export default class ForceMods extends Plugin {
     async onLoad() {
         this.enabled = true;
         tmc.cli("¤info¤ForceMods: TmForever detected, enabling plugin.");
-        tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
+        this.addListener("Trackmania.EndMap", this.onEndMap, this);
         await this.onEndMap([]);
     }
 
     async onUnload() {
-        this.enabled = false;
-        tmc.server.removeListener("Trackmania.EndMap", this.onEndMap.bind(this));
+
     }
 
     async onEndMap(data: any) {

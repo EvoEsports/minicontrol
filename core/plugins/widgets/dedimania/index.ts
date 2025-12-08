@@ -9,10 +9,10 @@ export default class DedimaniaWidget extends Plugin {
     widgets: { [key: string]: Widget } = {};
 
     async onLoad() {
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-        tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
-        tmc.server.addListener("Plugin.Dedimania.onSync", this.onSync, this);
-        tmc.server.addListener("Plugin.Dedimania.onNewRecord", this.onUpdate, this);
+        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        this.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
+        this.addListener("Plugin.Dedimania.onSync", this.onSync, this);
+        this.addListener("Plugin.Dedimania.onNewRecord", this.onUpdate, this);
     }
 
     async onUnload() {
@@ -20,8 +20,7 @@ export default class DedimaniaWidget extends Plugin {
             await this.widgets[login].destroy();
             delete this.widgets[login];
         }
-        tmc.server.removeListener("Plugin.Dedimania.onSync", this.onSync);
-        tmc.server.removeListener("Plugin.Dedimania.onNewRecord", this.onUpdate);
+        this.widgets = {};
     }
 
     async onPlayerConnect(player: Player) {

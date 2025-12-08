@@ -20,9 +20,9 @@ export default class BestCps extends Plugin {
     widget: Widget | null = null;
 
     async onLoad() {
-        tmc.server.addListener("Trackmania.BeginMap", this.beginMap, this);
-        tmc.server.addListener("TMC.PlayerCheckpoint", this.checkpoint, this);
-        tmc.chatCmd.addCommand("/checkpoints", this.cmdCheckpoints.bind(this), "Display best Checkpoints");
+        this.addListener("Trackmania.BeginMap", this.beginMap, this);
+        this.addListener("TMC.PlayerCheckpoint", this.checkpoint, this);
+        this.addCommand("/checkpoints", this.cmdCheckpoints.bind(this), "Display best Checkpoints");
         this.widget = new Widget("core/plugins/widgets/bestcps/widget.xml.twig");
         this.widget.pos = { x: -160, z: 0, y: 90 };
         this.widget.size = { width: 240, height: 20 };
@@ -32,10 +32,6 @@ export default class BestCps extends Plugin {
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.BeginMap", this.beginMap.bind(this));
-        tmc.server.removeListener("TMC.PlayerCheckpoint", this.checkpoint.bind(this));
-        tmc.chatCmd.removeCommand("/checkpoints");
-
         this.widget?.destroy();
         this.widget = null;
     }

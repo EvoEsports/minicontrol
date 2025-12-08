@@ -9,15 +9,15 @@ export interface Like {
 }
 
 export default class MapLikes extends Plugin {
-    static depends: string[] = ["database"];
+
     votes: Like[] = [];
 
     async onLoad() {
         tmc.storage["db"].addModels([Likes]);
-        tmc.addCommand('/++', this.onLike.bind(this), 'Like a map');
-        tmc.addCommand('/--', this.onDislike.bind(this), 'Dislike a map');
-        tmc.server.addListener("Trackmania.BeginMap", this.syncVotes, this);
-        tmc.server.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
+        this.addCommand('/++', this.onLike.bind(this), 'Like a map');
+        this.addCommand('/--', this.onDislike.bind(this), 'Dislike a map');
+        this.addListener("Trackmania.BeginMap", this.syncVotes, this);
+        this.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
     }
 
     async onStart() {
@@ -25,11 +25,6 @@ export default class MapLikes extends Plugin {
     }
 
     async onUnload() {
-        tmc.removeCommand("/++");
-        tmc.removeCommand("/--");
-        tmc.server.removeListener("Trackmania.BeginMap", this.syncVotes);
-        tmc.server.removeListener("Trackmania.PlayerChat", this.onPlayerChat);
-        this.votes = [];
     }
 
     async syncVotes() {

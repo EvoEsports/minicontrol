@@ -8,7 +8,6 @@ import { Op } from "sequelize";
 import Menu from "@core/menu";
 
 export default class Records extends Plugin {
-    static depends: string[] = ["database"];
     records: Score[] = [];
     private playerCheckpoints: { [login: string]: string[] } = {};
     personalBest: { [login: string]: PersonalBest } = {};
@@ -16,15 +15,11 @@ export default class Records extends Plugin {
 
     async onLoad() {
         tmc.storage["db"].addModels([Score, PersonalBest]);
-        tmc.chatCmd.addCommand("/records", this.cmdRecords.bind(this), "Display Records");
-        tmc.settings.register("records.maxRecords", 100, this.settingMaxRecords.bind(this), "LocalRecords: Maximum number of records");
+        this.addCommand("/records", this.cmdRecords.bind(this), "Display Records");
+        this.addSetting("records.maxRecords", 100, this.settingMaxRecords.bind(this), "LocalRecords: Maximum number of records");
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap);
-        tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish);
-        tmc.server.removeListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint);
-        tmc.chatCmd.removeCommand("/records");
     }
 
     async onStart() {
@@ -35,14 +30,14 @@ export default class Records extends Plugin {
         });
         await this.syncRecords(tmc.maps.currentMap.UId);
 
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
-        tmc.server.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
+        this.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
+        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
         if (tmc.game.Name === "TmForever") {
-            tmc.server.addListener("Trackmania.EndMap", this.onEndRace, this);
+            this.addListener("Trackmania.EndMap", this.onEndRace, this);
         } else {
-            tmc.server.addListener("Trackmania.EndMatch", this.onEndRace, this);
+            this.addListener("Trackmania.EndMatch", this.onEndRace, this);
         }
     }
 
@@ -282,7 +277,7 @@ export default class Records extends Plugin {
 
         // Per-player/map lock
         const prev = this.finishLocks[lockKey] || Promise.resolve();
-        let resolveLock: (value?: any) => void = () => {};
+        let resolveLock: (value?: any) => void = () => { };
         this.finishLocks[lockKey] = new Promise((res) => {
             resolveLock = res;
         });

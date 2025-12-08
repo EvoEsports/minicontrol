@@ -76,10 +76,10 @@ export default class Tmx extends Plugin {
     }
 
     async onLoad() {
-        tmc.settings.register("tmx.fetchMapInfo", true, null, "TMX: Fetch map info for maps");
-        tmc.addCommand("//add", this.addMap.bind(this), "Add map from TMX");
-        tmc.addCommand("//addpack", this.addMapPack.bind(this), "Add map pack from TMX");
-        tmc.addCommand(
+        this.addSetting("tmx.fetchMapInfo", true, null, "TMX: Fetch map info for maps");
+        this.addCommand("//add", this.addMap.bind(this), "Add map from TMX");
+        this.addCommand("//addpack", this.addMapPack.bind(this), "Add map pack from TMX");
+        this.addCommand(
             "//cancelpack",
             async () => {
                 tmc.chat("Admin cancelled the download!");
@@ -87,7 +87,7 @@ export default class Tmx extends Plugin {
             },
             "Cancel pack download",
         );
-        tmc.addCommand("//search", this.searchMaps.bind(this), "Search maps on TMX");
+        this.addCommand("//search", this.searchMaps.bind(this), "Search maps on TMX");
 
         Menu.getInstance().addItem({
             category: "Map",
@@ -95,13 +95,11 @@ export default class Tmx extends Plugin {
             action: "//search",
             admin: true,
         });
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         await this.onBeginMap();
     }
 
     async onUnload() {
-        tmc.removeCommand("//add");
-        tmc.removeCommand("//addpack");
     }
 
     async onBeginMap() {

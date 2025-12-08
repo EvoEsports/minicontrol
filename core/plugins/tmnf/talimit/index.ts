@@ -30,8 +30,8 @@ export default class TAlimitPlugin extends Plugin {
         this.widget.size = { width: 38, height: 10 };
         this.timeLimit = tmc.storage["minicontrol.taTimeLimit"] ?? this.origTimeLimit;
         this.startTime = Date.now();
-        tmc.server.addListener("Trackmania.BeginRound", this.onBeginRound, this);
-        tmc.server.addListener("Trackmania.EndRound", this.onEndRound, this);
+        this.addListener("Trackmania.BeginRound", this.onBeginRound, this);
+        this.addListener("Trackmania.EndRound", this.onEndRound, this);
         const gamemode = await tmc.server.call("GetGameMode"); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
         if (gamemode === 1) {
             const limit = await tmc.server.call("GetTimeAttackLimit");
@@ -57,8 +57,6 @@ export default class TAlimitPlugin extends Plugin {
         }
         tmc.server.removeOverride("SetTimeAttackLimit");
         tmc.server.removeOverride("GetTimeAttackLimit");
-        tmc.server.removeListener("Trackmania.BeginRound", this.onBeginRound.bind(this));
-        tmc.server.removeListener("Trackmania.EndRound", this.onEndRound.bind(this));
         this.active = false;
         await this.hideWidget();
         tmc.server.send("SetTimeAttackLimit", this.timeLimit * 1000);

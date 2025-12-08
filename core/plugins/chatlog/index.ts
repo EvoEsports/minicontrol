@@ -14,8 +14,8 @@ export default class ChatLog extends Plugin {
     private chatLog: ChatLogMessage[] = [];
 
     async onLoad() {
-        tmc.server.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
-        tmc.settings.register(
+        this.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
+        this.addSetting(
             "chatlog.maxlines",
             20,
             async (newValue: any, _oldValue: any) => {
@@ -23,7 +23,7 @@ export default class ChatLog extends Plugin {
             },
             "ChatLog: Max lines in chat log",
         );
-        tmc.addCommand("/chatlog", this.cmdChatLog.bind(this), "Display chat log");
+        this.addCommand("/chatlog", this.cmdChatLog.bind(this), "Display chat log");
 
         Menu.getInstance().addItem({
             category: "Server",
@@ -33,8 +33,6 @@ export default class ChatLog extends Plugin {
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.PlayerChat", this.onPlayerChat);
-        tmc.removeCommand("/chatlog");
     }
 
     async onPlayerChat(data: any) {

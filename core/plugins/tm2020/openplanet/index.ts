@@ -8,7 +8,7 @@ export default class OpenPlanet extends Plugin {
 
     async onLoad() {
         if (this.envForceMode) {
-            tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+            this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
         }
     }
 
@@ -23,7 +23,7 @@ export default class OpenPlanet extends Plugin {
     }
 
     async onUnload() {
-        tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect);
+
     }
 
     async onPlayerConnect(player: Player) {

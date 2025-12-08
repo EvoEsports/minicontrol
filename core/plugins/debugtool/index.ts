@@ -20,7 +20,7 @@ export default class DebugTool extends Plugin {
         if (process.env.DEBUG_GBX_COUNTERS === "true") {
             this.gbxWidget = new Widget("core/plugins/debugtool/widget.xml.twig");
             this.gbxWidget.pos = { x: 159, y: -85, z: 0 };
-            tmc.server.addListener("GbxClient.Counters", this.onCounters, this);
+            this.addListener("GbxClient.Counters", this.onCounters, this);
         }
 
         if (process.env.DEBUG === "true") {
@@ -28,16 +28,16 @@ export default class DebugTool extends Plugin {
             this.memoryWidget.pos = { x: 159, y: -60, z: 0 };
 
             if (tmc.game.Name !== "TmForever") {
-                tmc.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
-                tmc.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
+               this.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
+               this.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
             }
             this.intervalId = setInterval(() => {
                 this.displayMemInfo();
             }, 30000) as any;
         }
-        tmc.addCommand("//mem", this.cmdMeminfo.bind(this), "Show Memory usage");
-        tmc.addCommand("//uptime", this.cmdUptime.bind(this), "Show Uptime");
-        tmc.addCommand(
+       this.addCommand("//mem", this.cmdMeminfo.bind(this), "Show Memory usage");
+       this.addCommand("//uptime", this.cmdUptime.bind(this), "Show Uptime");
+       this.addCommand(
             "//gc",
             async (login: string) => {
                 if (gc) {
@@ -76,10 +76,6 @@ export default class DebugTool extends Plugin {
 
     async onUnload() {
         clearInterval(this.intervalId);
-        tmc.removeCommand("//mem");
-        tmc.removeCommand("//uptime");
-        tmc.removeCommand("//addfake");
-        tmc.removeCommand("//removefake");
         this.memoryWidget?.destroy();
         this.memoryWidget = null;
     }

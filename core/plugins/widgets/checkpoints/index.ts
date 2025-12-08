@@ -8,13 +8,13 @@ export default class Checkpoints extends Plugin {
     widgets: { [key: string]: Widget } = {};
 
     async onLoad() {
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("Trackmania.EndRace", this.onHideWidget, this);
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-        tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
-        tmc.server.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
-        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
-        tmc.server.addListener("TMC.PlayerGiveup", this.onPlayerGiveup, this);
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("Trackmania.EndRace", this.onHideWidget, this);
+        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        this.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
+        this.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
+        this.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
+        this.addListener("TMC.PlayerGiveup", this.onPlayerGiveup, this);
     }
 
     async onStart() {
@@ -22,13 +22,10 @@ export default class Checkpoints extends Plugin {
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap);
-        tmc.server.removeListener("Trackmania.EndRace", this.onHideWidget);
-        tmc.server.removeListener("TMC.PlayerDisconnect", this.onPlayerDisconnect);
-        tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect);
-        tmc.server.removeListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint);
-        tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish);
-        tmc.server.removeListener("TMC.PlayerGiveup", this.onPlayerGiveup);
+        for (const login in this.widgets) {
+            await this.widgets[login].destroy();
+        }
+        this.widgets = {};
     }
 
     async onPlayerConnect(player: Player) {

@@ -12,13 +12,11 @@ export default class ToggleChat extends Plugin {
         this.widget.size = { width: 15, height: 3 };
         this.widget.setOpenAction(this.manialinkToggle.bind(this));
         await this.widget.display();
-        tmc.addCommand("/togglechat", this.cmdChat.bind(this), "Toggle chat visibility");
+        this.addCommand("/togglechat", this.cmdChat.bind(this), "Toggle chat visibility");
     }
 
     async onUnload() {
-        this.widget?.destroy();
-        this.widget = null;
-        tmc.removeCommand("/togglechat");
+
     }
 
     async cmdChat(login: string, params: string[]) {

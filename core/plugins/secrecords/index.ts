@@ -27,17 +27,17 @@ export default class RecordsSector extends Plugin {
 
     async onStart() {
         await this.onBeginMap();
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         if (tmc.game.Name === "TmForever") {
-            tmc.server.addListener("Trackmania.EndMap", this.onEndRace, this);
+            this.addListener("Trackmania.EndMap", this.onEndRace, this);
         } else {
-            tmc.server.addListener("Trackmania.EndMatch", this.onEndRace, this);
+            this.addListener("Trackmania.EndMatch", this.onEndRace, this);
         }
-        tmc.server.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
-        tmc.addCommand("/sectors", this.cmdSecRecs.bind(this), "Show sector records");
-        tmc.addCommand("//sectors", this.cmdAdminSecRecs.bind(this), "Sector record admin commands");
+        this.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
+        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        this.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
+        this.addCommand("/sectors", this.cmdSecRecs.bind(this), "Show sector records");
+        this.addCommand("//sectors", this.cmdAdminSecRecs.bind(this), "Sector record admin commands");
         Menu.getInstance().addItem({
             category: "Records",
             title: "Sector Records",

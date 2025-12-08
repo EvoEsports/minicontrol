@@ -1,5 +1,5 @@
 import ListWindow from "./ui/listwindow";
-import { escapeRegex, htmlEntities } from "./utils";
+import { escapeRegex, htmlEntities, sleep } from "./utils";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -75,7 +75,7 @@ export default class CommandManager {
             "Display help for command",
         );
 
-        this.addCommand("/serverlogin", async () => {}, "Display server login");
+        this.addCommand("/serverlogin", async () => { }, "Display server login");
         this.addCommand(
             "/version",
             async (login: string) => {
@@ -91,7 +91,7 @@ export default class CommandManager {
             "Close MINIcontroller",
         );
         this.addCommand("//plugins", this.cmdPluginManager.bind(this), "List plugins");
-        /*this.addCommand("//plugin", async (login: string, args: string[]) => {
+        this.addCommand("//plugin", async (login: string, args: string[]) => {
             if (args.length < 1) {
                 tmc.chat("Valid options are: list, load, unload, reload", login);
                 return;
@@ -100,7 +100,7 @@ export default class CommandManager {
             switch (action) {
                 case "list": {
                     let plugins = "Loaded plugins: ";
-                    for (let plugin in tmc.plugins) {
+                    for (const plugin in tmc.plugins) {
                         plugins += `¤cmd¤${plugin}¤white¤, `;
                     }
                     tmc.chat(plugins, login);
@@ -149,7 +149,7 @@ export default class CommandManager {
                         return;
                     }
                     await tmc.unloadPlugin(plugin);
-                    await sleep(50);
+                    await sleep(150);
                     await tmc.loadPlugin(plugin);
                     break;
                 }
@@ -158,7 +158,7 @@ export default class CommandManager {
                 }
             }
         }, "Manage plugins");
-        */
+
         this.addCommand(
             "//admin",
             async (login: string, args: string[]) => {
@@ -346,7 +346,7 @@ export default class CommandManager {
             { key: "pluginName", title: "Plugin", width: 50 },
             { key: "depends", title: "Dependencies", width: 50 },
         ]);
-
+        window.setActions(["toggle"]);
         window.display();
     }
 
@@ -429,7 +429,7 @@ export default class CommandManager {
 }
 
 class PluginManagerWindow extends ListWindow {
-    /*async onAction(login: string, action: string, item: any) {
+    async onAction(login: string, action: string, item: any) {
         if (action === "toggle") {
             if (tmc.plugins[item.pluginName]) {
                 await tmc.chatCmd.execute(login, `//plugin unload ${item.pluginName}`);
@@ -439,7 +439,7 @@ class PluginManagerWindow extends ListWindow {
             await tmc.chatCmd.execute(login, "//plugins");
             return;
         }
-    }*/
+    }
 }
 
 class HelpWindow extends ListWindow {

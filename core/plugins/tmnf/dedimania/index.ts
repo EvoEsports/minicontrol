@@ -30,10 +30,10 @@ export default class Dedimania extends Plugin {
 
     async onLoad() {
         tmc.cli("¤info¤Dedimania: TmForever detected, enabling plugin.");
-        tmc.addCommand("/dedirecords", this.cmdDediRecords.bind(this), "Show dedimania records");
-        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
+        this.addCommand("/dedirecords", this.cmdDediRecords.bind(this), "Show dedimania records");
+        this.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("Trackmania.EndMap", this.onEndMap, this);
 
         this.serverInfo = await tmc.server.call("GetMainServerPlayerInfo");
         this.serverLogin = this.serverInfo.Login;
@@ -47,10 +47,6 @@ export default class Dedimania extends Plugin {
 
     async onUnload() {
         clearInterval(this.intervalId);
-        tmc.removeCommand("/dedirecords");
-        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap.bind(this));
-        tmc.server.removeListener("Trackmania.EndMap", this.onEndMap.bind(this));
-        tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish);
     }
 
     async onStart() {

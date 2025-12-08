@@ -32,26 +32,26 @@ export default class Chat extends Plugin {
     async onLoad() {
         try {
             this.pluginEnabled = (await tmc.server.call("ChatEnableManualRouting", true, false)) as boolean;
-            tmc.server.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
-            tmc.addCommand("//chat", this.cmdChat.bind(this), "Controls chat");
-            tmc.settings.register("chat.color", "ff0", null, "Chat: Public chat color");
-            tmc.settings.register("chat.badge.admin", "f00", null, "Chat: Admin badge color");
-            tmc.settings.register("chat.badge.player", "fff", null, "Chat: Player badge color");
-            tmc.settings.register("chat.profanityFilter", true, null, "Chat: Enable profanity filter");
+            this.addListener("Trackmania.PlayerChat", this.onPlayerChat);
+            this.addCommand("//chat", this.cmdChat.bind(this), "Controls chat");
+            this.addSetting("chat.color", "ff0", null, "Chat: Public chat color");
+            this.addSetting("chat.badge.admin", "f00", null, "Chat: Admin badge color");
+            this.addSetting("chat.badge.player", "fff", null, "Chat: Player badge color");
+            this.addSetting("chat.profanityFilter", true, null, "Chat: Enable profanity filter");
 
             if (tmc.game.Name === "TmForever") {
-                tmc.settings.register(
+                this.addSetting(
                     "chat.useEmotes",
                     false,
                     this.toggleWidget.bind(this),
                     "Chat: Enable emote replacements in chat $z(see: $lhttp://bit.ly/Celyans_emotes_sheet$l)",
                 );
-                tmc.chatCmd.addCommand("/emotes", this.cmdTmfEmotes.bind(this), "Emotes help");
+                this.addCommand("/emotes", this.cmdTmfEmotes.bind(this), "Emotes help");
                 if (tmc.settings.get("chat.useEmotes")) {
                     this.toggleWidget(true);
                 }
             } else {
-                tmc.chatCmd.addCommand("/chatformat", async () => {}, "");
+                this.addCommand("/chatformat", async () => { }, "");
             }
         } catch (e: any) {
             this.pluginEnabled = false;
@@ -65,9 +65,6 @@ export default class Chat extends Plugin {
         } catch (e: any) {
             tmc.chat(e.message);
         }
-        tmc.removeCommand("//chat");
-        tmc.server.removeListener("Trackmania.PlayerChat", this.onPlayerChat);
-        this.pluginEnabled = false;
     }
 
     async cmdChat(login: string, params: string[]) {

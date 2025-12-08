@@ -18,32 +18,25 @@ export default class Jukebox extends Plugin {
     queue: Map[] = [];
 
     async onLoad() {
-        tmc.addCommand("/addqueue", this.cmdQueue.bind(this), "Add Map to queue");
-        tmc.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");
-        tmc.addCommand("/jukebox", this.cmdListQueue.bind(this), "List maps in queue");
-        tmc.addCommand("/drop", this.cmdDrop.bind(this), "Drop Map from queue");
-        tmc.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
-        tmc.addCommand("//requeue", this.cmdRequeue.bind(this), "Add current map to the front of the queue");
-        tmc.addCommand("//prev", this.cmdPrev.bind(this), "Skip to previous map");
-        tmc.settings.register("jukebox.enabled", true, null, "Jukebox: Enable/Disable jukebox");
+        this.addCommand("/addqueue", this.cmdQueue.bind(this), "Add Map to queue");
+        this.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");
+        this.addCommand("/jukebox", this.cmdListQueue.bind(this), "List maps in queue");
+        this.addCommand("/drop", this.cmdDrop.bind(this), "Drop Map from queue");
+        this.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
+        this.addCommand("//requeue", this.cmdRequeue.bind(this), "Add current map to the front of the queue");
+        this.addCommand("//prev", this.cmdPrev.bind(this), "Skip to previous map");
+
+        this.addSetting("jukebox.enabled", true, null, "Jukebox: Enable/Disable jukebox");
 
         if (tmc.game.Name === "TmForever") {
-            tmc.server.addListener("Trackmania.EndMap", this.onEndRace, this);
+            this.addListener("Trackmania.EndMap", this.onEndRace, this);
         } else {
-            tmc.server.addListener("Trackmania.EndMatch", this.onEndRace, this);
+            this.addListener("Trackmania.EndMatch", this.onEndRace, this);
         }
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.EndMap", this.onEndRace);
-        tmc.server.removeListener("Trackmania.EndMatch", this.onEndRace);
-        tmc.removeCommand("/addqueue");
-        tmc.removeCommand("/jb");
-        tmc.removeCommand("/jukebox");
-        tmc.removeCommand("/drop");
-        tmc.removeCommand("//cjb");
-        tmc.removeCommand("//requeue");
-        tmc.removeCommand("//prev");
+
     }
 
     async onStart() {

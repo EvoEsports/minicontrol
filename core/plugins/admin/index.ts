@@ -34,20 +34,19 @@ export default class AdminPlugin extends Plugin {
 
     async onLoad() {
         if (tmc.game.Name !== "TmForever") {
-            tmc.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");
+            this.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");
         }
-        tmc.settings.register("admin.panel", true, this.adminPanelChange.bind(this), "Admin: Enable admin panel");
-        tmc.server.addListener("TMC.AdminsChanged", this.adminPanelChange, this);
+        this.addSetting("admin.panel", true, this.adminPanelChange.bind(this), "Admin: Enable admin panel");
+        this.addListener("TMC.AdminsChanged", this.adminPanelChange, this);
+        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        this.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
 
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-        tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
-
-        tmc.addCommand("//settings", this.cmdSettings.bind(this), "Set settings");
-        tmc.addCommand("//colors", this.cmdColors.bind(this), "Set colors");
-        tmc.addCommand("//set", this.cmdSetSetting.bind(this), "Set setting value");
-        tmc.addCommand("//skip", async () => await tmc.server.call("NextMap"), "Skips Map");
-        tmc.addCommand("//res", async () => await tmc.server.call("RestartMap"), "Restarts Map");
-        tmc.addCommand(
+        this.addCommand("//settings", this.cmdSettings.bind(this), "Set settings");
+        this.addCommand("//colors", this.cmdColors.bind(this), "Set colors");
+        this.addCommand("//set", this.cmdSetSetting.bind(this), "Set setting value");
+        this.addCommand("//skip", async () => await tmc.server.call("NextMap"), "Skips Map");
+        this.addCommand("//res", async () => await tmc.server.call("RestartMap"), "Restarts Map");
+        this.addCommand(
             "//kick",
             async (login: string, params: string[]) => {
                 const kickLogin: any = params.shift();
@@ -58,7 +57,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Kicks player",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//ban",
             async (login: string, params: string[]) => {
                 if (!params[0]) {
@@ -68,7 +67,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Bans player",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//unban",
             async (login: string, params: string[]) => {
                 if (!params[0]) {
@@ -78,8 +77,8 @@ export default class AdminPlugin extends Plugin {
             },
             "Unbans player",
         );
-        tmc.addCommand("//cancel", async () => await tmc.server.call("CancelVote"), "Cancels vote");
-        tmc.addCommand(
+        this.addCommand("//cancel", async () => await tmc.server.call("CancelVote"), "Cancels vote");
+        this.addCommand(
             "//er",
             async () => {
                 try {
@@ -90,7 +89,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Ends round",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//mode",
             async (login: string, params: string[]) => {
                 if (!params[0]) {
@@ -129,7 +128,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Sets gamemode",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//password",
             async (login: string, params: string[]) => {
                 const newPass = params[0] || "";
@@ -144,7 +143,7 @@ export default class AdminPlugin extends Plugin {
             "Sets server password",
         );
 
-        tmc.addCommand(
+        this.addCommand(
             "//warmup",
             async (login: string, params: string[]) => {
                 if (!params[0] && Number.isNaN(Number.parseInt(params[0]))) {
@@ -155,7 +154,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Sets warmup duration",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//servername",
             async (login: string, params: string[]) => {
                 const newName = params.join(" ");
@@ -164,7 +163,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Sets server's name",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//servercomment",
             async (login: string, params: string[]) => {
                 const newComment = params.join(" ");
@@ -173,7 +172,7 @@ export default class AdminPlugin extends Plugin {
             },
             "set server comment",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//maxplayers",
             async (login: string, params: string[]) => {
                 const newMax = Number.parseInt(params[0]);
@@ -186,7 +185,7 @@ export default class AdminPlugin extends Plugin {
             "Sets max players",
         );
 
-        tmc.addCommand(
+        this.addCommand(
             "//ignore",
             async (login: string, params: string[]) => {
                 if (!params[0]) {
@@ -198,7 +197,7 @@ export default class AdminPlugin extends Plugin {
             "Ignores player",
         );
 
-        tmc.addCommand(
+        this.addCommand(
             "//unignore",
             async (login: string, params: string[]) => {
                 if (!params[0]) {
@@ -210,7 +209,7 @@ export default class AdminPlugin extends Plugin {
             "Unignores player",
         );
 
-        tmc.addCommand(
+        this.addCommand(
             "//talimit",
             async (login: string, params: string[]) => {
                 if (!params[0]) {
@@ -246,7 +245,7 @@ export default class AdminPlugin extends Plugin {
             "Sets timelimit",
         );
 
-        tmc.addCommand(
+        this.addCommand(
             "//jump",
             async (login: string, params: string[]) => {
                 if (!params[0] && Number.isNaN(Number.parseInt(params[0]))) {
@@ -273,7 +272,7 @@ export default class AdminPlugin extends Plugin {
             "Jumps to map in playlist",
         );
 
-        tmc.addCommand(
+        this.addCommand(
             "//wml",
             async (login: string, params: string[]) => {
                 let file = "tracklist.txt";
@@ -292,7 +291,7 @@ export default class AdminPlugin extends Plugin {
             "Saves matchsettings",
         );
 
-        tmc.addCommand(
+        this.addCommand(
             "//rml",
             async (login: string, params: string[]) => {
                 let file = "tracklist";
@@ -311,7 +310,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Reads matchsettings",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//shuffle",
             async (login: string, params: string[]) => {
                 try {
@@ -331,7 +330,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Shuffles maplist",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//remove",
             async (login: string, params: string[]) => {
                 let map: any = tmc.maps.currentMap;
@@ -358,7 +357,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Removes map from playlist",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//wu",
             async (login: string, params: string[]) => {
                 if (tmc.game.Name === "TmForever") {
@@ -367,7 +366,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Starts warmup",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//endwu",
             async (login: string, params: string[]) => {
                 if (tmc.game.Name === "TmForever") {
@@ -378,7 +377,7 @@ export default class AdminPlugin extends Plugin {
             },
             "end warmup",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//timeout",
             async (login: string, params: string[]) => {
                 if (!params[0] && Number.isNaN(Number.parseInt(params[0]))) {
@@ -393,7 +392,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Set finish timeout for rounds",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//cupwinners",
             async (login: string, params: string[]) => {
                 if (!params[0] && Number.isNaN(Number.parseInt(params[0]))) {
@@ -408,7 +407,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Set cup winners",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//forceteam",
             async (login: string, params: string[]) => {
                 if (!params[0]) {
@@ -427,7 +426,7 @@ export default class AdminPlugin extends Plugin {
             "Force player to team",
         );
 
-        tmc.addCommand(
+        this.addCommand(
             "//pointlimit",
             async (login: string, params: string[]) => {
                 if (!params[0] && Number.isNaN(Number.parseInt(params[0]))) {
@@ -458,7 +457,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Set points limit",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//maxpoints",
             async (login: string, params: string[]) => {
                 if (!params[0]) {
@@ -473,7 +472,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Set team max points",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//rpoints",
             async (login: string, params: string[]) => {
                 if (!params[0]) {
@@ -501,7 +500,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Set round points",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//usenewrules",
             async (login: string, params: string[]) => {
                 const mode = await tmc.server.call("GetGameMode");
@@ -520,7 +519,7 @@ export default class AdminPlugin extends Plugin {
             },
             "Use new rounds rules",
         );
-        tmc.addCommand(
+        this.addCommand(
             "//laps",
             async (login: string, params: string[]) => {
                 if (!params[0] && Number.isNaN(Number.parseInt(params[0]))) {
@@ -536,8 +535,8 @@ export default class AdminPlugin extends Plugin {
             "Set laps",
         );
 
-        tmc.addCommand("//addlocal", this.cmdAddLocal.bind(this), "Adds local map to playlist");
-        tmc.addCommand(
+        this.addCommand("//addlocal", this.cmdAddLocal.bind(this), "Adds local map to playlist");
+        this.addCommand(
             "//modecommand",
             async (login: string, params: string[]) => {
                 if (!params[0]) {
@@ -557,50 +556,15 @@ export default class AdminPlugin extends Plugin {
             },
             "Send mode command",
         );
-        tmc.addCommand("//guestlist", this.cmdGuestlist.bind(this), "Manage Guestlist");
-        tmc.addCommand("//blacklist", this.cmdBlacklist.bind(this), "Manage Blacklist");
-        tmc.addCommand("//ignorelist", this.cmdIgnoreList.bind(this), "Manage Ignorelist");
-        tmc.addCommand("//banlist", this.cmdBanlist.bind(this), "Manage Banlist");
-        tmc.addCommand("//togglemute", this.cmdToggleMute.bind(this), "Toggle Mute");
+        this.addCommand("//guestlist", this.cmdGuestlist.bind(this), "Manage Guestlist");
+        this.addCommand("//blacklist", this.cmdBlacklist.bind(this), "Manage Blacklist");
+        this.addCommand("//ignorelist", this.cmdIgnoreList.bind(this), "Manage Ignorelist");
+        this.addCommand("//banlist", this.cmdBanlist.bind(this), "Manage Banlist");
+        this.addCommand("//togglemute", this.cmdToggleMute.bind(this), "Toggle Mute");
     }
 
     async onUnload() {
-        tmc.removeCommand("//timeout");
-        tmc.removeCommand("//rlimit");
-        tmc.removeCommand("//pointlimit");
-        tmc.removeCommand("//usenewrules");
-        tmc.removeCommand("//laps");
-        tmc.removeCommand("//skip");
-        tmc.removeCommand("//res");
-        tmc.removeCommand("//kick");
-        tmc.removeCommand("//ban");
-        tmc.removeCommand("//unban");
-        tmc.removeCommand("//cancel");
-        tmc.removeCommand("//er");
-        tmc.removeCommand("//mode");
-        tmc.removeCommand("//setpass");
-        tmc.removeCommand("//setspecpass");
-        tmc.removeCommand("//warmup");
-        tmc.removeCommand("//ignore");
-        tmc.removeCommand("//unignore");
-        tmc.removeCommand("//togglemute");
-        tmc.removeCommand("//talimit");
-        tmc.removeCommand("//jump");
-        tmc.removeCommand("//wml");
-        tmc.removeCommand("//rml");
-        tmc.removeCommand("//shuffle");
-        tmc.removeCommand("//remove");
-        tmc.removeCommand("//call");
-        tmc.removeCommand("//wu");
-        tmc.removeCommand("//endwu");
-        if (tmc.game.Name !== "TmForever") {
-            tmc.removeCommand("//modesettings");
-            tmc.removeCommand("//set");
-        }
-        tmc.removeCommand("//addlocal");
-        tmc.removeCommand("//modecommand");
-        tmc.removeCommand("//guestlist");
-        tmc.removeCommand("//blacklist");
+
     }
 
     async adminPanelChange(value: any) {

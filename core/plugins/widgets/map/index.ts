@@ -13,8 +13,8 @@ export default class MapWidget extends Plugin {
         this.widget.pos = { x: 121, y: 89, z: 1 };
         this.widget.size = { width: 38, height: 9 };
         this.widget.setOpenAction(this.buttonClick.bind(this));
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("Plugin.TMX.MapInfo", this.onMapInfo, this);
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("Plugin.TMX.MapInfo", this.onMapInfo, this);
         await this.display();
     }
 
