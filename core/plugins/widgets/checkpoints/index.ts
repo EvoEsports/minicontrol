@@ -32,7 +32,7 @@ export default class Checkpoints extends Plugin {
         const login = player.login;
         this.checkpointCounter[login] = 0;
         if (!this.widgets[login]) {
-            const widget = new Widget("core/plugins/widgets/checkpoints/widget.xml.twig");
+            const widget = new Widget("widget.xml.twig");
             widget.recipient = login;
             widget.pos = { x: 0, y: -74, z: 0 };
             widget.size = { width: 20, height: 5 };

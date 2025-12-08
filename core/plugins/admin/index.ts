@@ -44,8 +44,8 @@ export default class AdminPlugin extends Plugin {
         this.addCommand("//settings", this.cmdSettings.bind(this), "Set settings");
         this.addCommand("//colors", this.cmdColors.bind(this), "Set colors");
         this.addCommand("//set", this.cmdSetSetting.bind(this), "Set setting value");
-        this.addCommand("//skip", async () => await tmc.server.call("NextMap"), "Skips Map");
-        this.addCommand("//res", async () => await tmc.server.call("RestartMap"), "Restarts Map");
+        this.addCommand("//skip", async () => tmc.server.send("NextMap"), "Skips Map");
+        this.addCommand("//res", async () => tmc.server.send("RestartMap"), "Restarts Map");
         this.addCommand(
             "//kick",
             async (login: string, params: string[]) => {
@@ -261,7 +261,7 @@ export default class AdminPlugin extends Plugin {
                     }
                     if (map) {
                         tmc.chat(`¤info¤Jumped to ¤white¤${map.Name}¤info¤ by ¤white¤${map.AuthorNickname ? map.AuthorNickname : map.Author}`);
-                        tmc.server.call("JumpToMapIdent", map.UId);
+                        tmc.server.send("JumpToMapIdent", map.UId);
                     } else {
                         tmc.chat("¤error¤Couldn't find map", login);
                     }

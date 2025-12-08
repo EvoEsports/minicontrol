@@ -36,7 +36,7 @@ export default class OpenPlanet extends Plugin {
         widget.recipient = login;
         // widget.data['replyAction'] = this.action;
         widget.data["signature"] = this.envForceMode;
-        widget.template = "core/plugins/tm2020/openplanet/opdetect.xml.twig";
+        widget.template = "opdetect.xml.twig";
         return widget;
     }
 }

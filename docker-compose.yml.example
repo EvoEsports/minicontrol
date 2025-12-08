@@ -1,4 +1,4 @@
-# Minicontorl and Trackmania Forever server
+# Minicontrol and Trackmania Forever server
 
 # usage:
 # 1. chmod -R 777 tracks
@@ -52,7 +52,9 @@ services:
       XMLRPC_PORT: "5000"
       XMLRPC_USER: "SuperAdmin"
       XMLRPC_PASS: "SuperAdmin"
-      EXCLUDED_PLUGINS: "tm2020, tmnf/freezone"
+      # Provide PLUGINS as an inclusive list (comma separated) to restrict which plugins get loaded.
+      # Example: PLUGINS: "tm2020, tmnf/freezone"
+      PLUGINS: ""
       DEDIMANIA_PASS: ""                                # use same pass as TMF_MASTERSERVER_PASSWORD
       DATABASE: "sqlite://userdata/local.sqlite"        # or "mysql://user:pass@host:port/db"
       ERROR_REPORTING: true

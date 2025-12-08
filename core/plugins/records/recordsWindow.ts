@@ -4,7 +4,7 @@ import Score from "@core/schemas/scores.model";
 import Player from "@core/schemas/players.model";
 import { formatTime, htmlEntities } from "@core/utils";
 import { Op } from "sequelize";
-import type WorldRecords from "@core/plugins/tm2020/worldrecords";
+import type WorldRecords from "@core/plugins/worldrecords";
 import type Records from "@core/plugins/records";
 import type liverankings from "@core/plugins/liverankings";
 

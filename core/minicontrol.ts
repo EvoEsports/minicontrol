@@ -550,10 +550,12 @@ class MiniControl {
      */
     async beforeInit() {
         await this.chatCmd.beforeInit();
-
+        this.cli("¤info¤Loading plugins...");
         // discover plugins on disk (recursively) and build load list
         this.discoveredPlugins = await this.discoverPlugins();
-        const exclude = process.env.EXCLUDED_PLUGINS?.split(",") || [];
+        // if PLUGINS env var is provided, it acts as an inclusive whitelist
+        const includeEnv = process.env.PLUGINS?.split(",")?.map(s => s.trim()).filter(Boolean) || [];
+        const includeSet = includeEnv.length > 0 ? new Set<string>(includeEnv) : null;
         const loadList: string[] = [];
         for (const entry of this.discoveredPlugins) {
             const pluginId = entry.id;
@@ -562,12 +564,8 @@ class MiniControl {
             if (pluginId.includes('.') || pluginId.includes('node_modules')) include = false;
             // respect explicit requiresGame compatibility (if known) — skip incompatible plugins
             if (entry.compatible === false) include = false;
-            for (const excludeName of exclude) {
-                if (excludeName.trim() === '') continue;
-                if (pluginId === excludeName.trim()) {
-                    include = false;
-                }
-            }
+            // if PLUGINS env var provided, treat it as whitelist for initial load list
+            if (includeSet && !includeSet.has(pluginId)) include = false;
             if (include) loadList.push(pluginId);
         }
 
@@ -607,18 +605,18 @@ class MiniControl {
             };
 
             // Prepare available manifests from all discovered plugins (so resolver can see dependencies)
-            // Skip any manifests explicitly excluded by EXCLUDED_PLUGINS so the resolver cannot pick
-            // excluded plugins as part of chosen set or dependency fulfilment.
+            // If includeEnv is present we treat it as a whitelist: only manifests present in PLUGINS
+            // will be available to the resolver (dependencies must be included explicitly).
             const manifestById = new Map<string, PluginManifest>();
-            // build a set for quick exclusion checks
-            const excludedSet = new Set<string>((exclude ?? []).map((s:any) => String(s ?? '').trim()).filter(Boolean));
+            // build a set for quick checks (includeSet already prepared)
 
             for (const entry of this.discoveredPlugins) {
                 if (!entry?.manifest) continue;
                 // skip discovered manifests marked incompatible (requiresGame or requiresMinicontrolVersion)
                 if (entry.compatible === false) continue;
-                // skip any manifest for a plugin that was explicitly excluded
-                if (excludedSet.has(entry.id)) continue;
+                // if includeSet is present, skip any manifest not explicitly included
+                if (includeSet && !includeSet.has(entry.id)) continue;
+                // (no explicit excluded list — if includeSet is not present we'll allow discovered manifests)
                 const deps = (entry.manifest.depends ?? []).map(toDepEntry).filter(Boolean) as any[];
                 manifestById.set(entry.id, { ...entry.manifest, depends: deps });
             }
@@ -635,10 +633,10 @@ class MiniControl {
                 }
             }
 
-            // also include any discovered manifests not in loadList so dependencies are visible
-            // but never include manifests that are explicitly excluded
+            // Also include any discovered manifests not in loadList so dependencies are visible
+            // When PLUGINS is used as a whitelist, we do not include manifests that are not part of the includeSet
             for (const [id, m] of manifestById.entries()) {
-                if (excludedSet.has(id)) continue;
+                if (includeSet && !includeSet.has(id)) continue;
                 if (!loadList.includes(id)) available.push(m);
             }
 
@@ -657,6 +655,7 @@ class MiniControl {
         }
 
         this.server.send("Echo", this.startTime.toString(), "MiniControl");
+        this.cli("¤info¤Plugins loaded.");
     }
 
     /**

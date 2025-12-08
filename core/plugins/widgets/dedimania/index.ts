@@ -58,7 +58,7 @@ export default class DedimaniaWidget extends Plugin {
     updateWidget(login: string) {
         let widget = this.widgets[login];
         if (!widget) {
-            widget = new Widget("core/plugins/widgets/dedimania/widget.xml.twig");
+            widget = new Widget("widget.xml.twig");
             widget.title = "DEDIMANIA";
             widget.recipient = login;
             widget.pos = { x: 121, y: 35, z: 0 };

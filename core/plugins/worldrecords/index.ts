@@ -1,7 +1,7 @@
 import Plugin from "@core/plugins";
 import RecordsWindow from "@core/plugins/records/recordsWindow";
 import { clone, formatTime } from "@core/utils";
-import API from "@core/plugins/tm2020/nadeoapi/api";
+import API from "@core/plugins/nadeoapi/api";
 
 interface AccessTokenResponse {
     access_token: string;
@@ -27,18 +27,20 @@ export default class worldRecords extends Plugin {
     private worldRecordsUpdate: NodeJS.Timeout | null = null;
     envIdentifier = "";
     envSecret = "";
+    enabled = true;
 
     async onLoad() {
         const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
         if (missingVars.length > 0) {
-            tmc.cli(`¤error¤Missing required environment variables: ${missingVars.join(", ")}`);
-            process.exit(1);
+            tmc.cli(`¤error¤WorldRecords: Cannot enable plugin - Missing required environment variables: ${missingVars.join(", ")}`);
+            this.enabled = false;
         }
         this.envIdentifier = process.env.IDENTIFIER || "";
         this.envSecret = process.env.SECRET || "";
-
-        this.addListener("Trackmania.BeginMap", this.onMapChanged, this);
-        this.addCommand("/worldrecords", this.cmdRecords.bind(this), "Display World Records");
+        if (this.enabled) {
+            this.addListener("Trackmania.BeginMap", this.onMapChanged, this);
+            this.addCommand("/worldrecords", this.cmdRecords.bind(this), "Display World Records");
+        }
     }
 
     async onUnload() {

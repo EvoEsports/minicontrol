@@ -22,6 +22,18 @@
 3. Copy `.env.example` to `.env` and fill out all necessary information in the `.env` file.
 4. Run `npm start`
 
+## Controlling which plugins load
+
+You can control which plugins MINIcontrol loads using the PLUGINS environment variable (comma-separated list of plugin ids).
+When `PLUGINS` is empty or not set, MINIcontrol will auto-discover and attempt to load all valid plugins from the `core/plugins` and `userdata/plugins` directories.
+When `PLUGINS` is set, it acts as an inclusive whitelist — only the listed plugin ids will be considered for loading. Note: if a whitelisted plugin depends on other plugins, those dependent plugin ids must also be present in `PLUGINS` so the resolver can find them.
+
+Example (.env):
+
+```env
+PLUGINS="tm2020,tmnf/freezone,announces"
+```
+
 ## With Docker + TMNF server
 
 1. Run `chmod -R 777 tracks`

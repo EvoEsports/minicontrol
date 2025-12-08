@@ -4,12 +4,11 @@ import Widget from "@core/ui/widget";
 import type { TmxMapInfo } from "@core/plugins/tmx";
 
 export default class MapWidget extends Plugin {
-    static depends: string[] = ["widgets", "maps"];
     widget: Widget | null = null;
     tmxInfo: TmxMapInfo = {} as TmxMapInfo;
 
     async onLoad() {
-        this.widget = new Widget("core/plugins/widgets/map/widget.xml.twig");
+        this.widget = new Widget("widget.xml.twig");
         this.widget.pos = { x: 121, y: 89, z: 1 };
         this.widget.size = { width: 38, height: 9 };
         this.widget.setOpenAction(this.buttonClick.bind(this));
