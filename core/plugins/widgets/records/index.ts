@@ -6,7 +6,6 @@ import Widget from "@core/ui/widget";
 import { formatTime, htmlEntities } from "@core/utils";
 
 export default class RecordsWidget extends Plugin {
-    static depends: string[] = ["widgets", "records"];
     widgets: { [key: string]: recordsWidget } = {};
     performanceWidget: Widget | undefined;
     records: any[] = [];

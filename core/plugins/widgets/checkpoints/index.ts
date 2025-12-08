@@ -3,7 +3,6 @@ import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
 
 export default class Checkpoints extends Plugin {
-    static depends = ["widgets"];
     checkpointCounter: { [key: string]: number } = {};
     widgets: { [key: string]: Widget } = {};
 

@@ -31,7 +31,6 @@ export interface VoteStruct {
 }
 
 export default class VotesPlugin extends Plugin {
-    static depends: string[] = [];
     timeout = 30;
     ratio = 0.55;
     currentVote: Vote | null = null;

@@ -3,7 +3,6 @@ import Widget from "@core/ui/widget";
 import type Jukebox from "../../jukebox";
 
 export default class Pay2Play extends Plugin {
-    static depends: string[] = [];
     widgets: Widget[] = [];
 
     skipAmount = 150;

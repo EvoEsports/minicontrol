@@ -28,3 +28,5 @@ PLUGINS="admin,announces"
 ```
 
 Note: when you use `PLUGINS` as a whitelist you must explicitly include any plugin dependencies in the list, otherwise the resolver won't see those dependencies.
+
+You can also use simple wildcard patterns. Example: `PLUGINS="kacky/*,announces"` will include any plugin whose id starts with `kacky/` (for example: `kacky/foo`, `kacky/bar/baz`).

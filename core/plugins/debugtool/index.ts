@@ -28,16 +28,16 @@ export default class DebugTool extends Plugin {
             this.memoryWidget.pos = { x: 159, y: -60, z: 0 };
 
             if (tmc.game.Name !== "TmForever") {
-               this.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
-               this.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
+                this.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
+                this.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
             }
             this.intervalId = setInterval(() => {
                 this.displayMemInfo();
             }, 30000) as any;
         }
-       this.addCommand("//mem", this.cmdMeminfo.bind(this), "Show Memory usage");
-       this.addCommand("//uptime", this.cmdUptime.bind(this), "Show Uptime");
-       this.addCommand(
+        this.addCommand("//mem", this.cmdMeminfo.bind(this), "Show Memory usage");
+        this.addCommand("//uptime", this.cmdUptime.bind(this), "Show Uptime");
+        this.addCommand(
             "//gc",
             async (login: string) => {
                 if (gc) {
@@ -49,21 +49,20 @@ export default class DebugTool extends Plugin {
             },
             "Run garbage collector",
         );
+    }
 
+    async onStart() {
+        await this.displayMemInfo();
         setInterval(() => {
             const currentMem = process.memoryUsage().rss / 1048576;
             const diff = currentMem - startValueMem;
-            if (diff > 350) {
+            if (diff > 450) {
                 const msg = `Stopping MINIcontrol, Memory usage is too high: $fff${currentMem.toFixed(2)}MB ¤error¤(${diff.toFixed(2)}MB)`;
                 console.log(msg);
                 tmc.chat(msg);
                 process.exit(1);
             }
         }, 10000);
-    }
-
-    async onStart() {
-        await this.displayMemInfo();
     }
 
     async onCounters(counters: Counters) {

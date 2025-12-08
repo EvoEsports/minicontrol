@@ -11,8 +11,6 @@ interface Time {
 }
 
 export default class BestCps extends Plugin {
-    static depends = ["widgets"];
-
     id = "";
     bestTimes: Time[] = [];
     nbCheckpoints = -1;

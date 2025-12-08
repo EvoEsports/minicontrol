@@ -559,7 +559,43 @@ class MiniControl {
         this.discoveredPlugins = await this.discoverPlugins();
         // if PLUGINS env var is provided, it acts as an inclusive whitelist
         const includeEnv = process.env.PLUGINS?.split(",")?.map(s => s.trim()).filter(Boolean) || [];
-        const includeSet = includeEnv.length > 0 ? new Set<string>(includeEnv) : null;
+
+        // Compile include patterns (supports '*' wildcard, e.g. kacky/*)
+        const includePatterns = includeEnv;
+        const makeMatcher = (patterns: string[]) => {
+            if (!patterns || patterns.length === 0) return (_: string) => true;
+            // precompile regex / checks
+            const checks: Array<{ type: 'exact' | 'prefix' | 'regex'; value: string | RegExp }> = [];
+            for (const p of patterns) {
+                if (!p) continue;
+                if (p === '*') {
+                    // universal match
+                    return (_: string) => true;
+                }
+                if (p.endsWith('/*')) {
+                    const prefix = p.slice(0, -2);
+                    checks.push({ type: 'prefix', value: prefix });
+                    continue;
+                }
+                if (p.includes('*')) {
+                    // convert wildcard to regex
+                    const esc = p.replace(/[-/\\^$+?.()|[\]{}]/g, '\\$&').replace(/\\\*/g, '.*');
+                    checks.push({ type: 'regex', value: new RegExp(`^${esc}$`) });
+                    continue;
+                }
+                checks.push({ type: 'exact', value: p });
+            }
+            return (id: string) => {
+                for (const c of checks) {
+                    if (c.type === 'exact' && id === (c.value as string)) return true;
+                    if (c.type === 'prefix' && id.startsWith((c.value as string) + '/')) return true;
+                    if (c.type === 'regex' && (c.value as RegExp).test(id)) return true;
+                }
+                return false;
+            };
+        };
+
+        const matchesInclude = makeMatcher(includePatterns);
         const loadList: string[] = [];
         for (const entry of this.discoveredPlugins) {
             const pluginId = entry.id;
@@ -569,7 +605,7 @@ class MiniControl {
             // respect explicit requiresGame compatibility (if known) — skip incompatible plugins
             if (entry.compatible === false) include = false;
             // if PLUGINS env var provided, treat it as whitelist for initial load list
-            if (includeSet && !includeSet.has(pluginId)) include = false;
+            if (includePatterns.length > 0 && !matchesInclude(pluginId)) include = false;
             if (include) loadList.push(pluginId);
         }
 
@@ -618,8 +654,8 @@ class MiniControl {
                 if (!entry?.manifest) continue;
                 // skip discovered manifests marked incompatible (requiresGame or requiresMinicontrolVersion)
                 if (entry.compatible === false) continue;
-                // if includeSet is present, skip any manifest not explicitly included
-                if (includeSet && !includeSet.has(entry.id)) continue;
+                // if PLUGINS is present, only include manifests that match it
+                if (includePatterns.length > 0 && !matchesInclude(entry.id)) continue;
                 // (no explicit excluded list — if includeSet is not present we'll allow discovered manifests)
                 const deps = (entry.manifest.depends ?? []).map(toDepEntry).filter(Boolean) as any[];
                 manifestById.set(entry.id, { ...entry.manifest, depends: deps });
@@ -640,7 +676,7 @@ class MiniControl {
             // Also include any discovered manifests not in loadList so dependencies are visible
             // When PLUGINS is used as a whitelist, we do not include manifests that are not part of the includeSet
             for (const [id, m] of manifestById.entries()) {
-                if (includeSet && !includeSet.has(id)) continue;
+                if (includePatterns.length > 0 && !matchesInclude(id)) continue;
                 if (!loadList.includes(id)) available.push(m);
             }
 

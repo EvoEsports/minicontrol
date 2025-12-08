@@ -32,6 +32,7 @@ Example (.env):
 
 ```env
 PLUGINS="tm2020,tmnf/freezone,announces"
+You can also use simple wildcard patterns. Example: `PLUGINS="kacky/*,announces"` will include any plugin whose id starts with `kacky/` (e.g. `kacky/foo`, `kacky/bar/baz`).
 ```
 
 ## With Docker + TMNF server

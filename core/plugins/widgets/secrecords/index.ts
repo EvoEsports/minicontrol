@@ -4,8 +4,6 @@ import type { TopRecord } from "@core/plugins/secrecords";
 import type { Player } from "@core/playermanager";
 
 export default class SecRecordsWidget extends Plugin {
-    static depends: string[] = ["widgets", "secrecords"];
-
     async onLoad() {
         this.addListener("Plugin.secRecords.newBest", this.newBest, this);
         this.addListener("Plugin.secRecords.diffBest", this.diffBest, this);

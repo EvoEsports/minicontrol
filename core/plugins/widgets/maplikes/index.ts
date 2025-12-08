@@ -4,7 +4,6 @@ import type { Like } from "@core/plugins/maplikes";
 import type MapLikes from "@core/plugins/maplikes";
 
 export default class MapLikesWidget extends Plugin {
-    static depends: string[] = ["widgets", "database", "maplikes"];
     widget: Widget | null = null;
     records: any[] = [];
 
