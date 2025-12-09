@@ -16,6 +16,8 @@ export interface Map {
 
 export default class Jukebox extends Plugin {
     queue: Map[] = [];
+    history: string[] = [];
+    historySize = 2;
 
     async onLoad() {
         tmc.addCommand("/addqueue", this.cmdQueue.bind(this), "Add Map to queue");
@@ -26,6 +28,15 @@ export default class Jukebox extends Plugin {
         tmc.addCommand("//requeue", this.cmdRequeue.bind(this), "Add current map to the front of the queue");
         tmc.addCommand("//prev", this.cmdPrev.bind(this), "Skip to previous map");
         tmc.settings.register("jukebox.enabled", true, null, "Jukebox: Enable/Disable jukebox");
+        tmc.settings.register(
+            "jukebox.history_size",
+            2,
+            async (value) => {
+                this.historySize = value;
+            },
+            "Jukebox: Number of maps to keep in history",
+        );
+        this.historySize = tmc.settings.get("jukebox.history_size");
 
         if (tmc.game.Name === "TmForever") {
             tmc.server.addListener("Trackmania.EndMap", this.onEndRace, this);
@@ -97,6 +108,10 @@ export default class Jukebox extends Plugin {
         }
         if (this.queue.find((m) => m.UId === map.UId)) {
             tmc.chat("¤info¤Map already in queue", login);
+            return;
+        }
+        if (this.history.includes(map.UId) || (tmc.maps.currentMap && tmc.maps.currentMap.UId === map.UId)) {
+            tmc.chat("¤info¤Map was recently played", login);
             return;
         }
         this.queue.push({
@@ -185,6 +200,12 @@ export default class Jukebox extends Plugin {
     }
 
     async onEndRace(_data: any) {
+        if (tmc.maps.currentMap) {
+            this.history.push(tmc.maps.currentMap.UId);
+            if (this.history.length > this.historySize) {
+                this.history.shift();
+            }
+        }
         if (this.queue.length > 0) {
             const map = this.queue.shift();
             if (map) {
