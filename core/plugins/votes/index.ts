@@ -2,6 +2,7 @@ import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
 import { processColorString, htmlEntities } from "@core/utils";
 import Menu from "@core/plugins/menu/menu";
+import type { Player } from "@core/playermanager";
 
 export class Vote {
     type: string;
@@ -39,6 +40,7 @@ export default class VotesPlugin extends Plugin {
     readonly origTimeLimit = Number.parseInt(process.env.TALIMIT || "300");
     newLimit = this.origTimeLimit;
     extendCounter = 1;
+    limitExtends = 2;
     voteCooldowns: Map<string, string[]> = new Map();
 
     async onLoad() {
@@ -79,6 +81,14 @@ export default class VotesPlugin extends Plugin {
             "Votes: Vote ratio to pass",
         );
         tmc.settings.register(
+            "votes.limit_extends",
+            2,
+            async (value) => {
+                this.limitExtends = value;
+            },
+            "Votes: Max extends per map",
+        );
+        tmc.settings.register(
             "votes.native.timeout",
             0,
             (value) => tmc.server.send("SetCallVoteTimeOut", value),
@@ -86,6 +96,7 @@ export default class VotesPlugin extends Plugin {
         );
         this.timeout = tmc.settings.get("votes.timeout");
         this.ratio = tmc.settings.get("votes.ratio");
+        this.limitExtends = tmc.settings.get("votes.limit_extends");
         tmc.server.send("SetCallVoteTimeOut", tmc.settings.get("votes.native.timeout"));
     }
 
@@ -222,6 +233,10 @@ export default class VotesPlugin extends Plugin {
                 tmc.chat("¤vote¤You are not allowed to start this type of vote.", login);
                 return;
             }
+            if (type === "Extend" && this.extendCounter > this.limitExtends) {
+                tmc.chat("¤vote¤Map extension limit reached.", login);
+                return;
+            }
         }
 
         if (this.currentVote) {
@@ -275,6 +290,19 @@ export default class VotesPlugin extends Plugin {
         }
 
         this.currentVote.votes.set(login, vote);
+
+        const players = tmc.players.getAll();
+        const activePlayers = players.filter((p: Player) => !p.isSpectator);
+        const votedCount = activePlayers.filter((p: Player) => this.currentVote?.votes.has(p.login)).length;
+
+        if (votedCount >= activePlayers.length) {
+            const voteInstance = this.currentVote;
+            setTimeout(async () => {
+                if (this.currentVote === voteInstance) {
+                    await this.endVote();
+                }
+            }, 1000);
+        }
     }
 
     async checkVote() {
