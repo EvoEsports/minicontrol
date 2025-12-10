@@ -1,20 +1,30 @@
 # MINIcontrol for developers
 
-The core concept of MINIcontrol is to provide a modern, modular, easy-to-use server controller for all current Trackmania games.
+MINIcontrol is a modern, modular server controller designed to work across the various Trackmania titles. It provides a lightweight framework and a consistent plugin API so server operators and developers can manage servers, build features, and author plugins with minimal friction.
 
-The idea for this project came to reaby due to looking into hosting servers for TMNF/UF and [XAseco](https://xaseco.org) - the most popular and feature-rich server controller - really shows its age these days.
+The project began as a response to the limitations of older server controllers. [XAseco](https://xaseco.org) — long the most widely used controller — is built on legacy PHP versions, and attempts to port it to newer PHP runtimes often break compatibility with existing plugins. While alternatives such as [Trakman](https://github.com/lythx/trakman) exist, they did not fully meet the modularity and plugin-compatibility goals we wanted.
 
-XAseco 1.16 relies on PHP 5.6, which has now been end-of-life for several years, and while there have been community attempts to port XAseco to modern versions of PHP like PHP7.4 and PHP8, these versions lack support for several available plugins, which would have to be ported manually.
-Modern alternatives exist, like [Trakman](https://github.com/lythx/trakman), but for reaby's needs it proved not to be as modular as he would have liked. So he started working on MINIcontrol - the one tool for all Trackmania games. Soon after realizing its potential, we at Evo Esports took the project under our wing and provided reaby with additional development support for MINIcontrol.
+To address these issues, reaby started MINIcontrol to deliver a future-proof controller with a single codebase able to support multiple Trackmania games. Evo Esports later adopted the project and contributed development resources to accelerate development and broaden the feature set.
 
-One key idea of MINIcontrol is to make plugins compatible across all games with one single code-base.
-While this would normally not be a small feat, thankfully the XML-RPC API of the Dedicated Servers for the Trackmania games haven't changed much over the years, meaning with a few adapters built-in it is very possible to build a plugin system running the same code for all these games.
+One of MINIcontrol's core principles is cross-game plugin compatibility: plugins should work across multiple Trackmania titles with the same code. This is achievable because the Dedicated Server's XML-RPC API has remained relatively stable, and the controller provides small adapters to normalize differences between games.
 
-Furthermode, this isn't reaby's or our first attempt to build a server controller, combined we have worked on several controller projects in the past (MLEPP, Expansion, Expansion², EvoSC, etc), and have learnt a lot of lessons from those.
+This isn't our first server controller project — we have worked on several prior controllers (MLEPP, Expansion, Expansion², EvoSC, and others) — and we've learned many lessons that shaped MINIcontrol's architecture and design.
 
 ## Core
 
-The core of the controller itself doesn't do much, it provides a framework for plugin developers to work with.
+The core of MINIcontrol is intentionally compact and focused: it provides the essential runtime services and a stable foundation that plugin authors rely on. The core handles low-level tasks such as connecting to the dedicated server (GBX/XML-RPC), normalizing events across Trackmania titles, managing a small set of first-class managers (maps, players, UI, settings, bills), and providing a safe plugin lifecycle and loader for installing, resolving, and loading plugins.
+
+Key responsibilities of the core include:
+
+- Server connection and transport: A GBX client that wraps XML-RPC interactions and normalizes server method names for different game families.
+- Event normalization: Converts different server callbacks and modescripts into unified `TMC.*` events for plugin authors.
+- Plugin lifecycle, discovery and resolution: Scans standard plugin directories, validates `manifest.json`, resolves dependency graphs using semver ranges, and loads plugins in deterministic order.
+- Built-in managers: Lightweight managers provide common services (players, maps, UI, settings, billing, and more) that plugins use to avoid reimplementing core functionality.
+- Logging and telemetry: Centralized logging, optional Sentry integration, and consistent debug/logging utilities.
+
+The core intentionally avoids implementing high-level features directly — instead it exposes a simple, opinionated API and helpers (like `addListener`, `addCommand`, `addSetting`) so plugins can register functionality cleanly and the runtime can manage resources and lifecycle events safely.
+
+This approach keeps the core small and maintainable while enabling a rich ecosystem of plugins that implement features on top of the same stable API.
 
 ### Overview of the folder structure
 
@@ -44,6 +54,23 @@ The core of the controller itself doesn't do much, it provides a framework for p
 ## Trackmania Mini Control - the `tmc` global variable
 
  `tmc` is available for everywhere and should be always used to interact with the dedicated server, plugins, database and such.
+
+### Quick reference table
+
+| Variable | Type | Short description | Example |
+|---|---|---|---|
+| `tmc.server` | Server | Main server call wrapper; use `call`, `send`, `multicall` | `await tmc.server.call('GetCurrentMapInfo')` |
+| `tmc.players` | PlayerManager | Player cache & lookups | `await tmc.players.getPlayer(login)` |
+| `tmc.ui` | UiManager | Display UI, add actions, clipboard | `tmc.ui.setClipboard(login, text)` |
+| `tmc.maps` | MapManager | Maplist helpers and map info | `tmc.maps.currentMap` |
+| `tmc.chatCmd` | CommandManager | Add/remove commands | `tmc.addCommand('/hello', cb)` |
+| `tmc.settings` | SettingsManager | Persistent settings and colors | `tmc.settings.set('tmf.hud.round_scores', true)` |
+| `tmc.plugins` | { [key: string]: Plugin } | Loaded plugin instances | `tmc.plugins['example']` |
+| `tmc.admins` | string[] | List of admin logins | `tmc.admins.includes(login)` |
+| `tmc.game` | object | Dedicated server game info (`Name`) | `if (tmc.game.Name === 'TmForever')` |
+| `tmc.storage` | any | Runtime shared key-value store | `tmc.storage['minicontrol.foo'] = 'bar'` |
+
+---
 
 ### Public variables
 
@@ -94,20 +121,6 @@ Below are the `tmc` global variables available everywhere in plugins and core co
 
 Note: Use the provided manager classes to access runtime data instead of relying on plugin internals where possible; this improves maintainability and reduces risk of breaking changes.
 
-#### Quick reference table
-
-| Variable | Type | Short description | Example |
-|---|---|---|---|
-| `tmc.server` | Server | Main server call wrapper; use `call`, `send`, `multicall` | `await tmc.server.call('GetCurrentMapInfo')` |
-| `tmc.players` | PlayerManager | Player cache & lookups | `await tmc.players.getPlayer(login)` |
-| `tmc.ui` | UiManager | Display UI, add actions, clipboard | `tmc.ui.setClipboard(login, text)` |
-| `tmc.maps` | MapManager | Maplist helpers and map info | `tmc.maps.currentMap` |
-| `tmc.chatCmd` | CommandManager | Add/remove commands | `tmc.addCommand('/hello', cb)` |
-| `tmc.settings` | SettingsManager | Persistent settings and colors | `tmc.settings.set('tmf.hud.round_scores', true)` |
-| `tmc.plugins` | { [key: string]: Plugin } | Loaded plugin instances | `tmc.plugins['example']` |
-| `tmc.admins` | string[] | List of admin logins | `tmc.admins.includes(login)` |
-| `tmc.game` | object | Dedicated server game info (`Name`) | `if (tmc.game.Name === 'TmForever')` |
-| `tmc.storage` | any | Runtime shared key-value store | `tmc.storage['minicontrol.foo'] = 'bar'` |
 
 
 ### Public methods
