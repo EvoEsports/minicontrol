@@ -33,7 +33,6 @@ export default class UiManager {
     private hiddenManialinks: string[] = [];
     private uiProperties: uiModule[] = [];
 
-    private scriptCalls: string[] = [];
     tmnfCustomUi: CustomUI = {
         notice: false,
         challenge_info: false,
@@ -56,8 +55,8 @@ export default class UiManager {
         tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
         tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
         if (tmc.game.Name === "Trackmania") {
-            tmc.server.addListener("Common.UIModules.Properties", this.onCallbackArray, this);
             await this.getUiProperties();
+            this.resetUiProperties();
         }
 
         if (tmc.game.Name === "TmForever") {
@@ -86,15 +85,25 @@ export default class UiManager {
             // checkpoint counter is integrated with laps counter for some reason
             this.setUiProperty("Race_LapsCounter", "position", [155.7, -77]);
             this.setUiProperty("Race_LapsCounter", "scale", 0.7);
-            await this.sendUiProperties();
+            this.sendUiProperties();
         }
         tmc.server.send("SendDisplayManialinkPage", this.convert(this.getGlobalManialink()), 0, false);
     }
 
     async getUiProperties() {
-        const uuid = this.uuid();
-        this.scriptCalls.push(uuid);
-        tmc.server.sendScript("Common.UIModules.GetProperties", uuid);
+        const data = await tmc.server.callScript("Common.UIModules.GetProperties");
+        this.uiProperties = data.uimodules as uiModule[];
+    }
+
+    resetUiProperties() {
+        const reset: string[] = [];
+        for (const uiModule of this.uiProperties) {
+            reset.push(uiModule.id);
+        }
+        const json = {
+            uimodules: reset,
+        };
+        tmc.server.sendScript("Common.UIModules.ResetProperties", `${JSON.stringify(json)}`);
     }
 
     async setUiProperty(id: string, property: string, value: any) {
@@ -107,25 +116,8 @@ export default class UiManager {
         }
     }
 
-    async sendUiProperties() {
+    sendUiProperties() {
         tmc.server.send("TriggerModeScriptEventArray", "Common.UIModules.SetProperties", [`{"uimodules": ${JSON.stringify(this.uiProperties)}}`]);
-    }
-
-    private async onCallbackArray(data: any) {
-        if (data && this.scriptCalls.includes(data.responseid)) {
-            this.scriptCalls.splice(this.scriptCalls.indexOf(data.responseid), 1);
-            if (data.uimodules) {
-                this.uiProperties = data.uimodules as uiModule[];
-                const reset: string[] = [];
-                for (const uiModule of this.uiProperties) {
-                    reset.push(uiModule.id);
-                }
-                const json = {
-                    uimodules: reset,
-                };
-                tmc.server.sendScript("Common.UIModules.ResetProperties", `${JSON.stringify(json)}`);
-            }
-        }
     }
 
     /**

@@ -84,4 +84,4 @@ tmc.server.send('SomeMethod', arg1, arg2);
 
 ---
 
-If you need a separate document to describe `Server`'s `onCallback` and how it maps to `TMC` events, see `class/server.md`.
+If you need a separate document to describe `Server`'s `onCallback` and how it maps to `TMC` events, see [class/server.md](server.md).

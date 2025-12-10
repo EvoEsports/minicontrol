@@ -1,5 +1,6 @@
 import EventEmitter from "node:events";
 import { GbxClient } from "./gbx";
+import { uuidv4 } from "./utils";
 
 export interface ServerOptions {
     LadderMode: any;
@@ -238,15 +239,24 @@ export default class Server {
      * @returns
      */
     async callScript(method: string, ...args: any): Promise<any> {
+        const uid = uuidv4();
         const response = new Promise((resolve, reject) => {
             try {
-                this.gbx.callScript(method, ...args);
+                if (method.includes("Get") === false) {
+                    this.gbx.sendScript(method, ...args);
+                    resolve(null);
+                    return;
+                }
+
+                this.gbx.sendScript(method, ...args, uid);
                 const timeout = setTimeout(() => {
                     reject(new Error(`Script call to ${method} timed out after 5 seconds`));
                 }, 5000);
-                this.events.once(method.replace("Get", ""), (result: any) => {
-                    clearTimeout(timeout);
-                    resolve(result);
+                this.events.on(method.replace("Get", ""), (result: any) => {
+                    if (result.responseid === uid) {
+                        clearTimeout(timeout);
+                        resolve(result);
+                    }
                 });
             } catch (e: any) {
                 reject(e);
@@ -322,31 +332,34 @@ export default class Server {
      */
     async limitScriptCallbacks() {
         if (this.version.Name !== "Trackmania") return;
-        const limitCb = process.env.XMLRPC_LIMIT_SCRIPT_CALLBACKS ?? "true" === "true";
+        const limitCb = (process.env.XMLRPC_LIMIT_SCRIPT_CALLBACKS ?? "true") === "true";
         if (!limitCb) return;
         tmc.cli("Limiting script callbacks...");
-        const cbList = await tmc.server.callScript("XmlRpc.GetCallbacksList");
-        await tmc.server.send("TriggerModeScriptEventArray","XmlRpc.UnblockCallbacks", cbList.callbacks);
+        try {
+            const cbList = await tmc.server.callScript("XmlRpc.GetCallbacksList");
+            await tmc.server.send("TriggerModeScriptEventArray", "XmlRpc.UnblockCallbacks", cbList.callbacks);
 
-        const filteredList = cbList.callbacks.filter((cb: string) => {
-            let bool = false;
-            if (
-                //cb.endsWith("_Start") ||
-                cb.endsWith("_End") ||
-                cb.startsWith("Trackmania.Event.On") ||
-                cb === "Trackmania.Event.SkipOutro" ||
-                cb === "Trackmania.Event.StartLine"
-            ) {
-                bool = true;
-            }
-            return bool;
-        });
-        tmc.server.sendScript("XmlRpc.BlockCallbacks", ...filteredList);
-        const enabledCb = await tmc.server.callScript("XmlRpc.GetCallbacksList_Enabled", "123");
+            const filteredList = cbList.callbacks.filter((cb: string) => {
+                let bool = false;
+                if (
+                    //cb.endsWith("_Start") ||
+                    cb.endsWith("_End") ||
+                    cb.startsWith("Trackmania.Event.On") ||
+                    cb === "Trackmania.Event.SkipOutro" ||
+                    cb === "Trackmania.Event.StartLine"
+                ) {
+                    bool = true;
+                }
+                return bool;
+            });
+            tmc.server.sendScript("XmlRpc.BlockCallbacks", ...filteredList);
+            const enabledCb = await tmc.server.callScript("XmlRpc.GetCallbacksList_Enabled");
 
-        tmc.cli(
-            `¤info¤Enabled Script Callbacks: $fff${enabledCb.callbacks.length}/${cbList.callbacks.length} ¤gray¤(${enabledCb.callbacks.join(", ")})`,
-        );
-
+            tmc.cli(
+                `¤info¤Enabled Script Callbacks: $fff${enabledCb.callbacks.length}/${cbList.callbacks.length} ¤gray¤(${enabledCb.callbacks.join(", ")})`,
+            );
+        } catch (e: any) {
+            tmc.cli(`¤error¤Failed to limit script callbacks: ${e.message}`);
+        }
     }
 }
