@@ -8,7 +8,7 @@
   <a href="https://discord.gg/evoesports"><img alt="Discord" src="https://img.shields.io/discord/384138149686935562?label=Discord&logo=discord&logoColor=fff" /></a>
 </div>
 
-# MINIcontrol — Trackmania Controller
+# MINIcontrol — Trackmania Server Controller
 
 > Lightweight, modular controller and plugin framework for Trackmania & TmForever servers.
 
