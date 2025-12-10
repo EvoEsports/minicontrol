@@ -6,6 +6,7 @@
   <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/evoesports/minicontrol?label=Current%20Version" />
   <img alt="NodeJS" src="https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white" />
   <a href="https://discord.gg/evoesports"><img alt="Discord" src="https://img.shields.io/discord/384138149686935562?label=Discord&logo=discord&logoColor=fff" /></a>
+  <a href="./documentation/index.md"><img alt="Docs" src="https://img.shields.io/badge/docs-Documentation-blue?logo=read-the-docs&logoColor=white" /></a>
 </div>
 
 # MINIcontrol — Trackmania Server Controller
@@ -13,6 +14,8 @@
 > Lightweight, modular controller and plugin framework for Trackmania & TmForever servers.
 
 MINIcontrol provides a pluggable runtime for server automation, UI (Manialinks), player and map management, and scriptable features via a stable plugin API.
+
+Documentation: [Documentation index](./documentation/index.md) — the single source of truth for setup, configuration, and developer reference.
 
 ---
 
