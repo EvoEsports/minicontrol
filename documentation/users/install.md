@@ -1,3 +1,5 @@
+[Back to Index](../index.md)
+
 # Install MINIcontrol
 
 This guide walks through installing and running MINIcontrol using either a native Node/Bun environment or Docker. It covers prerequisites, environment configuration, database migrations, and running the controller in development or production.
