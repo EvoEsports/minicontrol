@@ -191,7 +191,6 @@ this.addCommand('//restart', async (login, args) => {
 
 ---
 
-If you want, I can also add a `Chat command` reference page in README with more examples and a small unit test harness showing parameter parsing and admin enforcement. Which would you prefer next?
 # ChatCommand manager
 
 ```ts
