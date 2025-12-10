@@ -209,6 +209,10 @@ export default class Jukebox extends Plugin {
         if (this.queue.length > 0) {
             const map = this.queue.shift();
             if (map) {
+                if (!tmc.players.getAllLogins().includes(map.QueueBy)) {
+                    tmc.chat(`¤info¤Player ¤white¤${map.QueueNickName}$z$s ¤info¤is no longer online, ignoring their jukeboxed map.`);
+                    return;
+                }
                 try {
                     await tmc.server.call("ChooseNextMap", map.File);
                     tmc.chat(`¤info¤Next map ¤white¤${map.Name} ¤info¤jukeboxed by ¤white¤${map.QueueNickName}`);
