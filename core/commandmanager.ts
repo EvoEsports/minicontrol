@@ -290,6 +290,11 @@ export default class CommandManager {
         );
     }
 
+    /**
+     * Handle plugin manager command
+     * @param login login
+     * @param args args
+     */
     async cmdPluginManager(login: string, args: string[]) {
         const window = new PluginManagerWindow(login);
         window.size = { width: 160, height: 95 };

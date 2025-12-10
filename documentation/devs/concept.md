@@ -26,11 +26,19 @@ The core of the controller itself doesn't do much, it provides a framework for p
     * 📄 mapmanager.ts - [MapManager class](./class/maps.md)
     * 📄 playermanager.ts - [PlayerManager class](./class/playermanager.md)
     * 📄 settingsmanager.ts - [SettingsManager class](./class/settingsmanager.md)
+    * 📄 server.ts - [Server class](./class/server.md)
+    * 📄 menu.ts - [Menu class](./class/menu.md)
     * 📄 uimanager.ts - [UIManager class](./class/uimanager.md)
-    * 📄 utils.ts - [UIManager class](./class/utils.md)
+    * 📄 plugins/ - [Plugins guide](./plugins.md)
+    * 📄 gbx/ - [GBX client](./class/gbx.md)
+    * 📄 log.ts - [Logger](./class/log.md)
+    * 📄 sentry.ts - [Sentry integration](./class/sentry.md)
+    * 📄 utils.ts - [Utilities & helpers](./class/utils.md)
+    * 📄 quickstart-plugin.md - [Plugin Quickstart](./quickstart-plugin.md)
+    * 📄 class/index.md - [All core class docs](./class/index.md)
   * 📁 **documentation**  - this folder
   * 📁 **docker** - Dockerfile and example Docker Compose
-  * 📁 **userdata** - contains all user data, e.g. the db migrations and schemata, the .sqlite file and user-installed plugins
+  * 📁 **userdata** - contains all user data, e.g. the db migrations and schemas, the .sqlite file and user-installed plugins
   * 📄 .env - environmental variables for config
 
 ## Trackmania Mini Control - the `tmc` global variable
@@ -39,30 +47,92 @@ The core of the controller itself doesn't do much, it provides a framework for p
 
 ### Public variables
 
-* `tmc.admins` - List of admin logins
-* `tmc.version` - Contains the current version of the controller
-* `tmc.startTime` - Start timestamp of the controller, for uptime tracking
-* `tmc.server` - See [Server class](./class/server.md)
-* `tmc.players` - See [PlayerManager class](./class/playermanager.md)
-* `tmc.ui` - See [UiManager class](./class/uimanager.md)
-* `tmc.chatCmd` - See [CommandManager class](./class/chatcmd.md)
-* `tmc.maps` - See [MapManager class](./class/maps.md)
-* `tmc.plugins` - object containing all the plugin instances
-* `tmc.game` - struct containing current game info from the dedicated server
-* `tmc.mapsPath` - string containing absolute path to the dedicated server's map folder
-* `tmc.storage` - Object Storage for global key-value sharing between plugins
+Below are the `tmc` global variables available everywhere in plugins and core code. Each entry includes a short description and a cross-link to the relevant class or documentation.
+
+- `tmc.admins` — string[] | List of admin logins maintained by `SettingsManager`.
+  - Example: `if (tmc.admins.includes(login)) { /* allow admin action */ }`
+  - See: [SettingsManager class](./class/settingsmanager.md)
+
+- `tmc.version` — string | The controller runtime version (from package.json / version.json).
+  - Example: `tmc.cli(`MINIcontrol ${tmc.version}`)`
+
+- `tmc.startTime` — number | Controller start timestamp (ms since epoch) useful for uptime calculation.
+  - Example: `const upSeconds = Math.floor((Date.now()-tmc.startTime)/1000);`
+
+- `tmc.server` — Server | All server calls (XMLRPC) and event listener helper.
+  - Example: `await tmc.server.call('GetCurrentMapInfo');`
+  - See: [Server class](./class/server.md)
+
+- `tmc.players` — PlayerManager | Player helpers, caches and utilities.
+  - Example: `const players = tmc.players.getAll(); const player = await tmc.players.getPlayer(login);`
+  - See: [PlayerManager class](./class/playermanager.md)
+
+- `tmc.ui` — UiManager | UI helpers for displaying manialinks, widgets and windows.
+  - Example: `await tmc.ui.displayManialink(widget); tmc.ui.setClipboard(login, text);`
+  - See: [UiManager class](./class/uimanager.md)
+
+- `tmc.chatCmd` — CommandManager | Chat command registration and execution.
+  - Example: `tmc.addCommand('/hello', (login) => tmc.chat('Hi', login));`
+  - See: [CommandManager class](./class/chatcmd.md)
+
+- `tmc.maps` — MapManager | Map list helpers with `get()`, `getMap(uid)`, `currentMap` and `nextMap` properties.
+  - Example: `const mp = tmc.maps.getMap(uid); const current = tmc.maps.currentMap;`
+  - See: [MapManager class](./class/maps.md)
+
+- `tmc.plugins` — { [key: string]: Plugin } | Dictionary of loaded plugin instances keyed by ID. Prefer using public APIs over calling plugin internals directly.
+  - Example: `if (tmc.plugins['example']) { await tmc.plugins['example'].someMethod(); }`
+  - See: [Plugin base & loader](./plugins.md)
+
+- `tmc.game` — object | Runtime game info obtained from the dedicated server, e.g. `tmc.game.Name`.
+  - Example: `if (tmc.game.Name === 'TmForever') { /* tmf specific */ }`
+
+- `tmc.mapsPath` — string | Absolute path to the dedicated server's map directory for file operations.
+  - Example: `tmc.cli(`Maps folder: ${tmc.mapsPath}`)`
+
+- `tmc.storage` — { [key: string]: any } | A small global key-value store that persists only in runtime memory and is shared across plugins.
+  - Example: `tmc.storage['minicontrol.someKey'] = 'value'; const v = tmc.storage['minicontrol.someKey'];`
+
+Note: Use the provided manager classes to access runtime data instead of relying on plugin internals where possible; this improves maintainability and reduces risk of breaking changes.
+
+#### Quick reference table
+
+| Variable | Type | Short description | Example |
+|---|---|---|---|
+| `tmc.server` | Server | Main server call wrapper; use `call`, `send`, `multicall` | `await tmc.server.call('GetCurrentMapInfo')` |
+| `tmc.players` | PlayerManager | Player cache & lookups | `await tmc.players.getPlayer(login)` |
+| `tmc.ui` | UiManager | Display UI, add actions, clipboard | `tmc.ui.setClipboard(login, text)` |
+| `tmc.maps` | MapManager | Maplist helpers and map info | `tmc.maps.currentMap` |
+| `tmc.chatCmd` | CommandManager | Add/remove commands | `tmc.addCommand('/hello', cb)` |
+| `tmc.settings` | SettingsManager | Persistent settings and colors | `tmc.settings.set('tmf.hud.round_scores', true)` |
+| `tmc.plugins` | { [key: string]: Plugin } | Loaded plugin instances | `tmc.plugins['example']` |
+| `tmc.admins` | string[] | List of admin logins | `tmc.admins.includes(login)` |
+| `tmc.game` | object | Dedicated server game info (`Name`) | `if (tmc.game.Name === 'TmForever')` |
+| `tmc.storage` | any | Runtime shared key-value store | `tmc.storage['minicontrol.foo'] = 'bar'` |
+
 
 ### Public methods
 
 ```ts
 interface MiniControl {
-    async getPlayer(login: string): Promise<Player>; // shortcut for tmc.player.getPlayer(login);
-    addCommand(command: string, callback: CallableFunction, help: string = "");
-    removeCommand(command: string);
-    async loadPlugin(name: string);
-    async unloadPlugin(name:string);
-    cli(string);
-    debug(string);
-    chat(text, receiver: undefined|string);
+  // Get player by login
+  async getPlayer(login: string): Promise<Player>;
+
+  // Command helpers (wrapping CommandManager)
+  addCommand(command: string, callback: CallableCommand, help?: string): void;
+  removeCommand(command: string): void;
+
+  // Plugin lifecycle helpers
+  findPlugin(name: string): string | null;
+  discoverPlugins(): Promise<{ id: string; path: string; manifest?: any; compatible?: boolean; loaded?: boolean }[]>;
+  listPlugins(): Promise<{ id: string; path: string; manifest?: any; compatible?: boolean; loaded?: boolean }[]>;
+  installPlugin(fromPath: string): Promise<string>;
+  removePlugin(id: string): Promise<void>;
+  loadPlugin(name: string): Promise<void>;
+  unloadPlugin(name: string): Promise<void>;
+
+  // Logging / debugging / chat
+  cli(object: any): void;
+  debug(object: any): void;
+  chat(text: string, login?: undefined | string | string[]): void;
 }
 ```
