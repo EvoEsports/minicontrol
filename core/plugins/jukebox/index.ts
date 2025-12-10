@@ -16,6 +16,8 @@ export interface Map {
 
 export default class Jukebox extends Plugin {
     queue: Map[] = [];
+    history: string[] = [];
+    historySize = 2;
 
     async onLoad() {
         this.addCommand("/addqueue", this.cmdQueue.bind(this), "Add Map to queue");
@@ -27,6 +29,15 @@ export default class Jukebox extends Plugin {
         this.addCommand("//prev", this.cmdPrev.bind(this), "Skip to previous map");
 
         this.addSetting("jukebox.enabled", true, null, "Jukebox: Enable/Disable jukebox");
+        this.addSetting(
+            "jukebox.history_size",
+            2,
+            async (value) => {
+                this.historySize = value;
+            },
+            "Jukebox: Number of maps to keep in history",
+        );
+        this.historySize = tmc.settings.get("jukebox.history_size");
 
         if (tmc.game.Name === "TmForever") {
             this.addListener("Trackmania.EndMap", this.onEndRace, this);
@@ -90,6 +101,10 @@ export default class Jukebox extends Plugin {
         }
         if (this.queue.find((m) => m.UId === map.UId)) {
             tmc.chat("¤info¤Map already in queue", login);
+            return;
+        }
+        if (this.history.includes(map.UId) || (tmc.maps.currentMap && tmc.maps.currentMap.UId === map.UId)) {
+            tmc.chat("¤info¤Map was recently played", login);
             return;
         }
         this.queue.push({
@@ -178,9 +193,19 @@ export default class Jukebox extends Plugin {
     }
 
     async onEndRace(_data: any) {
+        if (tmc.maps.currentMap) {
+            this.history.push(tmc.maps.currentMap.UId);
+            if (this.history.length > this.historySize) {
+                this.history.shift();
+            }
+        }
         if (this.queue.length > 0) {
             const map = this.queue.shift();
             if (map) {
+                if (!tmc.players.getAllLogins().includes(map.QueueBy)) {
+                    tmc.chat(`¤info¤Player ¤white¤${map.QueueNickName}$z$s ¤info¤is no longer online, ignoring their jukeboxed map.`);
+                    return;
+                }
                 try {
                     await tmc.server.call("ChooseNextMap", map.File);
                     tmc.chat(`¤info¤Next map ¤white¤${map.Name} ¤info¤jukeboxed by ¤white¤${map.QueueNickName}`);
