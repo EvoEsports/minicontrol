@@ -41,7 +41,8 @@ export default class Freezone extends Plugin {
 
     onLoad = async () => {
         if (!this.password) {
-            tmc.chat("¤error¤Freezone: Cannot enable plugin - Freezone password was not set, please check your .env file.");
+            const msg = "¤error¤Freezone: No FREEZONE_PASS set in environment variables, unloading plugin.";
+            tmc.cli(msg);
             await tmc.unloadPlugin("tmnf/freezone");
             return;
         }

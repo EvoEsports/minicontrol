@@ -1,5 +1,5 @@
 {
-    "id": "widgets/favourites",
+    "id": "widgets/favourite",
     "name": "Favourites Widget",
     "description": "Provides favourite server widget",
     "authors": "MiniControl core",

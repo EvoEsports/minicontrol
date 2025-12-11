@@ -25,7 +25,7 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async onLoad() {
-        this.widget = new Widget("core/plugins/tmnf/talimit/widget.xml.twig");
+        this.widget = new Widget("widget.xml.twig", import.meta.path);
         this.widget.pos = { x: 128, y: 45, z: 1 };
         this.widget.size = { width: 38, height: 10 };
         this.timeLimit = tmc.storage["minicontrol.taTimeLimit"] ?? this.origTimeLimit;
