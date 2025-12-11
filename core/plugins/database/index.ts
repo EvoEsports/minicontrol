@@ -5,7 +5,7 @@ export default class Database extends Plugin {
     async onLoad() {
         if (!tmc.database.sequelize) {
             tmc.cli("$fffDatabase not initialized! Unloading database plugin...");
-            tmc.unloadPlugin("database");
+            await tmc.unloadPlugin("database");
         }
     }
 }
