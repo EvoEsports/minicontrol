@@ -147,6 +147,7 @@ export default class VotesPlugin extends Plugin {
         this.currentVote = null;
         this.hideWidget();
         tmc.server.emit("TMC.Vote.Cancel", { vote: this.currentVote });
+        this.newLimit = tmc.storage["minicontrol.taTimeLimit"] || this.origTimeLimit;
     }
 
     async onBeginRound() {
@@ -154,7 +155,7 @@ export default class VotesPlugin extends Plugin {
         this.newLimit = tmc.storage["minicontrol.taTimeLimit"] || this.origTimeLimit;
         this.hideWidget();
         if (this.extendCounter > 1) {
-            tmc.server.send("SetTimeAttackLimit", this.newLimit * 1000);
+            await tmc.server.call("SetTimeAttackLimit", this.newLimit * 1000);
         }
         this.extendCounter = 1;
         this.voteCooldowns.clear();
@@ -243,8 +244,8 @@ export default class VotesPlugin extends Plugin {
 
         this.currentVote = new Vote(login, type, question, Date.now() + this.timeout * 1000, value);
         this.currentVote.voteRatio = this.ratio;
-        this.newLimit += 35;
-        tmc.server.send("SetTimeAttackLimit", this.newLimit * 1000);
+      /*  this.newLimit += 35;
+        await tmc.server.call("SetTimeAttackLimit", this.newLimit * 1000); */
         await this.vote(login, true);
         this.widget = new Widget("core/plugins/votes/widget.xml.twig");
         this.widget.pos = { x: 0, y: 60, z: 10 };
