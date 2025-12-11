@@ -32,7 +32,7 @@ export default class Jukebox extends Plugin {
         this.addSetting(
             "jukebox.history_size",
             2,
-            async (value) => {
+            async (value: number) => {
                 this.historySize = value;
             },
             "Jukebox: Number of maps to keep in history",
@@ -103,9 +103,11 @@ export default class Jukebox extends Plugin {
             tmc.chat("¤info¤Map already in queue", login);
             return;
         }
-        if (this.history.includes(map.UId) || (tmc.maps.currentMap && tmc.maps.currentMap.UId === map.UId)) {
-            tmc.chat("¤info¤Map was recently played", login);
-            return;
+        if (!tmc.admins.includes(login)) {
+            if (this.history.includes(map.UId) || (tmc.maps.currentMap && tmc.maps.currentMap.UId === map.UId)) {
+                tmc.chat("¤info¤Map was recently played", login);
+                return;
+            }
         }
         this.queue.push({
             UId: map.UId,
@@ -199,13 +201,16 @@ export default class Jukebox extends Plugin {
                 this.history.shift();
             }
         }
+        const removedMaps = this.queue.filter((map) => !tmc.players.getAllLogins().includes(map.QueueBy));
+        for (const map of removedMaps) {
+            tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤removed from the queue. Player ¤white¤${map.QueueNickName} ¤info¤has left the server.`);
+        }
+
+        this.queue = this.queue.filter((map) => tmc.players.getAllLogins().includes(map.QueueBy));
+
         if (this.queue.length > 0) {
             const map = this.queue.shift();
             if (map) {
-                if (!tmc.players.getAllLogins().includes(map.QueueBy)) {
-                    tmc.chat(`¤info¤Player ¤white¤${map.QueueNickName}$z$s ¤info¤is no longer online, ignoring their jukeboxed map.`);
-                    return;
-                }
                 try {
                     await tmc.server.call("ChooseNextMap", map.File);
                     tmc.chat(`¤info¤Next map ¤white¤${map.Name} ¤info¤jukeboxed by ¤white¤${map.QueueNickName}`);
