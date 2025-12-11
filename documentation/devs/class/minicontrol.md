@@ -22,6 +22,7 @@ Use the `tmc` instance to call server methods, manage plugins, register chat com
 | `cli` | `cli(object: any): void` | Write a console log with color processing | `tmc.cli('test')` |
 | `debug` | `debug(object: any): void` | Conditional debug log (if DEBUG env var set) | `tmc.debug('debug info')` |
 | `chat` | `chat(text: string, login?: string | string[] | undefined): void` | Send a server chat message; pass login to DM single or multiple recipients | `tmc.chat('Hello', ['player1', 'player2']);` |
+| `database` | Database | Exposes `sequelize`, `addModels()` and helper sync routines (if enabled) | `tmc.database.addModels([MyModel])` |
 
 ## Plugin lifecycle helpers
 

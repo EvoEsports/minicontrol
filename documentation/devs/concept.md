@@ -21,6 +21,7 @@ Key responsibilities of the core include:
 - Plugin lifecycle, discovery and resolution: Scans standard plugin directories, validates `manifest.json`, resolves dependency graphs using semver ranges, and loads plugins in deterministic order.
 - Built-in managers: Lightweight managers provide common services (players, maps, UI, settings, billing, and more) that plugins use to avoid reimplementing core functionality.
 - Logging and telemetry: Centralized logging, optional Sentry integration, and consistent debug/logging utilities.
+ - Database manager: Handles DB connection, migrations (Umzug + Sequelize) and exposes models under `core/schemas/*`. Registers standard models such as `players` and `map` and keeps runtime sync between server state and the DB.
 
 The core intentionally avoids implementing high-level features directly — instead it exposes a simple, opinionated API and helpers (like `addListener`, `addCommand`, `addSetting`) so plugins can register functionality cleanly and the runtime can manage resources and lifecycle events safely.
 
@@ -36,6 +37,7 @@ This approach keeps the core small and maintainable while enabling a rich ecosys
     * 📄 mapmanager.ts - [MapManager class](./class/maps.md)
     * 📄 playermanager.ts - [PlayerManager class](./class/playermanager.md)
     * 📄 settingsmanager.ts - [SettingsManager class](./class/settingsmanager.md)
+    * 📄 database.ts - [Database manager](./class/database.md)
     * 📄 server.ts - [Server class](./class/server.md)
     * 📄 menu.ts - [Menu class](./class/menu.md)
     * 📄 uimanager.ts - [UIManager class](./class/uimanager.md)
@@ -46,6 +48,7 @@ This approach keeps the core small and maintainable while enabling a rich ecosys
     * 📄 utils.ts - [Utilities & helpers](./class/utils.md)
     * 📄 quickstart-plugin.md - [Plugin Quickstart](./quickstart-plugin.md)
     * 📄 class/index.md - [All core class docs](./class/index.md)
+    * 📄 schemas/ - Sequelize models (e.g., `map.model.ts`, `players.model.ts`) and migration hooks
   * 📁 **documentation**  - this folder
   * 📁 **docker** - Dockerfile and example Docker Compose
   * 📁 **userdata** - contains all user data, e.g. the db migrations and schemas, the .sqlite file and user-installed plugins
@@ -65,6 +68,7 @@ This approach keeps the core small and maintainable while enabling a rich ecosys
 | `tmc.maps` | MapManager | Maplist helpers and map info | `tmc.maps.currentMap` |
 | `tmc.chatCmd` | CommandManager | Add/remove commands | `tmc.addCommand('/hello', cb)` |
 | `tmc.settings` | SettingsManager | Persistent settings and colors | `tmc.settings.set('tmf.hud.round_scores', true)` |
+| `tmc.database` | Database | DB connection + models (Sequelize). Use `tmc.database.sequelize` or `tmc.database.addModels([...])` | `await tmc.database.syncPlayers()` |
 | `tmc.plugins` | { [key: string]: Plugin } | Loaded plugin instances | `tmc.plugins['example']` |
 | `tmc.admins` | string[] | List of admin logins | `tmc.admins.includes(login)` |
 | `tmc.game` | object | Dedicated server game info (`Name`) | `if (tmc.game.Name === 'TmForever')` |
@@ -119,6 +123,9 @@ Below are the `tmc` global variables available everywhere in plugins and core co
 - `tmc.storage` — { [key: string]: any } | A small global key-value store that persists only in runtime memory and is shared across plugins.
   - Example: `tmc.storage['minicontrol.someKey'] = 'value'; const v = tmc.storage['minicontrol.someKey'];`
 
+- `tmc.database` — Database | Sequelize instance, models and sync helpers. Plugins can register models via `tmc.database.addModels([...])`.
+  - Example: `await tmc.database.syncPlayers()`
+
 Note: Use the provided manager classes to access runtime data instead of relying on plugin internals where possible; this improves maintainability and reduces risk of breaking changes.
 
 
@@ -149,3 +156,28 @@ interface MiniControl {
   chat(text: string, login?: undefined | string | string[]): void;
 }
 ```
+
+## Database manager
+
+The Database manager centralizes runtime database access and migration handling. Key points:
+
+- Initialization is optional and only runs when `DATABASE` is set in `.env`. During `tmc.database.init()` it connects, runs migrations, and registers models.
+- Built-in models are in `core/schemas/*` (e.g. `map.model.ts`, `players.model.ts`). Plugins should register additional Sequelize models using `tmc.database.addModels([MyModel])`.
+- Migrations: the controller runs Umzug migrations from three locations:
+  - `./core/migrations/*.ts` — core migrations
+  - `./userdata/migrations/*.ts` — user-level migrations
+  - `./userdata/plugins/**/migrations/*.ts` — plugin-provided migrations
+- The database manager emits event-driven sync and registers listeners for `TMC.PlayerConnect`, `TMC.PlayerDisconnect`, and `Trackmania.EndMap` to persist runtime data to DB.
+- Runtime commands added by the Database manager include `/active` and `/topactive`.
+
+Plugin author recommendations:
+
+- Prefer using model classes from `core/schemas/*` for common tables (players, maps) to maintain compatibility.
+- When registering models from a plugin, call `tmc.database.addModels([MyModel])` during `onLoad()` so models are discovered and used by the running Sequelize instance.
+- Avoid direct raw SQL unless required; prefer model APIs for queries, transactions and updates.
+
+Notes & troubleshooting:
+
+- Supported DB drivers: `sqlite`, `mysql`, `postgres` as parsed from `DATABASE` env prefix.
+- Migrations are run at startup and will cause the process to exit on failure — test migrations locally before deploying.
+- If you need to add long-running imports or heavy parse work (like GBX parsing for map vehicles), do it lazily or in a background async task to avoid blocking startup.
