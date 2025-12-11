@@ -17,24 +17,36 @@ export default class DebugTool extends Plugin {
     intervalId: any = null;
 
     async onLoad() {
-        if (process.env.DEBUG_GBX_COUNTERS === "true") {
-            this.gbxWidget = new Widget("core/plugins/debugtool/widget.xml.twig");
-            this.gbxWidget.pos = { x: 159, y: -85, z: 0 };
-            this.addListener("GbxClient.Counters", this.onCounters, this);
-        }
-
-        if (process.env.DEBUG === "true") {
-            this.memoryWidget = new Widget("core/plugins/debugtool/widget.xml.twig");
-            this.memoryWidget.pos = { x: 159, y: -60, z: 0 };
-
-            if (tmc.game.Name !== "TmForever") {
-                this.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
-                this.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
+        this.addSetting("debugtool.enableGbxCounters", process.env.DEBUG_GBX_COUNTERS === "true", async (value: boolean) => {
+            if (!value && this.gbxWidget) {
+                await this.gbxWidget.hide();
+            } else {
+               await this.gbxWidget?.display();
             }
-            this.intervalId = setInterval(() => {
-                this.displayMemInfo();
-            }, 30000) as any;
+        }, "DebugTool: Enable GBX Client Counters widget");
+        this.addSetting("debugtool.enableMemoryWidget", process.env.DEBUG === "true", async (value: boolean) => {
+            if (!value && this.memoryWidget) {
+                await this.memoryWidget.hide();
+            } else if (value && !this.memoryWidget) {
+                await this.displayMemInfo();
+            }
+        }, "DebugTool: Enable Memory Usage widget");
+
+        this.gbxWidget = new Widget("core/plugins/debugtool/widget.xml.twig", import.meta.dir);
+        this.gbxWidget.pos = { x: 159, y: -85, z: 0 };
+        this.addListener("GbxClient.Counters", this.onCounters, this);
+
+        this.memoryWidget = new Widget("core/plugins/debugtool/widget.xml.twig", import.meta.dir);
+        this.memoryWidget.pos = { x: 159, y: -60, z: 0 };
+
+        if (tmc.game.Name !== "TmForever") {
+            this.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
+            this.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
         }
+        this.intervalId = setInterval(() => {
+            this.displayMemInfo();
+        }, 30000) as any;
+
         this.addCommand("//mem", this.cmdMeminfo.bind(this), "Show Memory usage");
         this.addCommand("//uptime", this.cmdUptime.bind(this), "Show Uptime");
         this.addCommand(
@@ -66,7 +78,7 @@ export default class DebugTool extends Plugin {
     }
 
     async onCounters(counters: Counters) {
-        if (this.gbxWidget) {
+        if (tmc.settings.get("debugtool.enableGbxCounters") && this.gbxWidget) {
             const msg = `¤info¤Methods Sent: $fff${counters.methodsSend} ¤info¤Received: $fff${counters.methodsReceive} ¤info¤Callbacks: $fff${counters.callbackReceived}\n¤info¤Data Send: $fff${counters.sendKbsec.toFixed(2)}kb/s ¤info¤Data Receive: $fff${counters.receiverKbSec.toFixed(2)}kb/s`;
             this.gbxWidget.setData({ text: processColorString(msg) });
             await this.gbxWidget.display();
@@ -76,7 +88,7 @@ export default class DebugTool extends Plugin {
     async onUnload() {
         clearInterval(this.intervalId);
         this.memoryWidget?.destroy();
-        this.memoryWidget = null;
+        this.gbxWidget?.destroy();
     }
 
     async cmdRemoveFakeUsers(_login: string, _args: string[]) {
@@ -108,6 +120,9 @@ export default class DebugTool extends Plugin {
     }
 
     async displayMemInfo() {
+        if (!tmc.settings.get("debugtool.enableMemoryWidget")) {
+            return;
+        }
         const mem = memInfo();
         const start = Date.now() - tmc.startTime;
         tmc.cli(

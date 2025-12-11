@@ -9,7 +9,7 @@
     "requiresGame": "TmForever",
     "depends": [
         {
-            "id": "dedimania",
+            "id": "tmnf/dedimania",
             "range": "~1.0.0"
         },
         {

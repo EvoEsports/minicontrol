@@ -1,5 +1,5 @@
 {
-  "id": "togglechat",
+  "id": "tmnf/togglechat",
   "name": "Toggle chat",
   "description": "Provides chat toggle for tmnf customui",
   "authors": "MiniControl core",

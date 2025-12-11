@@ -43,11 +43,14 @@ export default class Freezone extends Plugin {
         if (!this.password) {
             tmc.chat("¤error¤Freezone: Cannot enable plugin - Freezone password was not set, please check your .env file.");
             await tmc.unloadPlugin("tmnf/freezone");
+            return;
         }
+
         const status = await this.sendHeartbeat();
         if (status instanceof Error) {
             tmc.chat(`¤error¤Freezone: ${status.message}`);
             await tmc.unloadPlugin("tmnf/freezone");
+            return;
         } else {
             this.isConnected = true;
             tmc.cli("¤info¤Freezone: Authenticated.");
