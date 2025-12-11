@@ -44,7 +44,7 @@ Clone the repository, install dependencies, copy the environment, run migrations
 ```bash
 git clone https://github.com/EvoEsports/minicontrol.git
 cd minicontrol
-npm install
+npm install --production
 cp .env.example .env  # or `Copy-Item .env.example .env` on PowerShell
 npm start
 ```

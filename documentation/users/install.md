@@ -17,7 +17,7 @@ This guide walks through installing and running MINIcontrol using either a nativ
 2. Install dependencies:
 
 ```bash
-npm install
+npm install --production
 ```
 
 3. Copy the example environment file and configure it.  PowerShell (Windows) and Bash examples are shown.
@@ -65,13 +65,13 @@ npm run dev
 ## Quick TL;DR — One-liner setup
 
 ```bash
-git clone https://github.com/EvoEsports/minicontrol.git && cd minicontrol && npm install && cp .env.example .env && npm start
+git clone https://github.com/EvoEsports/minicontrol.git && cd minicontrol && npm install --production && cp .env.example .env && npm start
 ```
 
 PowerShell (Windows):
 
 ```powershell
-git clone https://github.com/EvoEsports/minicontrol.git; Set-Location ./minicontrol; npm install; Copy-Item .env.example .env; npm start
+git clone https://github.com/EvoEsports/minicontrol.git; Set-Location ./minicontrol; npm install --production; Copy-Item .env.example .env; npm start
 ```
 
 Note: `start:bun` script is available if you prefer to run Bun directly.
