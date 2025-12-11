@@ -1,7 +1,7 @@
 {
   "id": "database",
   "name": "Database plugin",
-  "description": "Enables database",
+  "description": "Enables database for plugins",
   "authors": "MiniControl core",
   "date": "2025-12-06",
   "version": "1.0.0",

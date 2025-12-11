@@ -38,7 +38,7 @@ export default class Maps extends Plugin {
         let rankings: any[] = [];
         let outParams: string[] = params;
         let maps = clone(tmc.maps.getMaplist() || []);
-        const sequelize: Sequelize = tmc.storage["db"];
+        const sequelize: Sequelize | undefined = tmc.database.sequelize;
         let title = "Server Maps";
         const uids = tmc.maps.getUids() || [];
         if (sequelize && Object.keys(tmc.plugins).includes("records")) {

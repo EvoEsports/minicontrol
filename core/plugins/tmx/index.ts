@@ -463,7 +463,7 @@ export default class Tmx extends Plugin {
     }
 
     async updateDatabase(uuid: string, id: string) {
-        const sequelize = tmc.storage["db"] as Sequelize;
+        const sequelize: Sequelize | undefined = tmc.database.sequelize;
         if (!sequelize) {
             tmc.debug("Database not initialized");
             return;

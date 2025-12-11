@@ -13,7 +13,7 @@ export default class MapLikes extends Plugin {
     votes: Like[] = [];
 
     async onLoad() {
-        tmc.storage["db"].addModels([Likes]);
+        tmc.database.addModels([Likes]);
         this.addCommand('/++', this.onLike.bind(this), 'Like a map');
         this.addCommand('/--', this.onDislike.bind(this), 'Dislike a map');
         this.addListener("Trackmania.BeginMap", this.syncVotes, this);
@@ -34,25 +34,24 @@ export default class MapLikes extends Plugin {
         for (const vote of votes) {
             this.votes.push({ login: vote.login || "", vote: vote.vote || 0, updatedAt: vote.updatedAt || "" });
         }
-        const sequelize: Sequelize = tmc.storage["db"];
+        const sequelize: Sequelize | undefined = tmc.database.sequelize;
         const uids = tmc.maps.getUids();
         tmc.debug(`¤info¤Starting karma sync for $fff${uids.length} ¤info¤maps`);
         console.time("karma sync");
-        sequelize
-            .query(
-                `SELECT *, (positive/(positive+abs(negative)+0.00001))*100 as total from (
+        sequelize?.query(
+            `SELECT *, (positive/(positive+abs(negative)+0.00001))*100 as total from (
                             SELECT mapUuid as Uid, createdAt,
                             SUM(case when vote>0 then vote else 0 end) as positive,
                             SUM(case when vote<0 then vote else 0 end) as negative,
                             SUM(ABS(vote)) as total FROM maplikes
                             WHERE mapUuid in (?)
                             GROUP BY mapUuid) as t`,
-                {
-                    type: QueryTypes.SELECT,
-                    raw: true,
-                    replacements: [uids],
-                },
-            )
+            {
+                type: QueryTypes.SELECT,
+                raw: true,
+                replacements: [uids],
+            },
+        )
             .then((result: any) => {
                 tmc.debug("¤info¤Sync complete.");
                 console.timeEnd("karma sync");

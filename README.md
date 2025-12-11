@@ -84,7 +84,7 @@ docker compose -f docker/compose.yml exec minicontrol npm run migrate:docker
 Important environment variables live in `.env.example`. Highlights:
 
 - `XMLRPC_HOST`, `XMLRPC_PORT`, `XMLRPC_USER`, `XMLRPC_PASS` — Trackmania XML-RPC credentials
-- `DATABASE` — DB URL (`sqlite://userdata/local.sqlite`, or Postgres/MySQL)
+- `DATABASE` — DB URL (`sqlite://userdata/local.sqlite`, or Postgres/MySQL) or leave blank for skipping database connection
 - `ADMINS` — comma-separated admin logins
 - `PLUGINS` — inclusive whitelist (comma-separated list) of plugin IDs. If empty, MINIcontrol auto-discovers and attempts to load all compatible plugins. Wildcards are supported (`kacky/*`).
 

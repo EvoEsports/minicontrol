@@ -11,7 +11,7 @@ interface Ranking {
     avg: number;
 }
 
-export default class Players extends Plugin {
+export default class Rankings extends Plugin {
     rankings: Ranking[] = [];
 
     async onLoad() {
@@ -37,7 +37,7 @@ export default class Players extends Plugin {
 
 
     async onEndMap(_data: any) {
-        const sequelize: Sequelize = tmc.storage["db"];
+        const sequelize: Sequelize | undefined = tmc.database.sequelize;
         const mapUids = tmc.maps.getUids();
         const mapCount = mapUids.length;
         const maxRank = tmc.settings.get("records.maxRecords") || 100;
@@ -45,8 +45,7 @@ export default class Players extends Plugin {
         console.time("rankings");
         tmc.debug(`¤info¤Fetching rankings for $fff${mapCount} ¤info¤maps`);
 
-        sequelize
-            .query(
+        sequelize?.query(
                 `SELECT row_number() OVER (order by average) as rank, login, average as avg FROM (
             SELECT
                 login,

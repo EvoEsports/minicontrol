@@ -38,6 +38,7 @@ import fs from "node:fs";
 import fsp from "node:fs/promises";
 import type Plugin from "./plugins/index";
 import PluginLoader from './plugins/loader';
+import Database from './database';
 import path from "node:path";
 import semver from "semver";
 import version from "../version.json";
@@ -83,6 +84,10 @@ class MiniControl {
      */
     ui: UiManager;
     /**
+     * The database manager.
+     */
+    database: Database;
+    /**
      * The settings manager.
      */
     settings: SettingsManager;
@@ -109,6 +114,7 @@ class MiniControl {
         this.chatCmd = new CommandManager();
         this.billMgr = new BillManager();
         this.settings = new SettingsManager();
+        this.database = new Database();
         this.admins = this.settings.admins;
     }
 
@@ -545,6 +551,8 @@ class MiniControl {
         await this.maps.init();
         await this.players.init();
         await this.ui.init();
+        await this.chatCmd.beforeInit();
+        await this.database.init();
         this.beforeInit();
     }
 
@@ -553,7 +561,6 @@ class MiniControl {
      * @ignore Shouldn't be called directly
      */
     async beforeInit() {
-        await this.chatCmd.beforeInit();
         this.cli("¤info¤Loading plugins...");
         // discover plugins on disk (recursively) and build load list
         this.discoveredPlugins = await this.discoverPlugins();
@@ -709,6 +716,7 @@ class MiniControl {
         this.chatCmd.afterInit();
         this.ui.afterInit();
         this.maps.afterInit();
+        await this.database.onStart();
 
         // aggressive GC: prefer option-based GC (Bun / modern runtimes), then fallback to repeated plain calls
         const maybeGc = (globalThis as any).gc ?? (typeof gc !== "undefined" ? gc : undefined);

@@ -14,7 +14,7 @@ export default class Records extends Plugin {
     private finishLocks: { [key: string]: Promise<any> } = {};
 
     async onLoad() {
-        tmc.storage["db"].addModels([Score, PersonalBest]);
+        tmc.database.addModels([Score, PersonalBest]);
         this.addCommand("/records", this.cmdRecords.bind(this), "Display Records");
         this.addSetting("records.maxRecords", 100, this.settingMaxRecords.bind(this), "LocalRecords: Maximum number of records");
     }

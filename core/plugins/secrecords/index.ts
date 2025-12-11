@@ -22,7 +22,7 @@ export default class RecordsSector extends Plugin {
     private recordCache: { [login: string]: SectorRec } = {};
 
     async onLoad() {
-        tmc.storage["db"].addModels([SectorRec]);
+        tmc.database.addModels([SectorRec]);
     }
 
     async onStart() {
