@@ -71,7 +71,19 @@ export class Player {
             }
             this[k] = data[key];
         }
+        this.parseFlags(data);
+        this.isAdmin = tmc.admins.includes(data.Login);
+    }
 
+    syncFromPlayerInfo(data: any) {
+        this.login = data.Login;
+        this.teamId = Number.parseInt(data.TeamId, 10);
+        this.parseFlags(data);
+        this.isSpectator = data.SpectatorStatus !== 0;
+        this.isAdmin = tmc.admins.includes(data.Login);
+    }
+
+    private parseFlags(data: any) {
         this.forcedSpectatorState = data.Flags % 10;
         this.isReferee = Math.floor(data.Flags / 10) % 10 === 1;
         this.isPodiumReady = Math.floor(data.Flags / 100) % 10 === 1;
@@ -82,15 +94,6 @@ export class Player {
         this.isBroadcasting = Math.floor(data.Flags / 10000000) % 10 === 1;
         this.hasJoinedGame = Math.floor(data.Flags / 100000000) % 10 === 1;
         this.spectatorTarget = Math.floor(data.SpecatorStatus / 10000);
-
-        this.isAdmin = tmc.admins.includes(data.Login);
-    }
-
-    syncFromPlayerInfo(data: any) {
-        this.login = data.Login;
-        this.teamId = Number.parseInt(data.TeamId, 10);
-        this.isSpectator = data.SpectatorStatus !== 0;
-        this.isAdmin = tmc.admins.includes(data.Login);
     }
 
     set(key: string, value: any) {
@@ -219,7 +222,7 @@ export default class PlayerManager {
         if (this.players[playerData.Login]) {
             this.players[playerData.Login].syncFromPlayerInfo(playerData);
         } else {
-            // if player is joined, fetch detailed info
+            // if player has joined the game, fetch detailed info
             if (Math.floor(playerData.Flags / 100000000) % 10 === 1) {
                 this.getPlayer(playerData.Login);
             }
