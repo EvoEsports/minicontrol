@@ -110,10 +110,65 @@ export function clone(obj: any): any {
     return JSON.parse(JSON.stringify(obj));
 }
 
-export function formatTime(time: number): string {
-    const parsedTime = tm.Time.fromMilliseconds(time).toTmString();
-    if (tmc.game.Name === "TmForever") return parsedTime.replace(/0$/, "");
-    return parsedTime;
+export function formatTime(time: number, pretty = true, mainColor = "fff", secondary = "9ab"): string {
+    if (time === undefined || time === null || Number.isNaN(time)) return `¤${mainColor}¤-:--.---`;
+    if (time === Infinity) return "∞";
+    if (time == 0) return pretty ? `-:--.---` : "-:--.---";
+    const negative = time < 0;
+    const msTotal = Math.floor(Math.abs(time));
+    const ms = msTotal % 1000;
+    const secondsTotal = Math.floor(msTotal / 1000);
+    const seconds = secondsTotal % 60;
+    const minutesTotal = Math.floor(secondsTotal / 60);
+    const minutes = minutesTotal % 60;
+    const hours = Math.floor(minutesTotal / 60);
+
+    const isTmForever = typeof tmc !== "undefined" && tmc.game && tmc.game.Name === "TmForever";
+    let msStr: string;
+    if (isTmForever) {
+        // two first digits of milliseconds
+        msStr = String(Math.floor(ms / 10)).padStart(2, "0");
+    } else {
+        msStr = String(ms).padStart(3, "0");
+    }
+
+    const secStr = String(seconds).padStart(2, "0");
+    const minStr = String(minutes).padStart(2, "0"); // hours > 0 ? String(minutes).padStart(2, "0") : String(minutes);
+    let parsedTime = "";
+    if (hours > 0) parsedTime = `${hours}:${minStr}:${secStr}.${msStr}`;
+    else parsedTime = `${minStr}:${secStr}.${msStr}`;
+    if (negative) parsedTime = `-${parsedTime}`;
+
+    if (!pretty) return parsedTime;
+
+    // Pretty coloring: leading zeros use secondary color, rest use main color.
+    // Additionally, color leading ':' separators with secondary color if secondary is set.
+    let out = "";
+    let currentColor = "";
+    let seenNonZero = false;
+    for (let i = 0; i < parsedTime.length; i++) {
+        const ch = parsedTime[i];
+        let desiredColor = `$${mainColor}`;
+        if (ch >= "0" && ch <= "9") {
+            if (!seenNonZero && ch === "0") {
+                desiredColor = `$${secondary}`;
+            } else {
+                desiredColor = `$${mainColor}`;
+            }
+            if (ch !== "0") seenNonZero = true;
+        } else if (ch === ':' && !seenNonZero && secondary) {
+            // leading colon separator -> secondary color
+            desiredColor = `$${secondary}`;
+        } else {
+            desiredColor = `$${mainColor}`;
+        }
+        if (desiredColor !== currentColor) {
+            out += desiredColor;
+            currentColor = desiredColor;
+        }
+        out += ch;
+    }
+    return out;
 }
 
 export function castType(value: string, type?: string): any {
