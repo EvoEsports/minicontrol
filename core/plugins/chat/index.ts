@@ -93,7 +93,7 @@ export default class Chat extends Plugin {
 
     async toggleWidget(enabled: boolean) {
         if (enabled && this.widget === null) {
-            this.widget = new Widget("core/plugins/chat/widget.xml.twig");
+            this.widget = new Widget("widget.xml.twig", import.meta.dir);
             this.widget.pos = { x: -160, y: -35, z: 5 };
             this.widget.size = { width: 15, height: 3 };
             this.widget.setOpenAction(this.cmdTmfEmotes.bind(this));

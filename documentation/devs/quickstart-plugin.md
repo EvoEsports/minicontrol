@@ -49,11 +49,11 @@ export default class ExamplePlugin extends Plugin {
 }
 ```
 
-4. Optional: Provide templates and any static assets you need. Use `import.meta.dirname` as a `baseDir` when creating `Manialink` objects so template resolution works correctly:
+4. Optional: Provide templates and any static assets you need. Use `import.meta.dir` as a `baseDir` when creating `Manialink` objects so template resolution works correctly:
 
 ```ts
 import Widget from "@core/ui/widget";
-this.widget = new Widget("mywidget.xml.twig", import.meta.dirname);
+this.widget = new Widget("mywidget.xml.twig", import.meta.dir);
 ```
 
 5. Install the plugin (copying folder into `userdata/plugins`) if you're developing outside the runtime (PluginLoader will validate manifest):

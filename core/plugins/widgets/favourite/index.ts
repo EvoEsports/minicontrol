@@ -19,7 +19,6 @@ export default class Favourite extends Plugin {
         widget.size = { width: 10, height: 10 };
         widget.pos = { x: -138, y: 72.5, z: 5 };
         const link = `http://reaby.kapsi.fi/trackmania/favourite.php?server=${encodeURIComponent(tmc.server.login)}`;
-        widget.template = "widget.xml.twig";
         widget.setData({
             link: link,
         });

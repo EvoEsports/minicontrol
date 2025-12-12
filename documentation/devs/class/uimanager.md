@@ -57,7 +57,7 @@ Use the runtime global: `tmc.ui`. For example in plugin TypeScript code:
 
 ```ts
 // show a Widget via UI manager
-const widget = new Widget("my-plugin/templates/widget.xml.twig");
+const widget = new Widget("widget.xml.twig", import.meta.dir);
 await tmc.ui.displayManialink(widget);
 ```
 
@@ -80,7 +80,7 @@ For all method signatures below assume access via `tmc.ui`.
   - For player-specific manialinks, if the manialink is an instance of `Window`, all existing `Window` manialinks for that player are destroyed first.
   - Example:
   ```ts
-  const widget = new Widget("my-plugin/widget.xml.twig");
+  const widget = new Widget("widget.xml.twig", import.meta.dir);
   await tmc.ui.displayManialink(widget);
   ```
 
@@ -88,8 +88,8 @@ For all method signatures below assume access via `tmc.ui`.
   - Equivalent to calling `displayManialink` multiple times, but optimized and sends calls in batches (chunked) to avoid flooding the server.
   - Example (using UI objects, preferred):
   ```ts
-  const w1 = new Widget('plugins/myplugin/templates/a.xml.twig', import.meta.dirname);
-  const w2 = new Widget('plugins/myplugin/templates/b.xml.twig', import.meta.dirname);
+  const w1 = new Widget('a.xml.twig', import.meta.dir);
+  const w2 = new Widget('b.xml.twig', import.meta.dir);
   await tmc.ui.displayManialinks([w1, w2]);
   ```
   - Under the hood: UiManager renders each Manialink, builds the XML call array and uses `tmc.server.multisend()` in batches to efficiently dispatch them.
@@ -155,7 +155,7 @@ These functions are used to implement HUD toggling for TmForever and to send the
 ```ts
 import Widget from "../core/ui/widget";
 
-const widget = new Widget("plugins/myplugin/templates/widget.xml.twig");
+const widget = new Widget("widget.xml.twig", import.meta.dir);
 await tmc.ui.displayManialink(widget);
 ```
 

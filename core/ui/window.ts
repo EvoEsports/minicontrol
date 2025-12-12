@@ -5,4 +5,9 @@ export default class Window extends Manialink {
         super(login);
         this.actions.close = tmc.ui.addAction(this.destroy.bind(this), "");
     }
+
+    async render() {
+         const result = await super.render();
+         return result;
+    }
 }

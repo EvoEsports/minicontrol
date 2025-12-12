@@ -2,7 +2,10 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createEnvironment, createFilesystemLoader, type TwingTemplate } from "twing";
+import SaxonJS from "saxonjs-he";
 
+const stylesheetPath = path.resolve(process.cwd(), "userdata", "stylesheet.sef.json");
+const stylesheetText = fs.readFileSync(stylesheetPath, "utf-8");
 
 export interface MlSize {
     width: number;
@@ -31,8 +34,13 @@ export default class Manialink {
     private _firstDisplay = true;
     canHide = true;
     _templateData: TwingTemplate | undefined = undefined;
-    loader = createFilesystemLoader(fs);
-    environment = createEnvironment(this.loader, { charset: "utf-8", parserOptions: { level: 3 } });
+    // Reuse shared loader + environment to avoid expensive allocations per instance
+    private _sharedLoader = createFilesystemLoader(fs);
+    private _sharedEnvironment = createEnvironment(this._sharedLoader, { charset: "utf-8", parserOptions: { level: 3 } });
+    private _resolvedTemplates = new Map<string, string>();
+    clearTemplateCache() {
+        this._resolvedTemplates.clear();
+    }
 
     constructor(login: string | undefined = undefined, baseDir?: string) {
         this.recipient = login;
@@ -93,8 +101,8 @@ export default class Manialink {
 
             const tpl = this.template || "";
 
-            // If path-like (contains a separator) treat as relative to cwd
-            if (tpl.includes("/") || tpl.includes("\\")) {
+            // If path-like (contains a separator or is absolute path) treat as relative to cwd
+            if (path.isAbsolute(tpl) || tpl.includes("/") || tpl.includes("\\")) {
                 candidates.push(path.resolve(process.cwd(), tpl));
             }
 
@@ -134,7 +142,32 @@ export default class Manialink {
                 }
             }
 
-            // Deduplicate and try candidates
+
+            // Deduplicate and try candidates.
+            // If we already resolved this template previously, use the cached absolute path.
+            const cacheKey = `${this._baseDir ?? ''}|${tpl}`;
+            const cached = this._resolvedTemplates.get(cacheKey);
+            if (cached) {
+                if (fs.existsSync(cached)) {
+                    this._sharedLoader.addPath(path.dirname(cached), "");
+                    try {
+                        this._templateData = await this._sharedEnvironment.loadTemplate(cached, "utf-8");
+                        const result = await this._templateData.render(this._sharedEnvironment, obj);
+                        return await this.transform(result);
+                    } catch (e: any) {
+                        // fall through to re-resolve below
+                    }
+                } else {
+                    // Cached as logical name (not a file path), try to load it via shared environment
+                    try {
+                        this._templateData = await this._sharedEnvironment.loadTemplate(cached, "utf-8");
+                        const result = await this._templateData.render(this._sharedEnvironment, obj);
+                        return await this.transform(result);
+                    } catch (e: any) {
+                        // fall through to re-resolve below
+                    }
+                }
+            }
             let lastErr: any = null;
             const tried = new Set<string>();
             for (const candidate of candidates) {
@@ -142,9 +175,13 @@ export default class Manialink {
                 tried.add(candidate);
                 try {
                     if (!fs.existsSync(candidate)) continue;
-                    this.loader.addPath(path.dirname(candidate), "");
-                    this._templateData = await this.environment.loadTemplate(candidate, "utf-8");
-                    return this._templateData.render(this.environment, obj);
+                    // register candidate directory to shared loader and load template
+                    this._sharedLoader.addPath(path.dirname(candidate), "");
+                    this._templateData = await this._sharedEnvironment.loadTemplate(candidate, "utf-8");
+                    // Cache resolved template path to avoid future stack traces
+                    this._resolvedTemplates.set(cacheKey, candidate);
+                    const result = await this._templateData.render(this._sharedEnvironment, obj);
+                    return await this.transform(result);
                 } catch (e: any) {
                     lastErr = e;
                     // try next candidate
@@ -153,8 +190,12 @@ export default class Manialink {
 
             // As a last resort, try loading the template name directly (some loader setups accept logical names)
             try {
-                this._templateData = await this.environment.loadTemplate(tpl, "utf-8");
-                return this._templateData.render(this.environment, obj);
+                this._templateData = await this._sharedEnvironment.loadTemplate(tpl, "utf-8");
+                this._sharedLoader.addPath(path.resolve(process.cwd()), "");
+                // Cache logical template reference so further lookups avoid stack scanning
+                this._resolvedTemplates.set(cacheKey, tpl);
+                const result = await this._templateData.render(this._sharedEnvironment, obj);
+                return await this.transform(result);
             } catch (e: any) {
                 if (!lastErr) lastErr = e;
             }
@@ -164,11 +205,27 @@ export default class Manialink {
             throw new Error(`Failed to load template ${tpl}` + (lastErr ? `: ${lastErr.message}` : ""));
         } else {
             try {
-                return (await this._templateData?.render(this.environment, obj)) ?? "";
+                const result = await this._templateData?.render(this._sharedEnvironment, obj);
+                const transformed = await this.transform(result);
+                return transformed;
             } catch (e: any) {
                 tmc.cli(`Manialink error: ¤error¤ ${e.message}`);
                 throw new Error(`Failed to render template: ${e.message}`);
             }
+        }
+    }
+
+    private async transform(tpl: string): Promise<string> {
+        try {
+            const result = SaxonJS.transform({
+                stylesheetText: stylesheetText,
+                sourceText: tpl,
+                destination: "serialized"
+            });
+            return result.principalResult;
+        } catch (e: any) {
+            tmc.cli(`Manialink XSLT transform error: ¤error¤ ${e.message}`);
+            return tpl;
         }
     }
 }

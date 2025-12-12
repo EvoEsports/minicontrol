@@ -739,13 +739,13 @@ When you set `manialink.template = "mytemplate.xml.twig"`:
    - Otherwise: uses stack inspection to find caller directory (plugins)
    - Fallback: project root
 
-**Best Practice**: Pass `import.meta.dirname` as `baseDir` in plugin constructors:
+**Best Practice**: Pass `import.meta.dir` as `baseDir` in plugin constructors:
 
 ```typescript
 export default class MyPlugin extends Plugin {
     async onStart() {
         // ✅ Good: explicit baseDir
-        const widget = new Widget("mywidget.xml.twig", import.meta.dirname);
+        const widget = new Widget("mywidget.xml.twig", import.meta.dir);
 
         // ❌ Avoid: relies on stack inspection (error-prone)
         const widget2 = new Widget("mywidget.xml.twig");
@@ -823,17 +823,17 @@ Create custom templates in your plugin directory:
 {% endblock %}
 
 {% block maniascript %}
-<script><!--
+<script><![CDATA[
     main() {
         // Custom ManiaScript code
     }
---></script>
+]]></script>
 {% endblock %}
 ```
 
 **Usage**:
 ```typescript
-const widget = new Widget("myWidget.xml.twig", import.meta.dirname);
+const widget = new Widget("myWidget.xml.twig", import.meta.dir);
 widget.data = {
     title: "My Widget",
     subtitle: "Powered by MINIcontrol",
@@ -864,7 +864,7 @@ export default class MenuPlugin extends Plugin {
     menuButton?: Widget;
 
     async onStart() {
-        this.menuButton = new Widget("menuButton.xml.twig", import.meta.dirname);
+        this.menuButton = new Widget("menuButton.xml.twig", import.meta.dir);
         this.menuButton.pos = { x: 120, y: -65, z: 10 };
         this.menuButton.size = { width: 12, height: 5 };
         this.menuButton.setOpenAction(this.toggleMenu.bind(this));
@@ -1012,11 +1012,11 @@ export default class MyPlugin extends Plugin {
 }
 ```
 
-### 2. Use `import.meta.dirname` for Plugin Templates
+### 2. Use `import.meta.dir` for Plugin Templates
 
 ```typescript
 // ✅ Good: explicit baseDir
-const widget = new Widget("mywidget.xml.twig", import.meta.dirname);
+const widget = new Widget("mywidget.xml.twig", import.meta.dir);
 
 // ❌ Avoid: relies on stack inspection
 const widget = new Widget("mywidget.xml.twig");

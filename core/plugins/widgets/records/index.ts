@@ -139,7 +139,7 @@ export default class RecordsWidget extends Plugin {
 
     async updatePerformanceWidget() {
         if (!this.performanceWidget) {
-            const widget = new Widget("performance.xml.twig");
+            const widget = new Widget("performance.xml.twig", import.meta.dir);
             widget.title = "RECORDS";
             if (tmc.game.Name === "TmForever") {
                 widget.pos = { x: -159, y: 38, z: 0 };

@@ -28,7 +28,7 @@ export default class ExamplePlugin extends Plugin {
 
     async onStart() {
         // Widget visible to all, controlled via import.meta.dirname to resolve template
-        this.widget = new Widget("exampleWidget.xml.twig", import.meta.dirname);
+        this.widget = new Widget("exampleWidget.xml.twig", import.meta.dir);
         this.widget.title = "Example";
         this.widget.data = { count: tmc.players.getAllLogins().length, greeting: tmc.settings.get("example.greeting") || "Hello" };
         this.widget.size = { width: 32, height: 12 };

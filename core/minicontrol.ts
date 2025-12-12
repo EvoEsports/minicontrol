@@ -15,9 +15,20 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
+import { execSync } from "node:child_process";
 import { require } from "tsx/cjs/api";
 import type * as SentryType from "@sentry/node";
+
+try {
+    console.log('Running npm script "xsl"...');
+    execSync('npm run xsl', { cwd: process.cwd(), stdio: 'ignore', env: process.env });
+} catch (e: any) {
+    console.error('Failed to run npm script "xsl":', e?.message ?? e);
+}
+if (!fs.existsSync(path.resolve(process.cwd(), 'userdata', 'stylesheet.sef.json'))) {
+    console.error('XSLT stylesheet not found or compilation failed. Please ensure the xsl build step completed successfully.');
+    process.exit(1);
+}
 
 const Sentry = require("./sentry", import.meta.url);
 declare global {

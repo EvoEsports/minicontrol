@@ -16,10 +16,9 @@
     {% if data.listActions %}
         <label pos="{{ posx }} -2" z-index="1" size="{{ 14 * data.listActions|length }} 5" textfont="RobotoCondensedBold" text="${{ colors.window_text }}  Actions" halign="left"
                textsize="1.5" valign="center2" focusareacolor1="0000"/>
-        <quad pos="{{ posx }} -4.5" z-index="0" size="{{ 14 * data.listActions|length }} 0.2" bgcolor="{{ colors.black }}" valign="bottom"/> -->
+        <quad pos="{{ posx }} -4.5" z-index="0" size="{{ 14 * data.listActions|length }} 0.2" bgcolor="{{ colors.black }}" valign="bottom"/>
         {% set totalWidth = totalWidth + 14 * data.listActions|length %}
     {% endif %}
-    <!-- <quad pos="-2 -4" z-index="0" size="{{ totalWidth }} 0.2" bgcolor="eee" valign="center2"/> -->
 </frame>
 {% for item in data.items.items %}
     <frame pos="0 -{{ loop.index * 5 }}" z-index="1">
@@ -48,10 +47,10 @@
 
     {% for action in data.listActions %}
         {% set key = "item_" ~ action ~ "_" ~ item.index %}
-        <label pos="{{ posx + 6.5 }} -2" z-index="1" size="12 4"
+        <Button pos="{{ posx + 6 }} 0" z-index="1" size="12 4"
                text="${{ colors.window_text }}{{ action }}" textsize="1"
                valign="center2" halign="center"
-               textfont="RobotoCondensed"
+               textfont="GameFontSemiBold"
                focusareacolor1="{{ colors.button_bg }}" focusareacolor2="{{ colors.button_bg_hover }}" textcolor="{{ colors.button_text }}"
                action="{{ actions[key] }}"/>
         {% set posx = (posx + 13) %}
