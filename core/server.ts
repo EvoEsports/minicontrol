@@ -90,13 +90,20 @@ export default class Server {
             switch (outmethod) {
                 case "Trackmania.Event.WayPoint":
                     if (params.isendrace) {
+                        if (isDebug) console.log("TMC.PlayerFinish", [params.login, params.racetime, params]);
                         this.events.emit("TMC.PlayerFinish", [params.login, params.racetime, params]);
                     } else {
+                        if (isDebug) console.log("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace, params]);
                         this.events.emit("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace, params]);
                     }
+                    if (isDebug) console.log(outmethod, params);
+                    this.events.emit(outmethod, params);
                     return;
                 case "Trackmania.Event.GiveUp":
+                    if (isDebug) console.log("TMC.PlayerGiveup", [params.login]);
                     this.events.emit("TMC.PlayerGiveup", [params.login]);
+                    if (isDebug) console.log(outmethod, params);
+                    this.events.emit(outmethod, params);
                     return;
                 default:
                     if (isDebug) console.log(outmethod, params);
@@ -108,13 +115,16 @@ export default class Server {
         // Handle legacy events
         switch (normalizedMethod) {
             case "Trackmania.PlayerCheckpoint":
+                if (isDebug) console.log(normalizedMethod, data);
                 this.events.emit("TMC.PlayerCheckpoint", [data[1].toString(), data[2], data[4]]);
                 return;
             case "Trackmania.PlayerFinish":
                 if (data[0] === 0) return;
                 if (data[2] < 1) {
+                    if (isDebug) console.log("TMC.PlayerGiveup", [data[1].toString()]);
                     this.events.emit("TMC.PlayerGiveup", [data[1].toString()]);
                 } else {
+                    if (isDebug) console.log("TMC.PlayerFinish", [data[1].toString(), data[2]]);
                     this.events.emit("TMC.PlayerFinish", [data[1].toString(), data[2]]);
                 }
                 return;
@@ -333,8 +343,7 @@ export default class Server {
     async limitScriptCallbacks() {
         if (this.version.Name !== "Trackmania") return;
         const limitCb = (process.env.XMLRPC_LIMIT_SCRIPT_CALLBACKS ?? "true") === "true";
-        if (!limitCb) return;
-        tmc.cli("Limiting script callbacks...");
+
         try {
             const cbList = await tmc.server.callScript("XmlRpc.GetCallbacksList");
             await tmc.server.send("TriggerModeScriptEventArray", "XmlRpc.UnblockCallbacks", cbList.callbacks);
@@ -352,7 +361,10 @@ export default class Server {
                 }
                 return bool;
             });
-            tmc.server.sendScript("XmlRpc.BlockCallbacks", ...filteredList);
+            if (!limitCb) {
+                tmc.cli("Limiting script callbacks...");
+                tmc.server.sendScript("XmlRpc.BlockCallbacks", ...filteredList);
+            }
             const enabledCb = await tmc.server.callScript("XmlRpc.GetCallbacksList_Enabled");
 
             tmc.cli(
