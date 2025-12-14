@@ -461,6 +461,31 @@ Explicitly unregister a setting (optional, handled by `destroy()`).
 ```ts
 this.removeSetting("myplugin.enabled");
 ```
+# UI Components (Manialink custom tags)
+
+Components let you register handlers that expand custom tags into Manialink markup and optional page script.
+
+- Handlers implement the `ComponentFunction` signature: `(attrs, inner, obj) => { replacement, script? } | Promise<...>`
+- Obj hold all values from the manialink itself: like: `obj.colors`,`obj.data`, `obj.actions`
+- Custom components should always start with capital letter.
+
+Example handler (Mybutton):
+
+```ts
+// plugin code
+this.addComponent("Mybutton", async (attrs, inner, obj) => {
+  const replacement = `<frame pos="..."><label text="${attrs.label || inner}" /></frame>`;
+  const script = `// ManiaScript for mouse events or animations`;
+  return { replacement, script };
+});
+```
+
+Notes:
+- Handlers are registered with `tmc.ui.registerComponentHandler` (plugins should use `plugin.addComponent`).
+- Tag names are matched case-insensitively.
+- Returned `script` fragments are concatenated into the final page script. Be careful to avoid duplicate global symbol names.
+- For syntax highlighting of embedded scripts/templates in VS Code: prefer a tagged template (e.g. `html`\`...\``) or install an extension like `es6-string-html`. For ManiaScript you can also use a comment hint (e.g. `/* ManiaScript */`) before the template and use an extension that supports language injection.
+
 
 ### addColor() - Color Settings
 

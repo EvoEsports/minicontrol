@@ -10,8 +10,7 @@ export interface uiModule {
     visible: boolean;
 }
 
-type ComponentFunction = (attrs: { [key: string]: any }, inner: string, obj: objMap) => Promise<{ replacement: string; script?: string }>;
-
+export type ComponentFunction = (attrs: { [key: string]: any }, inner: string, obj: objMap) => Promise<{ replacement: string; script?: string }>;
 
 interface CustomUI {
     notice: boolean;

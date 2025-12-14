@@ -1,4 +1,5 @@
 import Manialink from "@core/ui/manialink";
+import type { ComponentFunction } from "@core/uimanager";
 
 export default abstract class Plugin {
     /**
@@ -181,6 +182,23 @@ export default abstract class Plugin {
                 // ignore protection errors
             }
         }
+    }
+
+    /**
+     * Add component handler to Manialink UI system
+     * @param tagName string
+     * @param handler ComponsentFunction
+     */
+    addComponent(tagName: string, handler: ComponentFunction) {
+        tmc.ui.registerComponentHandler(tagName, handler);
+    }
+
+    /**
+     * Remove component handler from Manialink UI system
+     * @param tagName string
+     */
+    removeComponent(tagName: string) {
+        tmc.ui.removeComponentHandler(tagName);
     }
 
 }
