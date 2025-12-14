@@ -2,10 +2,11 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createEnvironment, createFilesystemLoader, type TwingTemplate } from "twing";
-import SaxonJS from "saxonjs-he";
+import { castType } from "@core/utils.js";
 
-const stylesheetPath = path.resolve(process.cwd(), "userdata", "stylesheet.sef.json");
-const stylesheetText = fs.readFileSync(stylesheetPath, "utf-8");
+const tagsRe = /<(?<name>[A-Za-z_][\w:.-]*)\b(?<attrs>(?:\s+[^\s=\/>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*?)\s*(?:\/>|>(?<inner>[\s\S]*?)<\/\k<name>\s*>)/g;
+const attrRe = /([^\s=\/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;
+const tagStartRe = /<(?<name>[A-Za-z_][\w:.-]*)/g;
 
 export interface MlSize {
     width: number;
@@ -16,6 +17,19 @@ export interface MlPos {
     x: number;
     y: number;
     z: number;
+}
+
+export interface objMap {
+    id: string;
+    layer: string;
+    size: MlSize;
+    pos: MlPos;
+    actions: { [key: string]: string };
+    colors: { [key: string]: string };
+    data: { [key: string]: any };
+    title: string;
+    game: string;
+    recipient: string | undefined;
 }
 
 export default class Manialink {
@@ -38,9 +52,7 @@ export default class Manialink {
     private _sharedLoader = createFilesystemLoader(fs);
     private _sharedEnvironment = createEnvironment(this._sharedLoader, { charset: "utf-8", parserOptions: { level: 3 } });
     private _resolvedTemplates = new Map<string, string>();
-    clearTemplateCache() {
-        this._resolvedTemplates.clear();
-    }
+    private _scripts = new Map<string, string>();
 
     constructor(login: string | undefined = undefined, baseDir?: string) {
         this.recipient = login;
@@ -153,7 +165,7 @@ export default class Manialink {
                     try {
                         this._templateData = await this._sharedEnvironment.loadTemplate(cached, "utf-8");
                         const result = await this._templateData.render(this._sharedEnvironment, obj);
-                        return await this.transform(result);
+                        return await this.transform(result, obj);
                     } catch (e: any) {
                         // fall through to re-resolve below
                     }
@@ -162,7 +174,7 @@ export default class Manialink {
                     try {
                         this._templateData = await this._sharedEnvironment.loadTemplate(cached, "utf-8");
                         const result = await this._templateData.render(this._sharedEnvironment, obj);
-                        return await this.transform(result);
+                        return await this.transform(result, obj);
                     } catch (e: any) {
                         // fall through to re-resolve below
                     }
@@ -181,7 +193,7 @@ export default class Manialink {
                     // Cache resolved template path to avoid future stack traces
                     this._resolvedTemplates.set(cacheKey, candidate);
                     const result = await this._templateData.render(this._sharedEnvironment, obj);
-                    return await this.transform(result);
+                    return await this.transform(result, obj);
                 } catch (e: any) {
                     lastErr = e;
                     // try next candidate
@@ -195,7 +207,7 @@ export default class Manialink {
                 // Cache logical template reference so further lookups avoid stack scanning
                 this._resolvedTemplates.set(cacheKey, tpl);
                 const result = await this._templateData.render(this._sharedEnvironment, obj);
-                return await this.transform(result);
+                return await this.transform(result, obj);
             } catch (e: any) {
                 if (!lastErr) lastErr = e;
             }
@@ -206,7 +218,7 @@ export default class Manialink {
         } else {
             try {
                 const result = await this._templateData?.render(this._sharedEnvironment, obj);
-                const transformed = await this.transform(result);
+                const transformed = await this.transform(result, obj);
                 return transformed;
             } catch (e: any) {
                 tmc.cli(`Manialink error: ¤error¤ ${e.message}`);
@@ -215,17 +227,115 @@ export default class Manialink {
         }
     }
 
-    private async transform(tpl: string): Promise<string> {
-        try {
-            const result = SaxonJS.transform({
-                stylesheetText: stylesheetText,
-                sourceText: tpl,
-                destination: "serialized"
-            });
-            return result.principalResult;
-        } catch (e: any) {
-            tmc.cli(`Manialink XSLT transform error: ¤error¤ ${e.message}`);
-            return tpl;
+    private async transform(tpl: string, obj: objMap) {
+        tagStartRe.lastIndex = 0;
+        let match: RegExpExecArray | null = null;
+        // Scan for registered component tags and process the template from the first
+        // matching tag onward. After each replacement restart scanning so we don't
+        // lose any prefix or skip tags introduced/shifted by processing.
+        while ((match = tagStartRe.exec(tpl)) !== null) {
+            const tagName = match.groups!.name;
+            if (tmc.ui.getComponentTags().includes(tagName)) {
+                const start = match.index!;
+                const tail = tpl.slice(start);
+                const processedTail = await this.process(tail, obj);
+                tpl = tpl.slice(0, start) + processedTail;
+                tagStartRe.lastIndex = 0;
+            }
         }
+
+        const header = `#Include "TextLib" as TextLib
+	    #Include "MathLib" as MathLib
+	    #Include "AnimLib" as AnimLib
+	    #Include "ColorLib" as ColorLib
+        `;
+
+        let combinedScripts = "";
+        const scriptTags = tpl.matchAll(/<script>([\s\S]*?)<\/script>/g);
+        for (const scriptTag of scriptTags) {
+            combinedScripts += `\n${scriptTag[1]}\n`;
+        }
+        for (const script of this._scripts.values()) {
+            if (script && script.length > 0) {
+                combinedScripts += `\n${script}\n`;
+            }
+        }
+        const footer =
+        //@language=ManiaScript
+        `
+Void _nothing() {
+}
+
+main() {
+
+    +++OnInit+++
+
+    while(True) {
+    yield;
+    if (!PageIsVisible || InputPlayer == Null) {
+            continue;
     }
+
+    foreach (Event in PendingEvents) {
+            switch (Event.Type) {
+                case CMlScriptEvent::Type::EntrySubmit: {
+                    +++EntrySubmit+++
+                }
+                case CMlScriptEvent::Type::KeyPress: {
+                    +++OnKeyPress+++
+                }
+                case CMlScriptEvent::Type::MouseClick: {
+                    +++OnMouseClick+++
+                }
+                case CMlScriptEvent::Type::MouseOut: {
+                    +++OnMouseOut+++
+                }
+                case CMlScriptEvent::Type::MouseOver: {
+                    +++OnMouseOver+++
+                }
+            }
+        }
+
+        +++Loop+++
+    }
+
+}
+      `;
+
+        if (combinedScripts.length > 0) {
+            tpl = tpl.replace("</manialink>", `<script><!--\n${header}${combinedScripts}${footer}\n--></script>\n</manialink>`);
+        }
+
+
+
+        return tpl;
+    }
+
+    private async process(tpl, obj) {
+
+        const replacementTags = tpl.matchAll(tagsRe);
+        for (const tag of replacementTags) {
+            const { name, attrs, inner } = tag.groups as { name: string; attrs: string; inner: string };
+            const tagName = name;
+            const handler = tmc.ui.getComponentHandler(tagName);
+            if (handler) {
+                const attrMap: { [key: string]: any } = {};
+                if (attrs) {
+                    let match;
+                    while ((match = attrRe.exec(attrs)) !== null) {
+                        const attrName = match[1];
+                        const attrValue = match[2] || match[3] || match[4] || "";
+                        attrMap[attrName] = attrValue;
+                    }
+                }
+                const { replacement, script } = await handler(attrMap, inner || "", obj);
+                this._scripts.set(tagName, script || "");
+                tpl = tpl.replace(tag[0], replacement);
+            }
+        }
+
+        return tpl;
+    }
+
+
 }

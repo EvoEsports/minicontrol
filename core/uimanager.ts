@@ -1,6 +1,7 @@
 import type Manialink from "./ui/manialink";
 import Window from "./ui/window";
 import { chunkArray, parseEntries } from "./utils";
+import { type objMap } from "./ui/manialink";
 
 export interface uiModule {
     id: string;
@@ -8,6 +9,9 @@ export interface uiModule {
     scale: number;
     visible: boolean;
 }
+
+type ComponentFunction = (attrs: { [key: string]: any }, inner: string, obj: objMap) => Promise<{ replacement: string; script?: string }>;
+
 
 interface CustomUI {
     notice: boolean;
@@ -32,6 +36,7 @@ export default class UiManager {
     // array of logins that have hidden manialinks
     private hiddenManialinks: string[] = [];
     private uiProperties: uiModule[] = [];
+    private tagHandlers: Map<string, ComponentFunction> = new Map();
 
     tmnfCustomUi: CustomUI = {
         notice: false,
@@ -66,6 +71,8 @@ export default class UiManager {
             tmc.settings.register("tmf.hud.challenge_info", false, this.uiSettingsChange.bind(this), "TmForever HUD: Show challenge info");
             tmc.settings.register("tmf.hud.notice", false, this.uiSettingsChange.bind(this), "TmForever HUD: Show notice");
         }
+        tmc.cli("¤info¤Loading UI components...");
+        await import("./ui/components/index.ts");
     }
 
     /**
@@ -544,6 +551,44 @@ export default class UiManager {
 
     getCustomUI() {
         return this.tmnfCustomUi;
+    }
+
+    /**
+     * Get component handler
+     * @param tagName
+     * @returns
+     */
+    getComponentHandler(tagName: string): ComponentFunction | undefined {
+        if (this.tagHandlers.has(tagName)) {
+            return this.tagHandlers.get(tagName);
+        }
+        return undefined;
+    }
+
+    /**
+     * Get registered component tags
+     * @returns
+     */
+    getComponentTags(): string[] {
+        return Array.from(this.tagHandlers.keys());
+    }
+
+    /**
+     * register Component handler
+     * @param tagName
+     * @param handler
+     */
+    registerComponentHandler(tagName: string, handler: ComponentFunction) {
+        if (this.tagHandlers.has(tagName)) {
+            tmc.cli(`¤info¤overwriting handler for tag: ¤white¤<${tagName}>`);
+        } else {
+            tmc.cli(`¤info¤registering handler for tag: ¤white¤<${tagName}>`);
+        }
+        this.tagHandlers.set(tagName, handler);
+    }
+
+    removeComponentHandler(tagName: string) {
+        if (this.tagHandlers.has(tagName)) this.tagHandlers.delete(tagName);
     }
 
     async uiSettingsChange(value: string, oldValue: boolean, _key: string) {

@@ -47,7 +47,7 @@
 
     {% for action in data.listActions %}
         {% set key = "item_" ~ action ~ "_" ~ item.index %}
-        <Button pos="{{ posx + 6 }} 0" z-index="1" size="12 4"
+        <Button pos="{{ posx }} 0" z-index="1" size="12 4"
                text="${{ colors.window_text }}{{ action }}" textsize="1"
                valign="center2" halign="center"
                textfont="GameFontSemiBold"

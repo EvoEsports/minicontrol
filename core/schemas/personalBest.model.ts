@@ -19,31 +19,31 @@ class PersonalBest extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
-    id!: number;
+    declare id: number;
 
     @Column(DataType.STRING)
-    mapUuid!: string;
+    declare mapUuid: string;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
     @HasOne(() => Player, { as: "player", sourceKey: "login", foreignKey: "login" })
-    login!: string;
+    declare login: string;
     player?: Player;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.INTEGER)
-    time!: number;
+    declare time: number;
 
     @Column(DataType.STRING)
-    checkpoints!: string;
+    declare checkpoints: string;
 
     @Column(DataType.INTEGER)
-    avgTime!: number;
+    declare avgTime: number;
 
     @Column(DataType.INTEGER)
-    finishCount!: number;
+    declare finishCount: number;
 }
 
 export default PersonalBest;

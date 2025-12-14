@@ -190,6 +190,7 @@ export function castType(value: string, type?: string): any {
     if (value === "false") return false;
     if (value === "null") return null;
     if (!Number.isNaN(Number.parseFloat(value))) {
+        if (value.includes(" ")) return value;
         if (value.includes(".")) return Number.parseFloat(value);
         return Number.parseInt(value);
     }

@@ -19,22 +19,22 @@ class MapLikes extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
-    id!: number;
+    declare id: number;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
-    mapUuid!: string;
+    declare mapUuid: string;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
-    login!: string;
+    declare login: string;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.FLOAT)
-    vote!: number;
+    declare vote: number;
 }
 
 export default MapLikes;

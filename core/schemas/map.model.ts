@@ -5,40 +5,40 @@ class Map extends Model {
     @PrimaryKey
     @Unique
     @Column(DataType.STRING)
-    uuid!: string;
+    declare uuid: string;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
-    name!: string;
+    declare name: string;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
-    author!: string;
+    declare author: string;
 
     @Column(DataType.STRING)
-    authorNickname?: string | null;
+    declare authorNickname: string | null;
 
     @NotNull
     @AllowNull(false)
     @Column(DataType.INTEGER)
-    authorTime!: number;
+    declare authorTime: number;
 
     @Column(DataType.STRING)
-    environment!: string | null;
+    declare environment: string | null;
 
     @AllowNull(true)
     @Column(DataType.STRING)
-    playerModel!: string | null;
+    declare playerModel: string | null;
 
     @AllowNull(true)
     @Column(DataType.DATE)
-    lastPlayed!: Date | null;
+    declare lastPlayed: Date | null;
 
     @AllowNull(true)
     @Column(DataType.STRING)
-    tmxId!: string | null;
+    declare tmxId: string | null;
 }
 
 export default Map;

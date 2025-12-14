@@ -1,6 +1,4 @@
 <manialink id="{{ id }}" version="3" name="{{ title }}" layer="{{ layer }}">
-    {% include "core/templates/style.xml" %}
-
     <frame pos="-{{ size.width / 2 }} {{ size.height / 2 + pos.y }}" z-index="{{ pos.z }}">
 	<quad pos="0 0" z-index="1" size="{{ size.width }} 6" bgcolor="{{ colors.title_bg }}e" halign="left" valign="bottom"/>
 	<quad pos="{{ size.width }} 0" z-index="3" size="{{ size.width }} 0.4" bgcolor="{{ colors.highlight }}" opacity="1" valign="top" halign="right"/>
@@ -16,58 +14,7 @@
 	<quad pos="0 0" z-index="1" size="{{ size.width }} {{ size.height }}" bgcolor="{{ colors.window_bg }}e"/>
 	<quad pos="-0.5 6.5" z-index="0" size="{{ size.width + 1 }} {{ size.height + 7 }}" bgcolor="000b"/>
 </frame>
-{% if game == "Trackmania" %}
-	 <script><!--
-	    #Include "TextLib" as TextLib
-	    #Include "MathLib" as MathLib
-	    #Include "AnimLib" as AnimLib
-	    #Include "ColorLib" as ColorLib
 
-	    {% include 'core/templates/scripts.Script.txt' %}
 
-	    --></script>
 
-	{% block maniascript %}{% endblock %}
-	 <script><!--
-
-	Void _nothing() {
-
-    }
-
-	main() {
-
-	  +++OnInit+++
-
-	  while(True) {
-	    yield;
-	    if (!PageIsVisible || InputPlayer == Null) {
-	  			continue;
-	  	}
-
-	    foreach (Event in PendingEvents) {
-				switch (Event.Type) {
-					case CMlScriptEvent::Type::EntrySubmit: {
-						+++EntrySubmit+++
-					}
-					case CMlScriptEvent::Type::KeyPress: {
-						+++OnKeyPress+++
-					}
-					case CMlScriptEvent::Type::MouseClick: {
-						+++OnMouseClick+++
-					}
-					case CMlScriptEvent::Type::MouseOut: {
-						+++OnMouseOut+++
-					}
-					case CMlScriptEvent::Type::MouseOver: {
-						+++OnMouseOver+++
-					}
-				}
-			}
-
-			+++Loop+++
-	  }
-
-	}
-	--></script>
-    {% endif %}
 </manialink>
