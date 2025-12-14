@@ -6,7 +6,7 @@ export default class ToggleChat extends Plugin {
     widget: Widget | null = null;
 
     async onLoad() {
-        this.widget = new Widget("widget.xml.twig", import.meta.dir);
+        this.widget = new Widget("widget.xml.twig", import.meta.dirname);
         this.widget.pos = { x: -160, y: -40, z: 5 };
         this.widget.size = { width: 15, height: 3 };
         this.widget.setOpenAction(this.manialinkToggle.bind(this));

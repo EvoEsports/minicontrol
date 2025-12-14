@@ -59,7 +59,7 @@ Menu.getInstance().addItem({
 });
 
 // Show a widget when the player clicks the menu button
-this.menuButton = new Widget("menuButton.xml.twig", import.meta.dir);
+this.menuButton = new Widget("menuButton.xml.twig", import.meta.dirname);
 this.menuButton.setOpenAction(this.toggleMenu.bind(this));
 await this.menuButton.display();
 

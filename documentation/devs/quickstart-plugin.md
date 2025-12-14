@@ -49,11 +49,11 @@ export default class ExamplePlugin extends Plugin {
 }
 ```
 
-4. Optional: Provide templates and any static assets you need. Use `import.meta.dir` as a `baseDir` when creating `Manialink` objects so template resolution works correctly:
+4. Optional: Provide templates and any static assets you need. Use `import.meta.dirname` as a `baseDir` when creating `Manialink` objects so template resolution works correctly:
 
 ```ts
 import Widget from "@core/ui/widget";
-this.widget = new Widget("mywidget.xml.twig", import.meta.dir);
+this.widget = new Widget("mywidget.xml.twig", import.meta.dirname);
 ```
 
 5. Install the plugin (copying folder into `userdata/plugins`) if you're developing outside the runtime (PluginLoader will validate manifest):
@@ -73,7 +73,7 @@ await loader.install("path/to/your/local/plugin");
 
 ## Tips & Troubleshooting
 
-- Use `import.meta.dirname` to ensure Twing template resolution finds your templates.
+- Use `import.meta.dirnamename` to ensure Twing template resolution finds your templates.
 - If MiniControl refuses to load your plugin, check the `requiresMinicontrolVersion` range in `manifest.json` and your installed `tmc.version`.
 - Use `tmc.cli()` and `tmc.debug()` to write helpful debug messages.
 - If the loader reports missing dependencies, ensure dependent plugins are present and satisfy semver ranges.

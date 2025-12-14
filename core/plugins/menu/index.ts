@@ -23,7 +23,7 @@ export default class MenuPlugin extends Plugin {
     }
 
     async onStart() {
-        this.menuButton = new Widget("menuButton.xml.twig", import.meta.dir);
+        this.menuButton = new Widget("menuButton.xml.twig", import.meta.dirname);
         this.menuButton.pos = { x: 120, y: -65, z: 10 };
         this.menuButton.size = { width: 12, height: 5 };
         this.menuButton.setOpenAction(this.toggleMenu.bind(this));

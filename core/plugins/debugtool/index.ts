@@ -32,11 +32,11 @@ export default class DebugTool extends Plugin {
             }
         }, "DebugTool: Enable Memory Usage widget");
 
-        this.gbxWidget = new Widget("core/plugins/debugtool/widget.xml.twig", import.meta.dir);
+        this.gbxWidget = new Widget("core/plugins/debugtool/widget.xml.twig", import.meta.dirname);
         this.gbxWidget.pos = { x: 159, y: -85, z: 0 };
         this.addListener("GbxClient.Counters", this.onCounters, this);
 
-        this.memoryWidget = new Widget("core/plugins/debugtool/widget.xml.twig", import.meta.dir);
+        this.memoryWidget = new Widget("core/plugins/debugtool/widget.xml.twig", import.meta.dirname);
         this.memoryWidget.pos = { x: 159, y: -60, z: 0 };
 
         if (tmc.game.Name !== "TmForever") {

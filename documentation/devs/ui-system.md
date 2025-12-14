@@ -55,7 +55,7 @@ constructor(login?: string, baseDir?: string)
 
 **Parameters:**
 - `login` (optional): Target player login. If undefined, displays to all players.
-- `baseDir` (optional): Base directory for template resolution (use `import.meta.dirname` in plugins).
+- `baseDir` (optional): Base directory for template resolution (use `import.meta.dirnamename` in plugins).
 
 ### Core Properties
 
@@ -205,7 +205,7 @@ export default class StatusWidget extends Plugin {
 
     async onStart() {
         // Create widget
-        this.widget = new Widget("statusWidget.xml.twig", import.meta.dirname);
+        this.widget = new Widget("statusWidget.xml.twig", import.meta.dirnamename);
 
         // Configure position and size
         this.widget.pos = { x: 120, y: -65, z: 10 };
@@ -739,13 +739,13 @@ When you set `manialink.template = "mytemplate.xml.twig"`:
    - Otherwise: uses stack inspection to find caller directory (plugins)
    - Fallback: project root
 
-**Best Practice**: Pass `import.meta.dir` as `baseDir` in plugin constructors:
+**Best Practice**: Pass `import.meta.dirname` as `baseDir` in plugin constructors:
 
 ```typescript
 export default class MyPlugin extends Plugin {
     async onStart() {
         // ✅ Good: explicit baseDir
-        const widget = new Widget("mywidget.xml.twig", import.meta.dir);
+        const widget = new Widget("mywidget.xml.twig", import.meta.dirname);
 
         // ❌ Avoid: relies on stack inspection (error-prone)
         const widget2 = new Widget("mywidget.xml.twig");
@@ -833,7 +833,7 @@ Create custom templates in your plugin directory:
 
 **Usage**:
 ```typescript
-const widget = new Widget("myWidget.xml.twig", import.meta.dir);
+const widget = new Widget("myWidget.xml.twig", import.meta.dirname);
 widget.data = {
     title: "My Widget",
     subtitle: "Powered by MINIcontrol",
@@ -864,7 +864,7 @@ export default class MenuPlugin extends Plugin {
     menuButton?: Widget;
 
     async onStart() {
-        this.menuButton = new Widget("menuButton.xml.twig", import.meta.dir);
+        this.menuButton = new Widget("menuButton.xml.twig", import.meta.dirname);
         this.menuButton.pos = { x: 120, y: -65, z: 10 };
         this.menuButton.size = { width: 12, height: 5 };
         this.menuButton.setOpenAction(this.toggleMenu.bind(this));
@@ -1012,11 +1012,11 @@ export default class MyPlugin extends Plugin {
 }
 ```
 
-### 2. Use `import.meta.dir` for Plugin Templates
+### 2. Use `import.meta.dirname` for Plugin Templates
 
 ```typescript
 // ✅ Good: explicit baseDir
-const widget = new Widget("mywidget.xml.twig", import.meta.dir);
+const widget = new Widget("mywidget.xml.twig", import.meta.dirname);
 
 // ❌ Avoid: relies on stack inspection
 const widget = new Widget("mywidget.xml.twig");
@@ -1087,7 +1087,7 @@ widget.pos.y = -80;
 
 **Solution**: Check template path resolution:
 1. Verify file exists in expected location
-2. Pass `import.meta.dirname` as `baseDir` parameter
+2. Pass `import.meta.dirnamename` as `baseDir` parameter
 3. Use full path from project root (e.g., `core/plugins/myplugin/template.xml.twig`)
 
 ### Action Not Triggering

@@ -2,7 +2,7 @@ import Widget from "@core/ui/widget";
 
 export default class AdminWidget extends Widget {
     constructor(login: string) {
-        super("widget.xml.twig");
+        super("widget.xml.twig", import.meta.dirname);
         this.recipient = login;
         this.data.buttons = [];
         this.addButton(0, "Prev", "", async (login: string, item: any) => {

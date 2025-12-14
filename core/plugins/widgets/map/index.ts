@@ -8,7 +8,7 @@ export default class MapWidget extends Plugin {
     tmxInfo: TmxMapInfo = {} as TmxMapInfo;
 
     async onLoad() {
-        this.widget = new Widget("widget.xml.twig", import.meta.dir);
+        this.widget = new Widget("widget.xml.twig", import.meta.dirname);
         this.widget.pos = { x: 121, y: 89, z: 1 };
         this.widget.size = { width: 38, height: 9 };
         this.widget.setOpenAction(this.buttonClick.bind(this));

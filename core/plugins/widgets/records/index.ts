@@ -139,7 +139,7 @@ export default class RecordsWidget extends Plugin {
 
     async updatePerformanceWidget() {
         if (!this.performanceWidget) {
-            const widget = new Widget("performance.xml.twig", import.meta.dir);
+            const widget = new Widget("performance.xml.twig", import.meta.dirname);
             widget.title = "RECORDS";
             if (tmc.game.Name === "TmForever") {
                 widget.pos = { x: -159, y: 38, z: 0 };
@@ -170,7 +170,7 @@ export default class RecordsWidget extends Plugin {
 
         if (!widget) {
             this.widgetType[login] = "server";
-            widget = new recordsWidget("widget.xml.twig");
+            widget = new recordsWidget("widget.xml.twig", import.meta.dirname);
             widget.title = "RECORDS";
             widget.recipient = login;
             if (tmc.game.Name === "TmForever") {
