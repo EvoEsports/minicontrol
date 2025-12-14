@@ -1,5 +1,14 @@
 import type { objMap } from "@core/ui/manialink";
 
+/**
+ * a basic template component that does nothing
+ *
+ * @param a attributes
+ * @param inner inner content
+ * @param obj object map
+ *
+ * @returns manialink replacement and script
+ */
 export default async (a: { [key: string]: any }, inner: string, obj: objMap) => {
     const [width, height] = a.size.split(" ").map((v: string) => parseFloat(v));
     const [posX, posY] = a.pos.split(" ").map((v: string) => parseFloat(v));
@@ -12,57 +21,55 @@ export default async (a: { [key: string]: any }, inner: string, obj: objMap) => 
         posXdiv = width;
     }
 
-    let replacement =
+     let replacement =
         `
-        <frame id="${a.id ?? ""}" pos="${posX + posXdiv} ${posY - posYdiv}" class="uiContainer uiButton" z-index="${a["z-index"] || 2}" data-action="${a.action}">
-          <label size="${width} ${height}" text="${a.text}" class="${a.type} uiButtonElement"
+        <frame id="${a.id ?? ""}" pos="${posX + posXdiv} ${posY - posYdiv}" class="uiContainer uiOutlineButton" z-index="${a["z-index"] || 2}" data-action="${a.action}">
+        <quad size="${width*2} ${height*2}" scale="0.5" style="Bgs1InRace" class="${a.type}" substyle="BgColorContour"
+                halign="center" valign="center2"/>
+        <label size="${width} ${height}" text="${a.text}" class="${a.type} uiOutlineButtonElement"
           halign="${a.halign}" valign="center" textfont="${a.textfont || "GameFontSemiBold"}" scriptevents="1" translate="0"
-          textsize="1.2" action="${a.action}"
-          focusareacolor1="${a.focusareacolor1}" focusareacolor2="${a.focusareacolor2}"
+          textsize="1.2" focusareacolor1="${a.focusareacolor1}0" focusareacolor2="${a.focusareacolor2}"
           />
         </frame>
         `;
 
     const script = `
 // button
-Void TriggerButtonClick(CMlControl Control) {
+Void TriggerOutlineButtonClick(CMlControl Control) {
     declare Parent = Control.Parent;
-    if (Parent.HasClass("uiButton")) {
+    if (Parent.HasClass("uiOutlineButton")) {
         Parent.RelativeScale = 0.75;
         AnimMgr.Add(Parent, "<elem scale=\\"1.\\" />", 200, CAnimManager::EAnimManagerEasing::QuadIn);
         TriggerPageAction(Parent.DataAttributeGet("action"));
     }
 }
 
-Void TriggerButtonClick(Text ControlId) {
+Void TriggerOutlineButtonClick(Text ControlId) {
     declare Control <=> Page.GetFirstChild(ControlId);
-    TriggerButtonClick(Control);
+    TriggerOutlineButtonClick(Control);
 }
 
 ***OnMouseClick***
 ***
-if (Event.Control.HasClass("uiButtonElement") ) {
-    TriggerButtonClick(Event.Control);
+if (Event.Control.HasClass("uiOutlineButtonElement") ) {
+    TriggerOutlineButtonClick(Event.Control);
 }
 ***
 
 ***OnMouseOver***
 ***
-if (Event.Control.Parent.HasClass("uiButton")) {
+if (Event.Control.Parent.HasClass("uiOutlineButton")) {
     (Event.Control.Parent as CMlFrame).RelativeScale=1.1;
 }
 ***
 
 ***OnMouseOut***
 ***
-if (Event.Control.Parent.HasClass("uiButton")) {
+if (Event.Control.Parent.HasClass("uiOutlineButton")) {
     (Event.Control.Parent as CMlFrame).RelativeScale=1.;
 }
 ***
 `;
 
-    return {
-        replacement,
-        script
-    };
+    return { replacement, script};
 }

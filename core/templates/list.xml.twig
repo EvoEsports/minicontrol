@@ -47,10 +47,10 @@
 
     {% for action in data.listActions %}
         {% set key = "item_" ~ action ~ "_" ~ item.index %}
-        <Button pos="{{ posx }} 0" z-index="1" size="12 4"
+        <OutlineButton pos="{{ posx }} 0" z-index="1" size="12 4"
                text="${{ colors.window_text }}{{ action }}" textsize="1"
                valign="center2" halign="center"
-               textfont="GameFontSemiBold"
+               textfont="RobotoCondensedBold"
                focusareacolor1="{{ colors.button_bg }}" focusareacolor2="{{ colors.button_bg_hover }}" textcolor="{{ colors.button_text }}"
                action="{{ actions[key] }}"/>
         {% set posx = (posx + 13) %}
