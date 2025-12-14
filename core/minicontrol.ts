@@ -269,10 +269,11 @@ class MiniControl {
             const pluginUrl = pathToFileURL(path.join(pluginPath, "index.ts")).toString();
             // refresh discovered manifests so we can validate dependency versions
             try {
-                this.discoveredPlugins = await this.discoverPlugins();
+                if (this.startComplete) this.discoveredPlugins = await this.discoverPlugins();
             } catch {
                 // ignore discovery errors; we still try best-effort
             }
+
             let manifest: PluginManifest = {} as PluginManifest;
             // If a manifest is present for this plugin, validate dependency ranges
             try {
