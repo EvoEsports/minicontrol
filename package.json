@@ -20,7 +20,6 @@
         "pg": "8.16.3",
         "pg-hstore": "2.3.4",
         "prebuild-install": "^7.1.3",
-        "saxonjs-he": "^3.0.0-beta2",
         "semver": "7.7.3",
         "sequelize": "6.37.7",
         "sequelize-typescript": "^2.1.6",
