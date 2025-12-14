@@ -279,7 +279,6 @@ export default class RecordsWidget extends Plugin {
         } else if (this.widgetType[login] === "dedimania") {
             await tmc.chatCmd.execute(login, "/dedirecords");
         }
-        await tmc.chatCmd.execute(login, "/records");
     }
 
     async liveAction(login: string) {

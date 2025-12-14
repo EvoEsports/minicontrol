@@ -10,7 +10,7 @@ export interface uiModule {
     visible: boolean;
 }
 
-export type ComponentFunction = (attrs: { [key: string]: any }, inner: string, obj: objMap) => Promise<{ replacement: string; script?: string }>;
+export type ComponentFunction = (attrs: { [key: string]: any }, inner: string, obj: objMap) => { replacement: string; script?: string };
 
 interface CustomUI {
     notice: boolean;
@@ -522,6 +522,7 @@ export default class UiManager {
                 }
             }
         }
+
     }
     /** set clipboard content for user */
     setClipboard(login: string, text: string) {

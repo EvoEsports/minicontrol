@@ -3,9 +3,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { createEnvironment, createFilesystemLoader, type TwingTemplate } from "twing";
 
-const tagsRe = /<(?<name>[A-Za-z_][\w:.-]*)\b(?<attrs>(?:\s+[^\s=\/>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*?)\s*(?:\/>|>(?<inner>[\s\S]*?)<\/\k<name>\s*>)/g;
+const tagsRe = /<(?<name>[A-Za-z_][\w:.-]*)\b(?<attrs>(?:\s+[^\s=\/>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*?)\s*(?:\/>|>(?<inner>[\s\S]*?)<\/\k<name>\s*>)/gs;
 const attrRe = /([^\s=\/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;
-const tagStartRe = /<(?<name>[A-Za-z_][\w:.-]*)/g;
+const tagStartRe = /(?<name><[A-Za-z_][\w:.-]*.*?\>)(?<rest>.*)/s;
 
 export interface MlSize {
     width: number;
@@ -45,10 +45,8 @@ export default class Manialink {
     canHide = true;
     private _templateData: TwingTemplate | undefined = undefined;
     private _firstDisplay = true;
-    private _baseDir: string | undefined = undefined; // optional base directory (e.g. plugin can pass import.meta.dirnamename) to resolve bare templates
+    protected _baseDir: string | undefined = undefined; // optional base directory (e.g. plugin can pass import.meta.dirname) to resolve bare templates
     private _scripts = new Map<string, string>();
-    private _loader = createFilesystemLoader(fs);
-    private _env = createEnvironment(this._loader, { charset: "utf-8", parserOptions: { level: 3 } });
     private _scriptCache: string | null = null;
 
     constructor(login: string | undefined = undefined, baseDir?: string) {
@@ -78,6 +76,7 @@ export default class Manialink {
         for (const key of Object.keys(this)) {
             delete this[key];
         }
+        if (gc) gc();
     }
 
     async destroy(hide = true) {
@@ -108,17 +107,18 @@ export default class Manialink {
             recipient: this.recipient,
         };
 
-        tmc.cli("Before: " + memInfo());
+        const _loader = createFilesystemLoader(fs);
+        _loader.addPath(path.resolve(process.cwd()), "");
+        _loader.addPath(path.dirname(path.resolve(process.cwd(), this.template)), "");
+        _loader.addPath(path.resolve(this._baseDir || ""), "");
+        const _env = createEnvironment(_loader, { charset: "utf-8", parserOptions: { level: 3 } });
 
         if (!this._templateData) {
-            // Try to resolve template using a few heuristics:
             try {
-                this._loader.addPath(path.resolve(process.cwd()), "");
-                this._loader.addPath(path.resolve(this._baseDir || ""), "");
-                this._templateData = await this._env.loadTemplate(this.template);
-                const result = await this._templateData.render(this._env, obj);
+                const data = await _env.loadTemplate(path.basename(this.template));
+                const result = await data.render(_env, obj);
                 const transformed = await this.transform(result, obj);
-                tmc.cli("After:" + memInfo());
+                this._templateData = data;
                 return transformed;
             } catch (e: any) {
                 console.log(e);
@@ -128,34 +128,20 @@ export default class Manialink {
             throw new Error(`Could not find manialink template: ${this.template}`);
         } else {
             try {
-                const result = await this._templateData.render(this._env, obj);
-                const transformed = await this.transform(result, null);
-                tmc.cli("After:" + memInfo());
-                return transformed;
+                const result = await this._templateData.render(_env, obj);
+                return await this.transform(result, null);
             } catch (e: any) {
                 tmc.cli(`Manialink error: ¤error¤ ${e.message}`);
                 throw new Error(`Failed to render template: ${e.message}`);
             }
         }
-
     }
 
     private async transform(tpl: string, obj: any) {
-        tagStartRe.lastIndex = 0;
-        let match: RegExpExecArray | null = null;
-        // Scan for registered component tags and process the template from the first
-        // matching tag onward. After each replacement restart scanning so we don't
-        // lose any prefix or skip tags introduced/shifted by processing.
-        while ((match = tagStartRe.exec(tpl)) !== null) {
-            const tagName = match.groups!.name;
-            if (tmc.ui.getComponentTags().includes(tagName)) {
-                const start = match.index!;
-                const tail = tpl.slice(start);
-                const processedTail = await this.process(tail, obj);
-                tpl = tpl.slice(0, start) + processedTail;
-                tagStartRe.lastIndex = 0;
-            }
-        }
+        const re = tagStartRe.exec(tpl);
+        if (!re || !re.groups) return tpl;
+        const str = tpl.slice(re.index+(re.groups.name?? "").length);
+        tpl = re.groups.name + this.process(str, obj);
 
         if (!this._scriptCache) {
             const header = `#Include "TextLib" as TextLib
@@ -170,7 +156,7 @@ export default class Manialink {
                 combinedScripts += `\n${scriptTag[1]}\n`;
             }
 
-            for (const script of this._scripts.values()) {
+            for (const script of this._scripts?.values() || []) {
                 if (script && script.length > 0) {
                     combinedScripts += `\n${script}\n`;
                 }
@@ -218,14 +204,12 @@ main() {
             // Only inject script block if there is any script content (pre-existing <script> tags or component scripts)
             if (combinedScripts.trim().length === 0) {
                 // clear any collected scripts to free memory and return unchanged tpl
-                try { this._scripts.clear(); } catch { }
                 return tpl;
             }
 
             this._scriptCache = `${header}${combinedScripts}${footer}`;
+            this._scripts.clear();
             // clear collected scripts after injecting them to free memory
-            try { this._scripts.clear(); } catch { }
-
             return tpl.replace("</manialink>", `<script><!--\n${this._scriptCache}\n--></script>\n</manialink>`);
         }
         else {
@@ -233,12 +217,19 @@ main() {
         }
     }
 
-    private async process(tpl, obj) {
+    private process(tpl, obj) {
         const replacementTags = tpl.matchAll(tagsRe);
+        const tagNames = tmc.ui.getComponentTags();
+
         for (const tag of replacementTags) {
             const { name, attrs, inner } = tag.groups as { name: string; attrs: string; inner: string };
-            const tagName = name;
-            const handler = tmc.ui.getComponentHandler(tagName);
+            if (inner) { // process inner content recursively first
+                const innerProcessed = this.process(inner, obj);
+                tpl = tpl.replace(inner, innerProcessed);
+                continue;
+            }
+            if (!tagNames.includes(name)) { continue; }
+            const handler = tmc.ui.getComponentHandler(name);
             if (handler) {
                 const attrMap: { [key: string]: any } = {};
                 if (attrs) {
@@ -250,13 +241,13 @@ main() {
                         attrMap[attrName] = attrValue;
                     }
                 }
-                const { replacement, script } = await handler(attrMap, inner || "", obj);
+                const { replacement, script } = handler(attrMap, inner || "", obj);
 
                 // Always collect script fragments from components so they can be injected later
-                if (!this._scripts.has(tagName)) {
-                    this._scripts.set(tagName, script || "");
+                if (!this._scriptCache) {
+                    this._scripts.set(name, script || "");
                 }
-                return tpl.replace(tag[0], replacement);
+                tpl = tpl.replace(tag[0], replacement);
             }
         }
 

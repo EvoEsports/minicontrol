@@ -6,7 +6,7 @@ export default class MenuWidget extends Widget {
     parent: any;
 
     constructor(login: string, path: string, parent: any) {
-        super(path);
+        super(path, import.meta.dirname);
         this.parent = parent;
         const categories: any = Menu.getInstance()
             .getItems()

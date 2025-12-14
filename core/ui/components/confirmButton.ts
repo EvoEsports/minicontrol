@@ -9,7 +9,7 @@ import type { objMap } from "@core/ui/manialink";
  *
  * @returns manialink replacement and script
  */
-export default async (a: { [key: string]: any }, inner: string, obj: objMap) => {
+export default  (a: { [key: string]: any }, inner: string, obj: objMap) => {
     const [width, height] = a.size.split(" ").map((v: string) => parseFloat(v));
     const [posX, posY] = a.pos.split(" ").map((v: string) => parseFloat(v));
     let posXdiv = width ? width / 2 : 0;
@@ -26,7 +26,7 @@ export default async (a: { [key: string]: any }, inner: string, obj: objMap) => 
         <frame id="${a.id ?? ""}" pos="${posX + posXdiv} ${posY - posYdiv}" class="uiContainer uiConfirmButton" z-index="${a["z-index"] || 2}" data-action="${a.action}">
         <quad size="${width*2} ${height*2}" scale="0.5" style="Bgs1InRace" class="${a.type}" substyle="BgColorContour"
                 halign="center" valign="center2"/>
-        <label size="${width} ${height}" text="${a.text}" class="${a.type} uiConfirmButtonElement"
+        <label pos="0 0.5" size="${width} ${height}" text="${a.text}" class="${a.type} uiConfirmButtonElement"
           halign="${a.halign}" valign="center" textfont="${a.textfont || "GameFontSemiBold"}" scriptevents="1" translate="0"
           textsize="1.2" focusareacolor1="${a.focusareacolor1}0" focusareacolor2="${a.focusareacolor2}"
           />
