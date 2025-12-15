@@ -25,9 +25,9 @@ export default  (a: { [key: string]: any }, inner: string, obj: objMap) => {
      let replacement =
         `
         <frame id="${a.id ?? ""}" pos="${posX + posXdiv} ${posY - posYdiv}" class="uiContainer uiOutlineButton" z-index="${a["z-index"] || 2}" data-action="${a.action}">
-        <quad size="${width*2} ${height*2}" scale="0.5" style="Bgs1InRace" class="${a.type}" substyle="${substyle}"
+        <quad size="${width*2} ${height*2}" z-index="2" scale="0.5" style="Bgs1InRace" class="${a.type}" substyle="${substyle}"
                 halign="center" valign="center2"/>
-        <label pos="0 0" size="${width} ${height}" text="${a.text}" class="${a.type} uiOutlineButtonElement"
+        <label pos="0 0" size="${width-0.25} ${height-0.25}" text="${a.text}" class="${a.type} uiOutlineButtonElement"
           halign="${a.halign}" valign="center2" textfont="${a.textfont || "GameFontSemiBold"}" scriptevents="1" translate="0"
           textsize="1.2" focusareacolor1="${a.focusareacolor1}0" focusareacolor2="${a.focusareacolor2}" action="${a.action}"
           />
@@ -60,7 +60,7 @@ if (Event.Control.HasClass("uiOutlineButtonElement") ) {
 ***OnMouseOver***
 ***
 if (Event.Control.Parent.HasClass("uiOutlineButton")) {
-    (Event.Control.Parent as CMlFrame).RelativeScale=1.1;
+    (Event.Control.Parent as CMlFrame).RelativeScale=1.05;
 }
 ***
 
