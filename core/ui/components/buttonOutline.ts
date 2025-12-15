@@ -20,15 +20,16 @@ export default  (a: { [key: string]: any }, inner: string, obj: objMap) => {
     } else if (a.halign === "right") {
         posXdiv = width;
     }
+    const substyle = tmc.game.Name == "TmForever" ? "NavButton" : "BgColorContour";
 
      let replacement =
         `
         <frame id="${a.id ?? ""}" pos="${posX + posXdiv} ${posY - posYdiv}" class="uiContainer uiOutlineButton" z-index="${a["z-index"] || 2}" data-action="${a.action}">
-        <quad size="${width*2} ${height*2}" scale="0.5" style="Bgs1InRace" class="${a.type}" substyle="BgColorContour"
+        <quad size="${width*2} ${height*2}" scale="0.5" style="Bgs1InRace" class="${a.type}" substyle="${substyle}"
                 halign="center" valign="center2"/>
         <label pos="0 0.5" size="${width} ${height}" text="${a.text}" class="${a.type} uiOutlineButtonElement"
           halign="${a.halign}" valign="center" textfont="${a.textfont || "GameFontSemiBold"}" scriptevents="1" translate="0"
-          textsize="1.2" focusareacolor1="${a.focusareacolor1}0" focusareacolor2="${a.focusareacolor2}"
+          textsize="1.2" focusareacolor1="${a.focusareacolor1}0" focusareacolor2="${a.focusareacolor2}" action="${a.action}"
           />
         </frame>
         `;
