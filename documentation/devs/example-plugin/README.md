@@ -19,7 +19,7 @@ Commands:
 
 Developer notes:
 
-- The plugin uses `import.meta.dirnamename` to resolve its template paths.
+- The plugin uses `import.meta.dirname` to resolve its template paths.
 - Settings and colors registered using plugin base methods will be cleaned up automatically on plugin destroy.
 
 How to test:

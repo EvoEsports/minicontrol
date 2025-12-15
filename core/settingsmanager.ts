@@ -60,7 +60,7 @@ export default class SettingsManager {
         this.init(this.settingsFile, {});
 
         try {
-            const admins = JSON.parse(readFileSync(import.meta.dirnamename + this.adminsFile, "utf-8")) || [];
+            const admins = JSON.parse(readFileSync(import.meta.dirname + this.adminsFile, "utf-8")) || [];
             this.admins = admins.concat(this.masterAdmins);
             tmc.admins = this.admins;
         } catch (e: any) {
@@ -69,12 +69,12 @@ export default class SettingsManager {
             process.exit();
         }
 
-        if (existsSync(import.meta.dirnamename + this.settingsFile)) {
+        if (existsSync(import.meta.dirname + this.settingsFile)) {
             try {
                 this.settings = Object.assign(
                     {},
                     this._defaultSettings,
-                    JSON.parse(readFileSync(import.meta.dirnamename + this.settingsFile, "utf-8")) || {},
+                    JSON.parse(readFileSync(import.meta.dirname + this.settingsFile, "utf-8")) || {},
                 );
             } catch (e: any) {
                 tmc.cli("$f00Error loading settings");
@@ -82,9 +82,9 @@ export default class SettingsManager {
                 process.exit();
             }
         }
-        if (existsSync(import.meta.dirnamename + this.colorsFile)) {
+        if (existsSync(import.meta.dirname + this.colorsFile)) {
             try {
-                const colors = JSON.parse(readFileSync(import.meta.dirnamename + this.colorsFile, "utf-8")) || {};
+                const colors = JSON.parse(readFileSync(import.meta.dirname + this.colorsFile, "utf-8")) || {};
                 this.colors = Object.assign({}, this._defaultColors, colors);
             } catch (e: any) {
                 tmc.cli("$f00Error loading colors");
@@ -104,15 +104,15 @@ export default class SettingsManager {
                     outSettings[key] = this.settings[key];
                 }
             }
-            writeFileSync(import.meta.dirnamename + this.settingsFile, JSON.stringify(outSettings));
+            writeFileSync(import.meta.dirname + this.settingsFile, JSON.stringify(outSettings));
             const colors: any = {};
             for (const color in this.colors) {
                 if (this.colors[color] !== this._defaultColors[color]) {
                     colors[color] = this.colors[color];
                 }
             }
-            writeFileSync(import.meta.dirnamename + this.colorsFile, JSON.stringify(colors));
-            writeFileSync(import.meta.dirnamename + this.adminsFile, JSON.stringify(this.admins.filter((a) => !this.masterAdmins.includes(a))));
+            writeFileSync(import.meta.dirname + this.colorsFile, JSON.stringify(colors));
+            writeFileSync(import.meta.dirname + this.adminsFile, JSON.stringify(this.admins.filter((a) => !this.masterAdmins.includes(a))));
         } catch (e: any) {
             tmc.cli("¤error¤Error while saving settings!");
             tmc.cli(e.message);
@@ -120,9 +120,9 @@ export default class SettingsManager {
     }
 
     init(file: string, data: any) {
-        if (!existsSync(import.meta.dirnamename + file)) {
+        if (!existsSync(import.meta.dirname + file)) {
             try {
-                writeFileSync(import.meta.dirnamename + file, JSON.stringify(data));
+                writeFileSync(import.meta.dirname + file, JSON.stringify(data));
             } catch (e: any) {
                 tmc.cli(`$f00Error while creating ${file}`);
                 tmc.cli(e.message);
@@ -144,6 +144,7 @@ export default class SettingsManager {
         this.callbacks[key] = callback;
         this.descriptions[key] = description;
         if (!Object.keys(this.settings).includes(key)) this.settings[key] = value;
+        return value;
     }
     unregister(key: string) {
         if (!Object.prototype.hasOwnProperty.call(this._defaultSettings, key)) return;
@@ -208,6 +209,7 @@ export default class SettingsManager {
         this.colorDescriptions[key] = description;
         const envVar = `COLOR_${key.toString().toUpperCase()}`;
         if (!Object.keys(this.colors).includes(key)) this.colors[key] = process.env[envVar] || value;
+        return value;
     }
 
     getColor(key: string) {

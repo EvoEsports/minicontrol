@@ -55,7 +55,7 @@ constructor(login?: string, baseDir?: string)
 
 **Parameters:**
 - `login` (optional): Target player login. If undefined, displays to all players.
-- `baseDir` (optional): Base directory for template resolution (use `import.meta.dirnamename` in plugins).
+- `baseDir` (optional): Base directory for template resolution (use `import.meta.dirname` in plugins).
 
 ### Core Properties
 
@@ -205,7 +205,7 @@ export default class StatusWidget extends Plugin {
 
     async onStart() {
         // Create widget
-        this.widget = new Widget("statusWidget.xml.twig", import.meta.dirnamename);
+        this.widget = new Widget("statusWidget.xml.twig", import.meta.dirname);
 
         // Configure position and size
         this.widget.pos = { x: 120, y: -65, z: 10 };
@@ -1087,7 +1087,7 @@ widget.pos.y = -80;
 
 **Solution**: Check template path resolution:
 1. Verify file exists in expected location
-2. Pass `import.meta.dirnamename` as `baseDir` parameter
+2. Pass `import.meta.dirname` as `baseDir` parameter
 3. Use full path from project root (e.g., `core/plugins/myplugin/template.xml.twig`)
 
 ### Action Not Triggering

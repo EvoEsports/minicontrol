@@ -29,7 +29,7 @@ It is usually accessible through `tmc.settings` at runtime and plugin authors sh
 
 ## Data files & persistence
 
-By default, `SettingsManager` stores data under `userdata` with filenames suffixed by the server login. The file names are computed at runtime using `import.meta.dirnamename` and `tmc.server.login`:
+By default, `SettingsManager` stores data under `userdata` with filenames suffixed by the server login. The file names are computed at runtime using `import.meta.dirname` and `tmc.server.login`:
 - `settings_<serverlogin>.json`
 - `colors_<serverlogin>.json`
 - `admins_<serverlogin>.json`

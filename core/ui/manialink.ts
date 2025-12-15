@@ -1,7 +1,7 @@
 import { memInfo } from "@core/utils";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { createEnvironment, createFilesystemLoader, type TwingTemplate } from "twing";
+import { createEnvironment, createFilesystemLoader, type TwingEnvironment, type TwingFilesystemLoader, type TwingLoader, type TwingTemplate } from "twing";
 
 const tagsRe = /<(?<name>[A-Za-z_][\w:.-]*)\b(?<attrs>(?:\s+[^\s=\/>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*?)\s*(?:\/>|>(?<inner>[\s\S]*?)<\/\k<name>\s*>)/gs;
 const attrRe = /([^\s=\/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;
@@ -45,13 +45,19 @@ export default class Manialink {
     canHide = true;
     private _templateData: TwingTemplate | undefined = undefined;
     private _firstDisplay = true;
-    protected _baseDir: string | undefined = undefined; // optional base directory (e.g. plugin can pass import.meta.dirname) to resolve bare templates
     private _scripts = new Map<string, string>();
     private _scriptCache: string | null = null;
+    protected baseDir: string | undefined = undefined; // optional base directory (e.g. plugin can pass import.meta.dirname) to resolve bare templates
+    environment: TwingEnvironment;
+    loader: TwingFilesystemLoader;
 
     constructor(login: string | undefined = undefined, baseDir?: string) {
         this.recipient = login;
-        this._baseDir = baseDir;
+        this.baseDir = baseDir;
+        this.loader = createFilesystemLoader(fs);
+        this.loader.addPath(path.resolve(process.cwd()), "");
+        this.loader.addPath(path.resolve(this.baseDir || ""), "");
+        this.environment = createEnvironment(this.loader, { charset: "utf-8", parserOptions: { level: 3 } });
     }
 
     async display() {
@@ -107,16 +113,11 @@ export default class Manialink {
             recipient: this.recipient,
         };
 
-        const _loader = createFilesystemLoader(fs);
-        _loader.addPath(path.resolve(process.cwd()), "");
-        _loader.addPath(path.dirname(path.resolve(process.cwd(), this.template)), "");
-        _loader.addPath(path.resolve(this._baseDir || ""), "");
-        const _env = createEnvironment(_loader, { charset: "utf-8", parserOptions: { level: 3 } });
-
         if (!this._templateData) {
             try {
-                const data = await _env.loadTemplate(path.basename(this.template));
-                const result = await data.render(_env, obj);
+                this.loader.addPath(path.dirname(path.resolve(process.cwd(), this.template)), "");
+                const data = await this.environment.loadTemplate(path.basename(this.template));
+                const result = await data.render(this.environment, obj);
                 const transformed = await this.transform(result, obj);
                 this._templateData = data;
                 return transformed;
@@ -128,7 +129,7 @@ export default class Manialink {
             throw new Error(`Could not find manialink template: ${this.template}`);
         } else {
             try {
-                const result = await this._templateData.render(_env, obj);
+                const result = await this._templateData.render(this.environment, obj);
                 return await this.transform(result, null);
             } catch (e: any) {
                 tmc.cli(`Manialink error: ¤error¤ ${e.message}`);
@@ -140,7 +141,7 @@ export default class Manialink {
     private async transform(tpl: string, obj: any) {
         const re = tagStartRe.exec(tpl);
         if (!re || !re.groups) return tpl;
-        const str = tpl.slice(re.index+(re.groups.name?? "").length);
+        const str = tpl.slice(re.index + (re.groups.name ?? "").length);
         tpl = re.groups.name + this.process(str, obj);
 
         if (!this._scriptCache) {
@@ -151,9 +152,10 @@ export default class Manialink {
                             `;
 
             let combinedScripts = "";
+            let customScripts = "";
             const scriptTags = tpl.matchAll(/<script>([\s\S]*?)<\/script>/g);
             for (const scriptTag of scriptTags) {
-                combinedScripts += `\n${scriptTag[1]}\n`;
+                customScripts += `\n${scriptTag[1].replaceAll("<!--", "").replaceAll("-->","")}\n`;
             }
 
             for (const script of this._scripts?.values() || []) {
@@ -207,7 +209,7 @@ main() {
                 return tpl;
             }
 
-            this._scriptCache = `${header}${combinedScripts}${footer}`;
+            this._scriptCache = `${header}${combinedScripts}${customScripts}${footer}`;
             this._scripts.clear();
             // clear collected scripts after injecting them to free memory
             return tpl.replace("</manialink>", `<script><!--\n${this._scriptCache}\n--></script>\n</manialink>`);

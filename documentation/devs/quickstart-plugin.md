@@ -73,7 +73,7 @@ await loader.install("path/to/your/local/plugin");
 
 ## Tips & Troubleshooting
 
-- Use `import.meta.dirnamename` to ensure Twing template resolution finds your templates.
+- Use `import.meta.dirname` to ensure Twing template resolution finds your templates.
 - If MiniControl refuses to load your plugin, check the `requiresMinicontrolVersion` range in `manifest.json` and your installed `tmc.version`.
 - Use `tmc.cli()` and `tmc.debug()` to write helpful debug messages.
 - If the loader reports missing dependencies, ensure dependent plugins are present and satisfy semver ranges.
