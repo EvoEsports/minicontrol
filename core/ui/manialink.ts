@@ -1,4 +1,3 @@
-import { memInfo } from "@core/utils";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { createEnvironment, createFilesystemLoader, type TwingEnvironment, type TwingFilesystemLoader, type TwingLoader, type TwingTemplate } from "twing";
@@ -56,7 +55,6 @@ export default class Manialink {
         this.baseDir = baseDir;
         this.loader = createFilesystemLoader(fs);
         this.loader.addPath(path.resolve(process.cwd()), "");
-        this.loader.addPath(path.resolve(this.baseDir || ""), "");
         this.environment = createEnvironment(this.loader, { charset: "utf-8", parserOptions: { level: 3 } });
     }
 
@@ -116,6 +114,7 @@ export default class Manialink {
         if (!this._templateData) {
             try {
                 this.loader.addPath(path.dirname(path.resolve(process.cwd(), this.template)), "");
+                this.loader.addPath(path.resolve(this.baseDir || ""), "");
                 const data = await this.environment.loadTemplate(path.basename(this.template));
                 const result = await data.render(this.environment, obj);
                 const transformed = await this.transform(result, obj);
@@ -132,8 +131,14 @@ export default class Manialink {
                 const result = await this._templateData.render(this.environment, obj);
                 return await this.transform(result, null);
             } catch (e: any) {
-                tmc.cli(`Manialink error: ¤error¤ ${e.message}`);
-                throw new Error(`Failed to render template: ${e.message}`);
+                if (e.previous) {
+                    tmc.cli(`Manialink error: ¤error¤ ${e.previous}`);
+                    throw new Error(`Failed to render template: ${e.previous}`);
+                } else {
+                    tmc.cli(`Manialink error: ¤error¤ ${e.message}`);
+                    throw new Error(`Failed to render template: ${e.message}`);
+                }
+
             }
         }
     }
@@ -155,7 +160,7 @@ export default class Manialink {
             let customScripts = "";
             const scriptTags = tpl.matchAll(/<script>([\s\S]*?)<\/script>/g);
             for (const scriptTag of scriptTags) {
-                customScripts += `\n${scriptTag[1].replaceAll("<!--", "").replaceAll("-->","")}\n`;
+                customScripts += `\n${scriptTag[1].replaceAll("<!--", "").replaceAll("-->", "")}\n`;
             }
 
             for (const script of this._scripts?.values() || []) {
