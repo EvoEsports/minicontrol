@@ -580,9 +580,9 @@ export default class UiManager {
      */
     registerComponentHandler(tagName: string, handler: ComponentFunction) {
         if (this.tagHandlers.has(tagName)) {
-            tmc.cli(`¤info¤overwriting handler for tag: ¤white¤<${tagName}>`);
+            tmc.debug(`¤info¤overwriting handler for tag: ¤white¤<${tagName}>`);
         } else {
-            tmc.cli(`¤info¤registering handler for tag: ¤white¤<${tagName}>`);
+            tmc.debug(`¤info¤registering handler for tag: ¤white¤<${tagName}>`);
         }
         this.tagHandlers.set(tagName, handler);
     }

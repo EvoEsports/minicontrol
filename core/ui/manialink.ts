@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { createEnvironment, createFilesystemLoader, type TwingEnvironment, type TwingFilesystemLoader, type TwingLoader, type TwingTemplate } from "twing";
+import { createEnvironment, createFilesystemLoader, type TwingEnvironment, type TwingFilesystemLoader, type TwingTemplate } from "twing";
 
 const tagsRe = /<(?<name>[A-Za-z_][\w:.-]*)\b(?<attrs>(?:\s+[^\s=\/>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*?)\s*(?:\/>|>(?<inner>[\s\S]*?)<\/\k<name>\s*>)/gs;
 const attrRe = /([^\s=\/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;
@@ -47,15 +47,11 @@ export default class Manialink {
     private _scripts = new Map<string, string>();
     private _scriptCache: string | null = null;
     protected baseDir: string | undefined = undefined; // optional base directory (e.g. plugin can pass import.meta.dirname) to resolve bare templates
-    environment: TwingEnvironment;
-    loader: TwingFilesystemLoader;
 
     constructor(login: string | undefined = undefined, baseDir?: string) {
         this.recipient = login;
         this.baseDir = baseDir;
-        this.loader = createFilesystemLoader(fs);
-        this.loader.addPath(path.resolve(process.cwd()), "");
-        this.environment = createEnvironment(this.loader, { charset: "utf-8", parserOptions: { level: 3 } });
+
     }
 
     async display() {
@@ -66,6 +62,7 @@ export default class Manialink {
             tmc.ui.refreshManialink(this);
         }
     }
+
 
     async hide() {
         tmc.ui.hideManialink(this);
@@ -78,8 +75,9 @@ export default class Manialink {
         this._scriptCache = null;
         this._templateData = undefined;
         for (const key of Object.keys(this)) {
-            delete this[key];
+            try { this[key] = undefined; } catch { }
         }
+
         if (gc) gc();
     }
 
@@ -110,13 +108,16 @@ export default class Manialink {
             game: tmc.game.Name,
             recipient: this.recipient,
         };
+        const loader = createFilesystemLoader(fs);
+        loader.addPath(path.resolve(process.cwd()), "");
+        loader.addPath(path.dirname(path.resolve(process.cwd(), this.template)), "");
+        loader.addPath(path.resolve(this.baseDir || ""), "");
+        const environment = createEnvironment(loader, { charset: "utf-8", parserOptions: { level: 3 } });
 
         if (!this._templateData) {
             try {
-                this.loader.addPath(path.dirname(path.resolve(process.cwd(), this.template)), "");
-                this.loader.addPath(path.resolve(this.baseDir || ""), "");
-                const data = await this.environment.loadTemplate(path.basename(this.template));
-                const result = await data.render(this.environment, obj);
+                const data = await environment.loadTemplate(path.basename(this.template));
+                const result = await data.render(environment, obj);
                 const transformed = await this.transform(result, obj);
                 this._templateData = data;
                 return transformed;
@@ -128,7 +129,7 @@ export default class Manialink {
             throw new Error(`Could not find manialink template: ${this.template}`);
         } else {
             try {
-                const result = await this._templateData.render(this.environment, obj);
+                const result = await this._templateData.render(environment, obj);
                 return await this.transform(result, null);
             } catch (e: any) {
                 if (e.previous) {
