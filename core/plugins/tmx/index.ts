@@ -74,7 +74,7 @@ export default class Tmx extends Plugin {
     }
 
     getDownloadEndpoint() {
-        return tmc.game.Name === "TmForever" ? "trackgbx/" : "maps/download/";
+        return tmc.game.Name === "TmForever" ? "trackgbx/" : "mapgbx/";
     }
 
     async onLoad() {
@@ -383,7 +383,7 @@ export default class Tmx extends Plugin {
         if (tmc.game.Name === "TmForever") {
             url += `api/tracks?packid=${packId}&fields=${encodeURIComponent("TrackId,TrackName")}`;
         } else if (tmc.game.Name === "ManiaPlanet" || tmc.game.Name === "Trackmania") {
-            url += `api/mappack/get_mappack_tracks/${packId}`;
+            url += `api/maps/?mappackid=${packId}&fields=${encodeURIComponent("MapId,GbxMapName")}`;
         } else {
             tmc.chat(`¤error¤Game ${tmc.game.Name} is not supported for this command.`);
             return;
@@ -395,13 +395,12 @@ export default class Tmx extends Plugin {
         if (!json) {
             tmc.chat(`¤error¤Error while adding Pack ID ${packId}: ${res.statusText}`, login);
         }
-        let results = json;
-        if (tmc.game.Name === "TmForever") results = json.Results;
+        let results = json.Results;
         for (const data of results) {
             if (this.cancelToken === true) return;
             try {
                 const mapName = tmc.game.Name === "TmForever" ? data.TrackName : data.GbxMapName;
-                const id = tmc.game.Name === "TmForever" ? data.TrackId : data.TrackID;
+                const id = tmc.game.Name === "TmForever" ? data.TrackId : data.MapId;
                 tmc.chat(`Downloading: ¤white¤${mapName}`);
                 const map: Map = { id, baseUrl, site };
 
