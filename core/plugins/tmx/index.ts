@@ -49,13 +49,13 @@ export default class Tmx extends Plugin {
     readonly TM1X_UNLIMITER = ["none", "0.4", "0.6", "0.7", "1.1", "1.2", "1.3", "2.0", "2.1"];
     readonly TMX1X_DIFFICULTY = ["Beginner", "Intermediate", "Expert", "Lunatic"];
     readonly TMX_DIFFICULTY = ["Beginner", "Intermediate", "Advanced", "Expert", "Lunatic", "Impossible"];
-    readonly BASE_URL_NATIONS = "https://nations.tm-exchange.com/";
-    readonly BASE_URL_ORIGINAL = "https://original.tm-exchange.com/";
-    readonly BASE_URL_SUNRISE = "https://sunrise.tm-exchange.com/";
-    readonly BASE_URL_FOREVER_NATIONS = "https://tmnf.exchange/";
-    readonly BASE_URL_FOREVER_UNITED = "https://tmuf.exchange/";
-    readonly BASE_URL_TM2 = "https://tm.mania.exchange/";
-    readonly BASE_URL_TM2020 = "https://trackmania.exchange/";
+    readonly BASE_URL_NATIONS = "https://nations.tm-exchange.com";
+    readonly BASE_URL_ORIGINAL = "https://original.tm-exchange.com";
+    readonly BASE_URL_SUNRISE = "https://sunrise.tm-exchange.com";
+    readonly BASE_URL_FOREVER_NATIONS = "https://tmnf.exchange";
+    readonly BASE_URL_FOREVER_UNITED = "https://tmuf.exchange";
+    readonly BASE_URL_TM2 = "https://tm.mania.exchange";
+    readonly BASE_URL_TM2020 = "https://trackmania.exchange";
     private cancelToken = false;
 
     getBaseUrl(site?: string) {
@@ -128,7 +128,7 @@ export default class Tmx extends Plugin {
             fields = encodeURIComponent("TrackId,TrackName,Authors,AuthorScore,Tags,Awards,UnlimiterVersion");
         }
 
-        const url = `${this.getBaseUrl()}${urlPath}?fields=${fields}&name=${query}&count=150`;
+        const url = `${this.getBaseUrl()}/${urlPath}?fields=${fields}&name=${query}&count=150`;
 
         const res = await fetch(url, { keepalive: false });
 
@@ -420,7 +420,7 @@ export default class Tmx extends Plugin {
             maps = "tracks";
             wr = "WRReplay.ReplayTime,WRReplay.User.Name,TrackId";
         }
-        const url: string = `${this.getBaseUrl(envir)}api/${maps}?fields=${encodeURIComponent(`${wr},Difficulty,Tags`)}&uid=${encodeURIComponent(uid)}`;
+        const url: string = `${this.getBaseUrl(envir)}/api/${maps}?fields=${encodeURIComponent(`${wr},Difficulty,Tags`)}&uid=${encodeURIComponent(uid)}`;
 
         try {
             const controller = new AbortController();

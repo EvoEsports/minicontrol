@@ -356,6 +356,7 @@ class MiniControl {
                 plugin = await import(pluginUrl);
             } catch (e: any) {
                 const msg = `¤error¤Failed to load plugin ¤cmd¤${name}¤white¤: ${e.message}`;
+                console.log(e);
                 this.chat(msg, this.admins);
                 this.cli(msg);
                 return;
@@ -431,7 +432,9 @@ class MiniControl {
             // remove instance from plugins map
             const file = path.resolve(pluginPath + "/index.ts");
             if (require.cache[file]) {
-                Loader.registry.delete(file);
+                if (typeof Loader !== "undefined") {
+                    Loader.registry.delete(file);
+                }
                 delete require.cache[file];
                 tmc.cli(`¤success¤Require cache for ¤cmd¤${id}¤white¤ cleared.`);
             } else {
