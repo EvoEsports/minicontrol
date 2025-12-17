@@ -31,6 +31,12 @@
 import Plugin from "@core/plugins";
 import http, { type ClientRequest } from "node:http";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmnf/freezone": Freezone;
+    }
+}
+
 export default class Freezone extends Plugin {
     isConnected = false;
     password: string | null = process.env.FREEZONE_PASS ?? null;

@@ -10,6 +10,12 @@ interface ChatLogMessage {
     date: string;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "chatlog": ChatLog;
+    }
+}
+
 export default class ChatLog extends Plugin {
     private chatLog: ChatLogMessage[] = [];
 

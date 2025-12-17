@@ -11,6 +11,12 @@ interface Ranking {
     avg: number;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "rankings": Rankings;
+    }
+}
+
 export default class Rankings extends Plugin {
     rankings: Ranking[] = [];
 

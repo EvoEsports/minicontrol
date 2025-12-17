@@ -68,10 +68,10 @@ export default class API {
     private tokens: {
         [key in AUDIENCES]: (Tokens & { expire: number }) | undefined;
     } = {
-        [AUDIENCES.NadeoServices]: undefined,
-        [AUDIENCES.NadeoLiveServices]: undefined,
-        [AUDIENCES.NadeoClubServices]: undefined,
-    };
+            [AUDIENCES.NadeoServices]: undefined,
+            [AUDIENCES.NadeoLiveServices]: undefined,
+            [AUDIENCES.NadeoClubServices]: undefined,
+        };
 
     async getClubCampaign(clubId: number, campaignId: number, login: string) {
         const token = await this.getToken(AUDIENCES.NadeoLiveServices, login);

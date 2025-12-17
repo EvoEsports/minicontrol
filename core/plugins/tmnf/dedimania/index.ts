@@ -15,6 +15,12 @@ export interface DediRecord {
     Vote: number;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmnf/dedimania": Dedimania;
+    }
+}
+
 export default class Dedimania extends Plugin {
     enabled = true;
     authError = false;

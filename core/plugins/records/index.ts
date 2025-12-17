@@ -7,6 +7,11 @@ import RecordsWindow from "./recordsWindow";
 import { Op } from "sequelize";
 import Menu from "@core/menu";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "records": Records;
+    }
+}
 export default class Records extends Plugin {
     records: Score[] = [];
     private playerCheckpoints: { [login: string]: string[] } = {};

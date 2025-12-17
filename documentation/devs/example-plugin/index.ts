@@ -3,6 +3,12 @@ import Widget from "@core/ui/widget";
 import ListWindow from "@core/ui/listwindow";
 import Confirm from "@core/ui/confirm";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "example-plugin": ExamplePlugin;
+    }
+}
+
 export default class ExamplePlugin extends Plugin {
     widget: Widget | undefined;
 

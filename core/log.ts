@@ -16,9 +16,9 @@ export function Tm2Console(input: string, ansiLevel = 0) {
     const colorize = (str: string) => {
         const c = (str: string) => (Number.parseInt(str, 16) * 17) / 255;
         if (!str.startsWith("$")) return str;
-        if (str === "$n") return "";
+        if (str === "$n" || str === "$m") return "";
         if (str === "$z") return `${ansi_esc}[0m`;
-        if (str === "$s") return `${ansi_esc}[0m`;
+        if (str === "$s") return ``;
         if (str === "$i") return `${ansi_esc}[3m`;
         if (str.match(/[$][obw]/gi)) return `${ansi_esc}[1m`;
 

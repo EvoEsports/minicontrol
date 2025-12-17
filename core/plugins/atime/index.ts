@@ -1,6 +1,12 @@
 import { formatTime } from "@core/utils";
 import Plugin from "../index";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "atime": ATime;
+    }
+}
+
 export default class ATime extends Plugin {
     origTAlimit = process.env["TALIMIT"];
 

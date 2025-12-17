@@ -1,10 +1,15 @@
 import Manialink from "@core/ui/manialink";
 import type { ComponentFunction } from "@core/uimanager";
 
+export interface PluginRegistry {
+
+}
+
 export default abstract class Plugin {
     /**
      * called after plugin is loaded to runtime.
      * you should initialize listeners here.
+     * @ignore
      * @example
      * tmc.server.addListener("Trackmania.PlayerFinish",  this.onPlayerFinish, this);
      * tmc.addCommand("/mycmd", this.onMyCmd.bind(this), "description");
@@ -16,6 +21,7 @@ export default abstract class Plugin {
     /**
      * called when plugin is unloaded from runtime.
      * free resources and remove listeners here.
+     * @ignore
      * @example
      * tmc.server.removeListener("Trackmania.PlayerFinish", this.onPlayerFinish);
      * tmc.removeCommand("/mycmd");
@@ -27,6 +33,7 @@ export default abstract class Plugin {
     /**
      * called when controller is fully ready
      * or if controller is already ready, called after plugin onLoad
+     * @ignore
      */
     async onStart() {
         return;
@@ -189,7 +196,7 @@ export default abstract class Plugin {
      * @param tagName string
      * @param handler ComponsentFunction
      */
-    addComponent(tagName: string, handler: ComponentFunction) {
+    protected addComponent(tagName: string, handler: ComponentFunction) {
         tmc.ui.registerComponentHandler(tagName, handler);
     }
 
@@ -197,7 +204,7 @@ export default abstract class Plugin {
      * Remove component handler from Manialink UI system
      * @param tagName string
      */
-    removeComponent(tagName: string) {
+    protected removeComponent(tagName: string) {
         tmc.ui.removeComponentHandler(tagName);
     }
 

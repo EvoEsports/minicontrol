@@ -1,6 +1,11 @@
 import Plugin from "@core/plugins";
 import API from "./api";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "nadeoapi": NadeoAPI;
+    }
+}
 export default class NadeoAPI extends Plugin {
     private api: API = new API();
 

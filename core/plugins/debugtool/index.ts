@@ -11,6 +11,12 @@ interface Counters {
     receiverKbSec: number;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "debugtool": DebugTool;
+    }
+}
+
 export default class DebugTool extends Plugin {
     memoryWidget: Widget | null = null;
     gbxWidget: Widget | null = null;

@@ -10,6 +10,11 @@ interface Time {
     prettyTime: string;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "widgets/bestcps": BestCps;
+    }
+}
 export default class BestCps extends Plugin {
     id = "";
     bestTimes: Time[] = [];

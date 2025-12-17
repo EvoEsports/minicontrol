@@ -1,5 +1,11 @@
 import Plugin from "@core/plugins";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "funcommands": FunCommands;
+    }
+}
+
 export default class FunCommands extends Plugin {
     async onLoad() {
        this.addCommand("/afk", this.command_afk.bind(this), "Go AFK");

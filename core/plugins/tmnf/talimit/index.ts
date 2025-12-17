@@ -2,6 +2,12 @@ import Widget from "@core/ui/widget";
 import Plugin from "@core/plugins";
 import tm from "tm-essentials";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmnf/talimit": TAlimitPlugin;
+    }
+}
+
 export default class TAlimitPlugin extends Plugin {
     origTimeLimit: number = Number.parseInt(process.env.TALIMIT ?? "300");
     startTime: number = Date.now();
@@ -25,7 +31,7 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async onLoad() {
-        this.widget = new Widget("widget.xml.twig", import.meta.path);
+        this.widget = new Widget("widget.xml.twig", import.meta.dirname);
         this.widget.pos = { x: 128, y: 45, z: 1 };
         this.widget.size = { width: 38, height: 10 };
         this.timeLimit = tmc.storage["minicontrol.taTimeLimit"] ?? this.origTimeLimit;

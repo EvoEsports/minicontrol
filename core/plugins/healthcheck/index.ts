@@ -2,6 +2,12 @@ import { Server, type Socket } from "node:net";
 import Plugin from "..";
 import { isDocker } from "@core/utils";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "healthcheck": HealthCheck;
+    }
+}
+
 export default class HealthCheck extends Plugin {
     server: Server | null = null;
 

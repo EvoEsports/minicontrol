@@ -2,6 +2,12 @@ import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "widgets/checkpoints": Checkpoints;
+    }
+}
+
 export default class Checkpoints extends Plugin {
     checkpointCounter: { [key: string]: number } = {};
     widgets: { [key: string]: Widget } = {};

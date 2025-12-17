@@ -3,6 +3,12 @@ import Plugin from "../index";
 import { formatTime, getCountryFromPath } from "@core/utils";
 import type { DediRecord } from "../tmnf/dedimania";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "announces": Announces;
+    }
+}
+
 export default class Announces extends Plugin {
     async onLoad() {
         this.addListener("Trackmania.BeginMap", this.onBeginMap, this);

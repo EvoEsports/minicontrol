@@ -14,6 +14,11 @@ export interface TopRecord {
     nickname?: string;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "secrecords": RecordsSector;
+    }
+}
 export default class RecordsSector extends Plugin {
 
     private sectorRecords: { [login: string]: number[] } = {};

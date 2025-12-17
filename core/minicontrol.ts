@@ -36,6 +36,7 @@ import log from "./log";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import type Plugin from "./plugins/index";
+import type { PluginRegistry } from "./plugins/index";
 import PluginLoader from './plugins/loader';
 import Database from './database';
 import path from "node:path";
@@ -90,10 +91,11 @@ class MiniControl {
      * The settings manager.
      */
     settings: SettingsManager;
+
     /**
-     * The plugins.
+     * The plugins (typed registry when available).
      */
-    plugins: { [key: string]: Plugin } = {};
+    plugins: Partial<PluginRegistry> & { [key: string]: Plugin } = {};
     discoveredPlugins: { id: string; path: string; manifest?: PluginManifest; compatible?: boolean; loaded?: boolean }[] = [];
     billMgr: BillManager;
     /**
@@ -196,6 +198,18 @@ class MiniControl {
         }
 
         return out;
+    }
+
+    /**
+     * Get a loaded plugin and throw if it's not present. Useful for consumers
+     * that require a plugin to be loaded and want a clear runtime error.
+     */
+    getPlugin<K extends keyof PluginRegistry>(id: K): PluginRegistry[K] {
+        const plugin = this.plugins[id] as unknown as PluginRegistry[K];
+        if (!plugin) {
+            throw new Error(`Required plugin "${String(id)}" is not loaded`);
+        }
+        return plugin;
     }
 
     /**
@@ -432,7 +446,9 @@ class MiniControl {
             // remove instance from plugins map
             const file = path.resolve(pluginPath + "/index.ts");
             if (require.cache[file]) {
+                // @ts-ignore ignore Bun Loader on nodejs
                 if (typeof Loader !== "undefined") {
+                    // @ts-ignore ignore on nodejs
                     Loader.registry.delete(file);
                 }
                 delete require.cache[file];
@@ -501,7 +517,9 @@ class MiniControl {
         if (this.startComplete) return;
         const port = Number.parseInt(process.env.XMLRPC_PORT || "5000", 10);
         this.cli(`¤info¤Starting ${this.brand} ¤info¤version: $fff${version.build} (${this.version})`);
+        // @ts-ignore
         if (typeof Bun !== "undefined") {
+            // @ts-ignore
             this.cli(`¤info¤Using Bun ¤white¤${Bun.version}`);
         } else {
             this.cli(`¤info¤Using Node ¤white¤${process.version}`);

@@ -2,6 +2,12 @@ import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
 import Manialink from "@core/ui/manialink";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "openplanet": OpenPlanet;
+    }
+}
+
 export default class OpenPlanet extends Plugin {
     action = "";
     envForceMode: string | undefined = process.env["FORCE_OP_MODE"];

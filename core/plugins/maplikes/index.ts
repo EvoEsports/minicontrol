@@ -8,6 +8,12 @@ export interface Like {
     updatedAt: string;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "maplikes": MapLikes;
+    }
+}
+
 export default class MapLikes extends Plugin {
 
     votes: Like[] = [];

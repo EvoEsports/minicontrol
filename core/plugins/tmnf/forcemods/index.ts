@@ -10,6 +10,11 @@ export interface ModCollection {
     Alpine: string;
     [key: string]: string;
 }
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmnf/forcemods": ForceMods;
+    }
+}
 
 export default class ForceMods extends Plugin {
     enabled = false;

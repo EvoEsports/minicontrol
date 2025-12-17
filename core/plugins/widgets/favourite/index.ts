@@ -1,6 +1,11 @@
 import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "widgets/favourite": Favourite;
+    }
+}
 export default class Favourite extends Plugin {
     widget?: Widget;
 

@@ -16,6 +16,11 @@ interface LeaderboardEntry {
 
 const requiredEnvVars = ["SERVER_LOGIN", "SERVER_PASS", "CONTACT_INFO", "IDENTIFIER", "SECRET"];
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "widgets/worldrecords": worldRecords;
+    }
+}
 export default class worldRecords extends Plugin {
     maxRecords = 100; // Amount of World Records to be displayed in /worldrecords. Increasing this might get your Account banned (too many API calls).
     length: number = this.maxRecords > 1 ? this.maxRecords : 100;

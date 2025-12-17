@@ -1,6 +1,11 @@
 import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmnf/togglechat": ToggleChat;
+    }
+}
 export default class ToggleChat extends Plugin {
     enabled: { [key: string]: boolean } = {};
     widget: Widget | null = null;

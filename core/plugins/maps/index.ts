@@ -6,6 +6,12 @@ import { Op, QueryTypes, type Sequelize } from "sequelize";
 import PersonalBest from "@core/schemas/personalBest.model";
 import { clone, formatTime, htmlEntities, removeColors } from "@core/utils";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "maps": Maps;
+    }
+}
+
 export default class Maps extends Plugin {
     async onLoad() {
        this.addCommand("/list", this.cmdMaps.bind(this), "Display maps list");

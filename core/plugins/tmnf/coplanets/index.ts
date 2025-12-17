@@ -1,6 +1,12 @@
 import Plugin from "@core/plugins";
 import Confirm from "@core/ui/confirm";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmnf/coplanets": CoPlanets;
+    }
+}
+
 export default class CoPlanets extends Plugin {
     async onLoad() {
         if (tmc.game.Name === "TmForever") this.addCommand("//coppers", this.coppers.bind(this), "Display coppers");

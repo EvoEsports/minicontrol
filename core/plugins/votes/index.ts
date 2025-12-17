@@ -31,6 +31,12 @@ export interface VoteStruct {
     percent: number;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "votes": VotesPlugin;
+    }
+}
+
 export default class VotesPlugin extends Plugin {
     timeout = 30;
     ratio = 0.55;

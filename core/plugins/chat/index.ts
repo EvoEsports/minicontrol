@@ -23,6 +23,12 @@ function filterWords(text: string) {
     return false;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "chat": Chat;
+    }
+}
+
 export default class Chat extends Plugin {
     pluginEnabled = false;
     publicChatEnabled = true;

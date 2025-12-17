@@ -3,6 +3,12 @@ import Widget from "@core/ui/widget";
 import MenuWidget from "./menuWidget";
 import Menu from "@core/menu";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "menu": MenuPlugin;
+    }
+}
+
 export default class MenuPlugin extends Plugin {
     menuButton: Widget | null = null;
     menuInstances: { [key: string]: Widget } = {};

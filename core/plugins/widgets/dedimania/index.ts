@@ -4,6 +4,12 @@ import type { DediRecord } from "@core/plugins/tmnf/dedimania";
 import Widget from "@core/ui/widget";
 import { formatTime, htmlEntities } from "@core/utils";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "widgets/dedimania": DedimaniaWidget;
+    }
+}
+
 export default class DedimaniaWidget extends Plugin {
     records: DediRecord[] = [];
     widgets: { [key: string]: Widget } = {};

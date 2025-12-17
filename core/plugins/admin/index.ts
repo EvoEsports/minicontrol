@@ -28,6 +28,12 @@ export interface Setting {
     type: "string" | "number" | "boolean" | "color";
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "admin": AdminPlugin;
+    }
+}
+
 export default class AdminPlugin extends Plugin {
     currentSetting: { [key: string]: Setting | undefined } = {};
     adminWidget: { [key: string]: AdminWidget } = {};

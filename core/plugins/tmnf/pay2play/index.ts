@@ -2,6 +2,11 @@ import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
 import type Jukebox from "../../jukebox";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmnf/pay2play": Pay2Play;
+    }
+}
 export default class Pay2Play extends Plugin {
     widgets: Widget[] = [];
 

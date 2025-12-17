@@ -11,7 +11,12 @@ interface LiveRecord {
     rank?: number;
 }
 
-export default class liverankings extends Plugin {
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "liverankings": Liverankings;
+    }
+}
+export default class Liverankings extends Plugin {
     liverankings: LiveRecord[] = [];
     private playerCheckpoints: { [login: string]: string[] } = {};
 

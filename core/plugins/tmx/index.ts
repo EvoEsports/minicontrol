@@ -29,6 +29,12 @@ export interface TmxMap extends TmMap {
     tmx?: TmxMapInfo;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmx": Tmx;
+    }
+}
+
 export default class Tmx extends Plugin {
     readonly SITE_NAMES = ["TMN", "TMO", "TMS", "TMUF", "TMNF"];
     readonly TM1X_TAGS = [
@@ -244,7 +250,7 @@ export default class Tmx extends Plugin {
         }
 
         try {
-        await this.parseAndDownloadTrackPack(params[0], login);
+            await this.parseAndDownloadTrackPack(params[0], login);
         } catch (err: any) {
             tmc.chat(err, login);
         }

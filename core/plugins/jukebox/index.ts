@@ -14,6 +14,11 @@ export interface Map {
     QueueNickName: string;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "jukebox": Jukebox;
+    }
+}
 export default class Jukebox extends Plugin {
     queue: Map[] = [];
     history: string[] = [];

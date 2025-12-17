@@ -1,5 +1,10 @@
 import Plugin from "@core/plugins";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "database": Database;
+    }
+}
 
 export default class Database extends Plugin {
     async onLoad() {
