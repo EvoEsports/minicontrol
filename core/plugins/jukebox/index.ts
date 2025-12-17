@@ -201,12 +201,14 @@ export default class Jukebox extends Plugin {
                 this.history.shift();
             }
         }
-        const removedMaps = this.queue.filter((map) => !tmc.players.getAllLogins().includes(map.QueueBy));
-        for (const map of removedMaps) {
-            tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤removed from the queue. Player ¤white¤${map.QueueNickName} ¤info¤has left the server.`);
-        }
 
-        this.queue = this.queue.filter((map) => tmc.players.getAllLogins().includes(map.QueueBy));
+        if (this.queue.length > 0) {
+            const nextMap = this.queue[0];
+            if (!tmc.players.getAllLogins().includes(nextMap.QueueBy)) {
+                this.queue.shift();
+                tmc.chat(`¤info¤Map ¤white¤${nextMap.Name} ¤info¤removed from the queue. Player ¤white¤${nextMap.QueueNickName} ¤info¤has left the server.`);
+            }
+        }
 
         if (this.queue.length > 0) {
             const map = this.queue.shift();
