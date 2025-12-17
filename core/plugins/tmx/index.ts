@@ -302,7 +302,7 @@ export default class Tmx extends Plugin {
             const author = info.AuthorNickname || info.Author || "n/a";
             this.updateDatabase(info.UId, map.id);
             tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
-            if (Object.keys(tmc.plugins).includes("jukebox")) {
+            if (tmc.existsPlugin("jukebox")) {
                 await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
             }
         } else {

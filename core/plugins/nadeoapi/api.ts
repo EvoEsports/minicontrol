@@ -137,7 +137,7 @@ export default class API {
                 if (info) {
                     const author = info.AuthorNickname || info.Author || "n/a";
                     tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author}!`);
-                    if (Object.keys(tmc.plugins).includes("jukebox")) {
+                    if (tmc.existsPlugin("jukebox")) {
                         await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
                     }
                     return;
@@ -160,7 +160,7 @@ export default class API {
         if (info) {
             const author = info.AuthorNickname || info.Author || "n/a";
             tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author}!`);
-            if (Object.keys(tmc.plugins).includes("jukebox")) {
+            if (tmc.existsPlugin("jukebox")) {
                 await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
             }
             return;

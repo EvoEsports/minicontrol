@@ -95,7 +95,7 @@ class MiniControl {
     /**
      * The plugins (typed registry when available).
      */
-    plugins: Partial<PluginRegistry> & { [key: string]: Plugin } = {};
+    private plugins: Partial<PluginRegistry> & { [key: string]: Plugin } = {};
     discoveredPlugins: { id: string; path: string; manifest?: PluginManifest; compatible?: boolean; loaded?: boolean }[] = [];
     billMgr: BillManager;
     /**
@@ -210,6 +210,16 @@ class MiniControl {
             throw new Error(`Required plugin "${String(id)}" is not loaded`);
         }
         return plugin;
+    }
+
+    /** check if plugin exists  */
+    existsPlugin(id: string): boolean {
+        return Boolean(this.plugins[id]);
+    }
+
+    /** get plugin id's */
+    getPluginIds(): string[] {
+        return Object.keys(this.plugins);
     }
 
     /**

@@ -87,8 +87,9 @@ export default class Pay2Play extends Plugin {
             bill.onPayed = async (bill) => {
                 const player = await tmc.getPlayer(bill.loginFrom);
                 tmc.chat(`¤white¤${player.nickname}$z$s¤info¤ paid to restart. Map will be restarted!`);
-                if (Object.keys(tmc.plugins).includes("jukebox")) {
-                    await (tmc.plugins["jukebox"] as Jukebox).cmdRequeue(login, []);
+                const plugin = tmc.getPlugin("jukebox");
+                if (plugin) {
+                    await plugin.cmdRequeue(login, []);
                 } else {
                     await tmc.server.call("RestartMap");
                 }

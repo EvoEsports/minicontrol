@@ -47,7 +47,7 @@ export default class Maps extends Plugin {
         const sequelize: Sequelize | undefined = tmc.database.sequelize;
         let title = "Server Maps";
         const uids = tmc.maps.getUids() || [];
-        if (sequelize && Object.keys(tmc.plugins).includes("records")) {
+        if (sequelize && tmc.existsPlugin("records")) {
             rankings = await sequelize.query(
                 `SELECT * FROM (
                 SELECT mapUuid as Uid, login, time, RANK() OVER (PARTITION BY mapUuid ORDER BY time ASC) AS playerRank
@@ -106,7 +106,7 @@ export default class Maps extends Plugin {
         ]);
         window.sortColumn = "Name";
         const actions: string[] = [];
-        const plugins = Object.keys(tmc.plugins);
+        const plugins = tmc.getPluginIds();
 
         if (plugins.includes("jukebox")) {
             actions.push("Queue");
