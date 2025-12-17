@@ -12,7 +12,7 @@ import {
     ForeignKey,
     AutoIncrement,
 } from "sequelize-typescript";
-import Player from "./players.model";
+import Player from "@core/plugins/database/models/players.model";
 
 @Table({ tableName: "scores", timestamps: true })
 class Score extends Model {

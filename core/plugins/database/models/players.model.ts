@@ -1,7 +1,7 @@
 import { Table, Column, Model, HasMany, PrimaryKey, Unique, Index, DataType, NotNull, AllowNull } from "sequelize-typescript";
 
 @Table({ tableName: "players", timestamps: true })
-class Player extends Model {
+export default class Player extends Model {
     @PrimaryKey
     @Column(DataType.STRING)
     declare login: string;
@@ -26,5 +26,3 @@ class Player extends Model {
     @Column(DataType.INTEGER)
     declare connectCount: number | null;
 }
-
-export default Player;

@@ -1,7 +1,7 @@
 import ListWindow from "@core/ui/listwindow";
 import Confirm from "@core/ui/confirm";
-import Score from "@core/schemas/scores.model";
-import Player from "@core/schemas/players.model";
+import Score from "@core/plugins/records/models/scores.model";
+import Player from "@core/plugins/database/models/players.model";
 import { formatTime, htmlEntities } from "@core/utils";
 import { Op } from "sequelize";
 import type WorldRecords from "@core/plugins/worldrecords";

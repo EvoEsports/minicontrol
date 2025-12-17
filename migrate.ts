@@ -1,7 +1,6 @@
 import { Umzug, SequelizeStorage, type MigrationParams } from 'umzug';
 import { Sequelize } from 'sequelize';
 import log from './core/log';
-import { globSync } from 'node:fs';
 
 const sequelize = new Sequelize(process.env['DATABASE'] ?? '', {
     logging(sql, timing) {
@@ -12,7 +11,7 @@ const sequelize = new Sequelize(process.env['DATABASE'] ?? '', {
 (async () => {
     try {
         log.info('$fffMigrating:');
-        const paths = ["./core/migrations/*.ts", "./userdata/migrations/*.ts", "./userdata/plugins/**/migrations/*.ts"];
+        const paths = ["./core/plugins/**/migrations/*.ts", "./userdata/plugins/**/migrations/*.ts"];
 
         for (const path of paths) {
             const migrator = new Umzug({

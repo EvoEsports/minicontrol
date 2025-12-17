@@ -1,7 +1,7 @@
 import Plugin from "@core/plugins";
-import Score from "@core/schemas/scores.model";
-import Player from "@core/schemas/players.model";
-import PersonalBest from "@core/schemas/personalBest.model";
+import Score from "./models/scores.model";
+import Player from "@core/plugins/database/models/players.model";
+import PersonalBest from "./models/personalBest.model";
 import { clone, htmlEntities, formatTime } from "@core/utils";
 import RecordsWindow from "./recordsWindow";
 import { Op } from "sequelize";
@@ -19,7 +19,7 @@ export default class Records extends Plugin {
     private finishLocks: { [key: string]: Promise<any> } = {};
 
     async onLoad() {
-        tmc.database.addModels([Score, PersonalBest]);
+        tmc.getPlugin('database').addModels([Score, PersonalBest]);
         this.addCommand("/records", this.cmdRecords.bind(this), "Display Records");
         this.addSetting("records.maxRecords", 100, this.settingMaxRecords.bind(this), "LocalRecords: Maximum number of records");
     }

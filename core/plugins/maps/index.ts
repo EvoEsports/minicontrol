@@ -3,7 +3,7 @@ import MapsWindowAdmin from "./mapsWindowAdmin";
 import Plugin from "..";
 import Menu from "@core/menu";
 import { Op, QueryTypes, type Sequelize } from "sequelize";
-import PersonalBest from "@core/schemas/personalBest.model";
+import PersonalBest from "@core/plugins/records/models/personalBest.model";
 import { clone, formatTime, htmlEntities, removeColors } from "@core/utils";
 
 declare module "@core/plugins" {
@@ -44,10 +44,11 @@ export default class Maps extends Plugin {
         let rankings: any[] = [];
         let outParams: string[] = params;
         let maps = clone(tmc.maps.getMaplist() || []);
-        const sequelize: Sequelize | undefined = tmc.database.sequelize;
+
         let title = "Server Maps";
         const uids = tmc.maps.getUids() || [];
-        if (sequelize && tmc.existsPlugin("records")) {
+        if (tmc.existsPlugin("records")) {
+            const sequelize: Sequelize = tmc.getPlugin("database").sequelize;
             rankings = await sequelize.query(
                 `SELECT * FROM (
                 SELECT mapUuid as Uid, login, time, RANK() OVER (PARTITION BY mapUuid ORDER BY time ASC) AS playerRank

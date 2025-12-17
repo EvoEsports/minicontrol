@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
-import type { Migration } from "../../migrate";
+import type { Migration } from "@core/plugins/database";
 
 export const up: Migration = async ({ context: sequelize }) => {
-    await sequelize.getQueryInterface().addColumn("maps", "tmxId", {
+    await sequelize.getQueryInterface().addColumn("maps", "playerModel", {
         type: DataTypes.STRING,
         allowNull: true,
         defaultValue: null,
@@ -10,5 +10,5 @@ export const up: Migration = async ({ context: sequelize }) => {
 };
 
 export const down: Migration = async ({ context: sequelize }) => {
-    await sequelize.getQueryInterface().removeColumn("maps", "tmxId");
+    await sequelize.getQueryInterface().removeColumn("maps", "playerModel");
 };

@@ -1,8 +1,7 @@
 import Plugin from "@core/plugins";
-import type { Sequelize } from "sequelize-typescript";
 import { QueryTypes } from "sequelize";
 import ListWindow from "@core/ui/listwindow";
-import Player from "@core/schemas/players.model";
+import Player from "@core/plugins/database/models/players.model";
 import Menu from "@core/menu";
 
 interface Ranking {
@@ -43,16 +42,15 @@ export default class Rankings extends Plugin {
 
 
     async onEndMap(_data: any) {
-        const sequelize: Sequelize | undefined = tmc.database.sequelize;
+
         const mapUids = tmc.maps.getUids();
         const mapCount = mapUids.length;
         const maxRank = tmc.settings.get("records.maxRecords") || 100;
         const rankedRecordCount = 3;
         console.time("rankings");
         tmc.debug(`¤info¤Fetching rankings for $fff${mapCount} ¤info¤maps`);
-
-        sequelize?.query(
-                `SELECT row_number() OVER (order by average) as rank, login, average as avg FROM (
+        tmc.getPlugin("database").sequelize.query(
+            `SELECT row_number() OVER (order by average) as rank, login, average as avg FROM (
             SELECT
                 login,
                 (1.0 * (SUM(player_rank) + (? - COUNT(player_rank)) * ?) / ? * 10000) AS average,
@@ -71,12 +69,12 @@ export default class Rankings extends Plugin {
             ) grouped_ranks
             WHERE ranked_records_count >= ? order by average asc
             `,
-                {
-                    type: QueryTypes.SELECT,
-                    raw: true,
-                    replacements: [mapCount, maxRank, mapCount, mapUids, maxRank, rankedRecordCount],
-                },
-            )
+            {
+                type: QueryTypes.SELECT,
+                raw: true,
+                replacements: [mapCount, maxRank, mapCount, mapUids, maxRank, rankedRecordCount],
+            },
+        )
             .then((result: any) => {
                 this.rankings = result as Ranking[];
                 tmc.debug(`¤info¤Rankings fetched: $fff${this.rankings.length}`);

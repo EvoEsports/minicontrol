@@ -1,27 +1,27 @@
 import { DataTypes } from "sequelize";
-import type { Migration } from "../../migrate";
+import type { Migration } from "@core/plugins/database";
 
 export const up: Migration = async ({ context: sequelize }) => {
     const queryInterface = sequelize.getQueryInterface();
 
-    await queryInterface.createTable("sectors", {
+    await queryInterface.createTable("maplikes", {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
-            primaryKey: true,
-        },
-        mapUuid: {
-            type: DataTypes.STRING,
             allowNull: false,
+            primaryKey: true,
         },
         login: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        jsonData: {
+        mapUuid: {
             type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: "[]",
+        },
+        vote: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
         },
         updatedAt: {
             type: DataTypes.DATE,
@@ -30,8 +30,15 @@ export const up: Migration = async ({ context: sequelize }) => {
             type: DataTypes.DATE,
         },
     });
+
+    // Adding composite index for mapUuid and login on maplikes table
+    await queryInterface.addIndex("maplikes", ["mapUuid", "login"], {
+        name: "idx_maplikes_mapUuid_login",
+        unique: true,
+    });
+
 };
 
 export const down: Migration = async ({ context: sequelize }) => {
-    await sequelize.getQueryInterface().dropTable("sectors");
+    await sequelize.getQueryInterface().dropTable("maplikes");
 };

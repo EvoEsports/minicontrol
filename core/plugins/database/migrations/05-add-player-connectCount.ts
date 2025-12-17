@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import type { Migration } from "../../migrate";
+import type { Migration } from "@core/plugins/database";
 
 export const up: Migration = async ({ context: sequelize }) => {
     await sequelize.getQueryInterface().addColumn("players", "connectCount", {

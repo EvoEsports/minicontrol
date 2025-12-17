@@ -1,6 +1,6 @@
 import Plugin from "@core/plugins";
-import SectorRec from "@core/schemas/sectors.model";
-import Player from "@core/schemas/players.model";
+import SectorRec from "./models/sectors.model";
+import Player from "@core/plugins/database/models/players.model";
 import { htmlEntities, formatTime } from "@core/utils";
 import { Op } from "sequelize";
 import ListWindow from "@core/ui/listwindow";
@@ -27,7 +27,7 @@ export default class RecordsSector extends Plugin {
     private recordCache: { [login: string]: SectorRec } = {};
 
     async onLoad() {
-        tmc.database.addModels([SectorRec]);
+        tmc.getPlugin('database').addModels([SectorRec]);
     }
 
     async onStart() {

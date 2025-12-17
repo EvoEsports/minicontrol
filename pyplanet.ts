@@ -2,11 +2,11 @@ import sqlite3 from 'sqlite3';
 import { readFileSync } from 'fs';
 import { Sequelize, UpdatedAt } from 'sequelize-typescript';
 import { removeColors, chunkArray } from './core/utils';
-import log from './core/log';
-import Map from './core/schemas/map.model';
-import Player from './core/schemas/players.model';
-import MapLikes from './core/schemas/maplikes.model';
-import Score from './core/schemas/scores.model';
+import log from '@core/log';
+import Map from '@core/plugins/database/models/map.model';
+import Player from '@core/plugins/database/models/players.model';
+import MapLikes from '@core/plugins/maplikes/models/maplikes.model';
+import Score from '@core/plugins/records/models/scores.model';
 import { SequelizeStorage, Umzug } from 'umzug';
 
 const sqlite = sqlite3.verbose();

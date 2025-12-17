@@ -1,6 +1,6 @@
 import Plugin from "@core/plugins";
-import Likes from "@core/schemas/maplikes.model";
-import { QueryTypes, type Sequelize } from "sequelize";
+import Likes from "./models/maplikes.model";
+import { QueryTypes } from "sequelize";
 
 export interface Like {
     login: string;
@@ -19,7 +19,7 @@ export default class MapLikes extends Plugin {
     votes: Like[] = [];
 
     async onLoad() {
-        tmc.database.addModels([Likes]);
+        tmc.getPlugin('database').addModels([Likes]);
         this.addCommand('/++', this.onLike.bind(this), 'Like a map');
         this.addCommand('/--', this.onDislike.bind(this), 'Dislike a map');
         this.addListener("Trackmania.BeginMap", this.syncVotes, this);
@@ -40,11 +40,10 @@ export default class MapLikes extends Plugin {
         for (const vote of votes) {
             this.votes.push({ login: vote.login || "", vote: vote.vote || 0, updatedAt: vote.updatedAt || "" });
         }
-        const sequelize: Sequelize | undefined = tmc.database.sequelize;
+
         const uids = tmc.maps.getUids();
         tmc.debug(`¤info¤Starting karma sync for $fff${uids.length} ¤info¤maps`);
-        console.time("karma sync");
-        sequelize?.query(
+        tmc.getPlugin('database').sequelize.query(
             `SELECT *, (positive/(positive+abs(negative)+0.00001))*100 as total from (
                             SELECT mapUuid as Uid, createdAt,
                             SUM(case when vote>0 then vote else 0 end) as positive,
@@ -58,23 +57,22 @@ export default class MapLikes extends Plugin {
                 replacements: [uids],
             },
         )
-            .then((result: any) => {
-                tmc.debug("¤info¤Sync complete.");
-                console.timeEnd("karma sync");
-                for (const info of result) {
-                    const map = tmc.maps.getMap(info.Uid);
-                    if (map) {
-                        map.Karma = {
-                            positive: info.positive,
-                            negative: info.negative,
-                            total: info.total,
-                        };
-                    }
+        .then((result: any) => {
+            tmc.debug("¤info¤Sync complete.");
+            for (const info of result) {
+                const map = tmc.maps.getMap(info.Uid);
+                if (map) {
+                    map.Karma = {
+                        positive: info.positive,
+                        negative: info.negative,
+                        total: info.total,
+                    };
                 }
-            })
-            .catch((err: any) => {
-                tmc.cli(`¤error¤Error while syncing karma: ${err.message}`);
-            });
+            }
+        })
+        .catch((err: any) => {
+            tmc.cli(`¤error¤Error while syncing karma: ${err.message}`);
+        });
 
         tmc.server.emit("Plugin.MapLikes.onSync", this.votes);
     }
