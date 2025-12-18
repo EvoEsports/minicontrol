@@ -2,8 +2,6 @@
  * a basic template component that does nothing
  *
  * @param a attributes
- * @param inner inner content
- * @param obj object map
  *
  * @returns manialink replacement and script
  */
