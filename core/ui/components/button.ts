@@ -1,6 +1,5 @@
-import type { objMap } from "@core/ui/manialink";
 
-export default (a: { [key: string]: any }, inner: string, obj: objMap) => {
+export default (a: { [key: string]: any }) => {
     const [width, height] = a.size.split(" ").map((v: string) => parseFloat(v));
     const [posX, posY] = a.pos.split(" ").map((v: string) => parseFloat(v));
     let posXdiv = width ? width / 2 : 0;

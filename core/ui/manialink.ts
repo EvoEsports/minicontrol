@@ -1,8 +1,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { createEnvironment, createFilesystemLoader, type TwingEnvironment, type TwingFilesystemLoader, type TwingTemplate } from "twing";
+import { createEnvironment, createFilesystemLoader, type TwingTemplate } from "twing";
 
-const tagsRe = /<(?<name>[A-Za-z_][\w:.-]*)\b(?<attrs>(?:\s+[^\s=\/>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*?)\s*(?:\/>|>(?<inner>[\s\S]*?)<\/\k<name>\s*>)/gs;
+const tagsRe = /<(?<name>[A-Za-z_][\w:.-]*)\b(?<attrs>(?:\s+[^\s=\/>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*?)\s*\/>/gs;
 const attrRe = /([^\s=\/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;
 const tagStartRe = /(?<name><[A-Za-z_][\w:.-]*.*?\>)(?<rest>.*)/s;
 
@@ -34,7 +34,7 @@ export default class Manialink {
     id: string = tmc.ui.uuid();
     size: MlSize = { width: 160, height: 95 };
     pos: MlPos = { x: 0, y: 10, z: 1 };
-    template = "/core/templates/manialink.xml.twig";
+    template = "core/templates/manialink.xml.twig";
     layer: "normal" | "ScoresTable" | "ScreenIn3d" | "altmenu" | "cutscene" = "normal";
     actions: { [key: string]: string } = {};
     data: { [key: string]: any } = {};
@@ -118,7 +118,7 @@ export default class Manialink {
             try {
                 const data = await environment.loadTemplate(path.basename(this.template));
                 const result = await data.render(environment, obj);
-                const transformed = await this.transform(result, obj);
+                const transformed = await this.transform(result);
                 this._templateData = data;
                 return transformed;
             } catch (e: any) {
@@ -130,7 +130,7 @@ export default class Manialink {
         } else {
             try {
                 const result = await this._templateData.render(environment, obj);
-                return await this.transform(result, null);
+                return await this.transform(result);
             } catch (e: any) {
                 if (e.previous) {
                     tmc.cli(`Manialink error: ¤error¤ ${e.previous}`);
@@ -144,11 +144,11 @@ export default class Manialink {
         }
     }
 
-    private async transform(tpl: string, obj: any) {
+    private async transform(tpl: string) {
         const re = tagStartRe.exec(tpl);
         if (!re || !re.groups) return tpl;
         const str = tpl.slice(re.index + (re.groups.name ?? "").length);
-        tpl = re.groups.name + this.process(str, obj);
+        tpl = re.groups.name + this.process(str);
 
         if (!this._scriptCache) {
             const header = `#Include "TextLib" as TextLib
@@ -225,17 +225,12 @@ main() {
         }
     }
 
-    private process(tpl, obj) {
+    private process(tpl:string) {
         const replacementTags = tpl.matchAll(tagsRe);
         const tagNames = tmc.ui.getComponentTags();
 
         for (const tag of replacementTags) {
-            const { name, attrs, inner } = tag.groups as { name: string; attrs: string; inner: string };
-            if (inner) { // process inner content recursively first
-                const innerProcessed = this.process(inner, obj);
-                tpl = tpl.replace(inner, innerProcessed);
-                continue;
-            }
+            const { name, attrs } = tag.groups as { name: string; attrs: string; };
             if (!tagNames.includes(name)) { continue; }
             const handler = tmc.ui.getComponentHandler(name);
             if (handler) {
@@ -249,7 +244,7 @@ main() {
                         attrMap[attrName] = attrValue;
                     }
                 }
-                const { replacement, script } = handler(attrMap, inner || "", obj);
+                const { replacement, script } = handler(attrMap);
 
                 // Always collect script fragments from components so they can be injected later
                 if (!this._scriptCache) {
