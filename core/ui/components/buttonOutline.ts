@@ -5,9 +5,9 @@
  *
  * @returns manialink replacement and script
  */
-export default  (a: { [key: string]: any }) => {
-    const [width, height] = a.size.split(" ").map((v: string) => parseFloat(v));
-    const [posX, posY] = a.pos.split(" ").map((v: string) => parseFloat(v));
+export default (a: { [key: string]: any }) => {
+    const [width, height] = a.size?.split(" ").map((v: string) => parseFloat(v)) || [26, 6];
+    const [posX, posY] = a.pos?.split(" ").map((v: string) => parseFloat(v)) || [0, 0];
     let posXdiv = width ? width / 2 : 0;
     const posYdiv = height ? height / 2 : 0;
 
@@ -18,12 +18,12 @@ export default  (a: { [key: string]: any }) => {
     }
     const substyle = tmc.game.Name == "TmForever" ? "NavButton" : "BgColorContour";
 
-     let replacement =
+    let replacement =
         `
         <frame id="${a.id ?? ""}" pos="${posX + posXdiv} ${posY - posYdiv}" class="uiContainer uiOutlineButton" z-index="${a["z-index"] || 2}" data-action="${a.action}">
-        <quad size="${width*2} ${height*2}" z-index="2" scale="0.5" style="Bgs1InRace" class="${a.type}" substyle="${substyle}"
+        <quad size="${width * 2} ${height * 2}" z-index="2" scale="0.5" style="Bgs1InRace" class="${a.type}" substyle="${substyle}"
                 halign="center" valign="center2"/>
-        <label pos="0 0" size="${width-0.25} ${height-0.25}" text="${a.text}" class="${a.type} uiOutlineButtonElement"
+        <label pos="0 0" size="${width - 0.25} ${height - 0.25}" text="${a.text}" class="${a.type} uiOutlineButtonElement"
           halign="${a.halign}" valign="center2" textfont="${a.textfont || "GameFontSemiBold"}" scriptevents="1" translate="0"
           textsize="1.2" focusareacolor1="${a.focusareacolor1}0" focusareacolor2="${a.focusareacolor2}" action="${a.action}"
           />
@@ -68,5 +68,5 @@ if (Event.Control.Parent.HasClass("uiOutlineButton")) {
 ***
 `;
 
-    return { replacement, script};
+    return { replacement, script };
 }

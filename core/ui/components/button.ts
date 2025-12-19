@@ -1,7 +1,7 @@
 
 export default (a: { [key: string]: any }) => {
-    const [width, height] = a.size.split(" ").map((v: string) => parseFloat(v));
-    const [posX, posY] = a.pos.split(" ").map((v: string) => parseFloat(v));
+    const [width, height] = a.size?.split(" ").map((v: string) => parseFloat(v)) || [26,6];
+    const [posX, posY] = a.pos?.split(" ").map((v: string) => parseFloat(v)) || [0,0];
     let posXdiv = width ? width / 2 : 0;
     const posYdiv = height ? height / 2 : 0;
 
