@@ -9,4 +9,7 @@
     "[twig]": {
         "editor.defaultFormatter": "serhatkaya.twig-formatter"
     },
+    "emmet.includeLanguages": {
+        "javascript": "javascriptreact"
+    }
 }

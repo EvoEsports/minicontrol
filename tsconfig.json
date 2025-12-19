@@ -1,12 +1,16 @@
 {
     "compilerOptions": {
-        "lib": ["ESNext"],
+        "lib": [
+            "ESNext"
+        ],
         "module": "esnext",
         "moduleDetection": "force",
-        "target": "es2024", // or a more recent ecmascript version
+        "target": "es2024",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "jsx": "react-jsx",
+        "jsx": "react",
+        "jsxFactory": "createElement",
+        "jsxFragmentFactory": "Fragment",
         "allowJs": true,
         "noImplicitAny": false,
         "preserveSymlinks": true,
@@ -23,7 +27,9 @@
         "traceResolution": true,
         "rootDir": "./",
         "paths": {
-            "@core/*": ["./core/*"]
-        }
+            "@core/*": [
+                "./core/*"
+            ]
+        },
     }
 }

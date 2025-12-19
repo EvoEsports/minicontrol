@@ -1,7 +1,6 @@
-import type Manialink from "./ui/manialink";
 import Window from "./ui/window";
 import { chunkArray, parseEntries } from "./utils";
-import { type objMap } from "./ui/manialink";
+import type IManialink from "./ui2/interface.ts";
 
 export interface uiModule {
     id: string;
@@ -28,8 +27,8 @@ interface CustomUI {
 
 export default class UiManager {
     private actions: { [key: string]: { callback: CallableFunction; data: any } } = {};
-    private publicManialinks: { [key: string]: Manialink } = {};
-    private playerManialinks: { [login: string]: { [id: string]: Manialink } } = {};
+    private publicManialinks: { [key: string]: IManialink } = {};
+    private playerManialinks: { [login: string]: { [id: string]: IManialink } } = {};
     // starting uuid for manialink
     private manialinkUUID = 2;
     // array of logins that have hidden manialinks
@@ -267,14 +266,14 @@ export default class UiManager {
 
         const multi = [["SendDisplayManialinkPage", this.convert(this.getGlobalManialink()), 0, false]];
         for (const manialink of Object.values(this.publicManialinks)) {
-            const render = await (manialink as Manialink).render();
+            const render = await (manialink as IManialink).render();
             const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
             multi.push(["SendDisplayManialinkPageToLogin", login, xml, manialink.displayDuration, false]);
         }
         if (this.playerManialinks[login] === undefined) this.playerManialinks[login] = {};
 
         for (const manialink of Object.values(this.playerManialinks[login])) {
-            const render = await (manialink as Manialink).render();
+            const render = await (manialink as IManialink).render();
             const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
             multi.push(["SendDisplayManialinkPageToLogin", login, xml, manialink.displayDuration, false]);
         }
@@ -306,7 +305,7 @@ export default class UiManager {
      * Display manialink
      * @param manialink
      */
-    async displayManialink(manialink: Manialink) {
+    async displayManialink(manialink: IManialink) {
         if (!manialink) return;
 
         // Handle registration: public or player-specific
@@ -371,14 +370,14 @@ export default class UiManager {
      * Display array of manialinks
      * @param manialinks
      */
-    async displayManialinks(manialinks: Manialink[]) {
+    async displayManialinks(manialinks: IManialink[]) {
         const callArray: any[] = [];
 
         // Process all manialinks concurrently.
         await Promise.all(
             manialinks.map(async (manialink) => {
                 if (!manialink) return;
-                const title = manialink.title || manialink.template || manialink.id;
+                const title = manialink.id;
                 if (manialink.recipient === undefined) {
                     // Public manialinks processing.
                     if (this.publicManialinks[manialink.id] && this.publicManialinks[manialink.id] !== manialink) {
@@ -456,7 +455,7 @@ export default class UiManager {
      * Refresh manialink
      * @param manialink
      */
-    async refreshManialink(manialink: Manialink) {
+    async refreshManialink(manialink: IManialink) {
         const render = await manialink.render();
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <manialinks>${this.convert(render)}</manialinks>`;
@@ -479,7 +478,7 @@ export default class UiManager {
      * Hide manialink
      * @param manialink
      */
-    async hideManialink(manialink: Manialink) {
+    async hideManialink(manialink: IManialink) {
         try {
             // const title = manialink.title || manialink.template || manialink.id;
             // tmc.debug('¤info¤hiding manialink: ¤white¤' + title);
@@ -495,8 +494,8 @@ export default class UiManager {
         }
     }
 
-    async destroyManialink(manialink: Manialink, hide = true) {
-        const title = manialink.title || manialink.template || manialink.id;
+    async destroyManialink(manialink: IManialink, hide = true) {
+        const title = manialink.id;
         tmc.debug(`$f00destroying manialink: ¤white¤${title}`);
         if (hide) {
             this.hideManialink(manialink);

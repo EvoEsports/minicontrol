@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { createEnvironment, createFilesystemLoader, type TwingTemplate } from "twing";
+import type IManialink from "@core/ui2/interface";
 
 const tagsRe = /<(?<name>[A-Za-z_][\w:.-]*)\b(?<attrs>(?:\s+[^\s=\/>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*?)\s*\/>/gs;
 const attrRe = /([^\s=\/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;
@@ -31,7 +32,7 @@ export interface objMap {
     recipient: string | undefined;
 }
 
-export default class Manialink {
+export default class Manialink implements IManialink {
     id: string = tmc.ui.uuid();
     size: MlSize = { width: 160, height: 95 };
     pos: MlPos = { x: 0, y: 10, z: 1 };
