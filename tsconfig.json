@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "lib": ["ESNext"],
-        "module": "ESNext",
+        "module": "esnext",
         "moduleDetection": "force",
         "target": "es2024", // or a more recent ecmascript version
         "experimentalDecorators": true,
@@ -10,6 +10,7 @@
         "allowJs": true,
         "noImplicitAny": false,
         "preserveSymlinks": true,
+        "resolveJsonModule": true,
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,
         "verbatimModuleSyntax": true,
@@ -20,7 +21,7 @@
         "forceConsistentCasingInFileNames": true,
         "esModuleInterop": true,
         "traceResolution": true,
-        "rootDir": ".",
+        "rootDir": "./",
         "paths": {
             "@core/*": ["./core/*"]
         }

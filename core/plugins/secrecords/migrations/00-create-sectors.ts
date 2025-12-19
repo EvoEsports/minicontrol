@@ -19,7 +19,7 @@ export const up: Migration = async ({ context: sequelize }) => {
             allowNull: false,
         },
         jsonData: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: false,
             defaultValue: "[]",
         },
@@ -29,6 +29,10 @@ export const up: Migration = async ({ context: sequelize }) => {
         createdAt: {
             type: DataTypes.DATE,
         },
+    });
+    await queryInterface.addIndex("sectors", ["mapUuid", "login"], {
+        name: "idx_sectors_mapUuid_login",
+        unique: true,
     });
 };
 

@@ -26,6 +26,21 @@ export const up: Migration = async ({ context: sequelize }) => {
         environment: {
             type: DataTypes.STRING,
         },
+        playerModel: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
+        },
+        lastPlayed: {
+            type: DataTypes.DATE,
+            allowNull: true,
+            defaultValue: null,
+        },
+        tmxId: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
+        },
         updatedAt: {
             type: DataTypes.DATE,
         },

@@ -18,10 +18,10 @@
 import { require } from "tsx/cjs/api";
 import type * as SentryType from "@sentry/node";
 
-const Sentry = require("./sentry", import.meta.url);
+// const Sentry = require("./sentry", import.meta.url);
 declare global {
     const tmc: MiniControl;
-    const sentry: typeof SentryType;
+   // const sentry: typeof SentryType;
 }
 
 import PlayerManager, { type Player } from "./playermanager";
@@ -31,7 +31,7 @@ import UiManager from "./uimanager";
 import MapManager from "./mapmanager";
 import CommandManager, { type CallableCommand } from "./commandmanager";
 import SettingsManager from "./settingsmanager";
-import { clone, getCallerName, processColorString, setMemStart } from "./utils";
+import { clone, getCallerName, isDeno, processColorString, setMemStart } from "./utils";
 import log from "./log";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
@@ -40,7 +40,7 @@ import type { PluginRegistry } from "./plugins/index";
 import PluginLoader from './plugins/loader';
 import path from "node:path";
 import semver from "semver";
-import version from "../version.json";
+import version from "../version.json" with { type: "json" };
 import { pathToFileURL } from "node:url";
 import { resolvePluginsWithFallback } from './plugins/resolver';
 import { validateManifest, type PluginManifest } from "./plugins/schema";
@@ -52,7 +52,7 @@ class MiniControl {
     /**
      * The version of MiniControl.
      */
-    readonly brand: string = "$eeeΜΙΝΙ$abccontrol$z$s¤white¤";
+    readonly brand: string = "$eeeΜΙΝΙ$abccontrol$z$s";
     readonly version: string = process.env.npm_package_version || version.version || "unknown";
     /**
      * The start time of MiniControl.
@@ -284,7 +284,8 @@ class MiniControl {
                 this.cli(msg);
                 return;
             }
-            const pluginUrl = pathToFileURL(path.join(pluginPath, "index.ts")).toString();
+            const filename = path.join(pluginPath, "index.ts");
+            const pluginUrl = pathToFileURL(filename).toString();
             // refresh discovered manifests so we can validate dependency versions
             try {
                 if (this.startComplete) this.discoveredPlugins = await this.discoverPlugins();
@@ -392,11 +393,11 @@ class MiniControl {
                 this.cli("¤success¤Success!");
             } catch (e: any) {
                 tmc.cli(`¤gray¤Error while starting plugin ¤cmd¤${name}`);
-                sentry.captureException(e, {
-                    tags: {
-                        section: "initPlugin",
-                    },
-                });
+                // sentry.captureException(e, {
+                //     tags: {
+                //         section: "initPlugin",
+                //     },
+                // });
                 console.log(e);
             }
         } else {
@@ -469,7 +470,8 @@ class MiniControl {
         } catch (e: any) {
             this.cli(`¤error¤Error while unloading plugin ¤cmd¤${id}: ${e.message}`);
             try {
-                sentry.captureException(e, { tags: { section: 'unloadPlugin' } });
+
+                // sentry.captureException(e, { tags: { section: 'unloadPlugin' } });
             } catch {
                 // ignore sentry failures
             }
@@ -781,22 +783,24 @@ class MiniControl {
 }
 
 (globalThis as any).tmc = new MiniControl();
-(globalThis as any).sentry = Sentry;
+// (globalThis as any).sentry = Sentry;
 
 process.on("SIGINT", () => {
     tmc.server.send("SendHideManialinkPage", 0, false);
-    Sentry.close(2000).then(() => {
-        console.log("MINIcontrol exits successfully.");
-        process.exit(0);
-    });
+    // Sentry.close(2000).then(() => {
+    //     console.log("MINIcontrol exits successfully.");
+    //     process.exit(0);
+    // });
+    process.exit(0);
 });
 
 process.on("SIGTERM", () => {
     tmc.server.send("SendHideManialinkPage", 0, false);
-    Sentry.close(2000).then(() => {
-        console.log("MINIcontrol exits succesfully.");
-        process.exit(0);
-    });
+    // Sentry.close(2000).then(() => {
+    //     console.log("MINIcontrol exits succesfully.");
+    //     process.exit(0);
+    // });
+    process.exit(0);
 });
 
 process.on("uncaughtException", (err) => {

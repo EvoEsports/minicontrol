@@ -2,8 +2,8 @@ import { Buffer } from "node:buffer";
 import { Socket } from "node:net";
 import type Server from "../../core/server";
 import { Readable } from "node:stream";
-import Serializer from "xmlrpc/lib/serializer";
-import Deserializer from "xmlrpc/lib/deserializer";
+import Serializer from "xmlrpc/lib/serializer.js";
+import Deserializer from "xmlrpc/lib/deserializer.js";
 
 export class GbxClient {
     isConnected: boolean;

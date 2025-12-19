@@ -3,7 +3,7 @@ import { escapeRegex, htmlEntities, sleep } from "./utils";
 import fs from "node:fs";
 import path from "node:path";
 
-import version from "../version.json";
+import version from "../version.json" with { type: "json" };
 
 export type CallableCommand = (login: string, args: string[]) => Promise<void>;
 
@@ -100,7 +100,7 @@ export default class CommandManager {
             switch (action) {
                 case "list": {
                     let plugins = "Loaded plugins: ";
-                    for (const plugin in tmc.plugins) {
+                    for (const plugin in tmc.getPluginIds()) {
                         plugins += `¤cmd¤${plugin}¤white¤, `;
                     }
                     tmc.chat(plugins, login);
@@ -112,7 +112,7 @@ export default class CommandManager {
                         return;
                     }
                     const plugin = args[1];
-                    if (tmc.plugins[plugin]) {
+                    if (tmc.existsPlugin(plugin)) {
                         tmc.chat(`Plugin $fd0${args[0]}¤white¤ already loaded.`, login);
                         return;
                     }
@@ -131,7 +131,7 @@ export default class CommandManager {
                         return;
                     }
                     const plugin = args[1];
-                    if (!tmc.plugins[plugin]) {
+                    if (!tmc.existsPlugin(plugin)) {
                         tmc.chat(`Plugin $fd0${plugin}¤white¤ not loaded.`, login);
                         return;
                     }
@@ -144,7 +144,7 @@ export default class CommandManager {
                         return;
                     }
                     const plugin = args[1];
-                    if (!tmc.plugins[plugin]) {
+                    if (!tmc.existsPlugin(plugin)) {
                         tmc.chat(`Plugin $fd0${plugin}¤white¤ not loaded.`, login);
                         return;
                     }
@@ -330,7 +330,7 @@ export default class CommandManager {
             out.push({
                 pluginName: name,
                 depends: deps.join(", "),
-                active: tmc.plugins[name] ? "$0f0Yes" : "$f00No",
+                active: tmc.existsPlugin(name) ? "$0f0Yes" : "$f00No",
             });
         }
 
@@ -338,7 +338,7 @@ export default class CommandManager {
             out.push({
                 pluginName: name,
                 depends: "",
-                active: tmc.plugins[name] ? "$0f0Yes" : "$f00No",
+                active: tmc.existsPlugin(name) ? "$0f0Yes" : "$f00No",
             });
         }
         out = out.sort((a: any, b: any) => {
@@ -436,7 +436,7 @@ export default class CommandManager {
 class PluginManagerWindow extends ListWindow {
     async onAction(login: string, action: string, item: any) {
         if (action === "toggle") {
-            if (tmc.plugins[item.pluginName]) {
+            if (tmc.existsPlugin(item.pluginName)) {
                 await tmc.chatCmd.execute(login, `//plugin unload ${item.pluginName}`);
             } else {
                 await tmc.chatCmd.execute(login, `//plugin load ${item.pluginName}`);

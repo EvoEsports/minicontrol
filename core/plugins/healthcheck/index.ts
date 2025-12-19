@@ -1,5 +1,5 @@
 import { Server, type Socket } from "node:net";
-import Plugin from "..";
+import Plugin from "@core/plugins";
 import { isDocker } from "@core/utils";
 
 declare module "@core/plugins" {

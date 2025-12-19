@@ -2,7 +2,8 @@ import { DataTypes } from "sequelize";
 import type { Migration } from "@core/plugins/database";
 
 export const up: Migration = async ({ context: sequelize }) => {
-    await sequelize.getQueryInterface().createTable("scores", {
+    const queryInterface = sequelize.getQueryInterface();
+    await queryInterface.createTable("scores", {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -30,8 +31,11 @@ export const up: Migration = async ({ context: sequelize }) => {
             type: DataTypes.DATE,
         },
     });
+    await queryInterface.addIndex("scores", ["mapUuid", "login"], {
+        name: "idx_scores_mapUuid_login",
+        unique: true,
+    });
 };
-
 export const down: Migration = async ({ context: sequelize }) => {
     await sequelize.getQueryInterface().dropTable("scores");
 };

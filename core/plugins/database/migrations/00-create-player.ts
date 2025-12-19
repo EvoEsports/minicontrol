@@ -18,6 +18,16 @@ export const up: Migration = async ({ context: sequelize }) => {
         allowOverride: {
             type: DataTypes.BOOLEAN,
         },
+        totalPlaytime: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: 0,
+        },
+        connectCount: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: 0,
+        },
         zone: {
             type: DataTypes.STRING,
         },

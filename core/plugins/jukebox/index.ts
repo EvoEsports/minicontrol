@@ -1,5 +1,5 @@
 import { clone, htmlEntities, formatTime } from "@core/utils";
-import Plugin from "..";
+import Plugin from "@core/plugins";
 import QueueWindow from "./queueWIndow";
 import Menu from "@core/menu";
 

@@ -47,15 +47,15 @@ export const up: Migration = async ({ context: sequelize }) => {
         unique: true,
     });
 
-    // fill the table with data from scores table
-    console.log("Filling personalbest table with data from scores table...");
-    console.log("This may take a while...");
-    await queryInterface.sequelize.query(`
-        INSERT INTO personalbest (mapUuid, login, time, checkpoints, avgTime, finishCount, createdAt, updatedAt)
-        SELECT mapUuid, login, time, checkpoints, time, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-        FROM scores
-    `);
-    console.log("Done.");
+    // // fill the table with data from scores table
+    // console.log("Filling personalbest table with data from scores table...");
+    // console.log("This may take a while...");
+    // await queryInterface.sequelize.query(`
+    //     INSERT INTO personalbest (mapUuid, login, time, checkpoints, avgTime, finishCount, createdAt, updatedAt)
+    //     SELECT mapUuid, login, time, checkpoints, time, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+    //     FROM scores
+    // `);
+    // console.log("Done.");
 };
 
 export const down: Migration = async ({ context: sequelize }) => {

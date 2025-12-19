@@ -19,6 +19,13 @@ export function uuidv4(): string {
     });
 }
 
+export function isDeno() {
+  return (
+    typeof globalThis.Deno !== "undefined" && // Deno global exists
+    typeof globalThis.Deno.version?.deno === "string" // Has version info
+  );
+}
+
 export function processColorString(str: string, prefix = ""): string {
     let result = str;
     const matches = str.matchAll(/¤(\w+)¤/g);
