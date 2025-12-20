@@ -1,0 +1,25 @@
+site_name: MINIcontrol Docs
+site_description: Documentation for MINIcontrol
+site_url: https://evoesports.github.io/minicontrol
+repo_name: EvoEsports/minicontrol
+docs_dir: documentation
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Developers:
+    - Concept: devs/concept.md
+    - UI System: devs/ui-system.md
+    - New UI System: devs/ui-system2.md
+    - Forge: devs/forge.md
+  - Users:
+    - Install: users/install.md
+    - Plugins: users/plugins.md
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/EvoEsports/minicontrol
+
+# Optional: enable plugins if you want search, etc.
+plugins:
+  - search

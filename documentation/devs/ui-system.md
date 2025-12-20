@@ -14,6 +14,7 @@ MINIcontrol provides a powerful UI system for creating in-game interfaces using 
 - [ListWindow Class](#listwindow-class)
 - [Confirm Dialog](#confirm-dialog)
 - [UI Utilities](#ui-utilities)
+- [JSX Renderer & Forge](./ui-system2.md) • [Forge API](./forge.md)
 - [Template System](#template-system)
 - [Examples](#examples)
 
