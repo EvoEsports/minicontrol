@@ -84,7 +84,6 @@ export default class ListWindow extends Manialink implements IWindow {
                 const item = this.datatable.items[itemIndex];
                 const actionKey = `item_${itemIndex}_${action.key}`;
                 if (!this.actions[actionKey]) {
-                    tmc.debug("Adding action for key: " + actionKey);
                     this.actions[actionKey] = tmc.ui.addAction(this.execAction.bind(this), { actionIndex: actionIndex, item: item });
                 }
             }
