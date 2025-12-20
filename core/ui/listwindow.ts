@@ -176,7 +176,7 @@ export default class ListWindow extends Window {
         this.actions.cancel = tmc.ui.addAction(this.hide.bind(this), "");
     }
 
-    uiAction(login: string, answer: any, entries: any[]): void {
+    async uiAction(login: string, answer: any, entries: any[]) {
         const action = answer[0];
         const item = answer[1];
         this.parseEntries(entries);

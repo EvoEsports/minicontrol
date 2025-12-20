@@ -97,32 +97,39 @@ export default class Maps extends Plugin {
         window.size = { width: 190, height: 120 };
         window.setColumns({
             Index: { title: "#", width: 4 },
-            Name: { title: "Name", width: 50, action: "Queue" },
+            Name: { title: "Name", width: 50, actionKey: "queue" },
             AuthorName: { title: "Author", width: 30 },
-            ATime: { title: "Author Time", width: 20 },
+            ATime: { title: "Author Time", width: 20, type: "time" },
             Environnement: { title: "Environment", width: 15 },
             Rank: { title: "My Rank", width: 10 },
             Karma: { title: "Karma", width: 10 },
             Date: { title: "Date Added", width: 20 }
         });
-        window.sortColumn = "Name";
-        const actions: { [key: string]: string } = {};
+        window.datatable.sortColumn = "Name";
         const plugins = tmc.getPluginIds();
-
-        /*
         if (plugins.includes("jukebox")) {
-            actions.Queue =
+            window.setAction("queue", "Queue", async (login: string, map: any) => {
+                await window.hide();
+                await tmc.getPlugin("jukebox").cmdQueue(login, [map.UId]);
+            })
         }
 
         if (plugins.includes("records")) {
-            actions.push("Records");
+            window.setAction("records", "Recs", async (login: string, map: any) => {
+                await window.hide();
+                tmc.getPlugin("records").cmdRecords(login, [map.UId]);
+            });
         }
 
         if (tmc.admins.includes(login)) {
-            actions.push("Remove");
+            window.setAction("remove", "Remove", async (login: string, map: any) => {
+                await tmc.chatCmd.execute(login, `//removemap ${map.UId}`);
+                await window.hide();
+                await this.cmdMaps(login, outParams);
+            });
             window.size.width += 15;
         }
-        */
+
 
         let i = 1;
         const outMaps: any[] = [];
@@ -164,7 +171,7 @@ export default class Maps extends Plugin {
                         Index: i++,
                         Name: htmlEntities(map.Name.trim()),
                         AuthorName: htmlEntities(map.AuthorNickname || map.Author || ""),
-                        ATime: formatTime(map.AuthorTime || map.GoldTime),
+                        ATime: map.AuthorTime || map.GoldTime,
                         Vehicle: map.Vehicle ? htmlEntities(map.Vehicle) : "",
                         Rank: myRank,
                         Karma: outKarma,
@@ -175,7 +182,6 @@ export default class Maps extends Plugin {
         }
         title += ` [${outMaps.length}]`;
         window.setItems(outMaps);
-        window.setActions(actions);
         window.display();
     }
 

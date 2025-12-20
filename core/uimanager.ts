@@ -8,6 +8,7 @@ export interface uiModule {
     scale: number;
     visible: boolean;
 }
+type ActionCallback = (login: string, data: any, entries?: any) => Promise<void>;
 
 export type ComponentFunction = (attrs: { [key: string]: any }) => { replacement: string; script?: string };
 
@@ -196,7 +197,7 @@ export default class UiManager {
      * @param callback
      * @param data
      */
-    addAction(callback: CallableFunction, data: any): string {
+    addAction(callback: ActionCallback, data: any): string {
         const getHash = () => {
             const salt = Math.random().toString(36).substring(2, 12);
             return this.hash(salt);

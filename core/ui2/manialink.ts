@@ -69,6 +69,11 @@ export default class Manialink implements IManialink {
         //const template = this.title || this.template || this.id;
         //tmc.debug('Cleaning references for manialink: $fff' + template);
         disposeScript(this.id);
+
+        for (const key of Object.keys(this.actions)) {
+            try { tmc.ui.removeAction(this.actions[key]); } catch { }
+        }
+
         for (const key of Object.keys(this)) {
             // if (key === "jsxComponent") continue;
             try { this[key] = undefined; } catch { }
