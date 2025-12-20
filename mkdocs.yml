@@ -10,7 +10,7 @@ nav:
   - Developers:
     - Concept: devs/concept.md
     - UI System: devs/ui-system.md
-    - ui2: devs/ui2.md
+    - New UI System: devs/ui-system2.md
     - Forge: devs/forge.md
   - Users:
     - Install: users/install.md

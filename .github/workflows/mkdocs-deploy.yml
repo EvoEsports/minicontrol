@@ -5,10 +5,8 @@ on:
     branches:
       - dev
       - main
-      - docs/**
     paths:
       - 'documentation/**'
-      - 'mkdocs.yml'
 
 jobs:
   deploy:
