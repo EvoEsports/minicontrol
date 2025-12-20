@@ -1,5 +1,5 @@
-import type IManialink from "./interface";
-import { renderJsx, roots, setHookIndex, setCurrentRoot, disposeScript } from "./jsx";
+import type IManialink from "./imanialink";
+import { renderJsx, roots, setHookIndex, setCurrentRoot, disposeScript } from "./forge";
 
 export interface MlSize {
     width: number;
@@ -26,6 +26,7 @@ export interface objMap {
 
 export default class Manialink implements IManialink {
     id: string = `manialink_${Math.floor(Math.random() * 100000000)}`;
+    name: string = "";
     layer: "normal" | "ScoresTable" | "ScreenIn3d" | "altmenu" | "cutscene" = "normal";
     actions: { [key: string]: string } = {};
     data: { [key: string]: any } = {};
@@ -69,7 +70,7 @@ export default class Manialink implements IManialink {
         //tmc.debug('Cleaning references for manialink: $fff' + template);
         disposeScript(this.id);
         for (const key of Object.keys(this)) {
-            if (key === "jsxComponent") continue;
+            // if (key === "jsxComponent") continue;
             try { this[key] = undefined; } catch { }
         }
         if (gc) gc();
@@ -212,7 +213,7 @@ export default class Manialink implements IManialink {
         }
 
 
-        const output = `<manialink version="3" id="${this.id}" layer="${this.layer}" name="tmc_manialink">
+        const output = `<manialink version="3" id="${this.id}" layer="${this.layer}" name="${this.name}">
         ${jsx}
         ${combinedScripts}
    </manialink>`;
