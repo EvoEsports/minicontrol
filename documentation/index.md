@@ -18,6 +18,8 @@ Welcome! MINIcontrol is a lightweight controller for Trackmania servers designed
 
 Need help? Join the [Evo Esports Discord](https://discord.gg/evoesports) in the `#minicontrol` channel or open an issue on GitHub.
 
+> View the live docs site: [https://evoesports.github.io/minicontrol](https://evoesports.github.io/minicontrol) (deployed via MkDocs/GitHub Actions)
+
 ---
 ## Quick links
 
