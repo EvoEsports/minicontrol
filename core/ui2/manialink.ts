@@ -1,4 +1,4 @@
-import type IManialink from "./imanialink";
+import type IManialink from "./interfaces/imanialink";
 import { renderJsx, roots, setHookIndex, setCurrentRoot, disposeScript } from "./forge";
 
 export interface MlSize {

@@ -1,6 +1,6 @@
 import Window from "./ui/window";
 import { chunkArray, parseEntries } from "./utils";
-import type IManialink from "./ui2/interface.ts";
+import type IManialink from "./ui2/interfaces/imanialink";
 
 export interface uiModule {
     id: string;

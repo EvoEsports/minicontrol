@@ -5,6 +5,7 @@ import Menu from "@core/menu";
 import { Op, QueryTypes, type Sequelize } from "sequelize";
 import PersonalBest from "@core/plugins/records/models/personalBest.model";
 import { clone, formatTime, htmlEntities, removeColors } from "@core/utils";
+import ListWindow from "@core/ui2/listwindow";
 
 declare module "@core/plugins" {
     interface PluginRegistry {
@@ -14,8 +15,8 @@ declare module "@core/plugins" {
 
 export default class Maps extends Plugin {
     async onLoad() {
-       this.addCommand("/list", this.cmdMaps.bind(this), "Display maps list");
-       this.addCommand("//list", this.cmdAdmMaps.bind(this), "Display maps list");
+        this.addCommand("/list", this.cmdMaps.bind(this), "Display maps list");
+        this.addCommand("//list", this.cmdAdmMaps.bind(this), "Display maps list");
 
         Menu.getInstance().addItem({
             category: "Map",
@@ -91,26 +92,26 @@ export default class Maps extends Plugin {
             }
         }
 
-        const window = new MapsWindow(login, outParams);
-        window.pos.y = 0;
-        window.title = title;
+        const window = new ListWindow(title);
+
         window.size = { width: 190, height: 120 };
-        window.setColumns([
-            { key: "Index", title: "#", width: 4 },
-            { key: "Name", title: "Name", width: 50, action: "Queue" },
-            { key: "AuthorName", title: "Author", width: 30 },
-            { key: "ATime", title: "Author Time", width: 20 },
-            { key: "Environnement", title: "Environment", width: 15 },
-            { key: "Rank", title: "My Rank", width: 10 },
-            { key: "Karma", title: "Karma", width: 10 },
-            { key: "Date", title: "Date Added", width: 20 },
-        ]);
+        window.setColumns({
+            Index: { title: "#", width: 4 },
+            Name: { title: "Name", width: 50, action: "Queue" },
+            AuthorName: { title: "Author", width: 30 },
+            ATime: { title: "Author Time", width: 20 },
+            Environnement: { title: "Environment", width: 15 },
+            Rank: { title: "My Rank", width: 10 },
+            Karma: { title: "Karma", width: 10 },
+            Date: { title: "Date Added", width: 20 }
+        });
         window.sortColumn = "Name";
-        const actions: string[] = [];
+        const actions: { [key: string]: string } = {};
         const plugins = tmc.getPluginIds();
 
+        /*
         if (plugins.includes("jukebox")) {
-            actions.push("Queue");
+            actions.Queue =
         }
 
         if (plugins.includes("records")) {
@@ -121,6 +122,7 @@ export default class Maps extends Plugin {
             actions.push("Remove");
             window.size.width += 15;
         }
+        */
 
         let i = 1;
         const outMaps: any[] = [];
