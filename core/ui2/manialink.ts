@@ -112,6 +112,26 @@ export default class Manialink implements IManialink {
 
         setCurrentRoot(null);
 
+        // Commit phase: run pending header effects first and save header strings
+        for (const hook of root.hooks) {
+            if (hook.headerPending && hook.headerEffect) {
+                try { hook.cleanup?.(); } catch (e) { console.error(e); }
+                const result = hook.headerEffect();
+                if (typeof result === 'function') {
+                    // treat function return as cleanup
+                    hook.cleanup = result;
+                    hook.header = undefined;
+                } else if (typeof result === 'string') {
+                    hook.header = result;
+                    // leave cleanup unchanged
+                } else {
+                    hook.header = undefined;
+                }
+                hook.headerPending = false;
+            }
+        }
+
+
         // Commit phase: run pending effects and save cleanups or script strings
         for (const hook of root.hooks) {
             if (hook.pending && hook.effect) {
@@ -130,16 +150,72 @@ export default class Manialink implements IManialink {
                 hook.pending = false;
             }
         }
+
+        const headersArray = root.hooks.map(h => h.header).filter(Boolean);
+        const uniqueHeaders = Array.from(new Set(headersArray));
+        const headers = uniqueHeaders.join('\n');
+
         const scriptsArray = root.hooks.map(h => h.script).filter(Boolean);
         const uniqueScripts = Array.from(new Set(scriptsArray));
         const scripts = uniqueScripts.join('\n');
-        const output = `<manialink version="3" id="${this.id}" layer="${this.layer}" name="tmc_manialink">
-           ${jsx}
-           <script><!--
-             ${scripts}
-           --></script>
-         </manialink>`;
+        let combinedScripts = "";
+        if (headers.trim() !== "" || scripts.trim() !== "") {
+            combinedScripts = `<script><!--
+        #Include "TextLib" as TextLib
+        #Include "MathLib" as MathLib
+        #Include "AnimLib" as AnimLib
+        #Include "ColorLib" as ColorLib
 
+        ${headers}
+
+        ${scripts}
+
+        Void _nothing() {
+        }
+
+        main() {
+
+            +++OnInit+++
+
+            while(True) {
+            yield;
+            if (!PageIsVisible || InputPlayer == Null) {
+                    continue;
+            }
+
+            foreach (Event in PendingEvents) {
+                    switch (Event.Type) {
+                        case CMlScriptEvent::Type::EntrySubmit: {
+                            +++EntrySubmit+++
+                        }
+                        case CMlScriptEvent::Type::KeyPress: {
+                            +++OnKeyPress+++
+                        }
+                        case CMlScriptEvent::Type::MouseClick: {
+                            +++OnMouseClick+++
+                        }
+                        case CMlScriptEvent::Type::MouseOut: {
+                            +++OnMouseOut+++
+                        }
+                        case CMlScriptEvent::Type::MouseOver: {
+                            +++OnMouseOver+++
+                        }
+                    }
+                }
+
+                +++Loop+++
+            }
+        }
+
+        --></script>
+ `;
+        }
+
+
+        const output = `<manialink version="3" id="${this.id}" layer="${this.layer}" name="tmc_manialink">
+        ${jsx}
+        ${combinedScripts}
+   </manialink>`;
         return output;
     }
 

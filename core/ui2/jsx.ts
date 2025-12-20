@@ -23,6 +23,17 @@ export function jsxs(type, props, key) {
     return jsx(type, props, key);
 }
 
+/**
+ * Create an XML comment node for inclusion in JSX.
+ * Example: <script>{maniascriptFragment(`log("works");`)}</script>
+ */
+export function maniascriptFragment(text?: string) {
+    const safe = (text ?? '').toString().replace(/-->/g, '');
+    return `<!-- ${safe} -->`;
+}
+
+export const comment = maniascriptFragment;
+
 // Simple component registry for runtime overrides (suitable for plugins)
 const components = new Map<string, any>();
 
@@ -46,7 +57,7 @@ export function getRegisteredComponents() {
     return new Map(components);
 }
 
-export type Hook = { deps?: any[]; effect?: () => string | (() => void); cleanup?: (() => void); pending?: boolean; script?: string };
+export type Hook = { deps?: any[]; effect?: () => string | (() => void); cleanup?: (() => void); pending?: boolean; script?: string; headerEffect?: () => string | (() => void); headerDeps?: any[]; headerPending?: boolean; header?: string };
 export const roots = new Map<string, { hooks: Hook[]; dataObj?: objMap }>();
 let currentRoot: { hooks: Hook[]; dataObj?: any } | null = null;
 let hookIndex = 0;
@@ -70,6 +81,20 @@ export function setScript(effect: () => string | (() => void), deps?: any[]) {
     if (changed) {
         hook.effect = effect;
         hook.pending = true;
+    }
+}
+
+export function setScriptHeader(effect: () => string | (() => void), deps?: any[]) {
+    if (!currentRoot) throw Error("setScriptHeader may only be used during render");
+    const hooks = currentRoot.hooks;
+    const idx = hookIndex++;
+    const hook = hooks[idx] ?? (hooks[idx] = {});
+    const prevDeps = hook.headerDeps;
+    const changed = !prevDeps || !deps || prevDeps.length !== deps.length || deps.some((d, i) => d !== prevDeps[i]);
+    hook.headerDeps = deps;
+    if (changed) {
+        hook.headerEffect = effect;
+        hook.headerPending = true;
     }
 }
 
@@ -105,7 +130,26 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
 
     currentRoot = null;
 
-    // Commit phase: run pending effects and save cleanups or script strings
+    // Commit phase: run pending header effects first and save header strings
+    for (const hook of root.hooks) {
+        if (hook.headerPending && hook.headerEffect) {
+            try { hook.cleanup?.(); } catch (e) { console.error(e); }
+            const result = hook.headerEffect();
+            if (typeof result === 'function') {
+                // treat function return as cleanup
+                hook.cleanup = result;
+                hook.header = undefined;
+            } else if (typeof result === 'string') {
+                hook.header = result;
+                // leave cleanup unchanged
+            } else {
+                hook.header = undefined;
+            }
+            hook.headerPending = false;
+        }
+    }
+
+    // Commit phase: run pending body effects and save cleanups or script strings
     for (const hook of root.hooks) {
         if (hook.pending && hook.effect) {
             try { hook.cleanup?.(); } catch (e) { console.error(e); }
@@ -123,14 +167,65 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
             hook.pending = false;
         }
     }
+
+    const headersArray = root.hooks.map(h => h.header).filter(Boolean);
+    const uniqueHeaders = Array.from(new Set(headersArray));
+    const headers = uniqueHeaders.join('\n');
+
     const scriptsArray = root.hooks.map(h => h.script).filter(Boolean);
     const uniqueScripts = Array.from(new Set(scriptsArray));
     const scripts = uniqueScripts.join('\n');
+
     const output = `<manialink id="" version="3">
       ${jsx}
       <script><!--
+        #Include "TextLib" as TextLib
+        #Include "MathLib" as MathLib
+        #Include "AnimLib" as AnimLib
+        #Include "ColorLib" as ColorLib
+
+        ${headers}
+
         ${scripts}
-      --></script>
+
+        Void _nothing() {
+        }
+
+        main() {
+
+            +++OnInit+++
+
+            while(True) {
+            yield;
+            if (!PageIsVisible || InputPlayer == Null) {
+                    continue;
+            }
+
+            foreach (Event in PendingEvents) {
+                    switch (Event.Type) {
+                        case CMlScriptEvent::Type::EntrySubmit: {
+                            +++EntrySubmit+++
+                        }
+                        case CMlScriptEvent::Type::KeyPress: {
+                            +++OnKeyPress+++
+                        }
+                        case CMlScriptEvent::Type::MouseClick: {
+                            +++OnMouseClick+++
+                        }
+                        case CMlScriptEvent::Type::MouseOut: {
+                            +++OnMouseOut+++
+                        }
+                        case CMlScriptEvent::Type::MouseOver: {
+                            +++OnMouseOver+++
+                        }
+                    }
+                }
+
+                +++Loop+++
+            }
+        }
+
+        --></script>
     </manialink>`;
 
     return output;
@@ -138,7 +233,15 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
 
 export function renderJsx(element: any) {
     if ([null, undefined, false].includes(element)) return ""; // Empty
-    if (typeof element === "string") return escapeForHtml(element); // Text
+    if (typeof element === "string") {
+        const text = element;
+        const trimmed = text.trim();
+        // Allow XML-style comments to pass through without being escaped so they render as comments
+        if (trimmed.startsWith('<!--') && trimmed.endsWith('-->')) {
+            return text;
+        }
+        return escapeForHtml(element); // Text
+    }
     if (typeof element === "number") return element; // Number
     if (Array.isArray(element)) return element.map(renderJsx).join(""); // List
 
