@@ -1,10 +1,8 @@
-import MapsWindow from "./mapsWindow";
-import MapsWindowAdmin from "./mapsWindowAdmin";
 import Plugin from "@core/plugins";
 import Menu from "@core/menu";
 import { Op, QueryTypes, type Sequelize } from "sequelize";
 import PersonalBest from "@core/plugins/records/models/personalBest.model";
-import { clone, formatTime, htmlEntities, removeColors } from "@core/utils";
+import { clone, htmlEntities, removeColors } from "@core/utils";
 import ListWindow from "@core/ui2/listwindow";
 
 declare module "@core/plugins" {
@@ -16,7 +14,6 @@ declare module "@core/plugins" {
 export default class Maps extends Plugin {
     async onLoad() {
         this.addCommand("/list", this.cmdMaps.bind(this), "Display maps list");
-        this.addCommand("//list", this.cmdAdmMaps.bind(this), "Display maps list");
 
         Menu.getInstance().addItem({
             category: "Map",
@@ -24,16 +21,10 @@ export default class Maps extends Plugin {
             action: "/list",
         });
 
-        Menu.getInstance().addItem({
-            category: "Map",
-            title: "Manage Maps",
-            action: "//list",
-            admin: true,
-        });
     }
 
     async onUnload() {
-        tmc.removeCommand("/list");
+
     }
 
     /**
@@ -92,8 +83,8 @@ export default class Maps extends Plugin {
             }
         }
 
-        const window = new ListWindow(title);
-
+        const window = new ListWindow(login);
+        window.title = "Map List";
         window.size = { width: 190, height: 120 };
         window.setColumns({
             Index: { title: "#", width: 4 },
@@ -182,26 +173,6 @@ export default class Maps extends Plugin {
         }
         title += ` [${outMaps.length}]`;
         window.setItems(outMaps);
-        window.display();
-    }
-
-    /**
-     * Admin command to display the map list
-     * @param login
-     * @param params
-     */
-    async cmdAdmMaps(login: any, params: string[]) {
-        const window = new MapsWindowAdmin(login, params);
-        window.size = { width: 155, height: 120 };
-        window.setColumns([
-            { key: "Index", title: "#", width: 4 },
-            { key: "Name", title: "Name", width: 50, action: "Queue" },
-            { key: "AuthorName", title: "Author", width: 30 },
-            { key: "Environnement", title: "Environment", width: 15 },
-            { key: "ATime", title: "Author Time", width: 20 },
-        ]);
-        window.title = `Maps [${tmc.maps.getMapCount()}]`;
-        window.setActions(["Remove"]);
         window.display();
     }
 }

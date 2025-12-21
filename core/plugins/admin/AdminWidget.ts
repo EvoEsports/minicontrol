@@ -1,4 +1,5 @@
 import Widget from "@core/ui/widget";
+import type { ActionCallback } from "@core/uimanager";
 
 export default class AdminWidget extends Widget {
     constructor(login: string) {
@@ -23,7 +24,7 @@ export default class AdminWidget extends Widget {
         this.addButton(5, "Cancel", "", async (login: string, item: any) => {
             tmc.chatCmd.execute(login, "//cancel");
         });
-        if (tmc.plugins.votes) {
+        if (tmc.existsPlugin("votes")) {
             this.addButton(6, "+ 5min", "", async (login: string, item: any) => {
                 tmc.chatCmd.execute(login, "//extend 300");
             });
@@ -33,7 +34,7 @@ export default class AdminWidget extends Widget {
         }
     }
 
-    addButton(id: number, text: string, color: string, callback: CallableFunction) {
+    addButton(id: number, text: string, color: string, callback: ActionCallback) {
         const action = tmc.ui.addAction(callback, {});
         this.actions[`button_${id}`] = action;
         this.data.buttons.push({ id, text, color, action });

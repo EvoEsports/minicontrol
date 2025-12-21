@@ -8,8 +8,7 @@ export interface uiModule {
     scale: number;
     visible: boolean;
 }
-type ActionCallback = (login: string, data: any, entries?: any) => Promise<void>;
-
+export type ActionCallback = (login: string, data: any, entries?: any) => Promise<void>;
 export type ComponentFunction = (attrs: { [key: string]: any }) => { replacement: string; script?: string };
 
 interface CustomUI {

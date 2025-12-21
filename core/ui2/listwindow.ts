@@ -20,7 +20,7 @@ export interface dataTableDef {
     pageNb: number;
 }
 
-type ActionCallback = (login: string, item: any) => Promise<void>
+type ActionCallback = (login: string, item: any, entries: any) => Promise<void>
 
 interface Actions {
     key: string;
@@ -30,6 +30,7 @@ interface Actions {
 
 export default class ListWindow extends Manialink implements IWindow {
     targetActions: Actions[] = [];
+    title = "";
     datatable: dataTableDef = {
         columns: {},
         items: [],
@@ -40,9 +41,9 @@ export default class ListWindow extends Manialink implements IWindow {
         pageNb: 0
     };
 
-    constructor(title: string = "Window") {
+    constructor(login: string | undefined) {
         super(LWindow);
-        this.data.title = title;
+        this.recipient = login;
         this.data.draggable = tmc.game.Name !== "TmForever";
         this.actions.close = tmc.ui.addAction(() => this.destroy(), null);
         this.actions.start = tmc.ui.addAction(this.uiPaginate.bind(this), "start");
@@ -59,6 +60,13 @@ export default class ListWindow extends Manialink implements IWindow {
         this.datatable.items = items;
     }
 
+    /**
+     * Sets an action for the list items
+     * you can reference key in columnDef to link action to a column
+     * @param key
+     * @param title
+     * @param action
+     */
     setAction(key: string, title: string, action: ActionCallback) {
         this.targetActions.push({ key: key, title: title, callback: action });
     }
@@ -66,12 +74,14 @@ export default class ListWindow extends Manialink implements IWindow {
     async execAction(login: string, items: any, entries?: any) {
         const { actionIndex, item } = items;
         if (this.targetActions[actionIndex]) {
-            await this.targetActions[actionIndex].callback(login, item);
+            await this.targetActions[actionIndex].callback(login, item, entries);
         }
     }
 
     async display() {
         this.data.datatable = this.datatable;
+        this.data.title = this.title;
+
         for (const key in this.datatable.columns) {
             if (!this.actions[`title_${key}`]) {
                 this.actions[`title_${key}`] = tmc.ui.addAction(this.doSort.bind(this), `${key}`);
