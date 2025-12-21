@@ -34,16 +34,16 @@ Void Drag() {
 
 ***OnInit***
 ***
+SetActive();
+declare Text[] G_MC_ActiveWindow for UI;
 declare CMlFrame FrameRoot <=> Page.GetFirstChild("root") as CMlFrame;
 declare CMlQuad InactiveRoot <=> Page.GetFirstChild("inactive") as CMlQuad;
-declare Text[] G_MC_ActiveWindow for UI;
 declare Vec2[Text] G_MC_WindowLocations for UI;
 if (G_MC_WindowLocations.existskey("${data.windowType}")) {
    FrameRoot.RelativePosition_V3 =  G_MC_WindowLocations["${data.windowType}"];
 } else {
     G_MC_WindowLocations["${data.windowType}"] = FrameRoot.RelativePosition_V3;
 }
-SetActive();
 ***
 
 ***Loop***
@@ -61,7 +61,6 @@ SetActive();
 ***
 
 if (Event.ControlId == "close") {
-    G_MC_ActiveWindow.remove("${id}");
     TriggerPageAction("${actions.close}");
 }
 
@@ -103,7 +102,7 @@ if (Event.Control.HasClass("title")) {
                 </frame>
                 <quad pos="0 0" z-index="1" size={`${psize.x} ${psize.y}`} bgcolor={`${colors.window_bg}e`} />
                 <quad pos="-0.5 6.5" z-index="0" size={`${psize.x + 1} ${psize.y + 7}`} bgcolor="000b" scriptevents="1" />
-                <quad pos="0 0" z-index="100" size={`${psize.x} ${psize.y}`} bgcolor="0008" id="inactive" scriptevents="1" />
+                <quad pos="0 0" z-index="100" size={`${psize.x} ${psize.y}`} bgcolor="0008" id="inactive" scriptevents="1" hidden="1" />
             </frame>
         </>
     );

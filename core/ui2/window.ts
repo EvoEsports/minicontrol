@@ -4,7 +4,7 @@ import DefaultWindow from "./components/Window";
 import { createElement, getComponent } from "./forge";
 
 export default class Window extends Manialink implements IWindow {
-    type: string = "";
+    type: string;
     title: string = "Window";
 
     constructor(jsxComponent: any, login: string, type: string) {
