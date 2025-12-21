@@ -205,18 +205,21 @@ export default class Manialink implements IManialink {
 
             foreach (OrigEvent in PendingEvents) {
                    Event.Type = OrigEvent.Type;
-                   Event.ControlId = OrigEvent.ControlId;
-                   if (Event.Type == CMlScriptEvent::Type::KeyPress) {
+
+                   if (OrigEvent.Type == CMlScriptEvent::Type::KeyPress) {
                        Event.KeyCode = OrigEvent.KeyCode;
                        Event.KeyName = OrigEvent.KeyName;
                        Event.CharPressed = OrigEvent.CharPressed;
                        Event.Control = Null;
+                       Event.ControlId = "";
                    } else {
                         Event.KeyCode = 0;
                         Event.KeyName = "";
                         Event.CharPressed = "";
                         Event.Control = OrigEvent.Control;
+                        Event.ControlId = OrigEvent.ControlId;
                    }
+
                    switch (Event.Type) {
                         case CMlScriptEvent::Type::EntrySubmit: {
                             +++EntrySubmit+++
