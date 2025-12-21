@@ -1,6 +1,5 @@
-import type IWindow from "./interfaces/iwindow";
-import Manialink from "./manialink";
 import LWindow from "./components/ListWindow";
+import Window from "./window";
 
 export interface columnDef {
     title: string;
@@ -30,7 +29,7 @@ interface Actions {
     callback: ActionCallback
 }
 
-export default class ListWindow extends Manialink implements IWindow {
+export default class ListWindow extends Window {
     targetActions: Actions[] = [];
     title = "";
     datatable: dataTableDef = {
@@ -43,11 +42,9 @@ export default class ListWindow extends Manialink implements IWindow {
         pageNb: 0
     };
 
-    constructor(login: string | undefined) {
-        super(LWindow);
-        this.recipient = login;
+    constructor(login: string, type: string = "") {
+        super(LWindow, login, type);
         this.data.draggable = tmc.game.Name !== "TmForever";
-        this.actions.close = tmc.ui.addAction(() => this.destroy(), null);
         this.actions.start = tmc.ui.addAction(this.uiPaginate.bind(this), "start");
         this.actions.prev = tmc.ui.addAction(this.uiPaginate.bind(this), "prev");
         this.actions.next = tmc.ui.addAction(this.uiPaginate.bind(this), "next");

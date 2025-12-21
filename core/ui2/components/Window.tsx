@@ -1,37 +1,110 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
-import Draggable from './effects/draggable';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2, setScriptHeader } from '@core/ui2/forge';
 
 export default function Window({ title = '', pos = '0 0', size = '120 90', 'z-index': zIndex = 0, children = {} }) {
     const psize = vec2(size);
     const ppos = vec2(pos);
-    const { actions, colors, data } = getProperties();
+    const { actions, colors, data, id } = getProperties();
+    const draggable = data.draggable ? 'True' : 'False';
 
-    if (data.draggable) {
-        setScript(() => Draggable('title'), []);
+    setScript(() => {
+        return `
+
+Void SetActive() {
+    declare Text[] G_MC_ActiveWindow for UI;
+    G_MC_ActiveWindow.remove("${id}");
+    G_MC_ActiveWindow.addfirst("${id}");
+}
+
+Void Drag() {
+    SetActive();
+    if (!${draggable}) return;
+    declare Vec2[Text] G_MC_WindowLocations for UI;
+    declare CMlFrame FrameRoot <=> Page.GetFirstChild("root") as CMlFrame;
+    declare Vec2 OrigPos = <MouseX, MouseY> - FrameRoot.RelativePosition_V3;
+    while (MouseLeftButton) {
+        yield;
+        if (MouseX <= -1000.0 && MouseY <= -1000.0) { // This happens when user holds the LMB pressed too long without any movement and game hides the cursor.
+            yield;
+            continue;
+        }
+        FrameRoot.RelativePosition_V3 = <MouseX, MouseY> - OrigPos;
     }
+    G_MC_WindowLocations["${data.windowType}"] = FrameRoot.RelativePosition_V3;
+}
+
+***OnInit***
+***
+declare CMlFrame FrameRoot <=> Page.GetFirstChild("root") as CMlFrame;
+declare CMlQuad InactiveRoot <=> Page.GetFirstChild("inactive") as CMlQuad;
+declare Text[] G_MC_ActiveWindow for UI;
+declare Vec2[Text] G_MC_WindowLocations for UI;
+if (G_MC_WindowLocations.existskey("${data.windowType}")) {
+   FrameRoot.RelativePosition_V3 =  G_MC_WindowLocations["${data.windowType}"];
+} else {
+    G_MC_WindowLocations["${data.windowType}"] = FrameRoot.RelativePosition_V3;
+}
+SetActive();
+***
+
+***Loop***
+***
+    if (G_MC_ActiveWindow.count > 0 && G_MC_ActiveWindow[0] == "${id}") {
+        InactiveRoot.Hide();
+        FrameRoot.ZIndex = 50.;
+    } else {
+        InactiveRoot.Show();
+        FrameRoot.ZIndex = 49.;
+    }
+***
+
+***OnMouseClick***
+***
+
+if (Event.ControlId == "close") {
+    G_MC_ActiveWindow.remove("${id}");
+    TriggerPageAction("${actions.close}");
+}
+
+if (Event.ControlId=="inactive") {
+    SetActive();
+}
+
+if (Event.Control.HasClass("title")) {
+    InactiveRoot.Hide();
+    FrameRoot.ZIndex = 50.;
+    Drag();
+}
+***
+        `;
+    });
+
     return (
-        <frame id="root" pos={`-${psize.x * 0.5} ${psize.y * 0.5 + ppos.y}`} z-index={zIndex}>
-            <quad class="title" pos="0 0" z-index="1" size={`${psize.x} 6`} bgcolor={`${colors.title_bg}e`} halign="left" valign="bottom" scriptevents="1" />
-            <quad pos={`${psize.x} 0`} z-index="3" size={`${psize.x} 0.4`} bgcolor={colors.highlight} opacity="1" valign="top" halign="right" />
-            <label pos="2 3" z-index="2" size={`{ psize.x - 10 } 4`} text={title} textsize="2.5" valign="center2" textcolor={colors.title_fg} textfont="RobotoCondensedBold" />
-            <label
-                pos={`${psize.x - 4.5} 3`}
-                z-index="2"
-                size="9 6"
-                halign="center"
-                valign="center2"
-                action={actions.close}
-                text="x"
-                textfont="RobotoCondensedBold"
-                focusareacolor1={colors.title_bg}
-                focusareacolor2="d00"
-            />
-            <quad pos="0 0" z-index="3" size={`${psize.x} 0.3`} bgcolor={colors.black} opacity="1" valign="center" halign="left" />
-            <frame pos="2 -4" z-index="2">
-                {children}
+        <>
+            <frame id="root" pos={`-${psize.x * 0.5} ${psize.y * 0.5 + ppos.y}`} z-index={zIndex}>
+                <quad class="title" pos="0 0" z-index="1" size={`${psize.x} 6`} bgcolor={`${colors.title_bg}e`} halign="left" valign="bottom" scriptevents="1" />
+                <quad pos={`${psize.x} 0`} z-index="3" size={`${psize.x} 0.4`} bgcolor={colors.highlight} opacity="1" valign="top" halign="right" />
+                <label pos="2 3" z-index="2" size={`{ psize.x - 10 } 4`} text={title} textsize="2.5" valign="center2" textcolor={colors.title_fg} textfont="RobotoCondensedBold" />
+                <label
+                    id="close"
+                    pos={`${psize.x - 4.5} 3`}
+                    z-index="2"
+                    size="9 6"
+                    halign="center"
+                    valign="center2"
+                    text="x"
+                    textfont="RobotoCondensedBold"
+                    focusareacolor1={colors.title_bg}
+                    focusareacolor2="d00"
+                    scriptevents="1"
+                />
+                <quad pos="0 0" z-index="3" size={`${psize.x} 0.3`} bgcolor={colors.black} opacity="1" valign="center" halign="left" />
+                <frame pos="2 -4" z-index="2">
+                    {children}
+                </frame>
+                <quad pos="0 0" z-index="1" size={`${psize.x} ${psize.y}`} bgcolor={`${colors.window_bg}e`} />
+                <quad pos="-0.5 6.5" z-index="0" size={`${psize.x + 1} ${psize.y + 7}`} bgcolor="000b" scriptevents="1" />
+                <quad pos="0 0" z-index="100" size={`${psize.x} ${psize.y}`} bgcolor="0008" id="inactive" scriptevents="1" />
             </frame>
-            <quad pos="0 0" z-index="1" size={`${psize.x} ${psize.y}`} bgcolor={`${colors.window_bg}e`} />
-            <quad pos="-0.5 6.5" z-index="0" size={`${psize.x + 1} ${psize.y + 7}`} bgcolor="000b" />
-        </frame>
+        </>
     );
 }

@@ -25,7 +25,7 @@ export interface objMap {
 }
 
 export default class Manialink implements IManialink {
-    id: string = `manialink_${Math.floor(Math.random() * 100000000)}`;
+    id: string = tmc.ui.uuid();
     name: string = "";
     layer: "normal" | "ScoresTable" | "ScreenIn3d" | "altmenu" | "cutscene" = "normal";
     actions: { [key: string]: string } = {};
@@ -200,7 +200,7 @@ export default class Manialink implements IManialink {
             }
 
             {
-                +++Loop+++
+                +++PreLoop+++
             }
 
             foreach (OrigEvent in PendingEvents) {
@@ -240,6 +240,9 @@ export default class Manialink implements IManialink {
                             +++OnMouseOver+++
                         }
                     }
+                }
+                {
+                    +++Loop+++
                 }
             }
         }

@@ -4,6 +4,8 @@ import { Op, QueryTypes, type Sequelize } from "sequelize";
 import PersonalBest from "@core/plugins/records/models/personalBest.model";
 import { clone, htmlEntities, removeColors } from "@core/utils";
 import ListWindow from "@core/ui2/listwindow";
+import Window from "@core/ui2/window";
+import Test from "./test";
 
 declare module "@core/plugins" {
     interface PluginRegistry {
@@ -14,18 +16,27 @@ declare module "@core/plugins" {
 export default class Maps extends Plugin {
     async onLoad() {
         this.addCommand("/list", this.cmdMaps.bind(this), "Display maps list");
+        this.addCommand("/test", this.cmdTest.bind(this), "Display maps list");
 
         Menu.getInstance().addItem({
             category: "Map",
             title: "Map List",
             action: "/list",
         });
-
     }
 
     async onUnload() {
 
     }
+
+    async cmdTest(login: any, params: string[]) {
+        const window = new Window(Test, login, "TestWindow");
+        window.size = { width: 100, height: 50 };
+        window.pos = { x: 0, y: 0, z: 0 };
+        window.data.draggable = false;
+        window.display();
+    }
+
 
     /**
      *  Player command to display the map list
@@ -83,7 +94,7 @@ export default class Maps extends Plugin {
             }
         }
 
-        const window = new ListWindow(login);
+        const window = new ListWindow(login, "maplist");
         window.title = "Map List";
         window.size = { width: 190, height: 120 };
         window.setColumns({

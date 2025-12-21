@@ -1,6 +1,9 @@
 import Window from "./ui/window";
+import NewWindow from "./ui2/window";
+
 import { chunkArray, parseEntries } from "./utils";
 import type IManialink from "./ui2/interfaces/imanialink";
+
 
 export interface uiModule {
     id: string;
@@ -322,7 +325,14 @@ export default class UiManager {
                 this.playerManialinks[manialink.recipient] = {};
             }
 
+            const playerWindows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof NewWindow) as NewWindow[];
+            if (playerWindows.find((win) => win.type === (manialink as NewWindow).type))
+            {
+                return;
+            }
+
             // If manialink is a Window, destroy all existing windows for this recipient.
+            // TODO: remove this when ui2 is done
             if (manialink instanceof Window) {
                 const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
                 await Promise.all(
@@ -390,7 +400,11 @@ export default class UiManager {
                     if (!this.playerManialinks[manialink.recipient]) {
                         this.playerManialinks[manialink.recipient] = {};
                     }
-
+                    const playerWindows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof NewWindow) as NewWindow[];
+                    if (playerWindows.find((win) => win.type === (manialink as NewWindow).type))
+                    {
+                        return;
+                    }
                     // If it's a Window, destroy all existing windows for that recipient.
                     if (manialink instanceof Window) {
                         const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
@@ -495,7 +509,7 @@ export default class UiManager {
     }
 
     async destroyManialink(manialink: IManialink, hide = true) {
-        const title = manialink.id;
+        const title = (manialink as any).title || manialink.id;
         tmc.debug(`$f00destroying manialink: ¤white¤${title}`);
         if (hide) {
             this.hideManialink(manialink);

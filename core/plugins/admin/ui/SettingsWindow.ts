@@ -2,8 +2,8 @@ import ListWindow from "@core/ui2/listwindow";
 
 export default class SettingsWindow extends ListWindow {
 
-    constructor(login: string | undefined) {
-        super(login);
+    constructor(login: string) {
+        super(login, "settings");
         this.size = { width: 160, height: 95 };
         this.title = "Settings";
 
