@@ -5,7 +5,14 @@ export interface Properties {
     [key: string]: any;
 }
 
-export function createElement(tagName: string, props, ...children) {
+export interface Element {
+    type: string | Function;
+    props: { [key: string]: any };
+}
+
+export type ComponentType<P = any> = (props: P & { children?: any }) => any;
+
+export function createElement(tagName: string, props, ...children): Element {
     return { type: tagName, props: { ...props, children } };
 }
 
@@ -13,7 +20,7 @@ export function Fragment(props) {
     return props.children || [];
 }
 
-export function jsx(tagName, props, key) {
+export function jsx(tagName, props, key): Element {
     let children = props.children || [];
     if (!Array.isArray(children)) children = [children];
     return createElement(tagName, { ...props, key }, ...children);
@@ -47,9 +54,25 @@ export function unregisterComponent(name: string) {
     components.delete(name);
 }
 
-/** Resolve a component by name, falling back to `fallback` when not present */
-export function getComponent<T = any>(name: string, fallback: T): T {
-    return components.get(name) ?? fallback;
+export function getComponent(name: string): any | undefined;
+export function getComponent(name: string, fallback: any): any;
+export function getComponent(name: string, fallback?: any) {
+    if (arguments.length === 1) {
+        if (!components.has(name)) {
+            if (process.env.DEBUG === "true") {
+                tmc.cli(`¤error¤Component not registered: $fff${name}`);
+                tmc.cli(`¤info¤Registered components: $fff${Array.from(components.keys()).join(", ")}`);
+                process.exit(1);
+            }
+            throw Error(`Component not registered: ${name}`);
+        }
+        return components.get(name);
+    }
+    if (!components.has(name)) {
+        components.set(name, fallback);
+        return fallback;
+    }
+    return components.get(name);
 }
 
 /** For debugging: get a copy of current registration map */
@@ -235,7 +258,7 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
     return output;
 }
 
-export function renderJsx(element: any) {
+export function renderJsx(element: any): string {
     if ([null, undefined, false].includes(element)) return ""; // Empty
     if (typeof element === "string") {
         const text = element;
@@ -246,7 +269,7 @@ export function renderJsx(element: any) {
         }
         return escapeForHtml(element); // Text
     }
-    if (typeof element === "number") return element; // Number
+    if (typeof element === "number") return element.toString(); // Number
     if (Array.isArray(element)) return element.map(renderJsx).join(""); // List
 
     if (typeof element !== "object") throw Error("Element must be an object");
