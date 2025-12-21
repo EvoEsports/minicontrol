@@ -75,8 +75,7 @@ export default class ListWindow extends Manialink implements IWindow {
     async execAction(login: string, items: any, entries?: any) {
         const { actionIndex, item } = items;
         if (this.targetActions[actionIndex]) {
-            entries = parseEntries(entries);
-            await this.targetActions[actionIndex].callback(login, item);
+            await this.targetActions[actionIndex].callback(login, item, entries);
         }
     }
 
