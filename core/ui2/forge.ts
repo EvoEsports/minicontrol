@@ -12,6 +12,11 @@ export interface Element {
 
 export type ComponentType<P = any> = (props: P & { children?: any }) => any;
 
+export function vec2(str: string) {
+    const [x, y] = str.split(' ').map(Number);
+    return { x, y };
+}
+
 export function createElement(tagName: string, props, ...children): Element {
     return { type: tagName, props: { ...props, children } };
 }
