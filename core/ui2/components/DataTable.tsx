@@ -8,9 +8,7 @@ import PaginateControls from './partials/PaginateControls';
 
 export default function DataTable(props: any) {
     const { pos, data } = (props || {}) as { pos: string; data: dataTableDef };
-
-    const dataProps = getProperties();
-    const actions = dataProps.actions;
+    const { actions, size } = getProperties();
 
     const ListHeader = getComponent('ListHeader', DefaultListHeader);
     const ListItem = getComponent('ListItem', DefaultListItem);
@@ -22,8 +20,10 @@ export default function DataTable(props: any) {
 
     for (const key in data.columns) {
         const column = data.columns[key];
-        const action = dataProps.actions['title_' + key];
-        outHeaders.push(<ListHeader pos={totalWidth} text={column.title} width={column.width} action={action} />);
+        const action = actions['title_' + key];
+        let halign = 'left';
+        if (column.align) halign = column.align;
+        outHeaders.push(<ListHeader pos={`${totalWidth} 0`} text={column.title} size={`${column.width} 5`} action={action} halign={halign} />);
         totalWidth += column.width;
         rowCounter += 1;
     }
@@ -54,15 +54,18 @@ export default function DataTable(props: any) {
                 action = actions[`item_${rowCounter}_${column.actionKey}`];
             }
             const type = column.type ?? 'text';
+            let halign = 'left';
+            if (column.align) halign = column.align;
 
-            outItems.push(<ListItem index={rowCounter} pos={`${width} -${5 * rowCounter}`} type={type} text={value} size={`${column.width} 4`} action={action} />);
+            outItems.push(<ListItem index={rowCounter} pos={`${width} -${5 * rowCounter}`} type={type} text={value} size={`${column.width} 4`} halign={halign} action={action} />);
             width += column.width;
             colIndex += 1;
         }
         for (const action2 of data.listActions) {
             const outAction = actions[`item_${rowCounter}_${action2.key}`];
-            outItems.push(<Button pos={`${width} -${5 * rowCounter}`} size="16 4" text={action2.title} action={outAction} halign="center" />);
-            width += 17;
+            const awidth = action2.width || 10;
+            outItems.push(<Button pos={`${width} -${5 * rowCounter}`} size={`${awidth} 4`} text={action2.title} action={outAction} halign="center" />);
+            width += awidth + 1;
         }
         rowCounter += 1;
     }
@@ -73,7 +76,7 @@ export default function DataTable(props: any) {
                 {outHeaders}
                 <frame pos="0 -4">
                     {outItems}
-                    <PaginateControls pos={`${dataProps.size.width * 0.5} -${(data.pageSize+0.5) * 5}`} data={data} />
+                    <PaginateControls pos={`${size.width * 0.5} -${(data.pageSize + 0.5) * 5}`} data={data} />
                 </frame>
             </frame>
         </>

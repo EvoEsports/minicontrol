@@ -1,7 +1,6 @@
 import type IWindow from "./interfaces/iwindow";
 import Manialink from "./manialink";
 import LWindow from "./components/ListWindow";
-import { parseEntries } from "@core/utils";
 
 export interface columnDef {
     title: string;
@@ -9,12 +8,13 @@ export interface columnDef {
     description?: string;
     type?: "text" | "entry" | "time" | "date";
     actionKey?: string;
+    align?: "left" | "center" | "right";
 }
 
 export interface dataTableDef {
     columns: { [key: string]: columnDef };
     items: { [key: string]: any }[];
-    listActions: { key: string; title: string }[];
+    listActions: Actions[];
     sortDirection: number;
     sortColumn: string;
     pageSize: number;
@@ -26,6 +26,7 @@ type ActionCallback = (login: string, item: any, entries: any) => Promise<void>
 interface Actions {
     key: string;
     title: string;
+    width?: number;
     callback: ActionCallback
 }
 
@@ -68,8 +69,8 @@ export default class ListWindow extends Manialink implements IWindow {
      * @param title
      * @param action
      */
-    setAction(key: string, title: string, action: ActionCallback) {
-        this.targetActions.push({ key: key, title: title, callback: action });
+    setAction(key: string, title: string, action: ActionCallback, width: number = 10) {
+        this.targetActions.push({ key: key, title: title, width: width, callback: action });
     }
 
     async execAction(login: string, items: any, entries?: any) {
@@ -99,7 +100,7 @@ export default class ListWindow extends Manialink implements IWindow {
                 }
             }
         }
-        this.data.datatable.listActions = this.targetActions.map((a) => ({ key: a.key, title: a.title }));
+        this.data.datatable.listActions = this.targetActions.map((a) => ({ key: a.key, title: a.title, width: a.width }));
         this.size.height = 17 + this.datatable.pageSize * 5;
         this.size.width = 215;
         return super.display();

@@ -87,14 +87,14 @@ export default class Maps extends Plugin {
         window.title = "Map List";
         window.size = { width: 190, height: 120 };
         window.setColumns({
-            Index: { title: "#", width: 4 },
+            Index: { title: "#", width: 10, align: "center" },
             Name: { title: "Name", width: 50, actionKey: "queue" },
             AuthorName: { title: "Author", width: 30 },
-            ATime: { title: "Author Time", width: 20, type: "time" },
+            ATime: { title: "Author Time", width: 20, type: "time", align: "center" },
             Environnement: { title: "Environment", width: 15 },
-            Rank: { title: "My Rank", width: 10 },
-            Karma: { title: "Karma", width: 10 },
-            Date: { title: "Date Added", width: 20 }
+            Rank: { title: "My Rank", width: 10, align: "center" },
+            Karma: { title: "Karma", width: 10, align: "center" },
+            Date: { title: "Date Added", width: 20, align: "center" },
         });
         window.datatable.sortColumn = "Name";
         const plugins = tmc.getPluginIds();

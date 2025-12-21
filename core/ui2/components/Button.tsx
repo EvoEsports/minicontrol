@@ -1,36 +1,27 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment } from '@core/ui2/forge';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
 
-export default function Button(props: any) {
-    const { id, pos, zindex, size, text, halign, action } = props || {};
+export default function Button({ id = '', pos='0 0', 'z-index': zindex = 0, size = '26 6', text = ' ', halign = 'center', action }) {
+    const pSize = vec2(size);
+    const pPos = vec2(pos);
 
-    const [width, height] = size?.split(' ').map((v: string) => parseFloat(v)) || [26, 6];
-    const [posX, posY] = pos?.split(' ').map((v: string) => parseFloat(v)) || [0, 0];
-    let posXdiv = width ? width / 2 : 0;
-    const posYdiv = height ? height / 2 : 0;
-    let align = "center"
-    if (halign) align = halign;
+    let posXoffset = pSize.x * 0.5;
+    if (halign === 'left') posXoffset = 0;
+    if (halign === 'right') posXoffset = pSize.x;
 
-    if (halign === 'left') {
-        posXdiv = 0;
-    } else if (halign === 'right') {
-        posXdiv = width;
-    }
-
-    const dataProps = getProperties();
-    const colors = dataProps.colors;
+    const { colors } = getProperties();
 
     return (
-        <frame id={`${id ?? ''}`} pos={`${posX + posXdiv} ${posY - posYdiv}`} class="uiContainer uiButton" z-index={zindex ?? 1}>
+        <frame id={id} pos={`${pPos.x + posXoffset} ${pPos.y - pSize.y * 0.5}`} class="uiContainer uiButton" z-index={zindex}>
             <label
-                size={`${width} ${height}`}
+                size={size}
                 text={text}
                 z-index="2"
                 class="uiButton uiButtonElement"
-                halign={align}
+                halign={halign}
                 valign="center2"
                 textfont="RobotoCondensedBold"
                 translate="0"
-                textsize="1.2"
+                textsize="0.9"
                 action={action}
                 textcolor={colors.button_text}
                 focusareacolor1={colors.button_bg}

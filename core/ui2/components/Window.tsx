@@ -1,35 +1,37 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment } from '@core/ui2/forge';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
 import Draggable from './effects/draggable';
 
-export default function Window(props: any) {
-    const { title, size } = props || {};
-    const o = getProperties();
-    if (o.data.draggable) {
+export default function Window({ title = '', pos = '0 0', size = '120 90', 'z-index': zIndex = 0, children = {} }) {
+    const psize = vec2(size);
+    const ppos = vec2(pos);
+    const { actions, colors, data } = getProperties();
+
+    if (data.draggable) {
         setScript(() => Draggable('title'), []);
     }
     return (
-        <frame id="root" pos={`-${size.width * 0.5} ${size.height * 0.5 + o.pos.y}`} z-index={o.pos.z}>
-            <quad class="title" pos="0 0" z-index="1" size={`${size.width} 6`} bgcolor={`${o.colors.title_bg}e`} halign="left" valign="bottom" scriptevents="1" />
-            <quad pos={`${size.width} 0`} z-index="3" size={`${size.width} 0.4`} bgcolor={o.colors.highlight} opacity="1" valign="top" halign="right" />
-            <label pos="2 3" z-index="2" size={`{ size.width - 10 } 4`} text={title} textsize="2.5" valign="center2" textcolor={o.colors.title_fg} textfont="RobotoCondensedBold" />
+        <frame id="root" pos={`-${psize.x * 0.5} ${psize.y * 0.5 + ppos.y}`} z-index={zIndex}>
+            <quad class="title" pos="0 0" z-index="1" size={`${psize.x} 6`} bgcolor={`${colors.title_bg}e`} halign="left" valign="bottom" scriptevents="1" />
+            <quad pos={`${psize.x} 0`} z-index="3" size={`${psize.x} 0.4`} bgcolor={colors.highlight} opacity="1" valign="top" halign="right" />
+            <label pos="2 3" z-index="2" size={`{ psize.x - 10 } 4`} text={title} textsize="2.5" valign="center2" textcolor={colors.title_fg} textfont="RobotoCondensedBold" />
             <label
-                pos={`${size.width - 4.5} 3`}
+                pos={`${psize.x - 4.5} 3`}
                 z-index="2"
                 size="9 6"
                 halign="center"
                 valign="center2"
-                action={o.actions.close}
+                action={actions.close}
                 text="x"
                 textfont="RobotoCondensedBold"
-                focusareacolor1={o.colors.title_bg}
+                focusareacolor1={colors.title_bg}
                 focusareacolor2="d00"
             />
-            <quad pos="0 0" z-index="3" size={`${size.width} 0.3`} bgcolor={o.colors.black} opacity="1" valign="center" halign="left" />
+            <quad pos="0 0" z-index="3" size={`${psize.x} 0.3`} bgcolor={colors.black} opacity="1" valign="center" halign="left" />
             <frame pos="2 -4" z-index="2">
-                {props.children}
+                {children}
             </frame>
-            <quad pos="0 0" z-index="1" size={`${size.width} ${size.height}`} bgcolor={`${o.colors.window_bg}e`} />
-            <quad pos="-0.5 6.5" z-index="0" size={`${size.width + 1} ${size.height + 7}`} bgcolor="000b" />
+            <quad pos="0 0" z-index="1" size={`${psize.x} ${psize.y}`} bgcolor={`${colors.window_bg}e`} />
+            <quad pos="-0.5 6.5" z-index="0" size={`${psize.x + 1} ${psize.y + 7}`} bgcolor="000b" />
         </frame>
     );
 }

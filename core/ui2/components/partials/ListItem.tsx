@@ -1,15 +1,16 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment } from '@core/ui2/forge';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
 import { formatTime } from '@core/utils';
 
-export default function ListItem(props: any) {
-    const { pos, size, type, text, action, index } = props || {};
+export default function ListItem({ pos = '0 0', size, type = 'text', text, action, index = 0, halign = 'left' }) {
+    const psize = vec2(size);
+    const ppos = vec2(pos);
 
-    const [width, height] = size?.split(' ').map((v: string) => parseFloat(v)) || [26, 6];
-    const [posX, posY] = pos?.split(' ').map((v: string) => parseFloat(v)) || [0, 0];
-
-    const dataProps = getProperties();
-    const colors = dataProps.colors;
+    const { colors } = getProperties();
     let value = text;
+
+    let offsetX = 0;
+    if (halign === 'center') offsetX = psize.x * 0.5;
+    if (halign === 'right') offsetX = psize.x;
 
     if (type === 'time') {
         value = formatTime(text);
@@ -18,20 +19,20 @@ export default function ListItem(props: any) {
     return (
         <>
             <label
-                pos={`${posX} ${posY - height * 0.5}`}
+                pos={`${ppos.x + offsetX} ${ppos.y - psize.y * 0.5}`}
                 z-index="2"
-                size={`${width} 5`}
+                size={size}
                 textfont="RobotoCondensedBold"
                 textcolor={colors.window_text}
                 text={value}
-                halign="left"
-                textsize="1.5"
+                halign={halign}
+                textsize="1"
                 valign="center2"
                 focusareacolor1="0000"
                 focusareacolor2={colors.button_bg_hover}
                 action={action}
             />
-            <quad pos={`${posX} ${posY - height * 0.5}`} z-index="1" valign="center" size={`${width} 5`} bgcolor={index % 2 ? colors.window_bg : colors.window_bg_light} />
+            <quad pos={`${ppos.x} ${ppos.y - psize.y * 0.5}`} z-index="1" valign="center" size={size} bgcolor={index % 2 ? colors.window_bg : colors.window_bg_light} />
         </>
     );
 }
