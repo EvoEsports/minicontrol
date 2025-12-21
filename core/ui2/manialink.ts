@@ -172,6 +172,16 @@ export default class Manialink implements IManialink {
         #Include "AnimLib" as AnimLib
         #Include "ColorLib" as ColorLib
 
+        #Struct K_CustomScriptEvent {
+            CMlScriptEvent::Type Type;
+            CMlControl Control;
+            Text ControlId;
+            Integer KeyCode;
+            Text KeyName;
+            Text CharPressed;
+        }
+
+
         ${headers}
 
         ${scripts}
@@ -180,7 +190,7 @@ export default class Manialink implements IManialink {
         }
 
         main() {
-
+            declare K_CustomScriptEvent Event;
             +++OnInit+++
 
             while(True) {
@@ -189,8 +199,24 @@ export default class Manialink implements IManialink {
                     continue;
             }
 
-            foreach (Event in PendingEvents) {
-                    switch (Event.Type) {
+            {
+                +++Loop+++
+            }
+
+            foreach (OrigEvent in PendingEvents) {
+                   Event.Type = OrigEvent.Type;
+                   Event.Control = OrigEvent.Control;
+                   Event.ControlId = OrigEvent.ControlId;
+                   if (Event.Type == CMlScriptEvent::Type::KeyPress) {
+                       Event.KeyCode = OrigEvent.KeyCode;
+                       Event.KeyName = OrigEvent.KeyName;
+                       Event.CharPressed = OrigEvent.CharPressed;
+                   } else {
+                        Event.KeyCode = 0;
+                        Event.KeyName = "";
+                        Event.CharPressed = "";
+                   }
+                   switch (Event.Type) {
                         case CMlScriptEvent::Type::EntrySubmit: {
                             +++EntrySubmit+++
                         }
@@ -200,6 +226,9 @@ export default class Manialink implements IManialink {
                         case CMlScriptEvent::Type::MouseClick: {
                             +++OnMouseClick+++
                         }
+                        case CMlScriptEvent::Type::MouseRightClick: {
+                            +++OnMouseRightClick+++
+                        }
                         case CMlScriptEvent::Type::MouseOut: {
                             +++OnMouseOut+++
                         }
@@ -208,11 +237,8 @@ export default class Manialink implements IManialink {
                         }
                     }
                 }
-
-                +++Loop+++
             }
         }
-
         --></script>
  `;
         }

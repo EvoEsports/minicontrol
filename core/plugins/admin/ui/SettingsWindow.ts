@@ -13,7 +13,7 @@ export default class SettingsWindow extends ListWindow {
 
     }
 
-    async onToggle(login: string, item: any) {
+    async onToggle(login: string, item: any, entries: any) {
         if (item.type === "boolean") {
             const value = !tmc.settings.get(item.key);
             await tmc.settings.set(item.key, value);

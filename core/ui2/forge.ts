@@ -192,7 +192,7 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
         }
 
         main() {
-
+            declare CMlScriptEvent Event = CMlScriptEvent;
             +++OnInit+++
 
             while(True) {
@@ -201,7 +201,8 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
                     continue;
             }
 
-            foreach (Event in PendingEvents) {
+            foreach (OrigEvent in PendingEvents) {
+                    Event = OrigEvent;
                     switch (Event.Type) {
                         case CMlScriptEvent::Type::EntrySubmit: {
                             +++EntrySubmit+++
@@ -211,6 +212,9 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
                         }
                         case CMlScriptEvent::Type::MouseClick: {
                             +++OnMouseClick+++
+                        }
+                        case CMlScriptEvent::Type::MouseRightClick: {
+                            +++OnMouseRightClick+++
                         }
                         case CMlScriptEvent::Type::MouseOut: {
                             +++OnMouseOut+++

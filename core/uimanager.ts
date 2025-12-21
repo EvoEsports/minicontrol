@@ -8,7 +8,7 @@ export interface uiModule {
     scale: number;
     visible: boolean;
 }
-export type ActionCallback = (login: string, data: any, entries?: any) => Promise<void>;
+export type ActionCallback = (login: string, data: any, entries?: { [key: string]: unknown }) => Promise<void>;
 export type ComponentFunction = (attrs: { [key: string]: any }) => { replacement: string; script?: string };
 
 interface CustomUI {
@@ -552,44 +552,6 @@ export default class UiManager {
         return this.tmnfCustomUi;
     }
 
-    /**
-     * Get component handler
-     * @param tagName
-     * @returns
-     */
-    getComponentHandler(tagName: string): ComponentFunction | undefined {
-        if (this.tagHandlers.has(tagName)) {
-            return this.tagHandlers.get(tagName);
-        }
-        return undefined;
-    }
-
-    /**
-     * Get registered component tags
-     * @returns
-     */
-    getComponentTags(): string[] {
-        return Array.from(this.tagHandlers.keys());
-    }
-
-    /**
-     * register Component handler
-     * @param tagName
-     * @param handler
-     */
-    registerComponentHandler(tagName: string, handler: ComponentFunction) {
-        if (this.tagHandlers.has(tagName)) {
-            tmc.debug(`¤info¤overwriting handler for tag: ¤white¤<${tagName}>`);
-        } else {
-            tmc.debug(`¤info¤registering handler for tag: ¤white¤<${tagName}>`);
-        }
-        this.tagHandlers.set(tagName, handler);
-    }
-
-    removeComponentHandler(tagName: string) {
-        if (this.tagHandlers.has(tagName)) this.tagHandlers.delete(tagName);
-    }
-
     async uiSettingsChange(value: string, oldValue: boolean, _key: string) {
         const key = _key.replace("tmf.hud.", "");
         if (Object.keys(this.tmnfCustomUi).includes(key)) {
@@ -621,12 +583,34 @@ export default class UiManager {
     }
 
     getGlobalManialink() {
+        const action = this.addAction(async (login: string, _data: any) => {
+            if (!this.hiddenManialinks.includes(login)) {
+                this.hiddenManialinks.push(login);
+                let hide = '<?xml version="1.0" encoding="UTF-8"?><manialinks>';
+                for (const manialink of Object.values(this.publicManialinks)) {
+                    if (manialink.canHide) {
+                        hide += `<manialink id="${manialink.id}"></manialink>`;
+                    }
+                }
+                for (const manialink of Object.values(this.playerManialinks[login])) {
+                    if (manialink.canHide) {
+                        hide += `<manialink id="${manialink.id}"></manialink>`;
+                    }
+                }
+                hide += "</manialinks>";
+                tmc.server.send("SendDisplayManialinkPageToLogin", login, hide, 0, false);
+            } else {
+                this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
+                await this.onPlayerConnect([login]);
+            }
+        }, null);
+
         return `
         <?xml version="1.0" encoding="UTF-8"?>
         <manialinks>
         <manialink id="1" version="3">
-            <frame pos="-152.5 -36" z-index="1">
-                <label pos="0 0" size="0 0" valign="center2" halign="center" textsize="0.5" textcolor="fff" text=" " focusareacolor1="0000" focusareacolor2="0000" actionkey="3" action="-2"/>
+            <frame pos="900 900" z-index="1">
+                <label pos="0 0" size="0 0" valign="center2" halign="center" textsize="0.5" textcolor="fff" text=" " focusareacolor1="0000" focusareacolor2="0000" actionkey="3" action="${action}"/>
             </frame>
         </manialink>
         </manialinks>`;
