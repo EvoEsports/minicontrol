@@ -26,7 +26,7 @@ Need help? Join the [Evo Esports Discord](https://discord.gg/evoesports) in the 
 - Server Admins: [Installation & Setup](./users/install.md) ✅
 - Plugin Managers: [Plugin management guide](./users/plugins.md)
 - Developers: [Concept & architecture](./devs/concept.md) • [Plugins & API](./devs/plugins.md)
-- UI System: [Manialink & Widget docs](./devs/ui-system.md) • [JSX & Forge](./devs/ui2.md) • [Forge API](./devs/forge.md)
+- UI System: [Manialink & Widget docs](./devs/ui-system.md) • [JSX & Forge](./devs/ui-system2.md) • [Forge API](./devs/forge.md)
 - Class reference: [Core classes index](./devs/class/index.md)
 - Examples: [Quickstart plugin and example plugin](./devs/quickstart-plugin.md)
 
