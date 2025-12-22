@@ -1,6 +1,6 @@
 import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2, setScriptHeader } from '@core/ui2/forge';
 
-export default function Window({ title = '', pos = '0 0', size = '120 90', 'z-index': zIndex = 0, children = {} }) {
+export default function Window({ title = '', pos = '0 0', size='120 90', 'z-index': zIndex = 0, children = {} }) {
     const psize = vec2(size);
     const ppos = vec2(pos);
     const { actions, colors, data, id } = getProperties();

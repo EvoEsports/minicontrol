@@ -3,8 +3,8 @@ import DefaultWindow from './Window';
 import DefaultDataTable from './DataTable';
 
 export default function ListWindow() {
-    const { size, data } = getProperties();
+    const { data } = getProperties();
 
     const DataTable = getComponent('DataTable', DefaultDataTable);
-    return <DataTable pos="0 0" data={data.datatable} />;
+    return <DataTable pos="0 0" usetitle={data.useTitle} data={data.datatable} />;
 }

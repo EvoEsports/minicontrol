@@ -5,6 +5,7 @@
         "dev": "tsx --expose-gc --env-file .env --watch ./core/minicontrol.ts",
         "start": "tsx --expose-gc --env-file .env ./core/minicontrol.ts",
         "start:bun": "bun --expose-gc --env-file .env ./core/minicontrol.ts",
+        "start:deno": "deno -A --v8-flags=--expose-gc --env-file=.env ./core/minicontrol.ts",
         "migrate": "tsx --env-file=.env migrate.ts",
         "migrate:docker": "tsx migrate.ts",
         "docker": "tsx --expose-gc ./core/minicontrol.ts"

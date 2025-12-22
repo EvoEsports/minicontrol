@@ -1,5 +1,6 @@
 import type IManialink from "./interfaces/imanialink";
 import { renderJsx, roots, setHookIndex, setCurrentRoot, disposeScript } from "./forge";
+import type { ColorKey } from "@core/settingsmanager";
 
 export interface MlSize {
     width: number;
@@ -18,8 +19,8 @@ export interface objMap {
     size: MlSize;
     pos: MlPos;
     actions: { [key: string]: string };
-    colors: { [key: string]: string };
-    data: { [key: string]: any };
+    colors: ColorKey & Record<string, string>;
+    data: Record<string, any>;
     game: string;
     recipient: string | undefined;
 }
@@ -29,7 +30,7 @@ export default class Manialink implements IManialink {
     name: string = "";
     layer: "normal" | "ScoresTable" | "ScreenIn3d" | "altmenu" | "cutscene" = "normal";
     actions: { [key: string]: string } = {};
-    data: { [key: string]: any } = {};
+    data: Record<string, any> = {};
     recipient: string | undefined = undefined;
     displayDuration = 0;
     canHide = true;

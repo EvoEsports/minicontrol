@@ -6,11 +6,12 @@ import LocalMapsWindow from "./LocalMapsWindow";
 import PlayerListsWindow from "./PlayerListsWindow";
 import fsPath from "node:path";
 import type { Map as TmMap } from "@core/mapmanager.ts";
-import SettingsWindow from "./SettingsWindow";
-import ColorsWindow from "./ColorsWindow";
 import type { Player } from "@core/playermanager";
 import AdminWidget from "./AdminWidget";
 import Menu from "@core/menu";
+
+import SettingsWindow from "./ui/SettingsWindow";
+import ColorsWindow from "./ui/ColorsWindow";
 
 enum TmnfMode {
     Rounds = 0,
@@ -1037,7 +1038,7 @@ export default class AdminPlugin extends Plugin {
 
         if (setting.type === "color") {
             const color = args[0];
-            if (!color.match(/^([A-Fa-f0-9]{3})$/)) {
+            if (!color.match(/^([A-Fa-f0-9]{3})|([A-Fa-f0-9]{6})$/)) {
                 tmc.chat("¤error¤Invalid color value", login);
                 return;
             }
@@ -1078,89 +1079,11 @@ export default class AdminPlugin extends Plugin {
 
     async cmdSettings(login: string, args: string[]) {
         const window = new SettingsWindow(login);
-        window.size = { width: 165, height: 95 };
-        window.title = "Settings";
-        const settings = tmc.settings.getSettings();
-        const out: any = [];
-        for (const data in settings.defaults) {
-            let value = settings.settings[data];
-            let defaultValue = settings.defaults[data];
-            const description = settings.descriptions[data];
-
-            if (typeof settings.defaults[data] === "boolean") {
-                value = value ? "$0f0true" : "$f00false";
-                defaultValue = defaultValue ? "$0f0true" : "$f00false";
-            }
-            if (typeof settings.defaults[data] === "number") {
-                value = `$df0${value}`;
-                defaultValue = `$df0${defaultValue}`;
-            }
-            if (typeof settings.defaults[data] === "string") {
-                value = `${value}`;
-                defaultValue = `${defaultValue}`;
-            }
-
-            const changed = value !== defaultValue;
-            let prefix = "";
-            let postfix = "";
-            if (changed) {
-                prefix = "$o";
-                postfix = " $z(changed)";
-            }
-            out.push({
-                key: data,
-                default: htmlEntities(defaultValue),
-                value: htmlEntities(prefix + value),
-                type: typeof settings.defaults[data],
-                description: htmlEntities(description),
-            });
-        }
-        window.setItems(out.sort((a: any, b: any) => a.key.localeCompare(b.key)));
-        window.setColumns([
-            { key: "type", title: "Type", width: 20 },
-            //  { key: 'key', title: 'Setting', width: 60 },
-            //   { key: 'default', title: 'Default Value', width: 20 },
-            { key: "value", title: "Value", width: 125, action: "Toggle" },
-        ]);
-        window.setActions(["Reset"]);
         window.display();
     }
 
     async cmdColors(login: string, args: string[]) {
         const window = new ColorsWindow(login);
-        window.size = { width: 165, height: 95 };
-        window.title = "Colors";
-        const settings = tmc.settings.getColors();
-        const out: any = [];
-        for (const data in settings.defaults) {
-            const value = settings.colors[data];
-            const defaultValue = settings.defaults[data];
-            const description = settings.descriptions[data];
-
-            const changed = value !== defaultValue;
-
-            let prefix = "";
-            let postfix = "";
-            if (changed) {
-                prefix = "$o";
-                postfix = " $z(changed)";
-            }
-            out.push({
-                key: data,
-                default: htmlEntities(defaultValue),
-                value: htmlEntities(prefix + value),
-                type: "color",
-                description: htmlEntities(`$<$${value}Color$> for ${data}`),
-            });
-        }
-        window.setItems(out.sort((a: any, b: any) => a.key.localeCompare(b.key)));
-        window.setColumns([
-            { key: "type", title: "Type", width: 20 },
-            //  { key: 'key', title: 'Setting', width: 60 },
-            //   { key: 'default', title: 'Default Value', width: 20 },
-            { key: "value", title: "Value", width: 125, action: "Toggle" },
-        ]);
-        window.setActions(["Reset"]);
         window.display();
     }
 }

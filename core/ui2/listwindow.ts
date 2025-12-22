@@ -18,20 +18,22 @@ export interface dataTableDef {
     sortColumn: string;
     pageSize: number;
     pageNb: number;
+    useTitle: boolean;
 }
 
 type ActionCallback = (login: string, item: any, entries: any) => Promise<void>
 
 interface Actions {
     key: string;
-    title: string;
+    title: string | null;
     width?: number;
     callback: ActionCallback
 }
 
 export default class ListWindow extends Window {
-    targetActions: Actions[] = [];
+    private targetActions: Actions[] = [];
     title = "";
+    size = { width: 160, height: 120 };
     datatable: dataTableDef = {
         columns: {},
         items: [],
@@ -39,7 +41,8 @@ export default class ListWindow extends Window {
         sortColumn: "",
         sortDirection: 1,
         pageSize: 20,
-        pageNb: 0
+        pageNb: 0,
+        useTitle: false,
     };
 
     constructor(login: string, type: string = "") {
@@ -52,21 +55,26 @@ export default class ListWindow extends Window {
         this.data.datatable = this.datatable;
     }
 
+    setItemsPerPage(count: number) {
+        this.datatable.pageSize = count;
+    }
+
     setColumns(columns: { [key: string]: columnDef }) {
         this.datatable.columns = columns;
     }
     setItems(items: { [key: string]: any }[]) {
-        this.datatable.items = items;
+        this.datatable.items = items.map((item, index) => ({ index, ...item }));
     }
 
     /**
      * Sets an action for the list items
      * you can reference key in columnDef to link action to a column
+     * if title is null or "", no button will be shown for this action
      * @param key
      * @param title
      * @param action
      */
-    setAction(key: string, title: string, action: ActionCallback, width: number = 10) {
+    setAction(key: string, title: string | null, action: ActionCallback, width: number = 10) {
         this.targetActions.push({ key: key, title: title, width: width, callback: action });
     }
 
@@ -98,8 +106,6 @@ export default class ListWindow extends Window {
             }
         }
         this.data.datatable.listActions = this.targetActions.map((a) => ({ key: a.key, title: a.title, width: a.width }));
-        this.size.height = 17 + this.datatable.pageSize * 5;
-        this.size.width = 215;
         return super.display();
     }
 

@@ -4,6 +4,18 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+         {
+            "runtimeArgs": [
+                "--v8-flags=--expose-gc",
+                "--env-file=.env",
+                "${workspaceFolder}/core/minicontrol.ts"
+            ],
+            "runtimeExecutable": "deno",
+            "name": "Run Deno",
+            "request": "launch",
+            "envFile": "${workspaceFolder}/.env",
+            "type": "node"
+        },
         {
             "runtimeArgs": [
                 "start"
@@ -52,8 +64,6 @@
             "--env-file .env",
             "--smol",
             "--expose-gc"
-
-
         ],
       },
       {

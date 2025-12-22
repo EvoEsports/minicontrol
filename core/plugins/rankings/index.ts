@@ -3,6 +3,7 @@ import { QueryTypes } from "sequelize";
 import ListWindow from "@core/ui/listwindow";
 import Player from "@core/plugins/database/models/players.model";
 import Menu from "@core/menu";
+import console from "node:console";
 
 interface Ranking {
     rank: number;

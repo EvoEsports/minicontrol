@@ -1,32 +1,37 @@
 import { writeFileSync, readFileSync, existsSync } from "node:fs";
 import { clone, modLightness } from "./utils";
 
+
+export type ColorKey = typeof defaultColors;
+
+const defaultColors = {
+    white: "fff",
+    gray: "abc",
+    black: "000",
+    highlight: "f07",
+    title_fg: "fff",
+    title_bg: "000",
+    widget_bg: "012",
+    widget_text: "fff",
+    window_bg: "123",
+    window_text: "fff",
+    button_bg: "778",
+    button_bg_hover: "f07",
+    button_text: "fff",
+    cmd: "fd0",
+    db: "d7c",
+    info: "5bf",
+    rec: "2e0",
+    success: "0f0",
+    warning: "fa0",
+    error: "f00",
+};
+
 export default class SettingsManager {
     _defaultSettings: { [key: string]: any } = {};
     settings: { [key: string]: any } = {};
-    _defaultColors: { [key: string]: string } = {
-        white: "fff",
-        gray: "abc",
-        black: "000",
-        highlight: "f07",
-        title_fg: "fff",
-        title_bg: "000",
-        widget_bg: "012",
-        widget_text: "fff",
-        window_bg: "123",
-        window_text: "fff",
-        button_bg: "778",
-        button_bg_hover: "f07",
-        button_text: "fff",
-        cmd: "fd0",
-        db: "d7c",
-        info: "5bf",
-        rec: "2e0",
-        success: "0f0",
-        warning: "fa0",
-        error: "f00",
-    };
-    colors: { [key: string]: string } = this._defaultColors;
+    _defaultColors: ColorKey & Record<string, string> = defaultColors;
+    colors: ColorKey & Record<string, string> = defaultColors;
     callbacks: { [key: string]: null | ((newValue: any, oldValue: any, _key: string) => Promise<void>) } = {};
     descriptions: { [key: string]: string } = {};
     colorDescriptions: { [key: string]: string } = {};
@@ -224,7 +229,7 @@ export default class SettingsManager {
         };
     }
 
-    getColors(): { colors: { [key: string]: string }; defaults: { [key: string]: string }; descriptions: { [key: string]: string } } {
+    getColors() {
         return {
             colors: this.colors,
             defaults: this._defaultColors,
