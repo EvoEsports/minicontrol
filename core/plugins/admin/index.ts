@@ -702,31 +702,6 @@ export default class AdminPlugin extends Plugin {
     async cmdAddLocal(login: string, args: string[]) {
         if (args.length < 1) {
             const window = new LocalMapsWindow(login);
-            window.size = { width: 175, height: 95 };
-            const out: any = [];
-            for (const file of fs.readdirSync(tmc.mapsPath, { withFileTypes: true, recursive: true, encoding: "utf8" })) {
-                if (file.name.toLowerCase().endsWith(".gbx")) {
-                    const name = htmlEntities(file.name.replaceAll(/[.](Map|Challenge)[.]Gbx/gi, ""));
-                    const filename = fsPath.resolve(tmc.mapsPath, file.parentPath, file.name);
-                    const path = file.parentPath.replace(tmc.mapsPath, "");
-                    out.push({
-                        File: filename,
-                        FileName: name,
-                        Path: path,
-                        MapName: "",
-                        MapAuthor: "",
-                    });
-                }
-            }
-            window.title = `Add Local Maps [${out.length}]`;
-            window.setItems(out);
-            window.setColumns([
-                { key: "Path", title: "Path", width: 40 },
-                { key: "FileName", title: "Map File", width: 30, action: "Add" },
-                { key: "MapName", title: "Name", width: 50, action: "Add" },
-                { key: "MapAuthor", title: "Author", width: 35 },
-            ]);
-            window.setActions(["Add"]);
             window.display();
         } else {
             try {
