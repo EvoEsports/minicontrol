@@ -1,6 +1,6 @@
 import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
 
-export default function ListHeader({ pos="0 0", size, text, action, halign = 'left' }) {
+export default function ListHeader({ pos = '0 0', size, text, action, halign = 'left' }) {
     const psize = vec2(size);
     const ppos = vec2(pos);
 
@@ -18,7 +18,7 @@ export default function ListHeader({ pos="0 0", size, text, action, halign = 'le
                 size={size}
                 textfont="RobotoCondensedBold"
                 textcolor={colors.window_text}
-                text={`${text}`}
+                text={text || ''}
                 halign={halign}
                 textsize="1"
                 valign="center2"

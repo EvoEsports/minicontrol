@@ -1,9 +1,9 @@
 import { castType, htmlEntities } from "@core/utils";
-import ModeSettingsWindow from "./ModeSettingsWindow";
+
 import Plugin from "@core/plugins";
 import fs from "node:fs";
 import LocalMapsWindow from "./LocalMapsWindow";
-import PlayerListsWindow from "./PlayerListsWindow";
+import PlayerListsWindow from "./ui/PlayerListsWindow";
 import fsPath from "node:path";
 import type { Map as TmMap } from "@core/mapmanager.ts";
 import type { Player } from "@core/playermanager";
@@ -12,6 +12,7 @@ import Menu from "@core/menu";
 
 import SettingsWindow from "./ui/SettingsWindow";
 import ColorsWindow from "./ui/ColorsWindow";
+import ModeSettingsWindow from "./ui/ModeSettingsWindow";
 
 enum TmnfMode {
     Rounds = 0,
@@ -694,25 +695,8 @@ export default class AdminPlugin extends Plugin {
 
     async cmdModeSettings(login: string, args: string[]) {
         const window = new ModeSettingsWindow(login);
-        window.size = { width: 160, height: 95 };
-        window.title = "Mode Settings";
-        const settings = await tmc.server.call("GetModeScriptSettings");
-        const out: any = [];
-        for (const data in settings) {
-            out.push({
-                setting: data,
-                value: settings[data],
-                type: typeof settings[data],
-            });
-        }
-        window.setItems(out);
-        window.setColumns([
-            { key: "setting", title: "Setting", width: 75 },
-            { key: "value", title: "Value", width: 50, type: "entry" },
-            { key: "type", title: "Type", width: 25 },
-        ]);
-        window.addApplyButtons();
-        window.display();
+        await window.update();
+        await window.display();
     }
 
     async cmdAddLocal(login: string, args: string[]) {
@@ -843,10 +827,16 @@ export default class AdminPlugin extends Plugin {
             case "list": {
                 const window = new PlayerListsWindow(login);
                 window.title = "Guestlist";
-                window.size = { width: 175, height: 95 };
+                window.size = { width: 175, height: 120 };
                 window.setItems(await tmc.server.call("GetGuestList", -1, 0));
-                window.setColumns([{ key: "Login", title: "Login", width: 100 }]);
-                window.setActions(["RemoveGuest"]);
+                window.setColumns({
+                    Login: { title: "Login", width: 100 }
+                });
+                window.setAction("remove", "Remove", async (login: string, item: any) => {
+                    await tmc.chatCmd.execute(login, `//guestlist remove ${item.Login}`);
+                    window.setItems(await tmc.server.call("GetGuestList", -1, 0));
+                    window.display();
+                })
                 window.display();
                 return;
             }
@@ -897,11 +887,17 @@ export default class AdminPlugin extends Plugin {
             case "list": {
                 const window = new PlayerListsWindow(login);
                 window.title = "BanList";
-                window.size = { width: 175, height: 95 };
+                window.size = { width: 175, height: 120 };
                 window.setItems(await tmc.server.call("GetBanList", -1, 0));
-                window.setColumns([{ key: "Login", title: "Login", width: 100 }]);
-                window.setActions(["UnBan"]);
-                window.display();
+                window.setColumns({
+                    Login: { title: "Login", width: 100 }
+                });
+                window.setAction("remove", "Remove", async (login: string, item: any) => {
+                    await tmc.chatCmd.execute(login, `//banlist remove ${item.Login}`);
+                    window.setItems(await tmc.server.call("GetBanList", -1, 0));
+                    window.display();
+                })
+                await window.display();
                 return;
             }
             default: {
@@ -950,11 +946,17 @@ export default class AdminPlugin extends Plugin {
             case "show":
             case "list": {
                 const window = new PlayerListsWindow(login);
-                window.title = "Guestlist";
-                window.size = { width: 175, height: 95 };
+                window.title = "IgnoreList";
+                window.size = { width: 175, height: 120 };
                 window.setItems(await tmc.server.call("GetIgnoreList", -1, 0));
-                window.setColumns([{ key: "Login", title: "Login", width: 100 }]);
-                window.setActions(["UnIgnore"]);
+                window.setColumns({
+                    Login: { title: "Login", width: 100 }
+                });
+                window.setAction("remove", "Remove", async (login: string, item: any) => {
+                    await tmc.chatCmd.execute(login, `//ignorelist remove ${item.Login}`);
+                    window.setItems(await tmc.server.call("GetIgnoreList", -1, 0));
+                    window.display();
+                })
                 window.display();
                 return;
             }
@@ -1010,10 +1012,16 @@ export default class AdminPlugin extends Plugin {
             case "list": {
                 const window = new PlayerListsWindow(login);
                 window.title = "Blacklist";
-                window.size = { width: 175, height: 95 };
+                window.size = { width: 175, height: 120 };
                 window.setItems(await tmc.server.call("GetBlackList", -1, 0));
-                window.setColumns([{ key: "Login", title: "Login", width: 100 }]);
-                window.setActions(["RemoveBlacklist"]);
+                window.setColumns({
+                    Login: { title: "Login", width: 100 }
+                });
+                window.setAction("remove", "Remove", async (login: string, item: any) => {
+                    await tmc.chatCmd.execute(login, `//blacklist remove ${item.Login}`);
+                    window.setItems(await tmc.server.call("GetBlackList", -1, 0));
+                    window.display();
+                })
                 window.display();
                 return;
             }

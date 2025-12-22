@@ -52,9 +52,12 @@ export default class ListWindow extends Window {
         this.actions.prev = tmc.ui.addAction(this.uiPaginate.bind(this), "prev");
         this.actions.next = tmc.ui.addAction(this.uiPaginate.bind(this), "next");
         this.actions.end = tmc.ui.addAction(this.uiPaginate.bind(this), "end");
-        this.data.datatable = this.datatable;
+        this.data.applyButtons = false;
     }
 
+    setApplyButtons(value: boolean = true) {
+        this.data.applyButtons = value;
+    }
     setItemsPerPage(count: number) {
         this.datatable.pageSize = count;
     }
@@ -85,9 +88,22 @@ export default class ListWindow extends Window {
         }
     }
 
+    /**
+     * override this to handle apply button
+     * @param login
+     * @param data
+     * @param entries
+     */
+    async onApply(login: string, data: any, entries: any) {
+        // override to handle apply button
+    }
+
+
     async display() {
-        this.data.datatable = this.datatable;
         this.data.title = this.title;
+        if (this.data.applyButtons && !this.actions.apply) {
+            this.actions.apply = tmc.ui.addAction(this.onApply.bind(this), "apply");
+        }
 
         for (const key in this.datatable.columns) {
             if (!this.actions[`title_${key}`]) {
@@ -105,8 +121,28 @@ export default class ListWindow extends Window {
                 }
             }
         }
+
+        const pre = this.datatable.items.slice(0, this.datatable.pageNb * this.datatable.pageSize);
+        const post = this.datatable.items.slice((this.datatable.pageNb + 1) * this.datatable.pageSize);
+        const paginatedItems = this.datatable.items.slice(
+            this.datatable.pageNb * this.datatable.pageSize,
+            (this.datatable.pageNb + 1) * this.datatable.pageSize
+        );
+
+        this.data.datatable = this.datatable;
         this.data.datatable.listActions = this.targetActions.map((a) => ({ key: a.key, title: a.title, width: a.width }));
+        this.data.datatable.items = [...pre, ...await this.onPageItemsUpdate(paginatedItems), ...post].filter((i) => i !== undefined) as any[];
+
         return super.display();
+    }
+
+    /**
+     * override this to process items on the current page
+     * @param itemsArray
+     * @returns
+     */
+    async onPageItemsUpdate(itemsArray: any[]) {
+        return itemsArray;
     }
 
     async doSort(login: string, columnKey: string) {
@@ -117,10 +153,10 @@ export default class ListWindow extends Window {
             this.datatable.sortDirection = 1;
         }
 
-        await this.display();
+        this.display();
     }
 
-    async uiPaginate(login: string, action: string) {
+    async uiPaginate(login: string, action: string, entries: any) {
         if (action === "start") {
             this.datatable.pageNb = 0;
         } else if (action === "prev") {
@@ -133,6 +169,7 @@ export default class ListWindow extends Window {
         if (this.datatable.pageNb < 0) this.datatable.pageNb = 0;
         if (this.datatable.pageNb > Math.floor((this.datatable.items.length - 1) / this.datatable.pageSize))
             this.datatable.pageNb = Math.floor((this.datatable.items.length - 1) / this.datatable.pageSize);
-        await this.display();
+
+        this.display();
     }
 }

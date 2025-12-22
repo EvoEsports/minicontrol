@@ -15,6 +15,28 @@ export default function ListItem({ pos = '0 0', size, type = 'text', text, actio
     if (type === 'time') {
         value = formatTime(text);
     }
+    if (type === 'entry') {
+        return (
+            <>
+                <entry
+                    pos={`${ppos.x + offsetX} ${ppos.y - psize.y * 0.5}`}
+                    z-index="2"
+                    size={size}
+                    textfont="RobotoCondensedBold"
+                    textcolor={colors.window_text}
+                    default={value ?? ' '}
+                    halign={halign}
+                    textsize="1"
+                    valign="center2"
+                    focusareacolor1={colors.window_bg_dark}
+                    focusareacolor2="000"
+                    name={`item_${index}`}
+                    scriptevents="1"
+                />
+                <quad pos={`${ppos.x} ${ppos.y - psize.y * 0.5}`} z-index="1" valign="center" size={size} bgcolor={index % 2 ? colors.window_bg : colors.window_bg_light} />
+            </>
+        );
+    }
 
     return (
         <>
@@ -24,7 +46,7 @@ export default function ListItem({ pos = '0 0', size, type = 'text', text, actio
                 size={size}
                 textfont="RobotoCondensedBold"
                 textcolor={colors.window_text}
-                text={value}
+                text={value ?? ' '}
                 halign={halign}
                 textsize="1"
                 valign="center2"
