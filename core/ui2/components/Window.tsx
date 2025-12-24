@@ -96,7 +96,7 @@ if (Event.Control.HasClass("title")) {
                 <label
                     id="close"
                     pos={`${psize.x - 4.5} 3`}
-                    z-index={z}
+                    z-index={z+3}
                     size="9 6"
                     halign="center"
                     valign="center2"
