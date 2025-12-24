@@ -27,13 +27,22 @@ Void Drag() {
 
 ***OnInit***
 ***
+declare Boolean G_MC_MoveWidgets for ClientUI = False;
+
 declare CMlFrame FrameRoot <=> Page.GetFirstChild("root") as CMlFrame;
+declare CMlLabel LabelHandle <=> Page.GetFirstChild("handle") as CMlLabel;
 declare Vec2[Text] G_MC_WidgetLocations for UI;
 if (G_MC_WidgetLocations.existskey("${data.name}")) {
    FrameRoot.RelativePosition_V3 =  G_MC_WidgetLocations["${data.name}"];
 } else {
     G_MC_WidgetLocations["${data.name}"] = FrameRoot.RelativePosition_V3;
 }
+***
+
+
+***Loop***
+***
+LabelHandle.Visible = G_MC_MoveWidgets;
 ***
 
 ***OnMouseClick***
@@ -51,7 +60,7 @@ if (Event.Control.HasClass("draggable")) {
                 <frame pos="0 0" z-index={z + 1}>
                     {children}
                 </frame>
-                <label pos={`${psize.x*0.5} -${psize.y*0.5}`} text="" class="draggable" z-index={z+10} size={`${psize.x} ${psize.y}`} textsize="2" halign="center" valign="center2" focusareacolor1={`${colors.highlight}8`} focusareacolor2={`${colors.highlight}d`} scriptevents="1" hidden="1" />
+                <label id="handle" pos={`${psize.x*0.5} -${psize.y*0.5}`} text="" class="draggable" z-index={z+10} size={`${psize.x} ${psize.y}`} textsize="2" halign="center" valign="center2" focusareacolor1={`${colors.highlight}8`} focusareacolor2={`${colors.highlight}d`} scriptevents="1" hidden="1" />
             </frame>
         </>
     );
