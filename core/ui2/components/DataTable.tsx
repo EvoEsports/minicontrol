@@ -63,7 +63,7 @@ export default function DataTable(props: any) {
             const type = column.type ?? 'text';
             let halign = 'left';
             if (column.align) halign = column.align;
-            outItems.push(<ListItem index={itemCounter} pos={`${width} -${5 * rowCounter}`} type={type} text={value} size={`${column.width} 4`} halign={halign} action={action} />);
+            outItems.push(<ListItem index={itemCounter} key={item.index} pos={`${width} -${5 * rowCounter}`} type={type} text={value} size={`${column.width} 4`} halign={halign} action={action} />);
             width += column.width;
             colIndex += 1;
         }

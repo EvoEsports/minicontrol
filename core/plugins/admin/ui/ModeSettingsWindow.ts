@@ -34,13 +34,16 @@ export default class ModeSettingsWindow extends ListWindow {
         this.settings = [];
         for (const data in settings) {
             let value = settings[data].toString();
-            if (typeof settings[data] === "boolean") {
+            const type = info.find((i: any) => i.Name === data)?.Type || ""
+
+            if (type === "boolean") {
                 value = settings[data] ? "true" : "false";
             }
+
             this.settings.push({
                 setting: data,
                 value: value,
-                type: typeof settings[data],
+                type: type,
                 description: info.find((i: any) => i.Name === data)?.Desc || "",
                 default: info.find((i: any) => i.Name === data)?.Default || ""
             });

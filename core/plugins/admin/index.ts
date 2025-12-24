@@ -1,10 +1,6 @@
 import { castType, htmlEntities } from "@core/utils";
 
 import Plugin from "@core/plugins";
-import fs from "node:fs";
-import LocalMapsWindow from "./LocalMapsWindow";
-import PlayerListsWindow from "./ui/PlayerListsWindow";
-import fsPath from "node:path";
 import type { Map as TmMap } from "@core/mapmanager.ts";
 import type { Player } from "@core/playermanager";
 import AdminWidget from "./AdminWidget";
@@ -13,6 +9,8 @@ import Menu from "@core/menu";
 import SettingsWindow from "./ui/SettingsWindow";
 import ColorsWindow from "./ui/ColorsWindow";
 import ModeSettingsWindow from "./ui/ModeSettingsWindow";
+import LocalMapsWindow from "./ui/LocalMapsWindow";
+import PlayerListsWindow from "./ui/PlayerListsWindow";
 
 enum TmnfMode {
     Rounds = 0,
@@ -687,7 +685,7 @@ export default class AdminPlugin extends Plugin {
         }
     }
 
-    async onPlayerDisconnect(player: Player) {
+    async onPlayerDisconnect(player: Player, reason: string = "") {
         if (this.adminWidget[player.login]) {
             delete this.adminWidget[player.login];
         }

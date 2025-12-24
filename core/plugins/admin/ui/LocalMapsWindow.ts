@@ -38,7 +38,7 @@ export default class LocalMapsWindow extends ListWindow {
         this.setAction("Add", null, async (login: string, item: any) => {
             try {
                 await tmc.server.call("AddMap", item.File);
-                await tmc.maps.syncMaplist();
+                tmc.chat(`¤info¤Map added: ${item.MapName || item.FileName}`, login);
             } catch (e: any) {
                 tmc.chat(`¤error¤${e.message}`, login);
             }

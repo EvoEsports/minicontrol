@@ -69,8 +69,6 @@ export interface EventMap {
     'Trackmania.SaveData': [type: string, id: string];
     'Trackmania.MapListModified': [curMapIndex: number, nextMapIndex: number, isListModified: boolean];
     'TMC.MapListModified': [curMapIndex: number, nextMapIndex: number, isListModified: boolean];
-    'TMC.PlayerConnect': [player: Player];
-    'TMC.PlayerDisconnect': [player: Player, reason: string];
     'TMC.SettingsChanged': [];
     'TMC.ColorsChanged': [];
     'TMC.AdminsChanged': [];
@@ -79,6 +77,10 @@ export interface EventMap {
     'TMC.Giveup': [login: string];
 }
 
+export interface EventObjectMap {
+    'TMC.PlayerConnect': [player: Player];
+    'TMC.PlayerDisconnect': [player: Player, reason?: string];
+}
 
 export default abstract class Plugin {
     /**
@@ -120,9 +122,10 @@ export default abstract class Plugin {
     private __registeredSettings: string[] = [];
     private __registeredColors: string[] = [];
 
-    // Public typed overloads using EventMap to provide IDE autocomplete
+    // Public typed overloads using EventMap and EventObjectMap for IDE autocomplete
     public addListener<T = unknown, K extends keyof EventMap = keyof EventMap>(method: K, callback: (this: T, data: EventMap[K]) => void, thisObj: T): void;
-    public addListener<T = unknown>(method: string, callback: (this: T, data: any[]) => void, thisObj: T): void;
+    public addListener<T = unknown, K extends keyof EventObjectMap = keyof EventObjectMap>(method: K, callback: (this: T, ...data: EventObjectMap[K]) => void, thisObj: T): void;
+    public addListener<T = unknown>(method: string, callback: (this: T, ...data: any[]) => void, thisObj: T): void;
     public addListener(method: string, callback: any, cls: any = this): void {
         try {
             // pass plugin instance as obj parameter so server will bind callback and
@@ -195,7 +198,7 @@ export default abstract class Plugin {
     /**
      * Convenience wrapper to register a color setting and track it for cleanup.
      */
-    protected addColor(name: string, defaultValue: any, callback: null|CallbackSetting, description = "") {
+    protected addColor(name: string, defaultValue: any, callback: null | CallbackSetting, description = "") {
         try {
             const cb = callback ? callback.bind(this) : null;
             tmc.settings.registerColor(name, defaultValue, cb, description);

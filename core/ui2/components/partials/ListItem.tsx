@@ -1,7 +1,7 @@
 import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
 import { formatTime } from '@core/utils';
 
-export default function ListItem({ pos = '0 0', size, type = 'text', text, action, index = 0, halign = 'left' }) {
+export default function ListItem({ pos = '0 0', size, type = 'text', text, action, index = 0, key = -1, halign = 'left' }) {
     const psize = vec2(size);
     const ppos = vec2(pos);
 
@@ -30,7 +30,7 @@ export default function ListItem({ pos = '0 0', size, type = 'text', text, actio
                     valign="center2"
                     focusareacolor1={colors.window_bg_dark}
                     focusareacolor2="000"
-                    name={`item_${index}`}
+                    name={`item_${key}`}
                     scriptevents="1"
                 />
                 <quad pos={`${ppos.x} ${ppos.y - psize.y * 0.5}`} z-index="1" valign="center" size={size} bgcolor={index % 2 ? colors.window_bg : colors.window_bg_light} />
