@@ -1,8 +1,9 @@
 import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2, setScriptHeader } from '@core/ui2/forge';
 
-export default function Window({ title = '', pos = '0 0', size='120 90', 'z-index': zIndex = 0, children = {} }) {
+export default function Window({ title = '', 'z-index': z = 0, pos = '0 0', size = '120 90', children = {} }) {
     const psize = vec2(size);
     const ppos = vec2(pos);
+
     const { actions, colors, data, id } = getProperties();
     const draggable = data.draggable ? 'True' : 'False';
 
@@ -79,14 +80,23 @@ if (Event.Control.HasClass("title")) {
 
     return (
         <>
-            <frame id="root" pos={`-${psize.x * 0.5} ${psize.y * 0.5 + ppos.y}`} z-index={zIndex}>
-                <quad class="title" pos="0 0" z-index="1" size={`${psize.x} 6`} bgcolor={`${colors.title_bg}e`} halign="left" valign="bottom" scriptevents="1" />
-                <quad pos={`${psize.x} 0`} z-index="3" size={`${psize.x} 0.4`} bgcolor={colors.highlight} opacity="1" valign="top" halign="right" />
-                <label pos="2 3" z-index="2" size={`{ psize.x - 10 } 4`} text={title} textsize="2.5" valign="center2" textcolor={colors.title_fg} textfont="RobotoCondensedBold" />
+            <frame id="root" pos={`-${psize.x * 0.5} ${psize.y * 0.5 + ppos.y}`} z-index={z}>
+                <quad class="title" pos="0 0" z-index={z + 1} size={`${psize.x} 6`} bgcolor={`${colors.title_bg}e`} halign="left" valign="bottom" scriptevents="1" />
+                <quad pos={`${psize.x} 0`} z-index={z + 2} size={`${psize.x} 0.4`} bgcolor={colors.highlight} opacity="1" valign="top" halign="right" />
+                <label
+                    pos="2 3"
+                    z-index={z + 1}
+                    size={`${psize.x - 10} 4`}
+                    text={title}
+                    textsize="2.5"
+                    valign="center2"
+                    textcolor={colors.title_fg}
+                    textfont="RobotoCondensedBold"
+                />
                 <label
                     id="close"
                     pos={`${psize.x - 4.5} 3`}
-                    z-index="2"
+                    z-index={z}
                     size="9 6"
                     halign="center"
                     valign="center2"
@@ -95,14 +105,14 @@ if (Event.Control.HasClass("title")) {
                     focusareacolor1={colors.title_bg}
                     focusareacolor2="d00"
                     scriptevents="1"
+                    action={actions.close}
                 />
-                <quad pos="0 0" z-index="3" size={`${psize.x} 0.3`} bgcolor={colors.black} opacity="1" valign="center" halign="left" />
-                <frame pos="2 -4" z-index="2">
+                <frame pos="2 -4" z-index={z + 3}>
                     {children}
                 </frame>
-                <quad pos="0 0" z-index="1" size={`${psize.x} ${psize.y}`} bgcolor={`${colors.window_bg}e`} />
-                <quad pos="-0.5 6.5" z-index="0" size={`${psize.x + 1} ${psize.y + 7}`} bgcolor="000b" scriptevents="1" />
-                <quad pos="0 0" z-index="100" size={`${psize.x} ${psize.y}`} bgcolor="0008" id="inactive" scriptevents="1" hidden="1" />
+                <quad pos="0 0" z-index={z + 1} size={`${psize.x} ${psize.y}`} bgcolor={`${colors.window_bg}e`} />
+                <quad pos="-0.5 6.5" z-index={z + 2} size={`${psize.x + 1} ${psize.y + 7}`} bgcolor="0000" scriptevents="1" />
+                <quad pos="0 0" z-index={z + 10} size={`${psize.x} ${psize.y}`} bgcolor="0008" id="inactive" scriptevents="1" hidden="1" />
             </frame>
         </>
     );

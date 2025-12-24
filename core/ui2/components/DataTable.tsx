@@ -8,7 +8,7 @@ import { type dataTableDef } from '../listwindow';
 import PaginateControls from './partials/PaginateControls';
 
 export default function DataTable(props: any) {
-    const { pos = '0 0', usetitle = false, data } = (props || {}) as { pos: string; usetitle: boolean; data: dataTableDef };
+    const { pos = '0 0', 'z-index': z = 1, usetitle = false, data } = (props || {}) as { pos: string; 'z-index': number; usetitle: boolean; data: dataTableDef };
     const { actions, size } = getProperties();
 
     const ListHeader = getComponent('ListHeader', DefaultListHeader);
@@ -26,7 +26,7 @@ export default function DataTable(props: any) {
         const action = actions['title_' + key];
         let halign = 'left';
         if (column.align) halign = column.align;
-        outHeaders.push(<ListHeader pos={`${totalWidth} 0`} text={column.title} size={`${column.width} 5`} action={action} halign={halign} />);
+        outHeaders.push(<ListHeader pos={`${totalWidth} 0`} z-index={z} text={column.title} size={`${column.width} 5`} action={action} halign={halign} />);
         totalWidth += column.width;
         rowCounter += 1;
     }
@@ -50,7 +50,7 @@ export default function DataTable(props: any) {
         let width = 0;
         let colIndex = 0;
         if (item.title) {
-            outItems.push(<ListTitle pos={`0 -${5 * rowCounter}`} text={item.title} size={`${totalWidth} 4`} />);
+            outItems.push(<ListTitle pos={`0 -${5 * rowCounter}`} z-index={z} text={item.title} size={`${totalWidth} 4`} />);
             rowCounter += 1;
         }
         for (const key in data.columns) {
@@ -63,7 +63,19 @@ export default function DataTable(props: any) {
             const type = column.type ?? 'text';
             let halign = 'left';
             if (column.align) halign = column.align;
-            outItems.push(<ListItem index={itemCounter} key={item.index} pos={`${width} -${5 * rowCounter}`} type={type} text={value} size={`${column.width} 4`} halign={halign} action={action} />);
+            outItems.push(
+                <ListItem
+                    index={itemCounter}
+                    key={item.index}
+                    pos={`${width} -${5 * rowCounter}`}
+                    z-index={z + 1}
+                    type={type}
+                    text={value}
+                    size={`${column.width} 4`}
+                    halign={halign}
+                    action={action}
+                />
+            );
             width += column.width;
             colIndex += 1;
         }
@@ -71,21 +83,21 @@ export default function DataTable(props: any) {
             const outAction = actions[`item_${item.index}_${action2.key}`];
             const awidth = action2.width || 10;
             if (action2.title) {
-                outItems.push(<Button pos={`${width} -${5 * rowCounter}`} size={`${awidth} 4`} text={action2.title} action={outAction} halign="center" />);
+                outItems.push(<Button pos={`${width} -${5 * rowCounter}`} z-index={z} size={`${awidth} 4`} text={action2.title} action={outAction} halign="center" />);
             }
             width += awidth + 1;
         }
         rowCounter += 1;
-        itemCounter +=1;
+        itemCounter += 1;
     }
 
     return (
         <>
-            <frame pos={pos}>
+            <frame pos={pos} z-index={z+1}>
                 {outHeaders}
-                <frame pos="0 -4">
+                <frame pos="0 -4" z-index={z+2}>
                     {outItems}
-                    <PaginateControls pos={`${size.width * 0.5} -${(size.height - 15)}`} data={data} />
+                    <PaginateControls pos={`${size.width * 0.5} -${size.height - 15}`} z-index={z} data={data} />
                 </frame>
             </frame>
         </>

@@ -263,7 +263,7 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
     return output;
 }
 
-export function renderJsx(element: any): string {
+export function renderJsx(element: any, zOffset: number = 0): string {
     if ([null, undefined, false].includes(element)) return ""; // Empty
     if (typeof element === "string") {
         const text = element;
@@ -275,25 +275,32 @@ export function renderJsx(element: any): string {
         return escapeForHtml(element); // Text
     }
     if (typeof element === "number") return element.toString(); // Number
-    if (Array.isArray(element)) return element.map(renderJsx).join(""); // List
+
+    // If element is an array, render each child with the current zOffset
+    if (Array.isArray(element)) return element.map((e, i) => renderJsx(e, zOffset + 1)).join(""); // List
 
     if (typeof element !== "object") throw Error("Element must be an object");
     const { type, props } = element;
+
+    // Function components: inherit z-index when not explicitly set, then render result with incremented z
     if (typeof type === "function") {
         const compProps = { ...(props || {}) };
-        if (currentRoot && currentRoot.dataObj !== undefined && compProps.obj === undefined) {
-            compProps.colors = tmc.settings.colors;
-        }
-        return renderJsx(type(compProps)); // Component
+        const ownZ = Number((compProps as any)["z-index"]) || 0;
+        return renderJsx(type(compProps), ownZ + zOffset + 1); // Component
     }
 
     let { children = [], ...attrs } = props || {};
     if (!Array.isArray(children)) children = [children];
+
+    const ownZ = Number(attrs["z-index"]) || 0;
+    attrs["z-index"] = ownZ + zOffset;
+
     const attrsStr = attrsToStr(attrs);
 
     if (children.length == 0) return `<${type}${attrsStr} />`;
 
-    const childrenStr = renderJsx(children);
+    const childZ = ownZ + zOffset + 1;
+    const childrenStr = renderJsx(children, childZ);
     return `<${type}${attrsStr}>${childrenStr}</${type}>`;
 }
 

@@ -154,7 +154,7 @@ export default class PlayerManager {
      */
     private async onPlayerDisconnect(data: any) {
         const login = data[0].toString();
-        const reason = data[1].toString() || "";
+        const reason = data[1] || "";
         if (login && this.players[login]) {
             tmc.server.emit("TMC.PlayerDisconnect", clone(this.players[login]), reason);
             delete this.players[login];

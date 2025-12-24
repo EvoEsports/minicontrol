@@ -1,6 +1,6 @@
 import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
 
-export default function Button({ id = '', pos = '0 0', 'z-index': zindex = 0, size = '26 6', text = ' ', halign = 'center', action }) {
+export default function Button({ id = '', 'z-index': z = 1, pos = '0 0', size = '26 6', text = ' ', halign = 'center', action }) {
     const pSize = vec2(size);
     const pPos = vec2(pos);
 
@@ -11,11 +11,11 @@ export default function Button({ id = '', pos = '0 0', 'z-index': zindex = 0, si
     const { colors } = getProperties();
 
     return (
-        <frame id={id} pos={`${pPos.x + posXoffset} ${pPos.y - pSize.y * 0.5}`} class="uiContainer uiButton" z-index={zindex}>
+        <frame id={id} pos={`${pPos.x + posXoffset} ${pPos.y - pSize.y * 0.5}`} z-index={z} class="uiContainer uiButton">
             <label
                 size={size}
                 text={text || ' '}
-                z-index="2"
+                z-index={z + 2}
                 class="uiButton uiButtonElement"
                 halign={halign}
                 valign="center2"

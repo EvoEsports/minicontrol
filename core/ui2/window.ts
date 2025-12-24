@@ -27,7 +27,7 @@ export default class Window extends Manialink implements IWindow {
             pos: `${this.pos.x} ${this.pos.y}`,
             size: `${this.size.width} ${this.size.height}`,
             title: this.title,
-            "z-index": this.pos.z,
+            "z-index": this.pos.z || 2,
             children: createElement(jsxComponent, {})
         });
     }

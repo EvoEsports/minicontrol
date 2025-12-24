@@ -254,7 +254,7 @@ export default class Manialink implements IManialink {
 
         const output = `<manialink version="3" id="${this.id}" layer="${this.layer}" name="${this.name}">
         ${jsx}
-        ${combinedScripts}
+        ${tmc.game.Name !== "TmnForever" ? combinedScripts : ""}
    </manialink>`;
         return output;
     }

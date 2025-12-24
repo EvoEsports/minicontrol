@@ -3,7 +3,6 @@ import { castType, htmlEntities } from "@core/utils";
 import Plugin from "@core/plugins";
 import type { Map as TmMap } from "@core/mapmanager.ts";
 import type { Player } from "@core/playermanager";
-import AdminWidget from "./AdminWidget";
 import Menu from "@core/menu";
 
 import SettingsWindow from "./ui/SettingsWindow";
@@ -36,16 +35,11 @@ declare module "@core/plugins" {
 
 export default class AdminPlugin extends Plugin {
     currentSetting: { [key: string]: Setting | undefined } = {};
-    adminWidget: { [key: string]: AdminWidget } = {};
 
     async onLoad() {
         if (tmc.game.Name !== "TmForever") {
             this.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");
         }
-        this.addSetting("admin.panel", true, this.adminPanelChange.bind(this), "Admin: Enable admin panel");
-        this.addListener("TMC.AdminsChanged", this.adminPanelChange, this);
-        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-        this.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
 
         this.addCommand("//settings", this.cmdSettings.bind(this), "Set settings");
         this.addCommand("//colors", this.cmdColors.bind(this), "Set colors");
@@ -569,20 +563,7 @@ export default class AdminPlugin extends Plugin {
         this.addCommand("//togglemute", this.cmdToggleMute.bind(this), "Toggle Mute");
     }
 
-    async onUnload() {
-
-    }
-
-    async adminPanelChange(value: any) {
-        for (const player of tmc.players.getAll()) {
-            await this.onPlayerConnect(player);
-        }
-    }
-
     async onStart(): Promise<void> {
-        for (const player of tmc.players.getAll()) {
-            await this.onPlayerConnect(player);
-        }
 
         const menu = Menu.getInstance();
 
@@ -669,26 +650,6 @@ export default class AdminPlugin extends Plugin {
             action: "//blacklist list",
             admin: true,
         });
-    }
-
-    async onPlayerConnect(player: Player) {
-        if (!tmc.admins.includes(player.login)) return;
-        if (tmc.settings.get("admin.panel")) {
-            const widget = new AdminWidget(player.login);
-            widget.size = { width: 60, height: 5 };
-            widget.pos = { x: 35, y: -86, z: 1 };
-            widget.display();
-            this.adminWidget[player.login] = widget;
-        } else if (this.adminWidget[player.login]) {
-            await this.adminWidget[player.login].destroy();
-            delete this.adminWidget[player.login];
-        }
-    }
-
-    async onPlayerDisconnect(player: Player, reason: string = "") {
-        if (this.adminWidget[player.login]) {
-            delete this.adminWidget[player.login];
-        }
     }
 
     async cmdModeSettings(login: string, args: string[]) {
