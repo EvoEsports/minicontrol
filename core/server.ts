@@ -33,6 +33,7 @@ export interface VersionStruct {
     Version?: string;
     Build?: string;
 }
+
 /**
  * Server class
  */

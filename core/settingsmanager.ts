@@ -27,12 +27,14 @@ const defaultColors = {
     error: "f00",
 };
 
+export type CallbackSetting = (newValue: any, oldValue: any, key: string) => Promise<void>;
+
 export default class SettingsManager {
     _defaultSettings: { [key: string]: any } = {};
     settings: { [key: string]: any } = {};
     _defaultColors: ColorKey & Record<string, string> = defaultColors;
     colors: ColorKey & Record<string, string> = defaultColors;
-    callbacks: { [key: string]: null | ((newValue: any, oldValue: any, _key: string) => Promise<void>) } = {};
+    callbacks: { [key: string]: null | CallbackSetting } = {};
     descriptions: { [key: string]: string } = {};
     colorDescriptions: { [key: string]: string } = {};
 
@@ -144,7 +146,7 @@ export default class SettingsManager {
      * @param callback
      * @param description
      */
-    register(key: string, value: any, callback: null | ((value: any, oldValue: any, _key: string) => Promise<void>), description = "") {
+    register(key: string, value: any, callback: null | CallbackSetting, description = "") {
         this._defaultSettings[key] = value;
         this.callbacks[key] = callback;
         this.descriptions[key] = description;
@@ -208,7 +210,7 @@ export default class SettingsManager {
      * @param callback
      * @param description
      */
-    registerColor(key: string, value: any, callback: null | ((value: any, oldValue: any) => Promise<void>), description = "") {
+    registerColor(key: string, value: any, callback: null | CallbackSetting, description = "") {
         this._defaultColors[key] = value;
         this.callbacks[`color.${key}`] = callback;
         this.colorDescriptions[key] = description;

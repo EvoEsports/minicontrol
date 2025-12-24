@@ -81,15 +81,14 @@ class MapManager {
     /** @ignore */
     private async onMapListModified(data: any) {
         if (data[2] === true) {
-            await this.syncMaplist();
+            await this.syncMaplist(data);
         }
-        tmc.server.emit("TMC.MapListModified", data);
     }
 
     /**
      * Sync the maplist with the server
      */
-    async syncMaplist() {
+    async syncMaplist(data: any = null) {
         const chunckedMaps: any = chunkArray(await tmc.server.call("GetMapList", -1, 0), 100);
         let method = "GetMapInfo";
         if (tmc.game.Name === "TmForever") method = "GetChallengeInfo";
@@ -114,6 +113,7 @@ class MapManager {
             }
         }
         this.maps = newMaps;
+        tmc.server.emit("TMC.MapListModified", data);
     }
     /**
      * add map

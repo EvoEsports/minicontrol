@@ -154,8 +154,9 @@ export default class PlayerManager {
      */
     private async onPlayerDisconnect(data: any) {
         const login = data[0].toString();
+        const reason = data[1].toString() || "";
         if (login && this.players[login]) {
-            tmc.server.emit("TMC.PlayerDisconnect", clone(this.players[login]));
+            tmc.server.emit("TMC.PlayerDisconnect", clone(this.players[login]), reason);
             delete this.players[login];
         } else {
             tmc.debug(`¤Error¤Unknown player ($fff${login}¤error¤) tried to disconnect or player not found at server. ignored.`);

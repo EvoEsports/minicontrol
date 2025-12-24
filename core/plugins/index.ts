@@ -1,9 +1,84 @@
+import type { CallableCommand } from "@core/commandmanager";
+import type { Player } from "@core/playermanager";
+import type { CallbackSetting } from "@core/settingsmanager";
 import Manialink from "@core/ui/manialink";
-import type { ComponentFunction } from "@core/uimanager";
 
-export interface PluginRegistry {
 
+export interface PluginRegistry { }
+
+export interface IPlayerInfo {
+    Login: string;
+    NickName: string;
+    PlayerId: number;
+    TeamId: number;
+    SpectatorStatus: number;
+    Flags: number;
+    LadderRanking: number;
 }
+
+export interface IMap {
+    Uid: string;
+    Name: string;
+    FileName: string;
+    Author: string;
+    AuthorNickname: string;
+    Environnement: string;
+    Mood: string;
+    BronzeTime: number;
+    SilverTime: number;
+    GoldTime: number;
+    AuthorTime: number;
+    CopperPrice: number;
+    LapRace: boolean;
+    NbLaps: number;
+    NbCheckpoints: number;
+    MapType: string;
+    MapStyle: string;
+}
+
+export interface IEntryVal {
+    Name: string;
+    Value: string;
+}
+export type StateNames = "NewVote" | "VoteCancelled" | "VotePassed" | "VoteFailed";
+
+export interface EventMap {
+    'Trackmania.BeginMap': [map: IMap];
+    'Trackmania.BeginMatch': [];
+    'Trackmania.BeginRound': [];
+    'Trackmania.BillUpdated': [billId: number, state: number, stateName: string, transactionId: number];
+    'Trackmania.Echo': [value1: string, value2: string];
+    'Trackmania.EndMap': [];
+    'Trackmania.EndRound': [];
+    'Trackmania.EndMatch': [map: IMap];
+    'Trackmania.PlayerAlliesChanged': [playerLogin: string];
+    'Trackmania.PlayerConnect': [playerLogin: string, isSpectator: boolean, playerUid: number];
+    'Trackmania.PlayerDisconnect': [playerLogin: string, reason: string];
+    'Trackmania.PlayerCheckpoint': [playerid: number, playerLogin: string, time: number, curLap: number, checkpointIndex: number];
+    'Trackmania.PlayerFinish': [playerid: number, playerLogin: string, finishTime: number];
+    'Trackmania.PlayerChat': [playerid: number, playerLogin: string, message: string, isREgisteredCmd: boolean, options: number];
+    'Trackmania.PlayerInfoChanged': [playerinfo: IPlayerInfo];
+    'Trackmania.PlayerManialinkPageAnswer': [playerid: number, login: string, answer: string, entries: IEntryVal];
+    'Trackmania.PlayerIncoherence': [playerid: number, playerLogin: string];
+    'Trackmania.ServerStart': [];
+    'Trackmania.ServerStop': [];
+    'Trackmania.StatusChanged': [statuscode: number, statusName: string];
+    'Trackmania.TunnelDataReceived': [playerUid: number, playerLogin: string, data: Buffer];
+    'Trackmania.VoteUpdated': [stateName: StateNames, login: string, cmdName: string, cmdParam: string];
+    'Trackmania.LoadData': [type: string, id: string];
+    'Trackmania.SaveData': [type: string, id: string];
+    'Trackmania.MapListModified': [curMapIndex: number, nextMapIndex: number, isListModified: boolean];
+    'TMC.MapListModified': [curMapIndex: number, nextMapIndex: number, isListModified: boolean];
+    'TMC.PlayerConnect': [player: Player];
+    'TMC.PlayerDisconnect': [player: Player, reason: string];
+    'TMC.SettingsChanged': [];
+    'TMC.ColorsChanged': [];
+    'TMC.AdminsChanged': [];
+    'TMC.Finish': [login: string, finishTime: number];
+    'TMC.PlayerCheckpoint': [login: string, time: number, curLap: number, checkpointIndex: number];
+    'TMC.Giveup': [login: string];
+}
+
 
 export default abstract class Plugin {
     /**
@@ -45,12 +120,10 @@ export default abstract class Plugin {
     private __registeredSettings: string[] = [];
     private __registeredColors: string[] = [];
 
-    /**
-     * Helper for adding a server listener and automatically tracking it for cleanup.
-     * Use this instead of calling tmc.server.addListener directly so the base-class
-     * cleanup can reliably remove listeners and free references.
-     */
-    protected addListener(method: string, callback: any, cls: any = this) {
+    // Public typed overloads using EventMap to provide IDE autocomplete
+    public addListener<T = unknown, K extends keyof EventMap = keyof EventMap>(method: K, callback: (this: T, data: EventMap[K]) => void, thisObj: T): void;
+    public addListener<T = unknown>(method: string, callback: (this: T, data: any[]) => void, thisObj: T): void;
+    public addListener(method: string, callback: any, cls: any = this): void {
         try {
             // pass plugin instance as obj parameter so server will bind callback and
             // allow removal by matching wrapper.listener
@@ -84,7 +157,7 @@ export default abstract class Plugin {
     /**
      * Convenience wrapper to add a command and track it for cleanup.
      */
-    protected addCommand(name: string, callback: any, help = "") {
+    protected addCommand(name: string, callback: CallableCommand, help: string = "") {
         try {
             tmc.addCommand(name, callback.bind(this), help);
             this.registerCommand(name);
@@ -97,7 +170,7 @@ export default abstract class Plugin {
      * Convenience wrapper to register a setting and track it for cleanup.
      * callback can be null or a function. If provided it will be bound to the plugin instance.
      */
-    protected addSetting(name: string, defaultValue: any, callback: any = null, description = "") {
+    protected addSetting(name: string, defaultValue: any, callback: null | CallbackSetting = null, description = "") {
         try {
             const cb = callback ? callback.bind(this) : null;
             tmc.settings.register(name, defaultValue, cb, description);
@@ -122,7 +195,7 @@ export default abstract class Plugin {
     /**
      * Convenience wrapper to register a color setting and track it for cleanup.
      */
-    protected addColor(name: string, defaultValue: any, callback: any = null, description = "") {
+    protected addColor(name: string, defaultValue: any, callback: null|CallbackSetting, description = "") {
         try {
             const cb = callback ? callback.bind(this) : null;
             tmc.settings.registerColor(name, defaultValue, cb, description);
@@ -190,22 +263,4 @@ export default abstract class Plugin {
             }
         }
     }
-
-    /**
-     * Add component handler to Manialink UI system
-     * @param tagName string
-     * @param handler ComponsentFunction
-     */
-    protected addComponent(tagName: string, handler: ComponentFunction) {
-        tmc.ui.registerComponentHandler(tagName, handler);
-    }
-
-    /**
-     * Remove component handler from Manialink UI system
-     * @param tagName string
-     */
-    protected removeComponent(tagName: string) {
-        tmc.ui.removeComponentHandler(tagName);
-    }
-
 }
