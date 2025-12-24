@@ -2,8 +2,10 @@ import Plugin from "../index.ts";
 import { emotesMap } from "./tmnf_emojis";
 import badwords from "./badwords.json";
 import { clone, removeColors } from "@core/utils";
-import ListWindow from "@core/ui/listwindow.ts";
-import Widget from "@core/ui/widget.ts";
+import ListWindow from "@core/ui2/listwindow.ts";
+import Widget from "@core/ui2/widget.ts"
+import EmotesWidget from "./ui/EmotesWidget.tsx";
+
 
 const regex: RegExp[] = [];
 
@@ -38,7 +40,7 @@ export default class Chat extends Plugin {
     async onLoad() {
         try {
             this.pluginEnabled = (await tmc.server.call("ChatEnableManualRouting", true, false)) as boolean;
-            this.addListener("Trackmania.PlayerChat", this.onPlayerChat);
+            this.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
             this.addCommand("//chat", this.cmdChat.bind(this), "Controls chat");
             this.addSetting("chat.color", "ff0", null, "Chat: Public chat color");
             this.addSetting("chat.badge.admin", "f00", null, "Chat: Admin badge color");
@@ -99,7 +101,7 @@ export default class Chat extends Plugin {
 
     async toggleWidget(enabled: boolean) {
         if (enabled && this.widget === null) {
-            this.widget = new Widget("widget.xml.twig", import.meta.dirname);
+            this.widget = new Widget(EmotesWidget);
             this.widget.pos = { x: -160, y: -35, z: 5 };
             this.widget.size = { width: 15, height: 3 };
             this.widget.setOpenAction(this.cmdTmfEmotes.bind(this));
@@ -158,10 +160,10 @@ export default class Chat extends Plugin {
         const window = new ListWindow(login);
         window.title = "Emotes";
         window.size = { width: 82, height: 95 };
-        window.setColumns([
-            { key: "emote", title: "Name", width: 50 },
-            { key: "glyph", title: "Emote", width: 15 },
-        ]);
+        window.setColumns({
+            emote: { title: "Name", width: 50 },
+            glyph: { title: "Emote", width: 15, align: "center" },
+        });
         const outItems = clone(emotesMap).map((item) => {
             return {
                 emote: `:${item.emote}:`,
@@ -169,12 +171,6 @@ export default class Chat extends Plugin {
             };
         });
         window.setItems(outItems);
-        window.setActions(["Chat"]);
-        window.onAction = async (login: string, action: string, item: any) => {
-            if (action === "Chat") {
-                this.onPlayerChat([1, login, `$z$fff${item.glyph}`]);
-            }
-        };
         window.display();
     }
 }

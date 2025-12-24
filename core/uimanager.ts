@@ -327,7 +327,7 @@ export default class UiManager {
 
             // ensure only one window of each type per player
             const playerWindows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof NewWindow) as NewWindow[];
-            if (playerWindows.find((win) => win.type === (manialink as NewWindow).type)) {
+            if (playerWindows.find((win) => win.name === (manialink as NewWindow).name)) {
                 return;
             }
 
@@ -376,11 +376,11 @@ export default class UiManager {
         }
     }
 
-    getWindowsByType(type: string): NewWindow[] {
+    getWindowsByName(name: string): NewWindow[] {
         const windows: NewWindow[] = [];
         for (const login of Object.keys(this.playerManialinks)) {
             for (const manialink of Object.values(this.playerManialinks[login])) {
-                if (manialink instanceof NewWindow && manialink.type === type) {
+                if (manialink instanceof NewWindow && manialink.name === name) {
                     windows.push(manialink);
                 }
             }
@@ -413,7 +413,7 @@ export default class UiManager {
                         this.playerManialinks[manialink.recipient] = {};
                     }
                     const playerWindows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof NewWindow) as NewWindow[];
-                    if (playerWindows.find((win) => win.type === (manialink as NewWindow).type)) {
+                    if (playerWindows.find((win) => win.name === (manialink as NewWindow).name)) {
                         return;
                     }
                     // If it's a Window, destroy all existing windows for that recipient.

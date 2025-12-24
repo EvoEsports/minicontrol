@@ -1,4 +1,4 @@
-import LWindow from "./components/ListWindow";
+import LWindow from "./components/ListWindowComponent";
 import Window from "./window";
 
 export interface columnDef {

@@ -1,17 +1,16 @@
 import type IWindow from "./interfaces/iwindow";
 import Manialink from "./manialink";
-import DefaultWindow from "./components/Window";
+import DefaultWindow from "./components/WindowComponent";
 import { createElement, getComponent } from "./forge";
 
 export default class Window extends Manialink implements IWindow {
-    type: string;
     title: string = "Window";
 
-    constructor(jsxComponent: any, login: string, type: string) {
+    constructor(jsxComponent: any, login: string, name: string) {
         super("");
         this.recipient = login;
-        this.type = type;
-        this.data.windowType = type;
+        this.name = name;
+        this.data.windowName = name;
         this.actions.close = tmc.ui.addAction(() => this.destroy(), null);
         this.setDraggable(true);
         this.constructWindow(jsxComponent);
@@ -46,7 +45,7 @@ export default class Window extends Manialink implements IWindow {
                 declare Text[] G_MC_ActiveWindow for UI;
                 declare Vec2[Text] G_MC_WindowLocations for UI;
                 G_MC_ActiveWindow.remove("${this.id}");
-                G_MC_WindowLocations.removekey("${this.data.windowType}");
+                G_MC_WindowLocations.removekey("${this.data.windowName}");
             }
         --></script>
     </manialink>

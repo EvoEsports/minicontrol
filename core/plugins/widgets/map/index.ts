@@ -1,25 +1,21 @@
 import { htmlEntities, formatTime } from "@core/utils";
 import Plugin from "@core/plugins";
-import Widget from "@core/ui/widget";
+import Widget from "@core/ui2/widget";
+import MapWidgetComponent from "./ui/MapWidget.tsx";
 import type { TmxMapInfo } from "@core/plugins/tmx";
 
 export default class MapWidget extends Plugin {
-    widget: Widget | null = null;
+    widget!: Widget;
     tmxInfo: TmxMapInfo = {} as TmxMapInfo;
 
     async onLoad() {
-        this.widget = new Widget("widget.xml.twig", import.meta.dirname);
+        this.widget = new Widget(MapWidgetComponent, "tmxMapInfoWidget");
         this.widget.pos = { x: 121, y: 89, z: 1 };
         this.widget.size = { width: 38, height: 9 };
         this.widget.setOpenAction(this.buttonClick.bind(this));
         this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         this.addListener("Plugin.TMX.MapInfo", this.onMapInfo, this);
         await this.display();
-    }
-
-    async onUnload() {
-        this.widget?.hide();
-        this.widget = null;
     }
 
     async onBeginMap(data: any) {
@@ -78,12 +74,12 @@ export default class MapWidget extends Plugin {
             }
         }
 
-        this.widget?.setData({
-            author: htmlEntities(map.AuthorNickname ? map.AuthorNickname : map.Author),
-            mapname: htmlEntities(map.Name),
+        this.widget.setData({
+            author: map.AuthorNickname ? map.AuthorNickname : map.Author,
+            mapname: map.Name,
             authortime: formatTime(map.AuthorTime),
             wrTime: formatTime(data.wrTime || 0),
-            wrHolder: htmlEntities(data.wrHolder || "n/a"),
+            wrHolder: data.wrHolder || "n/a",
             tmx: this.getTmxLogo(),
             tmxUrl: tmxUrl,
             game: tmc.game.Name,

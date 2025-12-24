@@ -30,7 +30,7 @@ Void Drag() {
         }
         FrameRoot.RelativePosition_V3 = <MouseX, MouseY> - OrigPos;
     }
-    G_MC_WindowLocations["${data.windowType}"] = FrameRoot.RelativePosition_V3;
+    G_MC_WindowLocations["${data.windowName}"] = FrameRoot.RelativePosition_V3;
 }
 
 ***OnInit***
@@ -40,10 +40,10 @@ declare Text[] G_MC_ActiveWindow for UI;
 declare CMlFrame FrameRoot <=> Page.GetFirstChild("root") as CMlFrame;
 declare CMlQuad InactiveRoot <=> Page.GetFirstChild("inactive") as CMlQuad;
 declare Vec2[Text] G_MC_WindowLocations for UI;
-if (G_MC_WindowLocations.existskey("${data.windowType}")) {
-   FrameRoot.RelativePosition_V3 =  G_MC_WindowLocations["${data.windowType}"];
+if (G_MC_WindowLocations.existskey("${data.windowName}")) {
+   FrameRoot.RelativePosition_V3 =  G_MC_WindowLocations["${data.windowName}"];
 } else {
-    G_MC_WindowLocations["${data.windowType}"] = FrameRoot.RelativePosition_V3;
+    G_MC_WindowLocations["${data.windowName}"] = FrameRoot.RelativePosition_V3;
 }
 ***
 

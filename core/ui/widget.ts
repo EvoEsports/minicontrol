@@ -1,3 +1,4 @@
+import type { ActionCallback } from "@core/uimanager";
 import Manialink, { type MlSize } from "./manialink";
 
 export default class Widget extends Manialink {
@@ -8,7 +9,7 @@ export default class Widget extends Manialink {
         this.template = template;
     }
 
-    setOpenAction(action: CallableFunction) {
+    setOpenAction(action: ActionCallback) {
         if (this.actions.openWidget === undefined) {
             this.actions.openWidget = tmc.ui.addAction(action, "");
         }

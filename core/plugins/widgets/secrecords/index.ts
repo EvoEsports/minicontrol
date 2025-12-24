@@ -7,8 +7,6 @@ export default class SecRecordsWidget extends Plugin {
     async onLoad() {
         this.addListener("Plugin.secRecords.newBest", this.newBest, this);
         this.addListener("Plugin.secRecords.diffBest", this.diffBest, this);
-        // this.addListener('Plugin.secRecords.newPB', this.newPB, this);
-        // this.addListener('Plugin.secRecords.diffPB', this.diffPB, this);
     }
 
     async newBest(data: any) {
