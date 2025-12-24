@@ -81,11 +81,11 @@ if (Event.Control.HasClass("title")) {
     return (
         <>
             <frame id="root" pos={`-${psize.x * 0.5} ${psize.y * 0.5 + ppos.y}`} z-index={z}>
-                <quad class="title" pos="0 0" z-index={z + 1} size={`${psize.x} 6`} bgcolor={`${colors.title_bg}e`} halign="left" valign="bottom" scriptevents="1" />
+                <quad class="title" pos="0 0" z-index={z + 3} size={`${psize.x} 6`} bgcolor={`${colors.title_bg}e`} halign="left" valign="bottom" scriptevents="1" />
                 <quad pos={`${psize.x} 0`} z-index={z + 2} size={`${psize.x} 0.4`} bgcolor={colors.highlight} opacity="1" valign="top" halign="right" />
                 <label
                     pos="2 3"
-                    z-index={z + 1}
+                    z-index={z + 4}
                     size={`${psize.x - 10} 4`}
                     text={title}
                     textsize="2.5"
@@ -96,7 +96,7 @@ if (Event.Control.HasClass("title")) {
                 <label
                     id="close"
                     pos={`${psize.x - 4.5} 3`}
-                    z-index={z+3}
+                    z-index={z+5}
                     size="9 6"
                     halign="center"
                     valign="center2"
