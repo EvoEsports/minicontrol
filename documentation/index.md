@@ -18,7 +18,7 @@ Welcome! MINIcontrol is a lightweight controller for Trackmania servers designed
 
 Need help? Join the [Evo Esports Discord](https://discord.gg/evoesports) in the `#minicontrol` channel or open an issue on GitHub.
 
-> View the live docs site: [https://evoesports.github.io/minicontrol](https://evoesports.github.io/minicontrol) (deployed via MkDocs/GitHub Actions)
+> View the live docs site: [https://evoesports.github.io/minicontrol](https://evoesports.github.io/minicontrol)
 
 ---
 ## Quick links
@@ -26,7 +26,7 @@ Need help? Join the [Evo Esports Discord](https://discord.gg/evoesports) in the 
 - Server Admins: [Installation & Setup](./users/install.md) ✅
 - Plugin Managers: [Plugin management guide](./users/plugins.md)
 - Developers: [Concept & architecture](./devs/concept.md) • [Plugins & API](./devs/plugins.md)
-- UI System: [Manialink & Widget docs](./devs/ui-system.md) • [JSX & Forge](./devs/ui2.md) • [Forge API](./devs/forge.md)
+- UI System: [Manialink & Widget docs](./devs/ui-system.md) • [JSX & Forge](./devs/ui-system2.md) • [Forge API](./devs/forge.md)
 - Class reference: [Core classes index](./devs/class/index.md)
 - Examples: [Quickstart plugin and example plugin](./devs/quickstart-plugin.md)
 
