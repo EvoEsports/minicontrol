@@ -127,7 +127,7 @@ export default class Records extends Plugin {
                     ["updatedAt", "ASC"],
                 ],
                 limit: tmc.settings.get("records.maxRecords"),
-                include: [Player],
+                include: [{ model: Player, as: 'player' }],
             });
         } catch (err: any) {
             tmc.cli(`Error fetching records: ${err.message}`);
@@ -329,7 +329,7 @@ export default class Records extends Plugin {
                 const newRecord =
                     (await Score.findOne({
                         where: { [Op.and]: { login, mapUuid } },
-                        include: Player,
+                        include: [{ model: Player, as: 'player' }],
                     })) || undefined;
                 if (newRecord) {
                     newRecord.rank = 1;
@@ -390,7 +390,7 @@ export default class Records extends Plugin {
                 record =
                     (await Score.findOne({
                         where: { [Op.and]: { login, mapUuid } },
-                        include: Player,
+                        include: [{ model: Player, as: 'player' }],
                     })) || undefined;
                 if (record) {
                     this.records.push(record);

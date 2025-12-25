@@ -1,21 +1,11 @@
-import Widget from "@core/ui/widget";
+import Widget from "@core/ui2/widget";
+import Records from "./records";
 
 export default class recordsWidget extends Widget {
-    setLiveAction(action: CallableFunction) {
-        if (this.actions["liveAction"] === undefined) {
-            this.actions["liveAction"] = tmc.ui.addAction(action, "");
-        }
+
+    constructor(playerLogin: string | undefined) {
+        super(Records, "recordsWidget");
+        this.recipient = playerLogin;
     }
 
-    setServerAction(action: CallableFunction) {
-        if (this.actions["serverAction"] === undefined) {
-            this.actions["serverAction"] = tmc.ui.addAction(action, "");
-        }
-    }
-
-    setWorldAction(action: CallableFunction) {
-        if (this.actions["worldAction"] === undefined) {
-            this.actions["worldAction"] = tmc.ui.addAction(action, "");
-        }
-    }
 }

@@ -8,8 +8,8 @@ import {
     DataType,
     NotNull,
     AllowNull,
-    HasOne,
     ForeignKey,
+    BelongsTo,
     AutoIncrement,
 } from "sequelize-typescript";
 import Player from "@core/plugins/database/models/players.model";
@@ -27,8 +27,10 @@ class Score extends Model {
     @NotNull
     @AllowNull(false)
     @Column(DataType.STRING)
-    @HasOne(() => Player, { as: "player", sourceKey: "login", foreignKey: "login" })
+    @ForeignKey(() => Player)
     declare login: string;
+
+    @BelongsTo(() => Player, { as: "player", foreignKey: "login", targetKey: "login" })
     player?: Player;
 
     @NotNull

@@ -61,7 +61,7 @@ export default class RecordsWindow extends ListWindow {
                         ["time", "ASC"],
                         ["updatedAt", "ASC"],
                     ], // just in case there are multiple entries for the same player on that map for whatever reason
-                    include: [Player],
+                    include: [{ model: Player, as: 'player' }],
                 });
 
                 if (record) {
