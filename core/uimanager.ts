@@ -3,6 +3,7 @@ import NewWindow from "./ui2/window";
 
 import { chunkArray, parseEntries } from "./utils";
 import type IManialink from "./ui2/interfaces/imanialink";
+import Manialink from "./ui2/manialink.ts";
 
 
 export interface uiModule {
@@ -376,17 +377,25 @@ export default class UiManager {
         }
     }
 
-    getWindowsByName(name: string): NewWindow[] {
-        const windows: NewWindow[] = [];
+    /**
+     * Get manialinks by name,
+     * returns all manialinks if name is undefined
+     * @param name
+     * @returns
+     */
+    getManialinks(name: string | undefined): Manialink[] {
+        const manialinks: Manialink[] = [];
         for (const login of Object.keys(this.playerManialinks)) {
             for (const manialink of Object.values(this.playerManialinks[login])) {
-                if (manialink instanceof NewWindow && manialink.name === name) {
-                    windows.push(manialink);
+                if (manialink instanceof Manialink && (manialink.name === name || name === undefined)) {
+                    manialinks.push(manialink);
                 }
             }
         }
-        return windows;
+        return manialinks;
     }
+
+
 
     /**
      * Display array of manialinks

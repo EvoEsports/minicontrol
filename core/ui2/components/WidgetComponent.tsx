@@ -54,13 +54,45 @@ if (Event.Control.HasClass("draggable")) {
         `;
     });
 
+    let move = null;
+    if (actions.move) {
+        move = (
+            <label
+                pos={pos}
+                size={size}
+                z-index="20"
+                text=" "
+                focusareacolor1={data.moveActive ? '0000' : colors.highlight + '8'}
+                focusareacolor2={colors.highlight + 'd'}
+                action={actions.move}
+            />
+        );
+    }
+
     return (
         <>
+            {move}
             <frame id="root" pos={`${ppos.x} ${ppos.y}`} z-index={z}>
                 <frame pos="0 0" z-index={z + 1}>
                     {children}
                 </frame>
-                <label id="handle" pos={`${psize.x*0.5} -${psize.y*0.5}`} text="" class="draggable" z-index={z+10} size={`${psize.x} ${psize.y}`} textsize="2" halign="center" valign="center2" focusareacolor1={`${colors.highlight}8`} focusareacolor2={`${colors.highlight}d`} scriptevents="1" hidden="1" />
+                {tmc.game.Name != 'TmForever' ? (
+                    <label
+                        id="handle"
+                        pos={`${psize.x * 0.5} -${psize.y * 0.5}`}
+                        text=""
+                        class="draggable"
+                        z-index={z + 10}
+                        size={`${psize.x} ${psize.y}`}
+                        textsize="2"
+                        halign="center"
+                        valign="center2"
+                        focusareacolor1={`${colors.highlight}8`}
+                        focusareacolor2={`${colors.highlight}d`}
+                        scriptevents="1"
+                        hidden="1"
+                    />
+                ) : null}
             </frame>
         </>
     );

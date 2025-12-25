@@ -22,7 +22,7 @@ export default class Maps extends Plugin {
 
 
     async onMapListModified() {
-        const windows = tmc.ui.getWindowsByName("maplist") as MapsWindow[];
+        const windows = tmc.ui.getManialinks("maplist") as MapsWindow[];
         for (const window of windows) {
             await window.update();
             await window.display();
