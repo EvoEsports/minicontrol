@@ -1,7 +1,7 @@
 import { htmlEntities, formatTime } from "@core/utils";
 import Plugin from "@core/plugins";
 import Widget from "@core/ui2/widget";
-import MapWidgetComponent from "./ui/MapWidget.tsx";
+import MapWidgetComponent from "./MapWidget.tsx";
 import type { TmxMapInfo } from "@core/plugins/tmx";
 
 export default class MapWidget extends Plugin {

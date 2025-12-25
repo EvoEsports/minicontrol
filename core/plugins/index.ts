@@ -72,9 +72,9 @@ export interface EventMap {
     'TMC.SettingsChanged': [];
     'TMC.ColorsChanged': [];
     'TMC.AdminsChanged': [];
-    'TMC.Finish': [login: string, finishTime: number];
+    'TMC.PlayerFinish': [login: string, finishTime: number];
     'TMC.PlayerCheckpoint': [login: string, time: number, curLap: number, checkpointIndex: number];
-    'TMC.Giveup': [login: string];
+    'TMC.PlayerGiveup': [login: string];
 }
 
 export interface EventObjectMap {

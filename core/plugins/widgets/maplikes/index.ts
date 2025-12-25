@@ -1,6 +1,6 @@
 import Plugin from "@core/plugins";
 import Widget from "@core/ui2/widget";
-import MapLikesComponent from "./ui/maplikesWidget.tsx";
+import MapLikesComponent from "./MaplikesWidget.tsx";
 
 import type { Like } from "@core/plugins/maplikes";
 
