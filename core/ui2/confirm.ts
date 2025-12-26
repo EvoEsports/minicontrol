@@ -14,11 +14,10 @@ export default class Confirm extends Window {
 
     constructor(login: string, question: string, callback: CallableFunction, params: any) {
         super(ConfirmComponent, login, "confirmWindow");
-        this.pos = { x: 0, y: 20, z: 10 };
+        this.pos = { x: 0, y: 20, z: 30 };
         this.callback = callback;
         this.params = params;
         this.data.question = question;
-
         this.actions.close = tmc.ui.addAction(this.hide.bind(this), "");
         this.setApplyButtons(true);
     }

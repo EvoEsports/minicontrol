@@ -86,32 +86,7 @@ export default class Records extends Plugin {
             mapUuid = args[0].trim() || tmc.maps.currentMap.UId;
         }
 
-        for (const record of await this.getRecords(mapUuid)) {
-            records.push({
-                rank: record.rank,
-                nickname: htmlEntities(record?.player?.customNick ?? record?.player?.nickname ?? ""),
-                login: record.login,
-                time: formatTime(record.time ?? 0),
-                mapUuid: mapUuid,
-            });
-        }
-        const map = tmc.maps.getMap(mapUuid) ?? tmc.maps.currentMap;
-        const window = new RecordsWindow(login, this);
-        window.size = { width: 100, height: 100 };
-        window.title = `Server Records for ${htmlEntities(map.Name)}$z$s [${this.records.length}]`;
-        window.setItems(records);
-        window.setColumns([
-            { key: "rank", title: "Rank", width: 10 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "time", title: "Time", width: 20 },
-        ]);
-
-        window.setActions(["View"]);
-
-        if (tmc.admins.includes(login)) {
-            window.size.width = 115;
-            window.setActions(["View", "Delete"]);
-        }
+        const window = new RecordsWindow(login, mapUuid);
         window.display();
     }
 
@@ -203,11 +178,10 @@ export default class Records extends Plugin {
                 score.rank = rank;
                 rank += 1;
             }
-
             tmc.server.emit("Plugin.Records.onRefresh", {
                 records: clone(this.records),
             });
-            await this.cmdRecords(login, []);
+
         } catch (err: any) {
             const msg = `Error deleting record: ${err.message}`;
             tmc.cli(msg);

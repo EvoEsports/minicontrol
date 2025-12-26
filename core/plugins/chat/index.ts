@@ -101,7 +101,7 @@ export default class Chat extends Plugin {
     async toggleWidget(enabled: boolean) {
         if (enabled && this.widget === null) {
             this.widget = new Widget(EmotesWidget, "emotesWidget");
-            this.widget.pos =  { x: -160, y: -35, z: 5 };
+            this.widget.pos =  { x: -160, y: -35, z: 0 };
             this.widget.size = { width: 15, height: 3 };
             this.widget.setOpenAction(this.cmdTmfEmotes.bind(this));
             this.widget.display();

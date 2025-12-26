@@ -1,9 +1,9 @@
 import Plugin from "@core/plugins";
-import { formatTime, htmlEntities } from "@core/utils";
 import fs from "node:fs";
-import SearchWindow from "./searchWindow";
 import Menu from "@core/menu";
 import type { Map as TmMap } from "@core/mapmanager";
+import ListWindow from "@core/ui2/listwindow";
+import Confirm from "@core/ui2/confirm";
 
 export interface TmxMapInfo {
     TmxId: string;
@@ -50,6 +50,12 @@ export default class Tmx extends Plugin {
         "PressForward",
         "Trial",
         "Grass",
+        "Story",
+        "Nascar",
+        "Speedfun",
+        "Endurance",
+        "Altered Nadeo",
+        "Transitional"
     ];
     readonly TM1X_UNLIMITER = ["none", "0.4", "0.6", "0.7", "1.1", "1.2", "1.3", "2.0", "2.1"];
     readonly TMX1X_DIFFICULTY = ["Beginner", "Intermediate", "Expert", "Lunatic"];
@@ -156,9 +162,9 @@ export default class Tmx extends Plugin {
             }
             out.push({
                 id: data.TrackId || data.MapId,
-                name: htmlEntities(name),
-                author: htmlEntities(data.Authors[0].User.Name || "n/a"),
-                length: formatTime(data.AuthorScore || data.Length) || "",
+                name: (name),
+                author: (data.Authors[0].User.Name || "n/a"),
+                length: data.AuthorScore || data.Length || 0,
                 tags:
                     data.Tags.map((tag: any) => {
                         let color = "";
@@ -169,34 +175,50 @@ export default class Tmx extends Plugin {
                         if (tag.Name) return color + tag.Name;
                         return this.TM1X_TAGS[tag];
                     }).join("$fff, ") || "n/a",
-                awards: `$fe0${data.Awards || data.AwardCount || "0"}`,
+                awards: `$fe0${data.Awards || data.AwardCount || ""}`,
                 unlimiter: data.UnlimiterVersion ? `$o$f00${this.TM1X_UNLIMITER[data.UnlimiterVersion]}` : "",
             });
         }
 
-        const window = new SearchWindow(login);
+        const window = new ListWindow(login);
         window.title = "Search Results";
-        window.size = { width: 150, height: 95 };
-        window.setColumns([
-            { key: "name", title: "Name", width: 40 },
-            { key: "author", title: "Author", width: 20 },
-            { key: "tags", title: "Tags", width: 40 },
-            { key: "length", title: "Length", width: 20 },
-            { key: "awards", title: "Awards", width: 10 },
-        ]);
+        window.size = { width: 150, height: 120 };
+        window.setColumns({
+            name: { title: "Name", width: 40 },
+            author: { title: "Author", width: 20 },
+            tags: { title: "Tags", width: 40 },
+            length: { title: "Length", width: 20,type: "time", align: "center" },
+            awards: { title: "Awards", width: 10, align: "center" },
+        });
+
 
         if (tmc.game.Name === "TmForever") {
-            window.setColumns([
-                { key: "name", title: "Name", width: 40 },
-                { key: "author", title: "Author", width: 20 },
-                { key: "tags", title: "Tags", width: 40 },
-                { key: "length", title: "Length", width: 12 },
-                { key: "unlimiter", title: "Unlimiter", width: 10 },
-                { key: "awards", title: "Awards", width: 10 },
-            ]);
+            window.setColumns({
+                name: { title: "Name", width: 40 },
+                author: { title: "Author", width: 20 },
+                tags: { title: "Tags", width: 40 },
+                length: { title: "Length", width: 20, type: "time", align: "center" },
+                unlimiter: { title: "Unlimiter", width: 10, align: "center" },
+                awards: { title: "Awards", width: 10, align: "center" },
+            });
         }
 
-        window.setActions(["Install"]);
+        window.setAction("add", "Install", async (login, item, _entries) => {
+            if (item.unlimiter) {
+                const confirm = new Confirm(
+                    login,
+                    "If players do not have the unlimiter, they will not be able to play the map.\nInstall anyway ?",
+                    async (login: string, params: string) => {
+                        await tmc.chatCmd.execute(login, params);
+                    },
+                    [login, `//add ${item.id}`],
+                );
+                await confirm.display();
+            } else {
+                await tmc.chatCmd.execute(login, `//add ${item.id}`);
+            }
+        });
+
         window.setItems(out);
         window.display();
     }

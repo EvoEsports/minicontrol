@@ -35,6 +35,11 @@ export default class Dedimania extends Plugin {
     pass: string = process.env.DEDIMANIA_PASS || "";
 
     async onLoad() {
+        if (this.pass === "") {
+            this.enabled = false;
+            tmc.cli("¤error¤Dedimania: No password set, plugin disabled.");
+            return;
+        }
         tmc.cli("¤info¤Dedimania: TmForever detected, enabling plugin.");
         this.addCommand("/dedirecords", this.cmdDediRecords.bind(this), "Show dedimania records");
         this.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
@@ -43,12 +48,6 @@ export default class Dedimania extends Plugin {
 
         this.serverInfo = await tmc.server.call("GetMainServerPlayerInfo");
         this.serverLogin = this.serverInfo.Login;
-
-        if (this.pass === "") {
-            this.enabled = false;
-            tmc.cli("¤error¤Dedimania: No password set, plugin disabled.");
-            return;
-        }
     }
 
     async onUnload() {
@@ -56,6 +55,7 @@ export default class Dedimania extends Plugin {
     }
 
     async onStart() {
+        if (!this.enabled) return;
         const menu = tmc.storage["menu"];
         if (menu) {
             menu.addItem({
@@ -156,6 +156,8 @@ export default class Dedimania extends Plugin {
      * @returns
      */
     async authenticate(): Promise<boolean> {
+        if (!this.enabled) return false;
+
         this.server = await tmc.server.call("GetDetailedPlayerInfo", this.serverInfo.Login);
         try {
             const res: any = await this.api.call("dedimania.Authenticate", {

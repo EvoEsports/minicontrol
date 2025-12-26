@@ -1,5 +1,6 @@
 import Plugin from "@core/plugins";
-import Widget from "@core/ui/widget";
+import Widget from "@core/ui2/widget";
+import Button from "./Button";
 
 declare module "@core/plugins" {
     interface PluginRegistry {
@@ -11,8 +12,8 @@ export default class ToggleChat extends Plugin {
     widget: Widget | null = null;
 
     async onLoad() {
-        this.widget = new Widget("widget.xml.twig", import.meta.dirname);
-        this.widget.pos = { x: -160, y: -40, z: 5 };
+        this.widget = new Widget(Button, "toggleChatButton");
+        this.widget.pos = { x: -160, y: -40, z: 0 };
         this.widget.size = { width: 15, height: 3 };
         this.widget.setOpenAction(this.manialinkToggle.bind(this));
         await this.widget.display();

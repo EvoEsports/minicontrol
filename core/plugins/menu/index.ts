@@ -45,7 +45,7 @@ export default class MenuPlugin extends Plugin {
     async toggleMenu(login: string) {
         if (!this.menuInstances[login]) {
             const menu = new MenuWidget(login, this);
-            menu.pos = { x: 70, y: -15, z: -10 };
+            menu.pos = { x: 70, y: -15, z: 0 };
             menu.size = { width: 57, height: 50 };
             this.menuInstances[login] = menu;
             await menu.display();

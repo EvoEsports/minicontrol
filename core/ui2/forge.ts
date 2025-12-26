@@ -203,10 +203,8 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
     const scriptsArray = root.hooks.map(h => h.script).filter(Boolean);
     const uniqueScripts = Array.from(new Set(scriptsArray));
     const scripts = uniqueScripts.join('\n');
-
-    const output = `<manialink id="" version="3">
-      ${jsx}
-      <script><!--
+    const outScripts = `
+    <script><!--
         #Include "TextLib" as TextLib
         #Include "MathLib" as MathLib
         #Include "AnimLib" as AnimLib
@@ -256,8 +254,12 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
                 +++Loop+++
             }
         }
+        --></script>`;
 
-        --></script>
+
+    const output = `<manialink id="" version="3">
+      ${jsx}
+      ${tmc.game.Name !== "TmForever" ? outScripts : ""}
     </manialink>`;
 
     return output;
@@ -276,17 +278,17 @@ export function renderJsx(element: any, zOffset: number = 0): string {
     }
     if (typeof element === "number") return element.toString(); // Number
 
-    // If element is an array, render each child with the current zOffset
-    if (Array.isArray(element)) return element.map((e, i) => renderJsx(e, zOffset + 0.1)).join(""); // List
+    // If element is an array, render each child with an increasing zOffset per sibling
+    if (Array.isArray(element)) return element.map((e, i) => renderJsx(e, zOffset + 0.01)).join(""); // List
 
     if (typeof element !== "object") throw Error("Element must be an object");
     const { type, props } = element;
 
-    // Function components: inherit z-index when not explicitly set, then render result with incremented z
+    // Function components: inherit z-index when not explicitly set, then render result with base z
     if (typeof type === "function") {
         const compProps = { ...(props || {}) };
         const ownZ = Number((compProps as any)["z-index"]) || 0;
-        return renderJsx(type(compProps), ownZ + zOffset + 0.1); // Component
+        return renderJsx(type(compProps), ownZ + zOffset); // Component
     }
 
     let { children = [], ...attrs } = props || {};
@@ -299,7 +301,8 @@ export function renderJsx(element: any, zOffset: number = 0): string {
 
     if (children.length == 0) return `<${type}${attrsStr} />\n`;
 
-    const childZ = ownZ + zOffset + 0.1;
+    // Use base child offset (ownZ + zOffset); the array rendering will increment per sibling
+    const childZ = ownZ;
     const childrenStr = renderJsx(children, childZ);
     return `<${type}${attrsStr}>\n${childrenStr}\n</${type}>\n`;
 }
@@ -319,7 +322,7 @@ function attrsToStr(attrs: Record<string, any>) {
             }
             if (value === true) return ` ${key}`; // Boolean (true)
             // Skip null, undefined and false values
-            if (value == null || value === false) return null; // Skipped
+            if (value == null) return null; // Skipped
             const escapedValue = escapeForHtml(value.toString());
             return ` ${key}="${escapedValue}"`;
         })

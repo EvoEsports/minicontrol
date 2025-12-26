@@ -1,101 +1,109 @@
-import ListWindow from "@core/ui/listwindow";
-import Confirm from "@core/ui/confirm";
+import ListWindow from "@core/ui2/listwindow";
+import Confirm from "@core/ui2/confirm";
 import Score from "@core/plugins/records/models/scores.model";
 import Player from "@core/plugins/database/models/players.model";
 import { formatTime, htmlEntities } from "@core/utils";
 import { Op } from "sequelize";
-import type WorldRecords from "@core/plugins/tm2020/worldrecords";
-import type Records from "@core/plugins/records";
-
-interface Column {
-    title: string;
-    key: string;
-    width: number;
-}
-
-type AppType = Records | WorldRecords;
 
 export default class RecordsWindow extends ListWindow {
-    app: AppType;
+    size = { width: 100, height: 120 };
+    mapUuid: string;
 
-    constructor(login: string, app: AppType) {
-        super(login);
-        this.app = app;
-    }
+    constructor(login: string, mapUuid: string) {
+        super(login, "recordsWindow");
+        this.mapUuid = mapUuid;
 
-    async onAction(login: string, action: string, item: any): Promise<void> {
-        if (action === "Delete") {
-            if (this.title.includes("Live Records")) {
-                const confirm = new Confirm(login, `Delete record from ${item.nickname} $z$s(no undo)`, this.applyCommand.bind(this), [login, item]);
-                await confirm.display();
-            } else if (this.title.includes("Server Records")) {
-                const confirm = new Confirm(login, `Delete record from ${item.nickname} $z$s(no undo)`, this.applyCommand.bind(this), [login, item]);
-                await confirm.display();
-            }
-        } else if (action === "View") {
-            let recordDetails: any;
-            if (this.title.includes("Live Records")) {
-                recordDetails = await this.getRecordDetails(item.login, item.mapUuid);
-            } else if (this.title.includes("Server Records")) {
-                recordDetails = await this.getRecordDetails(item.login, item.mapUuid);
-            }
+        this.setColumns({
+            rank: { title: "Rank", width: 10, align: "center" },
+            nickname: { title: "Nickname", width: 50 },
+            time: { title: "Time", width: 20, align: "center", type: "time" },
+        });
 
+        this.setAction("View", "View", async (login: string, item: any) => {
+            const recordDetails = await this.getRecordDetails(item.login, item.mapUuid);
             if (recordDetails) {
                 const detailsWindow = new DetailsWindow(login, recordDetails);
                 await detailsWindow.display();
             }
+        });
+
+        if (tmc.admins.includes(login)) {
+            this.size.width = 115;
+            this.setAction("Delete", "Delete", async (login: string, item: any) => {
+                const confirm = new Confirm(login, `Delete record from ${item.nickname} $z$s(no undo)`, this.applyCommand.bind(this), [login, item]);
+                await confirm.display();
+            });
         }
     }
 
+    async updateRecords() {
+        const plugin = tmc.getPlugin("records");
+        const data = await plugin.getRecords(this.mapUuid);
+        this.data.records = [];
+
+        for (const record of data) {
+            this.data.records.push({
+                rank: record.rank,
+                nickname: htmlEntities(record?.player?.customNick ?? record?.player?.nickname ?? ""),
+                login: record.login,
+                time: formatTime(record.time ?? 0),
+                mapUuid: this.mapUuid,
+            });
+        }
+        const map = tmc.maps.getMap(this.mapUuid) ?? tmc.maps.currentMap;
+        this.title = `Server Records for ${map.Name}$z$s [${this.data.records.length}]`;
+
+    }
+
     async applyCommand(login: string, item: any) {
-        await this.app.deleteRecord(login, item);
+        const plugin = tmc.getPlugin("records");
+        await plugin.deleteRecord(login, item);
+        await this.updateRecords();
+        this.display();
     }
 
     async getRecordDetails(login: string, mapUuid: string) {
-        if (this.title.includes("Server Records")) {
-            try {
-                const record = await Score.findOne({
-                    where: { login: login, mapUuid: mapUuid },
-                    order: [
-                        ["time", "ASC"],
-                        ["updatedAt", "ASC"],
-                    ], // just in case there are multiple entries for the same player on that map for whatever reason
-                    include: [{ model: Player, as: 'player' }],
-                });
+        try {
+            const record = await Score.findOne({
+                where: { login: login, mapUuid: mapUuid },
+                order: [
+                    ["time", "ASC"],
+                    ["updatedAt", "ASC"],
+                ], // just in case there are multiple entries for the same player on that map for whatever reason
+                include: [{ model: Player, as: 'player' }],
+            });
 
-                if (record) {
-                    const betterRecordsCount = await Score.count({
-                        where: {
-                            mapUuid: mapUuid,
-                            [Op.or]: [
-                                {
-                                    time: { [Op.lt]: record.time },
-                                },
-                                {
-                                    time: record.time,
-                                    updatedAt: { [Op.lt]: record.updatedAt },
-                                },
-                            ],
-                        },
-                    });
-                    const rank = betterRecordsCount + 1;
-                    return {
-                        rank: rank,
-                        nickname: record.player?.nickname || record.login,
-                        time: record.time,
-                        checkpoints: record.checkpoints,
-                    };
-                }
-                return null;
-            } catch (error) {
-                console.error(`Error fetching server record details for ${login}:`, error);
-                return null;
+            if (record) {
+                const betterRecordsCount = await Score.count({
+                    where: {
+                        mapUuid: mapUuid,
+                        [Op.or]: [
+                            {
+                                time: { [Op.lt]: record.time },
+                            },
+                            {
+                                time: record.time,
+                                updatedAt: { [Op.lt]: record.updatedAt },
+                            },
+                        ],
+                    },
+                });
+                const rank = betterRecordsCount + 1;
+                return {
+                    rank: rank,
+                    nickname: record.player?.nickname || record.login,
+                    time: record.time,
+                    checkpoints: record.checkpoints,
+                };
             }
-        } else {
+            return null;
+        } catch (error) {
+            console.error(`Error fetching server record details for ${login}:`, error);
             return null;
         }
     }
 }
+
 
 class DetailsWindow extends ListWindow {
     record: any;
@@ -151,14 +159,11 @@ class DetailsWindow extends ListWindow {
             }
         }
         this.setItems(items);
-        this.setColumns([
-            { key: "key", title: "Stats", width: 50 },
-            { key: "value", title: "Data", width: 50 },
-        ]);
-
+        this.setColumns({
+            key: { title: "Stats", width: 50 },
+            value: { title: "Data", width: 50 },
+        });
         await super.display();
     }
-    setColumns(columns: Column[]): void {
-        this.data["columns"] = columns;
-    }
+
 }

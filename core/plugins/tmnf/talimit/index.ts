@@ -1,4 +1,5 @@
-import Widget from "@core/ui/widget";
+import Widget from "@core/ui2/widget";
+import Label from "@core/ui2/components/partials/Label";
 import Plugin from "@core/plugins";
 import tm from "tm-essentials";
 
@@ -31,8 +32,11 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async onLoad() {
-        this.widget = new Widget("widget.xml.twig", import.meta.dirname);
-        this.widget.pos = { x: 128, y: 45, z: 1 };
+        this.widget = new Widget(() => Label({
+            scale: "0.7",
+            style: "TextRaceChrono",
+        }), "taTimeLimit");
+        this.widget.pos = { x: 138, y: 45, z: 1 };
         this.widget.size = { width: 38, height: 10 };
         this.timeLimit = tmc.storage["minicontrol.taTimeLimit"] ?? this.origTimeLimit;
         this.startTime = Date.now();
@@ -103,7 +107,7 @@ export default class TAlimitPlugin extends Plugin {
 
         if (this.widget) {
             this.widget.setData({
-                time: `$${color}$s${time}`,
+                text: `$${color}$s${time}`,
             });
             await this.widget.display();
         }

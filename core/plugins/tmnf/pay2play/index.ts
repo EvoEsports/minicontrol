@@ -1,7 +1,8 @@
 import Plugin from "@core/plugins";
-import Widget from "@core/ui/widget";
-import type Jukebox from "../../jukebox";
+import Widget from "@core/ui2/widget";
+import Label from "@core/ui2/components/partials/Label";
 import type { ActionCallback } from "@core/uimanager";
+import Button from "@core/ui2/components/Button";
 
 declare module "@core/plugins" {
     interface PluginRegistry {
@@ -48,14 +49,36 @@ export default class Pay2Play extends Plugin {
     }
 
     createWidget(index: number, text: string, amount: number, callback: ActionCallback) {
-        const widget = new Widget("widget.xml.twig", import.meta.dirname);
+        const action = tmc.ui.addAction(callback, []);
+        const widget = new Widget(() => {
+            return [Label({
+                pos: "5 -1.5",
+                "z-index": 2,
+                size: "20 5",
+                scale: "0.3",
+                style: "TextRaceChrono",
+                text: `$fa0${amount}`,
+                halign: "center",
+            }),
+            Label({
+                pos: "5 -6",
+                "z-index": 2,
+                size: "20 5",
+                textsize: "1",
+                text: text,
+                halign: "center",
+            }),
+            Button({
+                pos: "0 0",
+                "z-index": 1,
+                size: "10 10",
+                action: action,
+                focusareacolor1: "000a",
+            })];
+
+        }, "pay2play_" + text.toLowerCase());
         widget.size = { width: 10, height: 10 };
         widget.pos = { x: -160 + index * (widget.size.width + 1), y: 72.5, z: 5 };
-        widget.setData({
-            text: text,
-            amount: amount,
-        });
-        widget.setOpenAction(callback);
         return widget;
     }
 

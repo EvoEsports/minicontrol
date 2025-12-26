@@ -68,7 +68,7 @@ export default function DataTable(props: any) {
                     index={itemCounter}
                     key={item.index}
                     pos={`${width} -${5 * rowCounter}`}
-                    z-index={z + 1}
+                    z-index={z + 0.01}
                     type={type}
                     text={value}
                     size={`${column.width} 4`}

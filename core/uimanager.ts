@@ -135,21 +135,65 @@ export default class UiManager {
      * @returns
      */
     private convertLine(line: string): string {
-        const matches = line.matchAll(/\b(pos|size)\b="([-.\d]+)\s+([-.\d]+)"/g);
+        // Process each tag separately so we only use/remove z-index that belongs to that tag.
+        const tagRegex = /<([a-zA-Z0-9_-]+)([^>]*)>/g;
         let out = line;
-        for (const match of matches) {
-            const x = (Number.parseFloat(match[2]) / 160) * 64;
-            const y = (Number.parseFloat(match[3]) / 90) * 48;
-            let z = 0;
-            const zindex = line.match(/z-index="([-\d]+)"/) || ["0", "0"];
-            z = Number.parseInt(zindex[1]) ?? 1;
-            if (match[1] === "pos") {
-                out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="[-\d]+"/, "");
-            } else if (match[1] === "size") {
-                out = out.replaceAll(match[0], `${match[1]}n="${x} ${y}"`);
-            }
+        let tagMatch: RegExpExecArray | null;
+        while ((tagMatch = tagRegex.exec(line)) !== null) {
+            const fullTag = tagMatch[0];
+            const attrs = tagMatch[2]; // attributes text including leading space
+
+            // find tag-local z-index if present (supports single or double quotes)
+            const zMatch = attrs.match(/\bz-index\s*=\s*(['"])(-?\d+(?:\.\d+)?)\1/);
+            const zFromAttr = zMatch ? zMatch[2] : undefined;
+
+            let newAttrs = attrs;
+
+            // Replace pos attributes (supports single/double quotes, works regardless of order)
+            newAttrs = newAttrs.replace(/\bpos\s*=\s*(['"])(.*?)\1/g, (_m, _q, raw) => {
+                const parts = raw.trim().split(/\s+/);
+                const xStr = parts[0] ?? "";
+                const yStr = parts[1] ?? "";
+                const zStr = parts[2];
+                const isNumeric = (s: string) => /^-?([\.\d]+)?$/.test(s);
+                if (isNumeric(xStr) && isNumeric(yStr)) {
+                    const x = (Number.parseFloat(xStr) / 160) * 64;
+                    const y = (Number.parseFloat(yStr) / 90) * 48;
+                    let zVal = 0;
+                    if (zStr !== undefined && isNumeric(zStr)) zVal = Number.parseFloat(zStr);
+                    else if (zFromAttr !== undefined && isNumeric(zFromAttr)) zVal = Number.parseFloat(zFromAttr);
+                    return ` posn="${x.toFixed(3)} ${y.toFixed(3)} ${zVal.toFixed(3)}"`;
+                } else {
+                    let zPart = "";
+                    if (zStr !== undefined) zPart = ` ${zStr}`;
+                    else if (zFromAttr !== undefined) zPart = ` ${zFromAttr}`;
+                    return ` posn="${xStr} ${yStr}${zPart}"`;
+                }
+            });
+
+            // Replace size attributes (supports single/double quotes)
+            newAttrs = newAttrs.replace(/\bsize\s*=\s*(['"])(.*?)\1/g, (_m, _q, raw) => {
+                const parts = raw.trim().split(/\s+/);
+                const xStr = parts[0] ?? "";
+                const yStr = parts[1] ?? "";
+                const isNumeric = (s: string) => /^-?([\.\d]+)?$/.test(s);
+                if (isNumeric(xStr) && isNumeric(yStr)) {
+                    const x = (Number.parseFloat(xStr) / 160) * 64;
+                    const y = (Number.parseFloat(yStr) / 90) * 48;
+                    return ` sizen="${x.toFixed(3)} ${y.toFixed(3)}"`;
+                } else {
+                    return ` sizen="${xStr} ${yStr}"`;
+                }
+            });
+
+            // remove the tag-local z-index (we moved it into posn if needed)
+            newAttrs = newAttrs.replace(/\s*z-index\s*=\s*(['"])(-?\d+(?:\.\d+)?)\1/g, "");
+
+            // Replace the attributes section in the original tag with the new attributes
+            const newTag = fullTag.replace(attrs, newAttrs);
+            out = out.replace(fullTag, newTag);
         }
-        return out;
+        return out + "\n";
     }
 
     /**
@@ -332,6 +376,23 @@ export default class UiManager {
                 return;
             }
 
+            if (tmc.game.Name === "TmForever") {
+                // If manialink is a NewWindow, destroy all existing windows for this recipient.
+                if (manialink instanceof NewWindow) {
+                    const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof NewWindow) as NewWindow[];
+                    await Promise.all(
+                        windows.map(async (win) => {
+                            if (win.recipient !== undefined) {
+                                const id = win.id;
+                                const recipient = win.recipient;
+                                win.destroy();
+                                delete this.playerManialinks[recipient][id.toString()];
+                            }
+                        }),
+                    );
+                }
+            }
+
             // If manialink is a Window, destroy all existing windows for this recipient.
             // TODO: remove this when ui2 is done
             if (manialink instanceof Window) {
@@ -359,7 +420,10 @@ export default class UiManager {
         // Render the manialink and build the XML payload.
         const render = await manialink.render();
         const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
+        // console.log("--render--");
         // console.log(render);
+        // console.log("--xml--");
+        // console.log(xml);
 
         // Dispatch the manialink depending on whether it is public or player-specific.
         if (manialink.recipient !== undefined) {

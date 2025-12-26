@@ -1,5 +1,4 @@
 import Plugin from "@core/plugins";
-import RecordsWindow from "@core/plugins/records/recordsWindow";
 import { clone, formatTime } from "@core/utils";
 import API from "@core/plugins/tm2020/nadeoapi/api";
 
@@ -229,17 +228,8 @@ export default class worldRecords extends Plugin {
                 Zone: entry.zoneName || "N/A",
             }));
 
-            const window = new RecordsWindow(login, this);
-            window.title = `World Records [${this.length}]`;
-            window.size = { width: 170, height: 100 };
-            window.setItems(items);
-            window.setColumns([
-                { key: "Position", title: "#", width: 15 },
-                { key: "Name", title: "Name", width: 60 },
-                { key: "Zone", title: "Zone", width: 60 },
-                { key: "Time", title: "Time", width: 30 },
-            ]);
-            window.display();
+            tmc.chat("¤info¤World Records viewing not implemented", login);
+            throw new Error("World Records viewing not implemented");
         } catch (error) {
             tmc.chat(`¤error¤An error occurred: ${error}`, login);
         }
