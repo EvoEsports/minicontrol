@@ -1,7 +1,7 @@
 {
-    "id": "nadeoapi",
-    "name": "Nadeo api",
-    "description": "Provides nadeo api functionality",
+    "id": "tm2020/openplanet",
+    "name": "Openplanet",
+    "description": "Openplanet integration",
     "authors": "MiniControl core",
     "date": "2025-12-06",
     "version": "1.0.0",

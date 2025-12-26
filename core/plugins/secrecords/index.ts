@@ -3,8 +3,8 @@ import SectorRec from "./models/sectors.model";
 import Player from "@core/plugins/database/models/players.model";
 import { htmlEntities, formatTime } from "@core/utils";
 import { Op } from "sequelize";
-import ListWindow from "@core/ui/listwindow";
-import Confirm from "@core/ui/confirm";
+import Confirm from "@core/ui2/confirm";
+import ListWindow from "@core/ui2/listwindow";
 import Menu from "@core/menu";
 
 export interface TopRecord {
@@ -254,38 +254,15 @@ export default class RecordsSector extends Plugin {
     async cmdSecRecs(login: string, args: string[]) {
         const window = new ListWindow(login);
         window.title = "Sector Records";
-        window.setColumns([
-            {
-                key: "cp",
-                title: "CP",
-                width: 5,
-            },
-            {
-                key: "nickname",
-                title: "Nickname",
-                width: 40,
-            },
-            {
-                key: "time",
-                title: "Time",
-                width: 20,
-            },
-            {
-                key: "diff",
-                title: "Difference",
-                width: 20,
-            },
-            {
-                key: "myTime",
-                title: "My Time",
-                width: 20,
-            },
-            {
-                key: "date",
-                title: "Date",
-                width: 50,
-            },
-        ]);
+        window.setColumns({
+            cp: { title: "CP", width: 5, },
+            nickname: { title: "Nickname", width: 40, },
+            time: { title: "Time", width: 20, },
+            diff: { title: "Difference", width: 20, },
+            myTime: { title: "My Time", width: 20, },
+            date: { title: "Date", width: 50, },
+        });
+
 
         const items: any = [];
         for (const i in this.topRecord) {

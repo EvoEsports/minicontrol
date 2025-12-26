@@ -55,9 +55,6 @@ export default class ListWindow extends Window {
         this.data.applyButtons = false;
     }
 
-    setApplyButtons(value: boolean = true) {
-        this.data.applyButtons = value;
-    }
     setItemsPerPage(count: number) {
         this.datatable.pageSize = count;
     }
@@ -88,22 +85,8 @@ export default class ListWindow extends Window {
         }
     }
 
-    /**
-     * override this to handle apply button
-     * @param login
-     * @param data
-     * @param entries
-     */
-    async onApply(login: string, data: any, entries: any) {
-        // override to handle apply button
-    }
-
-
     async display() {
         this.data.title = this.title;
-        if (this.data.applyButtons && !this.actions.apply) {
-            this.actions.apply = tmc.ui.addAction(this.onApply.bind(this), "apply");
-        }
 
         for (const key in this.datatable.columns) {
             if (!this.actions[`title_${key}`]) {

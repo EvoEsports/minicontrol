@@ -1,4 +1,5 @@
 import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2, setScriptHeader } from '@core/ui2/forge';
+import DefaultButton from "./Button";
 
 export default function Window({ title = '', 'z-index': z = 0, pos = '0 0', size = '120 90', children = {} }) {
     const psize = vec2(size);
@@ -78,6 +79,14 @@ if (Event.Control.HasClass("title")) {
         `;
     });
 
+    const Button = getComponent('Button', DefaultButton);
+    let applyButtons: any = [];
+
+    if (data.applyButtons) {
+        applyButtons.push(<Button pos={`${psize.x - 47} -${psize.y - 11}`} z-index={z + 1} size="20 5" halign="center" text="Apply" action={actions.apply} />);
+        applyButtons.push(<Button pos={`${psize.x - 25} -${psize.y - 11}`} z-index={z + 1} size="20 5" halign="center" text="Cancel" action={actions.close} />);
+    }
+
     return (
         <>
             <frame id="root" pos={`-${psize.x * 0.5} ${psize.y * 0.5 + ppos.y}`} z-index={z}>
@@ -110,6 +119,7 @@ if (Event.Control.HasClass("title")) {
                 <frame pos="2 -4" z-index={z + 3}>
                     {children}
                 </frame>
+                {applyButtons}
                 <quad pos="0 0" z-index={z + 1} size={`${psize.x + 4} ${psize.y}`} bgcolor={`${colors.window_bg}e`} />
                 <quad pos="-0.5 6.5" z-index={z + 2} size={`${psize.x + 1} ${psize.y + 7}`} bgcolor="0000" scriptevents="1" />
                 <quad pos="0 0" z-index={z + 10} size={`${psize.x + 4} ${psize.y}`} bgcolor="0008" id="inactive" scriptevents="1" hidden="1" />

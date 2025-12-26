@@ -20,6 +20,23 @@ export default class Window extends Manialink implements IWindow {
         this.data.draggable = draggable;
     }
 
+    setApplyButtons(enable: boolean = true) {
+        this.data.applyButtons = enable;
+        if (this.data.applyButtons && !this.actions.apply) {
+            this.actions.apply = tmc.ui.addAction(this.onApply.bind(this), "apply");
+        }
+    }
+
+    /**
+     * override this to handle apply button
+     * @param login
+     * @param data
+     * @param entries
+     */
+    async onApply(login: string, data: any, entries: any) {
+        // override to handle apply button
+    }
+
     private constructWindow(jsxComponent: any) {
         const Window = getComponent('Window', DefaultWindow);
         this._jsxComponent = () => Window({

@@ -395,7 +395,19 @@ export default class UiManager {
         return manialinks;
     }
 
-
+    getManialinkById(id: string): IManialink | undefined {
+        for (const login of Object.keys(this.playerManialinks)) {
+            for (const manialink of Object.values(this.playerManialinks[login])) {
+                if (manialink.id === id) {
+                    return manialink;
+                }
+            }
+        }
+        if (this.publicManialinks[id]) {
+            return this.publicManialinks[id];
+        }
+        return undefined;
+    }
 
     /**
      * Display array of manialinks

@@ -4,9 +4,8 @@ import Score from "@core/plugins/records/models/scores.model";
 import Player from "@core/plugins/database/models/players.model";
 import { formatTime, htmlEntities } from "@core/utils";
 import { Op } from "sequelize";
-import type WorldRecords from "@core/plugins/worldrecords";
+import type WorldRecords from "@core/plugins/tm2020/worldrecords";
 import type Records from "@core/plugins/records";
-import type liverankings from "@core/plugins/liverankings";
 
 interface Column {
     title: string;
@@ -14,7 +13,7 @@ interface Column {
     width: number;
 }
 
-type AppType = Records | liverankings | WorldRecords;
+type AppType = Records | WorldRecords;
 
 export default class RecordsWindow extends ListWindow {
     app: AppType;
@@ -90,24 +89,6 @@ export default class RecordsWindow extends ListWindow {
                 return null;
             } catch (error) {
                 console.error(`Error fetching server record details for ${login}:`, error);
-                return null;
-            }
-        } else if (this.title.includes("Live Records")) {
-            try {
-                const liveRecord = (this.app as liverankings).liverankings.find((record) => record.login === login);
-
-                if (!liveRecord) {
-                    return null;
-                }
-
-                return {
-                    rank: (this.app as liverankings).liverankings.indexOf(liveRecord) + 1,
-                    nickname: liveRecord.player?.nickname || liveRecord.login,
-                    time: liveRecord.time,
-                    checkpoints: liveRecord.checkpoints,
-                };
-            } catch (error) {
-                console.error(`Error fetching live record details for ${login}:`, error);
                 return null;
             }
         } else {

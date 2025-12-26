@@ -1,5 +1,5 @@
 {
-    "id": "worldrecords",
+    "id": "tm2020/worldrecords",
     "name": "World records",
     "description": "Provides fetching worldrecords from nadeo api",
     "authors": "MiniControl core",

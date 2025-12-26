@@ -1,7 +1,7 @@
 import Plugin from "@core/plugins";
 import RecordsWindow from "@core/plugins/records/recordsWindow";
 import { clone, formatTime } from "@core/utils";
-import API from "@core/plugins/nadeoapi/api";
+import API from "@core/plugins/tm2020/nadeoapi/api";
 
 interface AccessTokenResponse {
     access_token: string;

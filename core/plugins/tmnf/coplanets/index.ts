@@ -1,5 +1,5 @@
 import Plugin from "@core/plugins";
-import Confirm from "@core/ui/confirm";
+import Confirm from "@core/ui2/confirm";
 
 declare module "@core/plugins" {
     interface PluginRegistry {

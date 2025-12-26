@@ -1,6 +1,7 @@
 import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
 import type Jukebox from "../../jukebox";
+import type { ActionCallback } from "@core/uimanager";
 
 declare module "@core/plugins" {
     interface PluginRegistry {
@@ -46,7 +47,7 @@ export default class Pay2Play extends Plugin {
         this.widgets = [];
     }
 
-    createWidget(index: number, text: string, amount: number, callback: CallableFunction) {
+    createWidget(index: number, text: string, amount: number, callback: ActionCallback) {
         const widget = new Widget("widget.xml.twig", import.meta.dirname);
         widget.size = { width: 10, height: 10 };
         widget.pos = { x: -160 + index * (widget.size.width + 1), y: 72.5, z: 5 };
