@@ -1,7 +1,7 @@
 import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
-import Widget from "@core/ui2/widget";
-import Label from "@core/ui2/components/partials/Label";
+import Widget from "@core/ui/widget";
+import Label from "@core/ui/components/partials/Label";
 
 declare module "@core/plugins" {
     interface PluginRegistry {

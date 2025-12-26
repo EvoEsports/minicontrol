@@ -1,5 +1,5 @@
-import Button from '@core/ui2/components/Button';
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
+import Button from '@core/ui/components/Button';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
 
 export default function MenuComponent() {
     const { data, colors, actions, size, pos } = getProperties();

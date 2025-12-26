@@ -1,6 +1,6 @@
 import Plugin from "@core/plugins";
-import ListWindow from "@core/ui2/listwindow";
-import Widget from "@core/ui2/widget";
+import ListWindow from "@core/ui/listwindow";
+import Widget from "@core/ui/widget";
 import BestCpsWidget from "./bestCpsWidget";
 import { formatTime } from "@core/utils";
 import Menu from "@core/menu";

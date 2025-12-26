@@ -1,5 +1,5 @@
 import Plugin from "@core/plugins";
-import Widget from "@core/ui2/widget";
+import Widget from "@core/ui/widget";
 import Button from "./Button";
 
 declare module "@core/plugins" {

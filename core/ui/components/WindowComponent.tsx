@@ -1,4 +1,4 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2, setScriptHeader } from '@core/ui2/forge';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2, setScriptHeader } from '@core/ui/forge';
 import DefaultButton from './Button';
 
 export default function Window({ title = '', 'z-index': zi = '0', pos = '0 0', size = '120 90', children = {} }) {

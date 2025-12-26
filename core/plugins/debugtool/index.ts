@@ -1,7 +1,7 @@
 import { memInfo, processColorString, startValueMem } from "@core/utils";
 import Plugin from "@core/plugins";
 import tm from "tm-essentials";
-import Widget from "@core/ui2/widget";
+import Widget from "@core/ui/widget";
 import Label from "./LabelWidget";
 
 interface Counters {

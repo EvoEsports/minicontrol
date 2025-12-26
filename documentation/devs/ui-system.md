@@ -1,6 +1,6 @@
 # ui2 — JSX-style UI primitives & Manialink integration 🎮
 
-**Location:** `core/ui2/*` (notably `manialink.ts` and `forge.ts`)
+**Location:** `core/ui/*` (notably `manialink.ts` and `forge.ts`)
 
 ## Overview
 `ui2` is the lightweight UI layer used by MINIcontrol for building Manialink-based interfaces using JSX-style components and a small runtime that collects Maniascript from components.
@@ -12,7 +12,7 @@ Key pieces:
 ## Manialink class (quick reference)
 
 ```ts
-import Manialink from '@core/ui2/manialink';
+import Manialink from '@core/ui/manialink';
 
 const widget = new Manialink(() => <frame>...</frame>);
 await widget.display();
@@ -38,8 +38,8 @@ await widget.destroy();
 ## Example: Creating a live-updating widget
 ````tsx
 // userdata/plugins/example-plugin/ui/mywidget.tsx
-import { createElement as h, maniascriptFragment, setScript, getProperties } from '@core/ui2/forge';
-import Manialink from '@core/ui2/manialink';
+import { createElement as h, maniascriptFragment, setScript, getProperties } from '@core/ui/forge';
+import Manialink from '@core/ui/manialink';
 
 function WidgetContent() {
   const props = getProperties();

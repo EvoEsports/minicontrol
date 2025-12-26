@@ -2,8 +2,8 @@ import Plugin from "@core/plugins";
 import fs from "node:fs";
 import Menu from "@core/menu";
 import type { Map as TmMap } from "@core/mapmanager";
-import ListWindow from "@core/ui2/listwindow";
-import Confirm from "@core/ui2/confirm";
+import ListWindow from "@core/ui/listwindow";
+import Confirm from "@core/ui/confirm";
 
 export interface TmxMapInfo {
     TmxId: string;

@@ -1,6 +1,6 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
-import DefaultRecordItem from '@core/ui2/components/partials/RecordItem';
-import DefaultTitle from '@core/ui2/components/partials/WidgetTitle';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
+import DefaultRecordItem from '@core/ui/components/partials/RecordItem';
+import DefaultTitle from '@core/ui/components/partials/WidgetTitle';
 
 export default function WidgetComponent() {
     const { pos, size, data, actions, colors } = getProperties();

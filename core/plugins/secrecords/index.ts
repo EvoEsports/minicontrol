@@ -3,8 +3,8 @@ import SectorRec from "./models/sectors.model";
 import Player from "@core/plugins/database/models/players.model";
 import { htmlEntities, formatTime } from "@core/utils";
 import { Op } from "sequelize";
-import Confirm from "@core/ui2/confirm";
-import ListWindow from "@core/ui2/listwindow";
+import Confirm from "@core/ui/confirm";
+import ListWindow from "@core/ui/listwindow";
 import Menu from "@core/menu";
 
 export interface TopRecord {

@@ -1,5 +1,5 @@
-import DefaultButton from '@core/ui2/components/Button';
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
+import DefaultButton from '@core/ui/components/Button';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
 
 export default function EmotesWidget() {
     const Button = getComponent('Button', DefaultButton);

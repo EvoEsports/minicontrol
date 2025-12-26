@@ -1,4 +1,4 @@
-import ListWindow from "@core/ui2/listwindow";
+import ListWindow from "@core/ui/listwindow";
 import { clone } from "@core/utils";
 
 

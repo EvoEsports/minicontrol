@@ -1,8 +1,8 @@
-import Window from "@core/ui2/window";
+import Window from "@core/ui/window";
 
 import { chunkArray, parseEntries } from "./utils";
-import type IManialink from "@core/ui2/interfaces/imanialink";
-import Manialink from "@core/ui2/manialink.ts";
+import type IManialink from "@core/ui/interfaces/imanialink";
+import Manialink from "@core/ui/manialink.ts";
 
 
 export interface uiModule {

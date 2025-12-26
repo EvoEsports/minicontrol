@@ -1,4 +1,4 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
 import { formatTime } from '@core/utils';
 
 export default function RecordItem({ pos = '0 0', 'z-index': z = 1, size = '100 4', nickname = '', time = 0, rank = 0, highlight = false }) {

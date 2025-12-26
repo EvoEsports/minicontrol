@@ -30,8 +30,7 @@ nav:
   - Home: index.md
   - Developers:
     - Concept: devs/concept.md
-    - Plugins: devs/plugins.md
-    - UI System: devs/ui-system2.md
+    - UI System: devs/ui-system.md
     - Forge: devs/forge.md
   - Users:
     - Install: users/install.md

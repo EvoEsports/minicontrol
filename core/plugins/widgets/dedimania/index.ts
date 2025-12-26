@@ -1,7 +1,7 @@
 import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
 import type { DediRecord } from "@core/plugins/tmnf/dedimania";
-import Widget from "@core/ui2/widget";
+import Widget from "@core/ui/widget";
 import RecordsWidget from "./records";
 import { removeLinks } from "@core/utils";
 

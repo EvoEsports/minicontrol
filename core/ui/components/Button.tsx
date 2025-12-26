@@ -1,4 +1,4 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
 
 export default function Button({ id = '', 'z-index': z = 1, pos = '0 0', size = '26 6', text = ' ', textsize= "0.9", halign = 'center', action, focusareacolor1 = "", focusareacolor2 = "" }) {
     const pSize = vec2(size);

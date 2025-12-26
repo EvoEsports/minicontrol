@@ -1,4 +1,4 @@
-import ListWindow from "@core/ui2/listwindow";
+import ListWindow from "@core/ui/listwindow";
 import { GBX, type CGameCtnChallenge } from "gbx";
 import { existsSync, promises as fspromises } from "node:fs";
 import fs from "node:fs";

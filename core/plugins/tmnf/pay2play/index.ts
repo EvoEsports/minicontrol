@@ -1,8 +1,8 @@
 import Plugin from "@core/plugins";
-import Widget from "@core/ui2/widget";
-import Label from "@core/ui2/components/partials/Label";
+import Widget from "@core/ui/widget";
+import Label from "@core/ui/components/partials/Label";
 import type { ActionCallback } from "@core/uimanager";
-import Button from "@core/ui2/components/Button";
+import Button from "@core/ui/components/Button";
 
 declare module "@core/plugins" {
     interface PluginRegistry {

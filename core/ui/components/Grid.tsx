@@ -1,4 +1,4 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
 import Button from './Button';
 
 export default function Grid({ pos = '-180 90', 'z-index': z = 0, size = '360 180', divider = '1 1' }) {

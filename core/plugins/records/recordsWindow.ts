@@ -1,5 +1,5 @@
-import ListWindow from "@core/ui2/listwindow";
-import Confirm from "@core/ui2/confirm";
+import ListWindow from "@core/ui/listwindow";
+import Confirm from "@core/ui/confirm";
 import Score from "@core/plugins/records/models/scores.model";
 import Player from "@core/plugins/database/models/players.model";
 import { formatTime, htmlEntities } from "@core/utils";

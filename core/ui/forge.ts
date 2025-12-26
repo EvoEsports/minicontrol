@@ -1,4 +1,4 @@
-import { type objMap } from "@core/ui2/manialink";
+import { type objMap } from "@core/ui/manialink";
 
 export interface Properties {
     colors?: { [key: string]: string };

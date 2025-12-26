@@ -1,8 +1,8 @@
 import Plugin from "@core/plugins";
-import Manialink from "@core/ui2/manialink";
+import Manialink from "@core/ui/manialink";
 import WidgetSettings from "./widgets";
-import Grid from "@core/ui2/components/Grid";
-import Window from "@core/ui2/window";
+import Grid from "@core/ui/components/Grid";
+import Window from "@core/ui/window";
 export default class WidgetPlugin extends Plugin {
     grids: { [key: string]: Manialink } = {};
     moveTargets: { [key: string]: any } = {};

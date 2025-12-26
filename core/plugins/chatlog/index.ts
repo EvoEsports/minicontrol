@@ -1,4 +1,4 @@
-import ListWindow from "@core/ui2/listwindow";
+import ListWindow from "@core/ui/listwindow";
 import Plugin from "@core/plugins";
 import { clone } from "@core/utils";
 import Menu from "@core/menu";

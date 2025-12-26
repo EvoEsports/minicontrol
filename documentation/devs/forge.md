@@ -1,6 +1,6 @@
 # Forge — JSX renderer & hooks 🔧
 
-**Location:** `core/ui2/forge.ts`
+**Location:** `core/ui/forge.ts`
 
 ## What is Forge?
 Forge implements a lightweight JSX-like renderer for producing Manialink XML and in-manialink Maniascript code. It provides:
@@ -11,7 +11,7 @@ Forge implements a lightweight JSX-like renderer for producing Manialink XML and
 
 ## Quick import
 ```ts
-import { createElement, Fragment, setScript, setScriptHeader, getComponent, registerComponent, getProperties, maniascriptFragment } from '@core/ui2/forge';
+import { createElement, Fragment, setScript, setScriptHeader, getComponent, registerComponent, getProperties, maniascriptFragment } from '@core/ui/forge';
 ```
 
 ## Core functions & behavior
@@ -103,7 +103,7 @@ import { createElement, Fragment, setScript, setScriptHeader, getComponent, regi
 
 ### Simple component with Maniascript injection
 ```tsx
-import { createElement as h, maniascriptFragment, getProperties } from '@core/ui2/forge';
+import { createElement as h, maniascriptFragment, getProperties } from '@core/ui/forge';
 
 export default function Updater() {
   const props = getProperties();
@@ -153,7 +153,7 @@ setScriptHeader(() => {
 
 **Example: `overrideGreeting.tsx`**
 ```ts
-import { createElement, setScript, registerComponent } from '@core/ui2/forge';
+import { createElement, setScript, registerComponent } from '@core/ui/forge';
 
 function Greeting({ name }) {
   setScript(() => {
@@ -176,12 +176,12 @@ registerComponent('Greeting', Greeting);
 ### Contributing & naming conventions
 
 - Prefer consistent aliases across the repo. Examples:
-  - `import { createElement as h } from '@core/ui2/forge';` (compact & idiomatic)
-  - `import { createElement as manialink } from '@core/ui2/forge';` (domain-specific clarity)
-  - `import * as ui2 from '@core/ui2/forge';` (namespaced access when many helpers are needed)
+  - `import { createElement as h } from '@core/ui/forge';` (compact & idiomatic)
+  - `import { createElement as manialink } from '@core/ui/forge';` (domain-specific clarity)
+  - `import * as ui2 from '@core/ui/forge';` (namespaced access when many helpers are needed)
 - Keep aliases short in files with high JSX usage (`h`, `el`) and explicit in library code (`createElement`, `manialink`).
 - Add a short note in `CONTRIBUTING.md` or `documentation/devs/` if you plan to standardize names across the project.
 
 ---
 
-For full runtime details, see the source: `core/ui2/forge.ts`.}
+For full runtime details, see the source: `core/ui/forge.ts`.}

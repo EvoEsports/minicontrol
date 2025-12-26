@@ -1,7 +1,7 @@
 import type { Player } from "@core/playermanager";
 import Api from "./api";
 import { clone, htmlEntities, formatTime } from "@core/utils";
-import ListWindow from "@core/ui2/listwindow";
+import ListWindow from "@core/ui/listwindow";
 import Plugin from "@core/plugins";
 
 export interface DediRecord {

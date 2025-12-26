@@ -1,6 +1,6 @@
 import Plugin from "@core/plugins";
 import WidgetButton from "./WidgetButton";
-import Widget from "@core/ui2/widget";
+import Widget from "@core/ui/widget";
 
 declare module "@core/plugins" {
     interface PluginRegistry {

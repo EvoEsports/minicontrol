@@ -1,6 +1,6 @@
 import Plugin from "@core/plugins";
-import Widget from "@core/ui2/widget";
-import ListWindow from "@core/ui2/listwindow";
+import Widget from "@core/ui/widget";
+import ListWindow from "@core/ui/listwindow";
 
 declare module "@core/plugins" {
     interface PluginRegistry {

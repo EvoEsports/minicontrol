@@ -1,5 +1,5 @@
 import Plugin from "@core/plugins";
-import Widget from "@core/ui2/widget";
+import Widget from "@core/ui/widget";
 import MenuButtonComponent from "./ui/MenuButton";
 import MenuWidget from "./menuWidget";
 import Menu from "@core/menu";

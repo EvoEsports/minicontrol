@@ -1,5 +1,5 @@
-import Widget from "@core/ui2/widget";
-import Label from "@core/ui2/components/partials/Label";
+import Widget from "@core/ui/widget";
+import Label from "@core/ui/components/partials/Label";
 import Plugin from "@core/plugins";
 import tm from "tm-essentials";
 

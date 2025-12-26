@@ -1,4 +1,4 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment } from '@core/ui2/forge';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment } from '@core/ui/forge';
 import { removeColors } from '@core/utils';
 import DefaultListHeader from './partials/ListHeader';
 import DefaultListItem from './partials/ListItem';

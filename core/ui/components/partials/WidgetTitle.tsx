@@ -1,4 +1,4 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
 
 export default function WidgetTitle({ pos = '0 0', 'z-index': z = 1, text = '', size = '38 5' }) {
     const psize = vec2(size);

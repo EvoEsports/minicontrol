@@ -1,4 +1,4 @@
-import Widget from "@core/ui2/widget";
+import Widget from "@core/ui/widget";
 import type { Item } from "@core/menu";
 import Menu from "@core/menu";
 import MenuComponent from "./ui/MenuComponent";

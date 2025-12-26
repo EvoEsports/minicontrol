@@ -1,7 +1,7 @@
 import type { CallableCommand } from "@core/commandmanager";
 import type { Player } from "@core/playermanager";
 import type { CallbackSetting } from "@core/settingsmanager";
-import Manialink from "@core/ui2/manialink";
+import Manialink from "@core/ui/manialink";
 
 export interface PluginRegistry { }
 

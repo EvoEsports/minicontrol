@@ -2,8 +2,8 @@ import Plugin from "../index.ts";
 import { emotesMap } from "./tmnf_emojis";
 import badwords from "./badwords.json";
 import { clone, removeColors } from "@core/utils";
-import ListWindow from "@core/ui2/listwindow.ts";
-import Widget from "@core/ui2/widget.ts"
+import ListWindow from "@core/ui/listwindow.ts";
+import Widget from "@core/ui/widget.ts"
 import EmotesWidget from "./ui/EmotesWidget.tsx";
 
 const regex: RegExp[] = [];

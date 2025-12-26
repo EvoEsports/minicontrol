@@ -1,4 +1,4 @@
-import ListWindow from "@core/ui2/listwindow";
+import ListWindow from "@core/ui/listwindow";
 import { escapeRegex, htmlEntities, sleep } from "./utils";
 import fs from "node:fs";
 import path from "node:path";

@@ -9,7 +9,7 @@ import { GBX, type CGameCtnChallenge } from "gbx";
 import { existsSync, promises as fsPromises } from "node:fs";
 import path from "node:path";
 import { Op } from "sequelize";
-import ListWindow from "@core/ui2/listwindow";
+import ListWindow from "@core/ui/listwindow";
 import Plugin from "@core/plugins";
 
 export type Migration = (params: MigrationParams<Sequelize>, context: Sequelize) => Promise<unknown>;

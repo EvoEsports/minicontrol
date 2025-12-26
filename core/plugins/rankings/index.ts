@@ -1,6 +1,6 @@
 import Plugin from "@core/plugins";
 import { QueryTypes } from "sequelize";
-import ListWindow from "@core/ui2/listwindow";
+import ListWindow from "@core/ui/listwindow";
 import Player from "@core/plugins/database/models/players.model";
 import Menu from "@core/menu";
 import console from "node:console";

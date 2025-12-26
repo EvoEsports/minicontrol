@@ -1,5 +1,5 @@
 import PersonalBest from "@core/plugins/records/models/personalBest.model";
-import ListWindow from "@core/ui2/listwindow";
+import ListWindow from "@core/ui/listwindow";
 import { clone, removeColors } from "@core/utils";
 import { Op, QueryTypes, type Sequelize } from "sequelize";
 

@@ -1,4 +1,4 @@
-import Widget from "@core/ui2/widget";
+import Widget from "@core/ui/widget";
 import Records from "./records";
 
 export default class recordsWidget extends Widget {

@@ -1,4 +1,4 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui2/forge';
+import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
 
 export default function ListHeader({ pos = '0 0', 'z-index': z = 1, size, text, action, halign = 'left' }) {
     const psize = vec2(size);
