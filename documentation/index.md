@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="../images/minicontrol.png" width="60%" />
+    <img src="./minicontrol.png" width="60%" />
     <br>
     <img alt="GitHub" src="https://img.shields.io/github/license/EvoEsports/minicontrol?label=License" />
     <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/evoesports/minicontrol?label=Current%20Version" />
@@ -18,7 +18,7 @@ Welcome! MINIcontrol is a lightweight controller for Trackmania servers designed
 
 Need help? Join the [Evo Esports Discord](https://discord.gg/evoesports) in the `#minicontrol` channel or open an issue on GitHub.
 
-> View the live docs site: [https://evoesports.github.io/minicontrol](https://evoesports.github.io/minicontrol) (deployed via MkDocs/GitHub Actions)
+> View the live docs site: [https://evoesports.github.io/minicontrol](https://evoesports.github.io/minicontrol)
 
 ---
 ## Quick links

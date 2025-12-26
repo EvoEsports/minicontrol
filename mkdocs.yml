@@ -5,12 +5,33 @@ repo_name: EvoEsports/minicontrol
 docs_dir: documentation
 theme:
   name: material
+  features:
+    - content.code.copy
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
 nav:
   - Home: index.md
   - Developers:
     - Concept: devs/concept.md
-    - UI System: devs/ui-system.md
-    - New UI System: devs/ui-system2.md
+    - Plugins: devs/plugins.md
+    - UI System: devs/ui-system2.md
     - Forge: devs/forge.md
   - Users:
     - Install: users/install.md
@@ -19,7 +40,14 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/EvoEsports/minicontrol
-
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
 # Optional: enable plugins if you want search, etc.
 plugins:
   - search
