@@ -1,4 +1,4 @@
-import ListWindow from "./ui/listwindow";
+import ListWindow from "@core/ui2/listwindow";
 import { escapeRegex, htmlEntities, sleep } from "./utils";
 import fs from "node:fs";
 import path from "node:path";
@@ -41,11 +41,10 @@ export default class CommandManager {
                 window.size = { width: 160, height: 95 };
                 window.title = "Commands";
                 window.setItems(outCommands.sort((a: any, b: any) => a.command.localeCompare(b.command)));
-                window.setColumns([
-                    { key: "command", title: "Command", width: 50 },
-                    { key: "help", title: "Help", width: 90 },
-                ]);
-                window.setActions(["Invoke"]);
+                window.setColumns({
+                    command: { title: "Command", width: 50 },
+                    help: { title: "Help", width: 90 },
+                });
                 window.display();
             },
             "Display help for command",
@@ -66,10 +65,10 @@ export default class CommandManager {
                 window.size = { width: 160, height: 95 };
                 window.title = "Admin commands";
                 window.setItems(outCommands.sort((a: any, b: any) => a.command.localeCompare(b.command)));
-                window.setColumns([
-                    { key: "command", title: "Command", width: 50 },
-                    { key: "help", title: "Help", width: 100 },
-                ]);
+                window.setColumns({
+                    command: { title: "Command", width: 50 },
+                    key: { title: "Help", width: 100 },
+                });
                 window.display();
             },
             "Display help for command",
@@ -253,9 +252,9 @@ export default class CommandManager {
                         }
                         const returnvalue = type.shift();
                         out.push({
-                            method: htmlEntities(`${methods[i]}(${type.join("$fff, ")}$fff)`),
-                            value: htmlEntities(returnvalue ?? ""),
-                            help: htmlEntities(methodHelp[i].replace(/Only available to (Super)?Admin./, "")),
+                            method: (`${methods[i]}(${type.join("$fff, ")}$fff)`),
+                            value: (returnvalue ?? ""),
+                            help: (methodHelp[i].replace(/Only available to (Super)?Admin./, "")),
                         });
                     }
 
@@ -263,11 +262,11 @@ export default class CommandManager {
 
                     window.title = "Methods";
                     window.setItems(out.sort((a: any, b: any) => a.method.localeCompare(b.method)));
-                    window.setColumns([
-                        { key: "method", title: "Method", width: 60 },
-                        { key: "value", title: "Return", width: 15 },
-                        { key: "help", title: "Help", width: 150 },
-                    ]);
+                    window.setColumns({
+                        method: { title: "Method", width: 60 },
+                        value: { title: "Return", width: 15 },
+                        help: { title: "Help", width: 150 },
+                    });
                     window.size = { width: 230, height: 95 };
                     window.display();
                     return;
@@ -301,7 +300,6 @@ export default class CommandManager {
         window.title = "Plugins";
         let out: any[] = [];
         const all: string[] = [];
-        const diff: string[] = [];
         let plugins = fs.readdirSync(path.join(process.cwd(), "core", "plugins"), { withFileTypes: true, recursive: true });
         plugins = plugins.concat(fs.readdirSync(path.join(process.cwd(), "userdata", "plugins"), { withFileTypes: true, recursive: true }));
 
@@ -346,12 +344,15 @@ export default class CommandManager {
         });
 
         window.setItems(out);
-        window.setColumns([
-            { key: "active", title: "Running", width: 25 },
-            { key: "pluginName", title: "Plugin", width: 50 },
-            { key: "depends", title: "Dependencies", width: 50 },
-        ]);
-        window.setActions(["toggle"]);
+        window.setColumns({
+            active: { title: "Running", width: 25 },
+            pluginName: {title: "Plugin", width: 50 },
+            depends: { title: "Dependencies", width: 50 },
+        });
+        window.setAction("toggle", "Toggle", async (login, item: any) => {
+
+        });
+
         window.display();
     }
 

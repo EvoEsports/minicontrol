@@ -1,8 +1,7 @@
 import type { CallableCommand } from "@core/commandmanager";
 import type { Player } from "@core/playermanager";
 import type { CallbackSetting } from "@core/settingsmanager";
-import Manialink from "@core/ui/manialink";
-
+import Manialink from "@core/ui2/manialink";
 
 export interface PluginRegistry { }
 
@@ -256,7 +255,7 @@ export default abstract class Plugin {
                 // If plugin author created FinalizationRegistry or WeakRefs, nulling fields
                 // and removing external listeners will allow GC.
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
+
                 if (this[key] instanceof Manialink) {
                     this[key].destroy();
                 }

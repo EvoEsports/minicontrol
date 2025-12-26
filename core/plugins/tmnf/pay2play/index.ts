@@ -61,7 +61,7 @@ export default class Pay2Play extends Plugin {
                 halign: "center",
             }),
             Label({
-                pos: "5 -6",
+                pos: "5 -5.5",
                 "z-index": 2,
                 size: "20 5",
                 textsize: "1",

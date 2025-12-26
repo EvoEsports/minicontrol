@@ -33,10 +33,12 @@ export default class TAlimitPlugin extends Plugin {
 
     async onLoad() {
         this.widget = new Widget(() => Label({
+            pos:"0 0",
+            size:"38 10",
             scale: "0.7",
             style: "TextRaceChrono",
         }), "taTimeLimit");
-        this.widget.pos = { x: 138, y: 45, z: 1 };
+        this.widget.pos = { x: 138, y: 45, z: 0 };
         this.widget.size = { width: 38, height: 10 };
         this.timeLimit = tmc.storage["minicontrol.taTimeLimit"] ?? this.origTimeLimit;
         this.startTime = Date.now();

@@ -1,8 +1,7 @@
-import { castType, htmlEntities } from "@core/utils";
+import { castType } from "@core/utils";
 
 import Plugin from "@core/plugins";
 import type { Map as TmMap } from "@core/mapmanager.ts";
-import type { Player } from "@core/playermanager";
 import Menu from "@core/menu";
 
 import SettingsWindow from "./ui/SettingsWindow";

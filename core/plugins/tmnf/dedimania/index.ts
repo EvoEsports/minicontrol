@@ -1,7 +1,7 @@
 import type { Player } from "@core/playermanager";
 import Api from "./api";
 import { clone, htmlEntities, formatTime } from "@core/utils";
-import ListWindow from "@core/ui/listwindow";
+import ListWindow from "@core/ui2/listwindow";
 import Plugin from "@core/plugins";
 
 export interface DediRecord {
@@ -91,19 +91,19 @@ export default class Dedimania extends Plugin {
         for (const record of this.records) {
             records.push({
                 rank: record.Rank,
-                nickname: htmlEntities(record.NickName),
-                time: `$o${formatTime(record.Best)}`,
+                nickname: record.NickName,
+                time: record.Best,
             });
         }
         const window = new ListWindow(login);
-        window.size = { width: 90, height: 95 };
+        window.size = { width: 80, height: 120 };
         window.title = `Dedimania Records [${this.records.length}]`;
         window.setItems(records);
-        window.setColumns([
-            { key: "rank", title: "Rank", width: 10 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "time", title: "Time", width: 20 },
-        ]);
+        window.setColumns({
+            rank: { title: "Rank", width: 10, align: "center" },
+            nickname: { title: "Nickname", width: 50 },
+            time: { title: "Time", width: 20, type: "time" },
+        });
         window.display();
     }
 

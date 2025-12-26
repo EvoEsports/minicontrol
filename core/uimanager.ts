@@ -1,9 +1,8 @@
-import Window from "./ui/window";
-import NewWindow from "./ui2/window";
+import Window from "@core/ui2/window";
 
 import { chunkArray, parseEntries } from "./utils";
-import type IManialink from "./ui2/interfaces/imanialink";
-import Manialink from "./ui2/manialink.ts";
+import type IManialink from "@core/ui2/interfaces/imanialink";
+import Manialink from "@core/ui2/manialink.ts";
 
 
 export interface uiModule {
@@ -73,8 +72,6 @@ export default class UiManager {
             tmc.settings.register("tmf.hud.challenge_info", false, this.uiSettingsChange.bind(this), "TmForever HUD: Show challenge info");
             tmc.settings.register("tmf.hud.notice", false, this.uiSettingsChange.bind(this), "TmForever HUD: Show notice");
         }
-        tmc.cli("¤info¤Loading UI components...");
-        await import("./ui/components/index.ts");
     }
 
     /**
@@ -280,7 +277,7 @@ export default class UiManager {
     private async onManialinkAnswer(data: any) {
         const login = data[1];
         const answer = data[2].toString();
-        const entries = data[3];
+        const entries = data[3] ?? [];
         if (answer === "-2") {
             if (!this.hiddenManialinks.includes(login)) {
                 this.hiddenManialinks.push(login);
@@ -304,7 +301,7 @@ export default class UiManager {
             return;
         }
         if (this.actions[answer]) {
-            await this.actions[answer].callback(login, this.actions[answer].data, entries);
+            await this.actions[answer].callback(login, this.actions[answer].data, parseEntries(entries));
         }
     }
 
@@ -371,15 +368,15 @@ export default class UiManager {
             }
 
             // ensure only one window of each type per player
-            const playerWindows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof NewWindow) as NewWindow[];
-            if (playerWindows.find((win) => win.name === (manialink as NewWindow).name)) {
+            const playerWindows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
+            if (playerWindows.find((win) => win.name === (manialink as Window).name)) {
                 return;
             }
 
             if (tmc.game.Name === "TmForever") {
                 // If manialink is a NewWindow, destroy all existing windows for this recipient.
-                if (manialink instanceof NewWindow) {
-                    const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof NewWindow) as NewWindow[];
+                if (manialink instanceof Window) {
+                    const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
                     await Promise.all(
                         windows.map(async (win) => {
                             if (win.recipient !== undefined) {
@@ -391,22 +388,6 @@ export default class UiManager {
                         }),
                     );
                 }
-            }
-
-            // If manialink is a Window, destroy all existing windows for this recipient.
-            // TODO: remove this when ui2 is done
-            if (manialink instanceof Window) {
-                const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
-                await Promise.all(
-                    windows.map(async (win) => {
-                        if (win.recipient !== undefined) {
-                            const id = win.id;
-                            const recipient = win.recipient;
-                            win.destroy();
-                            delete this.playerManialinks[recipient][id.toString()];
-                        }
-                    }),
-                );
             }
 
             // If an existing manialink with the same id is present, destroy it.
@@ -497,23 +478,25 @@ export default class UiManager {
                     if (!this.playerManialinks[manialink.recipient]) {
                         this.playerManialinks[manialink.recipient] = {};
                     }
-                    const playerWindows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof NewWindow) as NewWindow[];
-                    if (playerWindows.find((win) => win.name === (manialink as NewWindow).name)) {
+                    const playerWindows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
+                    if (playerWindows.find((win) => win.name === (manialink as Window).name)) {
                         return;
                     }
-                    // If it's a Window, destroy all existing windows for that recipient.
-                    if (manialink instanceof Window) {
-                        const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
-                        await Promise.all(
-                            windows.map(async (win) => {
-                                if (win.recipient !== undefined) {
-                                    const id = win.id;
-                                    const recipient = win.recipient;
-                                    win.destroy();
-                                    delete this.playerManialinks[recipient][id];
-                                }
-                            }),
-                        );
+                    if (tmc.game.Name === "TmForever") {
+                        // If manialink is a NewWindow, destroy all existing windows for this recipient.
+                        if (manialink instanceof Window) {
+                            const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
+                            await Promise.all(
+                                windows.map(async (win) => {
+                                    if (win.recipient !== undefined) {
+                                        const id = win.id;
+                                        const recipient = win.recipient;
+                                        win.destroy();
+                                        delete this.playerManialinks[recipient][id.toString()];
+                                    }
+                                }),
+                            );
+                        }
                     }
 
                     // Destroy any existing manialink with the same id.

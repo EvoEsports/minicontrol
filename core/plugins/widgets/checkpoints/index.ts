@@ -1,6 +1,7 @@
 import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
-import Widget from "@core/ui/widget";
+import Widget from "@core/ui2/widget";
+import Label from "@core/ui2/components/partials/Label";
 
 declare module "@core/plugins" {
     interface PluginRegistry {
@@ -37,13 +38,16 @@ export default class Checkpoints extends Plugin {
         const login = player.login;
         this.checkpointCounter[login] = 0;
         if (!this.widgets[login]) {
-            const widget = new Widget("widget.xml.twig", import.meta.dirname);
+            const widget = new Widget(() => Label({
+                scale: "1.2",
+                halign: "center",
+            }), "checkpointsWidget");
             widget.recipient = login;
             widget.pos = { x: 0, y: -74, z: 0 };
             widget.size = { width: 20, height: 5 };
+            const text = (tmc.maps.currentMap?.NbCheckpoints || 0) - 1 + " / " + (this.checkpointCounter[login] || 0);
             widget.data = {
-                totalCheckpoints: (tmc.maps.currentMap?.NbCheckpoints || 0) - 1,
-                currentCheckpoint: this.checkpointCounter[login] || 0,
+                text
             };
             this.widgets[login] = widget;
             widget.display();
@@ -102,9 +106,9 @@ export default class Checkpoints extends Plugin {
             const player = await tmc.getPlayer(login);
             await this.onPlayerConnect(player);
         }
+        const text = (tmc.maps.currentMap?.NbCheckpoints || 0) - 1 + " / " + (this.checkpointCounter[login] || 0);
         this.widgets[login].data = {
-            totalCheckpoints: (tmc.maps.currentMap?.NbCheckpoints || 0) - 1,
-            currentCheckpoint: this.checkpointCounter[login] || 0,
+            text
         };
         await this.widgets[login].display();
     }

@@ -22,8 +22,8 @@ export default function WidgetTitle({ pos = '0 0', 'z-index': z = 1, text = '', 
                 valign="center2"
                 action={actions.openWidget}
             />
-            <quad pos="0 0" z-index={z} size={`${psize.x} ${psize.y}`} bgcolor={`${colors.title_bg}9`} halign="left" valign="top" />
-            <quad pos="0 0" z-index={z} size={`0.5 ${psize.y}`} bgcolor={colors.highlight} halign="left" valign="top" />
+            <quad pos="0 0" z-index={z-1} size={`${psize.x} ${psize.y}`} bgcolor={`${colors.title_bg}9`} halign="left" valign="top" />
+            <quad pos="0 0" z-index={z+1} size={`0.5 ${psize.y}`} bgcolor={colors.highlight} halign="left" valign="top" />
         </frame>
     );
 }

@@ -1,8 +1,9 @@
 import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
 import type { DediRecord } from "@core/plugins/tmnf/dedimania";
-import Widget from "@core/ui/widget";
-import { formatTime, htmlEntities } from "@core/utils";
+import Widget from "@core/ui2/widget";
+import RecordsWidget from "./records";
+import { removeLinks } from "@core/utils";
 
 declare module "@core/plugins" {
     interface PluginRegistry {
@@ -64,8 +65,8 @@ export default class DedimaniaWidget extends Plugin {
     updateWidget(login: string) {
         let widget = this.widgets[login];
         if (!widget) {
-            widget = new Widget("widget.xml.twig", import.meta.dirname);
-            widget.title = "DEDIMANIA";
+            widget = new Widget(RecordsWidget, "dedimaniaWidget");
+            widget.data.title = "DEDIMANIA";
             widget.recipient = login;
             widget.pos = { x: 121, y: 35, z: 0 };
             widget.size = { width: 38, height: 45 };
@@ -88,8 +89,8 @@ export default class DedimaniaWidget extends Plugin {
 
         for (const rec of outRecords) {
             rec.rank = rec.Rank;
-            rec.formattedTime = formatTime(rec.Best);
-            rec.nickname = htmlEntities(rec.NickName);
+            rec.time = rec.Best;
+            rec.nickname = removeLinks(rec.NickName);
         }
 
         widget.setData({ records: outRecords });

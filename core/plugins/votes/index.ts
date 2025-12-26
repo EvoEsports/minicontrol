@@ -1,5 +1,5 @@
 import Plugin from "@core/plugins";
-import Widget from "@core/ui/widget";
+import Widget from "@core/ui2/widget";
 import { processColorString, htmlEntities } from "@core/utils";
 import Menu from "@core/menu";
 import type { Player } from "@core/playermanager";

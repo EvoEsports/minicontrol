@@ -1,6 +1,6 @@
 import Plugin from "@core/plugins";
 import { QueryTypes } from "sequelize";
-import ListWindow from "@core/ui/listwindow";
+import ListWindow from "@core/ui2/listwindow";
 import Player from "@core/plugins/database/models/players.model";
 import Menu from "@core/menu";
 import console from "node:console";
@@ -102,8 +102,9 @@ export default class Rankings extends Plugin {
         const players = await Player.findAll();
         const outRanks: any = [];
         let x = 0;
+        const maxRank = tmc.settings.get("records.maxRecords") || 100;
         for (const rank of this.rankings) {
-            if (x > 100) break;
+            if (x > maxRank) break;
             const avg = rank.avg / 10000;
             const player = players.find((val) => val.login === rank.login);
             outRanks.push({
@@ -115,11 +116,11 @@ export default class Rankings extends Plugin {
         }
 
         window.setItems(outRanks);
-        window.setColumns([
-            { key: "rank", title: "Rank", width: 20 },
-            { key: "nickname", title: "Name", width: 60 },
-            { key: "avg", title: "Average", width: 20 },
-        ]);
+        window.setColumns({
+            rank: { title: "Rank", width: 20 },
+            nickname: { title: "Name", width: 60 },
+            avg: { title: "Average", width: 20 },
+        });
         window.display();
     }
 }

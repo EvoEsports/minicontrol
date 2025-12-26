@@ -9,7 +9,7 @@ import { GBX, type CGameCtnChallenge } from "gbx";
 import { existsSync, promises as fsPromises } from "node:fs";
 import path from "node:path";
 import { Op } from "sequelize";
-import ListWindow from "@core/ui/listwindow";
+import ListWindow from "@core/ui2/listwindow";
 import Plugin from "@core/plugins";
 
 export type Migration = (params: MigrationParams<Sequelize>, context: Sequelize) => Promise<unknown>;
@@ -360,11 +360,11 @@ export default class Database extends Plugin {
         });
         const window = new ListWindow(login);
         window.title = "Top 100 active players";
-        window.setColumns([
-            { key: "rank", title: "Rank", width: 10 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "playtime", title: "Playtime", width: 20 },
-        ]);
+        window.setColumns({
+            rank: { title: "Rank", width: 10 },
+            nickname: { title: "Nickname", width: 50 },
+            playtime: { title: "Playtime", width: 20 },
+        });
         window.setItems(
             topPlayers.map((player, index) => {
                 // Convert playtime (seconds) to hh:mm format

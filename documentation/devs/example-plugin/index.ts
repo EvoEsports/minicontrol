@@ -1,7 +1,6 @@
 import Plugin from "@core/plugins";
-import Widget from "@core/ui/widget";
-import ListWindow from "@core/ui/listwindow";
-import Confirm from "@core/ui/confirm";
+import Widget from "@core/ui2/widget";
+import ListWindow from "@core/ui2/listwindow";
 
 declare module "@core/plugins" {
     interface PluginRegistry {
@@ -63,15 +62,17 @@ export default class ExamplePlugin extends Plugin {
         // Show a ListWindow when someone opens the widget
         const window = new ListWindow(login);
         window.title = "Widget open list";
-        window.setColumns([
-            { key: "col1", title: "Title", width: 60 },
-            { key: "col2", title: "Value", width: 40 },
-        ]);
+        window.setColumns({
+            col1: { title: "Title", width: 60 },
+            col2: { title: "Value", width: 40 },
+        });
         window.setItems([
             { col1: "Players online", col2: `${tmc.players.getAllLogins().length}` },
             { col1: "Current map", col2: `${tmc.maps.currentMap?.Name ?? "Unknown"}` },
         ]);
-        window.setActions(["View"]);
+        window.setAction("view", "View", async (login, item: any,) => {
+            tmc.chat(`You selected: ${item.col1} - ${item.col2}`, login);
+        });
         await window.display();
     }
 
@@ -94,10 +95,10 @@ export default class ExamplePlugin extends Plugin {
     async cmdList(login: string, args: string[]) {
         const window = new ListWindow(login);
         window.title = "Example List";
-        window.setColumns([
-            { key: "id", title: "ID", width: 20 },
-            { key: "name", title: "Name", width: 80 },
-        ]);
+        window.setColumns({
+            id: { title: "ID", width: 20 },
+            name: { title: "Name", width: 80 },
+        });
         const items: any = [];
         let i = 1;
         for (const p of tmc.players.getAll()) {
@@ -105,7 +106,6 @@ export default class ExamplePlugin extends Plugin {
             i++;
         }
         window.setItems(items);
-        window.setActions(["View"]);
         await window.display();
     }
 

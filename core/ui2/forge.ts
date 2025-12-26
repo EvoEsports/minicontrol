@@ -87,6 +87,37 @@ export function getRegisteredComponents() {
 
 export type Hook = { deps?: any[]; effect?: () => string | (() => void); cleanup?: (() => void); pending?: boolean; script?: string; headerEffect?: () => string | (() => void); headerDeps?: any[]; headerPending?: boolean; header?: string };
 export const roots = new Map<string, { hooks: Hook[]; dataObj?: objMap }>();
+
+/**
+ * Normalize values by calling toJSON() on model-like objects.
+ * - Arrays and plain objects are traversed recursively
+ * - Objects with a `toJSON` function are replaced with the result of that call
+ * - JSX element objects (which have a `type` property) are left intact
+ */
+export function normalizeModels(value: any): any {
+    if (value === null || value === undefined) return value;
+    if (Array.isArray(value)) return value.map((v) => normalizeModels(v));
+    if (typeof value === "object") {
+        // If it's a JSX element (has `type`), don't touch it
+        if ((value as any).type !== undefined) return value;
+        // If it's a model-like object with toJSON, convert it
+        if (typeof (value as any).toJSON === "function") {
+            try {
+                const json = (value as any).toJSON();
+                return normalizeModels(json);
+            } catch (e) {
+                return value;
+            }
+        }
+        // Plain object: traverse keys
+        const out: any = {};
+        for (const k of Object.keys(value)) {
+            out[k] = normalizeModels((value as any)[k]);
+        }
+        return out;
+    }
+    return value;
+}
 let currentRoot: { hooks: Hook[]; dataObj?: any } | null = null;
 let hookIndex = 0;
 
@@ -222,7 +253,6 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
             +++OnInit+++
 
             while(True) {
-            yield;
             if (!PageIsVisible || InputPlayer == Null) {
                     continue;
             }
@@ -252,6 +282,7 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
                 }
 
                 +++Loop+++
+                yield;
             }
         }
         --></script>`;
@@ -286,13 +317,32 @@ export function renderJsx(element: any, zOffset: number = 0): string {
 
     // Function components: inherit z-index when not explicitly set, then render result with base z
     if (typeof type === "function") {
-        const compProps = { ...(props || {}) };
+        // normalize model-like objects in props (but keep JSX `children` unchanged)
+        const rawProps = { ...(props || {}) } as any;
+        const childrenProp = rawProps.children;
+        for (const k of Object.keys(rawProps)) {
+            if (k === "children") continue;
+            rawProps[k] = normalizeModels(rawProps[k]);
+        }
+        rawProps.children = childrenProp;
+
+        const compProps = rawProps;
         const ownZ = Number((compProps as any)["z-index"]) || 0;
         return renderJsx(type(compProps), ownZ + zOffset); // Component
     }
 
     let { children = [], ...attrs } = props || {};
+    // Normalize model-like objects in attributes and children
+    for (const k of Object.keys(attrs)) {
+        attrs[k] = normalizeModels((attrs as any)[k]);
+    }
     if (!Array.isArray(children)) children = [children];
+    children = children.map((c) => {
+        if (c && typeof (c as any).toJSON === "function" && (c as any).type === undefined) {
+            return normalizeModels((c as any).toJSON());
+        }
+        return c;
+    });
 
     const ownZ = Number(attrs["z-index"]) || 0;
     attrs["z-index"] = ownZ + zOffset;

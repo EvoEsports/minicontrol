@@ -16,23 +16,23 @@ mkdir -p userdata/plugins/example-plugin
 
 ```json
 {
-  "id": "example-plugin",
-  "name": "Example Plugin",
-  "version": "0.1.0",
-  "requiresMinicontrolVersion": "^0.12.0",
-  "date": "2025-12-10"
+    "id": "example-plugin",
+    "name": "Example Plugin",
+    "version": "0.1.0",
+    "requiresMinicontrolVersion": "^0.12.0",
+    "date": "2025-12-10"
 }
 ```
 
 3. Create an `index.ts` file that exports a default class extending `Plugin` (found at `core/plugins/index.ts`). Example skeleton:
 
 ```ts
-import Plugin from "@core/plugins";
+import Plugin from '@core/plugins';
 
 export default class ExamplePlugin extends Plugin {
     async onLoad() {
         // Register listeners and commands here
-        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        this.addListener('TMC.PlayerConnect', this.onPlayerConnect, this);
     }
 
     async onStart() {
@@ -49,34 +49,27 @@ export default class ExamplePlugin extends Plugin {
 }
 ```
 
-4. Optional: Provide templates and any static assets you need. Use `import.meta.dirname` as a `baseDir` when creating `Manialink` objects so template resolution works correctly:
-
-```ts
-import Widget from "@core/ui/widget";
-this.widget = new Widget("mywidget.xml.twig", import.meta.dirname);
-```
-
-5. Install the plugin (copying folder into `userdata/plugins`) if you're developing outside the runtime (PluginLoader will validate manifest):
+4. Install the plugin (copying folder into `userdata/plugins`) if you're developing outside the runtime (PluginLoader will validate manifest):
 
 ```ts
 const loader = new PluginLoader();
-await loader.install("path/to/your/local/plugin");
+await loader.install('path/to/your/local/plugin');
 ```
 
-6. Test the plugin features
+5. Test the plugin features
 
-- Use chat commands you registered
-- Click widget UI elements
-- Check logs and manifest validation messages if the plugin did not load
+-   Use chat commands you registered
+-   Click widget UI elements
+-   Check logs and manifest validation messages if the plugin did not load
 
 ---
 
 ## Tips & Troubleshooting
 
-- Use `import.meta.dirname` to ensure Twing template resolution finds your templates.
-- If MiniControl refuses to load your plugin, check the `requiresMinicontrolVersion` range in `manifest.json` and your installed `tmc.version`.
-- Use `tmc.cli()` and `tmc.debug()` to write helpful debug messages.
-- If the loader reports missing dependencies, ensure dependent plugins are present and satisfy semver ranges.
+-   Use `import.meta.dirname` to ensure Twing template resolution finds your templates.
+-   If MiniControl refuses to load your plugin, check the `requiresMinicontrolVersion` range in `manifest.json` and your installed `tmc.version`.
+-   Use `tmc.cli()` and `tmc.debug()` to write helpful debug messages.
+-   If the loader reports missing dependencies, ensure dependent plugins are present and satisfy semver ranges.
 
 ---
 
