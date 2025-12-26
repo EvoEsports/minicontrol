@@ -110,7 +110,7 @@ class DetailsWindow extends ListWindow {
 
     constructor(login: string, record: any) {
         super(login);
-        this.size = { width: 160, height: 95 };
+        this.size = { width: 160, height: 120 };
         this.record = record;
         this.title = `Record Details for ${htmlEntities(this.record?.nickname || "Unknown")}`;
     }

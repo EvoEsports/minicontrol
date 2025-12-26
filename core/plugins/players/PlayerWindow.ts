@@ -2,7 +2,7 @@ import Confirm from "@core/ui/confirm";
 import ListWindow from "@core/ui/listwindow";
 
 export default class PlayerWindow extends ListWindow {
-    size = { width: 195, height: 95 };
+    size = { width: 195, height: 120 };
     title = "Players";
 
     constructor(login: string) {

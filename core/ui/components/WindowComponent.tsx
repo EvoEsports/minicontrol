@@ -25,12 +25,12 @@ Void Drag() {
     declare CMlFrame FrameRoot <=> Page.GetFirstChild("root") as CMlFrame;
     declare Vec2 OrigPos = <MouseX, MouseY> - FrameRoot.RelativePosition_V3;
     while (MouseLeftButton) {
-        yield;
         if (MouseX <= -1000.0 && MouseY <= -1000.0) { // This happens when user holds the LMB pressed too long without any movement and game hides the cursor.
             yield;
             continue;
         }
         FrameRoot.RelativePosition_V3 = <MouseX, MouseY> - OrigPos;
+        yield;
     }
     G_MC_WindowLocations["${data.windowName}"] = FrameRoot.RelativePosition_V3;
 }
@@ -91,7 +91,7 @@ if (Event.Control.HasClass("title")) {
     return (
         <>
             <frame id="root" pos={`-${psize.x * 0.5} ${psize.y * 0.5 + ppos.y}`} z-index={z}>
-                <quad class="title" pos="0 0" z-index={z + 1} size={`${psize.x + 4} 6`} bgcolor={`${colors.title_bg}e`} halign="left" valign="bottom" scriptevents="1" />
+                <quad class="title" pos="0 0" z-index={z + 2} size={`${psize.x + 4} 6`} bgcolor={`${colors.title_bg}e`} halign="left" valign="bottom" scriptevents="1" />
                 <quad pos={`${psize.x + 4} 0`} z-index={z + 2} size={`${psize.x + 4} 0.4`} bgcolor={colors.highlight} opacity="1" valign="top" halign="right" />
                 <label
                     pos="2 3"
@@ -125,7 +125,7 @@ if (Event.Control.HasClass("title")) {
 
                 {tmc.game.Name !== 'TmForever'
                     ? [
-                          <quad pos="-0.5 6.5" z-index={z + 2} size={`${psize.x + 1} ${psize.y + 7}`} bgcolor="0000" scriptevents="1" />,
+                          <quad pos="-0.5 6.5" z-index={z + 1} size={`${psize.x + 1} ${psize.y + 7}`} bgcolor="0000" scriptevents="1" />,
                           <quad pos="0 0" z-index={z + 10} size={`${psize.x + 4} ${psize.y}`} bgcolor="0008" id="inactive" scriptevents="1" hidden="1" />
                       ]
                     : null}

@@ -38,7 +38,7 @@ export default class CommandManager {
                     });
                 }
                 const window = new HelpWindow(login);
-                window.size = { width: 160, height: 95 };
+                window.size = { width: 160, height: 120 };
                 window.title = "Commands";
                 window.setItems(outCommands.sort((a: any, b: any) => a.command.localeCompare(b.command)));
                 window.setColumns({
@@ -62,7 +62,7 @@ export default class CommandManager {
                     });
                 }
                 const window = new ListWindow(login);
-                window.size = { width: 160, height: 95 };
+                window.size = { width: 160, height: 120 };
                 window.title = "Admin commands";
                 window.setItems(outCommands.sort((a: any, b: any) => a.command.localeCompare(b.command)));
                 window.setColumns({
@@ -267,7 +267,7 @@ export default class CommandManager {
                         value: { title: "Return", width: 15 },
                         help: { title: "Help", width: 150 },
                     });
-                    window.size = { width: 230, height: 95 };
+                    window.size = { width: 230, height: 120 };
                     window.display();
                     return;
                 }
@@ -296,7 +296,7 @@ export default class CommandManager {
      */
     async cmdPluginManager(login: string, args: string[]) {
         const window = new PluginManagerWindow(login);
-        window.size = { width: 160, height: 95 };
+        window.size = { width: 160, height: 120 };
         window.title = "Plugins";
         let out: any[] = [];
         const all: string[] = [];

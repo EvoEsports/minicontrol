@@ -253,11 +253,12 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
             +++OnInit+++
 
             while(True) {
-            if (!PageIsVisible || InputPlayer == Null) {
+                if (!PageIsVisible || InputPlayer == Null) {
+                    yield;
                     continue;
-            }
+                }
 
-            foreach (OrigEvent in PendingEvents) {
+                foreach (OrigEvent in PendingEvents) {
                     Event = OrigEvent;
                     switch (Event.Type) {
                         case CMlScriptEvent::Type::EntrySubmit: {
@@ -280,7 +281,6 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
                         }
                     }
                 }
-
                 +++Loop+++
                 yield;
             }
@@ -290,7 +290,7 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
 
     const output = `<manialink id="" version="3">
       ${jsx}
-      ${tmc.game.Name !== "TmForever" ? outScripts : ""}
+      ${(tmc.game.Name !== "TmForever" ? outScripts : "")}
     </manialink>`;
 
     return output;
