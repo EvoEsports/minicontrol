@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="../images/minicontrol.png" width="60%" />
+    <img src="./minicontrol.png" width="60%" />
     <br>
     <img alt="GitHub" src="https://img.shields.io/github/license/EvoEsports/minicontrol?label=License" />
     <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/evoesports/minicontrol?label=Current%20Version" />
