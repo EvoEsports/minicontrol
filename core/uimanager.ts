@@ -135,7 +135,7 @@ export default class UiManager {
      * @returns
      */
     private convertLine(line: string): string {
-        const matches = line.matchAll(/(pos|size)="([-.\d]+)\s+([-.\d]+)"/g);
+        const matches = line.matchAll(/\b(pos|size)\b="([-.\d]+)\s+([-.\d]+)"/g);
         let out = line;
         for (const match of matches) {
             const x = (Number.parseFloat(match[2]) / 160) * 64;

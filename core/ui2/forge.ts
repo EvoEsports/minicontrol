@@ -277,7 +277,7 @@ export function renderJsx(element: any, zOffset: number = 0): string {
     if (typeof element === "number") return element.toString(); // Number
 
     // If element is an array, render each child with the current zOffset
-    if (Array.isArray(element)) return element.map((e, i) => renderJsx(e, zOffset + 1)).join(""); // List
+    if (Array.isArray(element)) return element.map((e, i) => renderJsx(e, zOffset + 0.1)).join(""); // List
 
     if (typeof element !== "object") throw Error("Element must be an object");
     const { type, props } = element;
@@ -286,7 +286,7 @@ export function renderJsx(element: any, zOffset: number = 0): string {
     if (typeof type === "function") {
         const compProps = { ...(props || {}) };
         const ownZ = Number((compProps as any)["z-index"]) || 0;
-        return renderJsx(type(compProps), ownZ + zOffset + 1); // Component
+        return renderJsx(type(compProps), ownZ + zOffset + 0.1); // Component
     }
 
     let { children = [], ...attrs } = props || {};
@@ -297,11 +297,11 @@ export function renderJsx(element: any, zOffset: number = 0): string {
 
     const attrsStr = attrsToStr(attrs);
 
-    if (children.length == 0) return `<${type}${attrsStr} />`;
+    if (children.length == 0) return `<${type}${attrsStr} />\n`;
 
-    const childZ = ownZ + zOffset + 1;
+    const childZ = ownZ + zOffset + 0.1;
     const childrenStr = renderJsx(children, childZ);
-    return `<${type}${attrsStr}>${childrenStr}</${type}>`;
+    return `<${type}${attrsStr}>\n${childrenStr}\n</${type}>\n`;
 }
 
 /* Convert &, <, >, ", ' to escaped HTML codes to prevent XSS attacks */

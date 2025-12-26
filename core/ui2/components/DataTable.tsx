@@ -93,11 +93,11 @@ export default function DataTable(props: any) {
 
     return (
         <>
-            <frame pos={pos} z-index={z+1}>
+            <frame pos={pos} z-index={z + 1}>
                 {outHeaders}
-                <frame pos="0 -4" z-index={z+2}>
+                <frame pos="0 -4" z-index={z + 2}>
                     {outItems}
-                    <PaginateControls pos={`${size.width * 0.5} -${size.height - 15}`} z-index={z} data={data} />
+                    <PaginateControls pos={`${(size.width + 4) * 0.5} -${size.height - 15}`} z-index={z} data={data} />
                 </frame>
             </frame>
         </>

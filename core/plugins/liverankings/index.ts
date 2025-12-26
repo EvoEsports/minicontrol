@@ -1,7 +1,6 @@
 import Plugin from "@core/plugins";
 import type { Player } from "@core/playermanager";
-import { clone, htmlEntities, formatTime } from "@core/utils";
-import RecordsWindow from "@core/plugins/records/recordsWindow";
+import { clone } from "@core/utils";
 
 interface LiveRecord {
     login: string;
@@ -24,23 +23,6 @@ export default class Liverankings extends Plugin {
         this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         this.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
         this.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
-        this.addCommand("/liverankings", this.cmdRecords.bind(this), "Display Live Records");
-    }
-
-    async onUnload() {
-
-    }
-
-    async onStart() {
-        const menu = tmc.storage["menu"];
-        if (menu) {
-            menu.addItem({
-                category: "Records",
-                title: "Show: Live Records",
-                action: "/liverankings",
-            });
-        }
-        if (!tmc.maps.currentMap.UId) return;
     }
 
     async onBeginMap(data: any) {
@@ -51,60 +33,6 @@ export default class Liverankings extends Plugin {
         tmc.server.emit("Plugin.LiveRankings.onSync", {
             records: clone(this.liverankings),
         });
-    }
-
-    async cmdRecords(login: string, _args: string[]) {
-        const liverankings: any = [];
-        for (const record of this.liverankings) {
-            liverankings.push({
-                rank: record.rank,
-                nickname: htmlEntities(record.player?.nickname ?? ""),
-                login: record.login,
-                time: formatTime(record.time ?? 0),
-            });
-        }
-
-        const window = new RecordsWindow(login, this);
-        window.size = { width: 100, height: 100 };
-        window.title = `Live Rankings [${this.liverankings.length}]`;
-        window.setItems(liverankings);
-        window.setColumns([
-            { key: "rank", title: "Rank", width: 10 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "time", title: "Time", width: 20 },
-        ]);
-
-        window.setActions(["View"]);
-
-        if (tmc.admins.includes(login)) {
-            window.size.width = 115;
-            window.setActions(["View", "Delete"]);
-        }
-
-        window.display();
-    }
-
-    async deleteRecord(login: string, data: any) {
-        if (!tmc.admins.includes(login)) return;
-        const msg = `¤info¤Deleting live record for ¤white¤${data.nickname} ¤info¤(¤white¤${data.login}¤info¤)`;
-        tmc.cli(msg);
-        tmc.chat(msg, login);
-        try {
-            const recordIndex = this.liverankings.findIndex((record) => record.login === login);
-            if (recordIndex !== -1) {
-                this.liverankings.splice(recordIndex, 1);
-            }
-            let rank = 1;
-            for (const score of this.liverankings) {
-                score.rank = rank;
-                rank += 1;
-            }
-            await this.cmdRecords(login, []);
-        } catch (err: any) {
-            const msg = `Error deleting record: ${err.message}`;
-            tmc.cli(msg);
-            tmc.chat(msg, login);
-        }
     }
 
     async onPlayerCheckpoint(data: any) {

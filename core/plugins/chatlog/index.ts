@@ -1,4 +1,4 @@
-import ListWindow from "@core/ui/listwindow";
+import ListWindow from "@core/ui2/listwindow";
 import Plugin from "@core/plugins";
 import { clone } from "@core/utils";
 import Menu from "@core/menu";
@@ -61,16 +61,14 @@ export default class ChatLog extends Plugin {
     async cmdChatLog(login: string, params: string[]) {
         const window = new ListWindow(login);
         window.title = "Chat Log";
-        window.size = { width: 200, height: 120 };
-        window.setColumns([
-            { key: "date", title: "Time", width: 20 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "text", title: "Message", width: 125 },
-        ]);
+        window.size = { width: 195, height: 120 };
+        window.setColumns({
+            date: { title: "Time", width: 20 },
+            nickname: { title: "Nickname", width: 50 },
+            text: { title: "Message", width: 125 },
+        });
         const chatLog = clone(this.chatLog).reverse();
         window.setItems(chatLog);
-
-        window.pageSize = 20;
         window.display();
     }
 }

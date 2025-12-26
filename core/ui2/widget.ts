@@ -5,9 +5,9 @@ import { createElement, getComponent } from "./forge";
 import type { ActionCallback } from "@core/uimanager";
 
 export default class Widget extends Manialink implements IWidget {
-    title: string = "Window";
+    title: string = "Widget";
 
-    constructor(jsxComponent: any, name: string = "defautltWidget") {
+    constructor(jsxComponent: any, name: string = "defaultWidget") {
         super("");
         this.name = name;
         this.data.name = name;

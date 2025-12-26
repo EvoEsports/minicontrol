@@ -1,7 +1,8 @@
 import { memInfo, processColorString, startValueMem } from "@core/utils";
 import Plugin from "@core/plugins";
 import tm from "tm-essentials";
-import Widget from "@core/ui/widget";
+import Widget from "@core/ui2/widget";
+import Label from "./LabelWidget";
 
 interface Counters {
     methodsSend: number;
@@ -38,11 +39,11 @@ export default class DebugTool extends Plugin {
             }
         }, "DebugTool: Enable Memory Usage widget");
 
-        this.gbxWidget = new Widget("core/plugins/debugtool/widget.xml.twig", import.meta.dirname);
+        this.gbxWidget = new Widget(Label,"gbxCounters");
         this.gbxWidget.pos = { x: 159, y: -85, z: 0 };
         this.addListener("GbxClient.Counters", this.onCounters, this);
 
-        this.memoryWidget = new Widget("core/plugins/debugtool/widget.xml.twig", import.meta.dirname);
+        this.memoryWidget = new Widget(Label, "memoryUsage");
         this.memoryWidget.pos = { x: 159, y: -60, z: 0 };
 
         if (tmc.game.Name !== "TmForever") {

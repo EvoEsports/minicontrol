@@ -1,12 +1,14 @@
-import Widget from "@core/ui/widget";
+import Widget from "@core/ui2/widget";
 import type { Item } from "@core/menu";
 import Menu from "@core/menu";
+import MenuComponent from "./ui/MenuComponent";
 
 export default class MenuWidget extends Widget {
-    parent: any;
+    private parent;
 
-    constructor(login: string, path: string, parent: any) {
-        super(path, import.meta.dirname);
+    constructor(login: string, parent) {
+        super(MenuComponent, "menu");
+        this.recipient = login;
         this.parent = parent;
         const categories: any = Menu.getInstance()
             .getItems()
@@ -21,7 +23,6 @@ export default class MenuWidget extends Widget {
         this.data["categories"] = categories || [];
         this.data["activeCategory"] = categories[0];
         this.data["isAdmin"] = tmc.admins.includes(login);
-        this.recipient = login;
     }
 
     async display() {

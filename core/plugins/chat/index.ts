@@ -6,7 +6,6 @@ import ListWindow from "@core/ui2/listwindow.ts";
 import Widget from "@core/ui2/widget.ts"
 import EmotesWidget from "./ui/EmotesWidget.tsx";
 
-
 const regex: RegExp[] = [];
 
 for (const pattern of badwords) {
@@ -56,7 +55,7 @@ export default class Chat extends Plugin {
                 );
                 this.addCommand("/emotes", this.cmdTmfEmotes.bind(this), "Emotes help");
                 if (tmc.settings.get("chat.useEmotes")) {
-                    this.toggleWidget(true);
+                    await this.toggleWidget(true);
                 }
             } else {
                 this.addCommand("/chatformat", async () => { }, "");
@@ -101,8 +100,8 @@ export default class Chat extends Plugin {
 
     async toggleWidget(enabled: boolean) {
         if (enabled && this.widget === null) {
-            this.widget = new Widget(EmotesWidget);
-            this.widget.pos = { x: -160, y: -35, z: 5 };
+            this.widget = new Widget(EmotesWidget, "emotesWidget");
+            this.widget.pos =  { x: -160, y: -35, z: 5 };
             this.widget.size = { width: 15, height: 3 };
             this.widget.setOpenAction(this.cmdTmfEmotes.bind(this));
             this.widget.display();
@@ -159,7 +158,7 @@ export default class Chat extends Plugin {
     async cmdTmfEmotes(login: string, _params: string[]) {
         const window = new ListWindow(login);
         window.title = "Emotes";
-        window.size = { width: 82, height: 95 };
+        window.size = { width: 65, height: 120 };
         window.setColumns({
             emote: { title: "Name", width: 50 },
             glyph: { title: "Emote", width: 15, align: "center" },

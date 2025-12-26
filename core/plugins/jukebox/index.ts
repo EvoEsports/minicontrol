@@ -3,7 +3,7 @@ import Plugin from "@core/plugins";
 import QueueWindow from "./queueWIndow";
 import Menu from "@core/menu";
 
-export interface Map {
+export interface JbMap {
     UId: string;
     File: string;
     Name: string;
@@ -20,7 +20,7 @@ declare module "@core/plugins" {
     }
 }
 export default class Jukebox extends Plugin {
-    queue: Map[] = [];
+    queue: JbMap[] = [];
     history: string[] = [];
     historySize = 2;
 
@@ -228,31 +228,6 @@ export default class Jukebox extends Plugin {
 
     async cmdListQueue(login: any, _args: string[]) {
         const window = new QueueWindow(login);
-        const maps: any = [];
-        let i = 1;
-        for (const map of clone(this.queue)) {
-            maps.push(
-                Object.assign(map, {
-                    Index: i++,
-                    Name: htmlEntities(map.Name),
-                    Author: htmlEntities(map.Author),
-                    AuthorTime: formatTime(map.AuthorTime),
-                    QueueNickName: htmlEntities(map.QueueNickName),
-                }),
-            );
-        }
-        window.title = `Map Queue [${maps.length}]`;
-        window.size = { width: 205, height: 95 };
-        window.setItems(maps);
-        window.setColumns([
-            { key: "Index", title: "#", width: 4 },
-            { key: "Name", title: "Name", width: 50 },
-            { key: "Author", title: "Author", width: 30 },
-            { key: "Environment", title: "Environment", width: 25 },
-            { key: "QueueNickName", title: "Wish by", width: 50 },
-        ]);
-
-        window.setActions(["Drop"]);
         window.display();
     }
 }

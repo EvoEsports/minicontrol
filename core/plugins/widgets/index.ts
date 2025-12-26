@@ -83,6 +83,7 @@ export default class WidgetPlugin extends Plugin {
     async cmdLock(login: string) {
         tmc.chat("¤info¤All widgets have been locked.", login);
         if (tmc.game.Name === "TmForever") {
+            this.moveTargets[login] = undefined;
             const grid = this.grids[login];
             if (grid) {
                 await grid.destroy(true);
