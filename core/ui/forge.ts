@@ -60,8 +60,8 @@ export function unregisterComponent(name: string) {
 }
 
 export function getComponent(name: string): any | undefined;
-export function getComponent(name: string, fallback: any): any;
-export function getComponent(name: string, fallback?: any) {
+export function getComponent<T>(name: string, fallback: T): T;
+export function getComponent<T>(name: string, fallback?: T | undefined): T | undefined {
     if (arguments.length === 1) {
         if (!components.has(name)) {
             if (process.env.DEBUG === "true") {
