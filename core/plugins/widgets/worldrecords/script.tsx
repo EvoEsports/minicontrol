@@ -275,10 +275,6 @@ Void ToggleGhost(Text AccountId) {
 main() {
     declare K_State TMGame_Record_State for UI;
     declare oldCount = -1;
-    //ToggleGhost("1c17a5db-accf-457e-a7ce-c3cd86defbc1");
-    //ToggleGhost("11d6f37c-b5cc-4bf6-88fc-f8d90956b281"); // reaby
-
-   // log(TMGame_Record_State.ZonesRecords[0].Records);
 
     while(True) {
         yield;
@@ -308,7 +304,6 @@ main() {
                     (Item.Controls[5] as CMlQuad).BgColor = TextLib::ToColor("${colors.highlight}");
                 }
             }
-
         }
     }
 }
