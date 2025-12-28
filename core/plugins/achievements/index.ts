@@ -1,5 +1,5 @@
 import { EventBus } from "./events/event-bus"
-import { InMemoryAchievementStorage, SequelizeAchievementStorage } from "./engine/storage"
+import { SequelizeAchievementStorage } from "./engine/storage"
 import { AchievementEngine, type AchievementProgressCallback, type AchievementUnlockedCallback } from "./engine/achievements"
 
 import Plugin from "@core/plugins"
@@ -22,34 +22,41 @@ export default class AchievementsPlugin extends Plugin {
     //storage = new InMemoryAchievementStorage()
     engine!: AchievementEngine;
     achievements: AchievementDefinition[] = [];
-    completeCB: Record<string, UnlockedCallback> = {}
+    completeCB: Record<string, UnlockedCallback | undefined> = {}
     progressCB: Record<string, ProgressCallback | undefined> = {}
 
     async onLoad() {
-
-        this.addListener("TMC.PlayerDisconnect", async (player: Player) => {
-            this.engine.userProgressCache.delete(player.login)
-        }, this)
-        this.addCommand("/achievements", this.cmdAchievements.bind(this), "List your achievements")
-
         this.engine = new AchievementEngine({
             storage: this.storage,
             achievements: this.achievements,
-            onUnlocked: async ({ login: userId, achievement, tier }) => {
-                if (this.completeCB[achievement.id]) await this.completeCB[achievement.id](userId, achievement, tier)
+            onUnlocked: async ({ login, achievement, tier }) => {
+
+                if (this.completeCB[achievement.id]) {
+                    await this.completeCB[achievement.id]?.(login, achievement, tier)
+                }
+                else {
+
+                    tmc.chat(`$fffAchievement unlocked: ${achievement.id} - Tier: ${tier.tierId} for user ${login}`)
+                }
 
             },
             onProgress: async ({ login: userId, achievement, tiers, totalPercent }) => {
                 if (this.progressCB[achievement.id]) await this.progressCB[achievement.id]?.(userId, achievement, tiers, totalPercent)
             }
         })
+
+        this.addListener("TMC.PlayerDisconnect", async (player: Player) => {
+            this.engine.userProgressCache.delete(player.login)
+        }, this)
+
+        this.addCommand("/trophies", this.cmdAchievements.bind(this), "List your achievements")
     }
 
     async onStart() {
         this.updateSubscriptions()
     }
 
-    addAchievement(achievement: AchievementDefinition, completeCB: UnlockedCallback, progressCB?: ProgressCallback | undefined) {
+    addAchievement(achievement: AchievementDefinition, completeCB?: UnlockedCallback | undefined, progressCB?: ProgressCallback | undefined) {
         this.completeCB[achievement.id] = completeCB
         this.progressCB[achievement.id] = progressCB
         this.achievements.push(achievement)
@@ -112,7 +119,7 @@ export default class AchievementsPlugin extends Plugin {
             unlocked: { title: "Unlocked", width: 15, align: "center" },
             counters: { title: "Counters", width: 15, align: "center" },
             progress: { title: "Progress", width: 30, align: "center", type: "progressbar" },
-            tier: { title: "Tier", width: 20 , align: "center" },
+            tier: { title: "Tier", width: 20, align: "center" },
         })
         window.setUseTitle(true)
         const achievements = this.achievements;
