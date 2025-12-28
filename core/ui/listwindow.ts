@@ -134,10 +134,10 @@ export default class ListWindow extends Window {
 
     async doSort(login: string, columnKey: string) {
         if (this.datatable.sortColumn === columnKey) {
-            this.datatable.sortDirection = -this.datatable.sortDirection || 1;
+            this.datatable.sortDirection = -this.datatable.sortDirection || -1;
         } else {
             this.datatable.sortColumn = columnKey;
-            this.datatable.sortDirection = 1;
+            this.datatable.sortDirection = -1;
         }
 
         this.display();
