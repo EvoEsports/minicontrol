@@ -35,10 +35,14 @@ export default function DataTable(props: any) {
 
     if (data.sortColumn !== '') {
         sortedItems.sort((a: any, b: any) => {
-            if (removeColors(a[data.sortColumn]).localeCompare(removeColors(b[data.sortColumn]), 'en', { numeric: true }) > 0) {
-                return data.sortDirection;
+            let value = 0;
+            if (!isNaN(Number.parseFloat(a[data.sortColumn]))) {
+                value = (a[data.sortColumn] - b[data.sortColumn]) * data.sortDirection;
             }
-            return -data.sortDirection;
+            if (typeof a[data.sortColumn] == "string" || isNaN(value)) {
+                value = data.sortDirection * removeColors(a[data.sortColumn]).localeCompare(removeColors(b[data.sortColumn]), 'en', { numeric: true });
+            }
+            return value;
         });
     }
     const startIndex = data.pageNb * data.pageSize;

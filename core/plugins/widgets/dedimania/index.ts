@@ -68,6 +68,7 @@ export default class DedimaniaWidget extends Plugin {
             widget = new Widget(RecordsWidget, "dedimaniaWidget");
             widget.data.title = "DEDIMANIA";
             widget.recipient = login;
+            widget.data.login = login;
             widget.pos = { x: 121, y: 35, z: 0 };
             widget.size = { width: 38, height: 45 };
             widget.setOpenAction(this.widgetClick.bind(this));

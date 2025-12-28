@@ -131,7 +131,7 @@ export default class Chat extends Plugin {
             return;
         }
         const player = await tmc.getPlayer(login);
-        const nick = (player.customNick ?? player.nickname).replaceAll(/\$[iwozs]/gi, "");
+        const nick = (player.customNick ?? player.nickname).replaceAll(/\$[w]/gi, "");
 
         if (tmc.game.Name === "TmForever" && tmc.settings.get("chat.useEmotes")) {
             for (const emoteData of emotesMap) {

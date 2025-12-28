@@ -4,7 +4,7 @@ import { clone, removeColors } from "@core/utils";
 import { Op, QueryTypes, type Sequelize } from "sequelize";
 
 export default class MapsWindow extends ListWindow {
-    size = { width: 190, height: 120 };
+    size = { width: 200, height: 120 };
     params: string[] = [];
 
     constructor(login: string, type: string, params: string[] = []) {
@@ -18,7 +18,7 @@ export default class MapsWindow extends ListWindow {
             ATime: { title: "Author Time", width: 20, type: "time", align: "center" },
             Environnement: { title: "Environment", width: 15 },
             Rank: { title: "My Rank", width: 10, align: "center" },
-            Karma: { title: "Karma", width: 10, align: "center" },
+            Karma: { title: "Karma", width: 25, align: "center", type: "progressbar" },
             Date: { title: "Date Added", width: 20, align: "center" },
         });
         this.datatable.sortColumn = "Name";
@@ -108,18 +108,7 @@ export default class MapsWindow extends ListWindow {
                     .indexOf(params[0].toLocaleLowerCase()) !== -1 ||
                 removeColors(map.Environnement).toLocaleLowerCase().indexOf(params[0].toLocaleLowerCase()) !== -1
             ) {
-                const karma = Number.parseFloat((map.Karma?.total ?? -1000).toFixed(2));
-                let outKarma = "";
-                if (karma === 0) {
-                    outKarma = "$fff0%";
-                } else if (karma > 0) {
-                    outKarma = `$0f0${karma}%`;
-                } else if (karma < 0) {
-                    outKarma = `$f00${karma}%`;
-                }
-                if (karma === -1000.0) {
-                    outKarma = "-";
-                }
+                const outKarma = Number.parseFloat(map.Karma?.total ?? 0)*0.01 || 0;
 
                 const rank =
                     rankings.find((val) => {

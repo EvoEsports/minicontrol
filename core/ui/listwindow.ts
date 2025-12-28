@@ -5,7 +5,7 @@ export interface columnDef {
     title: string;
     width: number;
     description?: string;
-    type?: "text" | "entry" | "time" | "date";
+    type?: "text" | "entry" | "time" | "date" | "progressbar";
     actionKey?: string;
     align?: "left" | "center" | "right";
 }
@@ -64,6 +64,10 @@ export default class ListWindow extends Window {
     }
     setItems(items: { [key: string]: any }[]) {
         this.datatable.items = items.map((item, index) => ({ index, ...item }));
+    }
+
+    setUseTitle(useTitle: boolean) {
+        this.data.useTitle = useTitle;
     }
 
     /**

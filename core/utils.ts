@@ -20,10 +20,10 @@ export function uuidv4(): string {
 }
 
 export function isDeno() {
-  return (
-    typeof globalThis.Deno !== "undefined" && // Deno global exists
-    typeof globalThis.Deno.version?.deno === "string" // Has version info
-  );
+    return (
+        typeof globalThis.Deno !== "undefined" && // Deno global exists
+        typeof globalThis.Deno.version?.deno === "string" // Has version info
+    );
 }
 
 export function processColorString(str: string, prefix = ""): string {

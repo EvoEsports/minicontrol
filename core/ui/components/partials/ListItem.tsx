@@ -15,6 +15,27 @@ export default function ListItem({ pos = '0 0', 'z-index': z, size, type = 'text
     if (type === 'time') {
         value = formatTime(text);
     }
+    if (type === 'progressbar') {
+        const sizeX = psize.x * Math.min(Number.parseFloat(value), 1);
+        const percentage = '$s' + (Number.parseFloat(value) * 100 || 0).toFixed(2) + '%';
+        return (
+            <>
+                <label
+                    pos={`${ppos.x + psize.x * 0.5} ${ppos.y - psize.y * 0.5}`}
+                    z-index={z + 0.2}
+                    size={size}
+                    textfont="RobotoCondensedBold"
+                    textcolor={colors.window_text}
+                    text={percentage}
+                    halign={halign}
+                    textsize="1"
+                    valign="center2"
+                />
+                <quad pos={`${ppos.x} ${ppos.y - psize.y * 0.5}`} z-index={z + 0.1} valign="center" size={`${sizeX} ${psize.y}`} bgcolor={colors.highlight} />
+                <quad pos={`${ppos.x} ${ppos.y - psize.y * 0.5}`} z-index={z} valign="center" size={size} bgcolor="777" />
+            </>
+        );
+    }
     if (type === 'entry') {
         return (
             <>
@@ -54,7 +75,7 @@ export default function ListItem({ pos = '0 0', 'z-index': z, size, type = 'text
                 focusareacolor2={colors.button_bg_hover}
                 action={action}
             />
-            <quad pos={`${ppos.x} ${ppos.y - psize.y * 0.5}`} z-index={z} valign="center" size={size} bgcolor={index % 2 ? "0000": colors.window_bg_light} />
+            <quad pos={`${ppos.x} ${ppos.y - psize.y * 0.5}`} z-index={z} valign="center" size={size} bgcolor={index % 2 ? '0000' : colors.window_bg_light} />
         </>
     );
 }
