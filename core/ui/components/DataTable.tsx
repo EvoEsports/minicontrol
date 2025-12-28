@@ -87,9 +87,9 @@ export default function DataTable(props: any) {
             const outAction = actions[`item_${item.index}_${action2.key}`];
             const awidth = action2.width || 10;
             if (action2.title) {
-                outItems.push(<Button pos={`${width} -${5 * rowCounter}`} z-index={z} size={`${awidth} 4`} text={action2.title} action={outAction} halign="center" />);
+                outItems.push(<Button pos={`${width} -${5 * rowCounter}`} z-index={"" + z} size={`${awidth} 4`} text={action2.title} action={outAction} halign="center" />);
+                width += awidth + 1;
             }
-            width += awidth + 1;
         }
         rowCounter += 1;
         itemCounter += 1;

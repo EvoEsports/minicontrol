@@ -1,9 +1,9 @@
 import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
 
-export default function Button({ id = '', 'z-index': z = 1, pos = '0 0', size = '26 6', text = ' ', textsize= "0.9", halign = 'center', action, focusareacolor1 = "", focusareacolor2 = "" }) {
+export default function Button({ id = '', 'z-index': zi = "1", pos = '0 0', size = '26 6', text = ' ', textsize= "0.9", halign = 'center', action, focusareacolor1 = "", focusareacolor2 = "" }) {
     const pSize = vec2(size);
     const pPos = vec2(pos);
-
+    const z = Number.parseFloat(zi);
     let posXoffset = pSize.x * 0.5;
     if (halign === 'left') posXoffset = 0;
     if (halign === 'right') posXoffset = pSize.x;
