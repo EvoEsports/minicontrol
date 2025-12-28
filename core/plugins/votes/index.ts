@@ -1,5 +1,6 @@
 import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
+import VoteWidget from "./VoteWidget";
 import { processColorString, htmlEntities } from "@core/utils";
 import Menu from "@core/menu";
 import type { Player } from "@core/playermanager";
@@ -253,8 +254,9 @@ export default class VotesPlugin extends Plugin {
       /*  this.newLimit += 35;
         await tmc.server.call("SetTimeAttackLimit", this.newLimit * 1000); */
         await this.vote(login, true);
-        this.widget = new Widget("core/plugins/votes/widget.xml.twig");
+        this.widget = new Widget(VoteWidget, "voteWidget");
         this.widget.pos = { x: 0, y: 60, z: 10 };
+        this.widget.size = { width: 128, height: 28.5 };
         this.widget.actions["yes"] = tmc.ui.addAction(this.vote.bind(this), true);
         this.widget.actions["no"] = tmc.ui.addAction(this.vote.bind(this), false);
         await this.checkVote();
