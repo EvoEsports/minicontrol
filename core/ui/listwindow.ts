@@ -8,6 +8,7 @@ export interface columnDef {
     type?: "text" | "entry" | "time" | "date" | "progressbar";
     actionKey?: string;
     align?: "left" | "center" | "right";
+    sort?: -1 | 0 | 1;
 }
 
 export interface dataTableDef {
@@ -133,11 +134,14 @@ export default class ListWindow extends Window {
     }
 
     async doSort(login: string, columnKey: string) {
+        const column = this.datatable.columns[columnKey];
+        if (column?.sort === 0) return;
+
         if (this.datatable.sortColumn === columnKey) {
             this.datatable.sortDirection = -this.datatable.sortDirection || -1;
         } else {
             this.datatable.sortColumn = columnKey;
-            this.datatable.sortDirection = -1;
+            this.datatable.sortDirection = column?.sort || -1;
         }
 
         this.display();
