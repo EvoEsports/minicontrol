@@ -4,7 +4,7 @@ export default function ListTitle({ pos = '0 0', 'z-index': z = 1, size = '100 4
     const psize = vec2(size);
     const ppos = vec2(pos);
 
-    const { colors } = getProperties();
+    const { colors, fonts } = getProperties();
     let value = text;
 
     let offsetX = 0;
@@ -17,7 +17,7 @@ export default function ListTitle({ pos = '0 0', 'z-index': z = 1, size = '100 4
                 pos={`${ppos.x + offsetX} ${ppos.y - psize.y * 0.5}`}
                 z-index={z}
                 size={size}
-                textfont="RobotoCondensedBold"
+                textfont={fonts.title}
                 textcolor={colors.window_text}
                 text={value}
                 halign={halign}

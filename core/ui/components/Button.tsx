@@ -8,7 +8,7 @@ export default function Button({ id = '', 'z-index': zi = "1", pos = '0 0', size
     if (halign === 'left') posXoffset = 0;
     if (halign === 'right') posXoffset = pSize.x;
 
-    const { colors } = getProperties();
+    const { colors, fonts } = getProperties();
 
     return (
         <frame id={id} pos={`${pPos.x + posXoffset} ${pPos.y - pSize.y * 0.5}`} z-index={z} class="uiContainer uiButton">
@@ -19,7 +19,7 @@ export default function Button({ id = '', 'z-index': zi = "1", pos = '0 0', size
                 class="uiButton uiButtonElement"
                 halign={halign}
                 valign="center2"
-                textfont="RobotoCondensedBold"
+                textfont={fonts.button}
                 translate="0"
                 textsize={textsize}
                 action={action}

@@ -2,7 +2,7 @@ import Button from '@core/ui/components/Button';
 import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
 
 export default function MenuComponent() {
-    const { data, colors, actions, size, pos } = getProperties();
+    const { data, colors, fonts, actions, size, pos } = getProperties();
 
     const quickButtons: any = [];
 
@@ -11,14 +11,14 @@ export default function MenuComponent() {
         if (data.activeCategory === category) {
             quickButtons.push(
                 <frame id={`button_${index}`} pos={`0 -${index * 5}`}>
-                    <label pos="0 0" z-index="2" size="20 4" textsize="1" halign="center" valign="center" text={category} textcolor="fff" textfont="GameFontSemiBold" />
+                    <label pos="0 0" z-index="2" size="20 4" textsize="1" halign="center" valign="center" text={category} textcolor="fff" textfont={fonts.menu} />
                     <quad pos="0 0" z-index="1" size="20 4" halign="center" valign="center" bgcolor={colors.highlight} />
                 </frame>
             );
         } else {
             quickButtons.push(
                 <frame id={`button_${index}`} pos={`0 -${index * 5}`}>
-                    <label pos="0 0" z-index={pos.z+1} size="20 4" textsize="1" halign="center" valign="center" text={category} textcolor="fff" textfont="GameFontSemiBold" />
+                    <label pos="0 0" z-index={pos.z+1} size="20 4" textsize="1" halign="center" valign="center" text={category} textcolor="fff" textfont={fonts.menu} />
                     <label
                         pos="0 0"
                         z-index={pos.z}

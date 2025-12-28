@@ -4,7 +4,7 @@ export default function ListHeader({ pos = '0 0', 'z-index': z = 1, size, text, 
     const psize = vec2(size);
     const ppos = vec2(pos);
 
-    const { colors } = getProperties();
+    const { colors, fonts } = getProperties();
 
     let offsetX = 0;
     if (halign === 'center') offsetX = psize.x * 0.5;
@@ -16,7 +16,7 @@ export default function ListHeader({ pos = '0 0', 'z-index': z = 1, size, text, 
                 pos={`${ppos.x + offsetX} ${ppos.y}`}
                 z-index={z}
                 size={size}
-                textfont="RobotoCondensedBold"
+                textfont={fonts.title}
                 textcolor={colors.window_text}
                 text={text || ''}
                 halign={halign}

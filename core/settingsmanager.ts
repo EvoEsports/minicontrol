@@ -3,6 +3,15 @@ import { clone, modLightness } from "./utils";
 
 
 export type ColorKey = typeof defaultColors;
+export type FontKey = typeof defaultFonts;
+
+const defaultFonts = {
+    button: "RobotoCondensedBold",
+    title: "RobotoCondensedBold",
+    label: "RobotoCondensedBold",
+    widget: "RobotoCondensed",
+    menu: "GameFontSemiBold",
+};
 
 const defaultColors = {
     white: "fff",
@@ -34,15 +43,19 @@ export default class SettingsManager {
     settings: { [key: string]: any } = {};
     _defaultColors: ColorKey & Record<string, string> = defaultColors;
     colors: ColorKey & Record<string, string> = defaultColors;
+    _defaultFonts: FontKey & Record<string, string> = defaultFonts;
+    fonts: FontKey & Record<string, string> = { ...defaultFonts };
     callbacks: { [key: string]: null | CallbackSetting } = {};
     descriptions: { [key: string]: string } = {};
     colorDescriptions: { [key: string]: string } = {};
+    fontDescriptions: { [key: string]: string } = {};
 
     admins: string[] = [];
     masterAdmins: string[] = (process.env.ADMINS || "").split(",").map((a) => a.trim());
 
     adminsFile = "/../userdata/admins.json";
     colorsFile = "/../userdata/colors.json";
+    fontsFile = "/../userdata/fonts.json";
     settingsFile = "/../userdata/settings.json";
 
     load() {
@@ -58,12 +71,18 @@ export default class SettingsManager {
         this.colors.button_bg_dark = modLightness(this.colors.button_bg, -15);
         this.colors.window_bg_light = modLightness(this.colors.window_bg, 5);
         this.colors.window_bg_dark = modLightness(this.colors.window_bg, -5);
+        for (const font in this._defaultFonts) {
+            const envVar = `FONT_${font.toString().toUpperCase()}`;
+            this.fonts[font] = process.env[envVar] || this._defaultFonts[font];
+        }
         this.adminsFile = `/../userdata/admins_${tmc.server.login}.json`;
         this.colorsFile = `/../userdata/colors_${tmc.server.login}.json`;
+        this.fontsFile = `/../userdata/fonts_${tmc.server.login}.json`;
         this.settingsFile = `/../userdata/settings_${tmc.server.login}.json`;
 
         this.init(this.adminsFile, []);
         this.init(this.colorsFile, {});
+        this.init(this.fontsFile, {});
         this.init(this.settingsFile, {});
 
         try {
@@ -99,6 +118,16 @@ export default class SettingsManager {
                 process.exit();
             }
         }
+        if (existsSync(import.meta.dirname + this.fontsFile)) {
+            try {
+                const fonts = JSON.parse(readFileSync(import.meta.dirname + this.fontsFile, "utf-8")) || {};
+                this.fonts = Object.assign({}, this._defaultFonts, fonts);
+            } catch (e: any) {
+                tmc.cli("$f00Error loading fonts");
+                tmc.cli(e.message);
+                process.exit();
+            }
+        }
 
         tmc.cli("¤info¤Settings loaded!");
     }
@@ -119,6 +148,13 @@ export default class SettingsManager {
                 }
             }
             writeFileSync(import.meta.dirname + this.colorsFile, JSON.stringify(colors));
+            const fonts: any = {};
+            for (const font in this.fonts) {
+                if (this.fonts[font] !== this._defaultFonts[font]) {
+                    fonts[font] = this.fonts[font];
+                }
+            }
+            writeFileSync(import.meta.dirname + this.fontsFile, JSON.stringify(fonts));
             writeFileSync(import.meta.dirname + this.adminsFile, JSON.stringify(this.admins.filter((a) => !this.masterAdmins.includes(a))));
         } catch (e: any) {
             tmc.cli("¤error¤Error while saving settings!");
@@ -308,5 +344,69 @@ export default class SettingsManager {
             await this.callbacks[key](newValue, oldValue, key);
         }
         tmc.server.emit("TMC.ColorsChanged", {});
+    }
+
+    /**
+     * Register a font, with a default value, a callback function and a description
+     * Callback function is called when the font is changed, use null if no callback is needed
+     */
+    registerFont(key: string, value: string, callback: null | CallbackSetting, description = "") {
+        this._defaultFonts[key] = value;
+        this.callbacks[`font.${key}`] = callback;
+        this.fontDescriptions[key] = description;
+        const envVar = `FONT_${key.toString().toUpperCase()}`;
+        if (!Object.keys(this.fonts).includes(key)) this.fonts[key] = process.env[envVar] || value;
+        return value;
+    }
+
+    unregisterFont(key: string) {
+        if (!Object.prototype.hasOwnProperty.call(this._defaultFonts, key)) return;
+        delete this._defaultFonts[key];
+        delete this.fonts[key];
+        delete this.callbacks[`font.${key}`];
+        delete this.fontDescriptions[key];
+        tmc.server.emit("TMC.FontsChanged", {});
+    }
+
+    getFont(key: string) {
+        return this.fonts[key] || "RobotoCondensed";
+    }
+
+    getFonts() {
+        return {
+            fonts: this.fonts,
+            defaults: this._defaultFonts,
+            descriptions: this.fontDescriptions,
+        };
+    }
+
+    getDefaultFont(key: string) {
+        return this._defaultFonts[key];
+    }
+
+    async setFont(key: string, value: string) {
+        const oldValue = clone(this.fonts[key]);
+        this.fonts[key] = value;
+        this.save();
+
+        const idx = `font.${key}`;
+
+        if (this.callbacks[idx]) {
+            await this.callbacks[idx](value, oldValue, key);
+        }
+        tmc.server.emit("TMC.FontsChanged", {});
+    }
+
+    async resetFont(key: string) {
+        const oldValue = clone(this.fonts[key]);
+        const newValue = clone(this._defaultFonts[key]);
+        delete this.fonts[key];
+
+        this.save();
+        this.fonts[key] = newValue;
+        if (this.callbacks[`font.${key}`]) {
+            await this.callbacks[`font.${key}`](newValue, oldValue, key);
+        }
+        tmc.server.emit("TMC.FontsChanged", {});
     }
 }

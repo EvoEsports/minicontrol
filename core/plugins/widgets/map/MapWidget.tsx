@@ -1,14 +1,14 @@
 import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
 
 export default function EmotesWidget({ text = '' }) {
-    const { size, data, actions, colors } = getProperties();
+    const { size, data, actions, colors, fonts } = getProperties();
     const { width, height } = size;
 
     return (
         <>
-            <label pos="2 -2" z-index="2" size={`${width - 3} 4`} text={data.mapname} halign="left" valign="center2" textfont="RobotoCondensedBold" textsize="1.75" />
-            <label pos="2 -5" z-index="2" size={`${width - 3} 4`} text={data.info} halign="left" valign="center2" textfont="RobotoCondensedBold" textsize="0.5" />
-            <label pos="2 -7.5" z-index="2" size={`${width - 3} 4`} text={data.difficulty} halign="left" valign="center2" textfont="RobotoCondensedBold" textsize="0.5" />
+            <label pos="2 -2" z-index="2" size={`${width - 3} 4`} text={data.mapname} halign="left" valign="center2" textfont={fonts.widget} textsize="1.75" />
+            <label pos="2 -5" z-index="2" size={`${width - 3} 4`} text={data.info} halign="left" valign="center2" textfont={fonts.widget} textsize="0.5" />
+            <label pos="2 -7.5" z-index="2" size={`${width - 3} 4`} text={data.difficulty} halign="left" valign="center2" textfont={fonts.widget} textsize="0.5" />
 
             <label
                 pos="2 -11.5"
@@ -18,7 +18,7 @@ export default function EmotesWidget({ text = '' }) {
                 halign="left"
                 valign="center2"
                 textcolor="fff"
-                textfont="RobotoCondensed"
+                textfont={fonts.widget}
                 textsize="1"
             />
             <label
@@ -29,7 +29,7 @@ export default function EmotesWidget({ text = '' }) {
                 halign="right"
                 valign="center2"
                 textcolor="fff"
-                textfont="RobotoCondensed"
+                textfont={fonts.widget}
                 textsize="1"
             />
 
@@ -42,7 +42,7 @@ export default function EmotesWidget({ text = '' }) {
                 halign="right"
                 valign="center2"
                 textcolor="fff"
-                textfont="RobotoCondensed"
+                textfont={fonts.widget}
                 textsize="1"
             />
 

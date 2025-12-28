@@ -1,6 +1,6 @@
 import type IManialink from "./interfaces/imanialink";
 import { renderJsx, roots, setHookIndex, setCurrentRoot, disposeScript } from "./forge";
-import type { ColorKey } from "@core/settingsmanager";
+import type { ColorKey, FontKey } from "@core/settingsmanager";
 
 export interface MlSize {
     width: number;
@@ -20,6 +20,7 @@ export interface objMap {
     pos: MlPos;
     actions: { [key: string]: string };
     colors: ColorKey & Record<string, string>;
+    fonts: FontKey & Record<string, string>;
     data: Record<string, any>;
     game: string;
     recipient: string | undefined;
@@ -106,6 +107,7 @@ export default class Manialink implements IManialink {
             pos: this.pos,
             actions: this.actions,
             colors: tmc.settings.colors,
+            fonts: tmc.settings.fonts,
             data: this.data,
             game: tmc.game.Name,
             recipient: this.recipient,

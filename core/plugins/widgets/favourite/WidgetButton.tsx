@@ -1,7 +1,7 @@
 import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
 
 export default function WidgetButton({ size = '10 10', link = '' }) {
-    const { colors } = getProperties();
+    const { colors, fonts } = getProperties();
     const psize = vec2(size);
 
     return (
@@ -14,7 +14,7 @@ export default function WidgetButton({ size = '10 10', link = '' }) {
                 halign="center"
                 valign="top"
                 textcolor={colors.widget_text}
-                textfont="RobotoCondensedBold"
+                textfont={fonts.widget}
                 textsize="1"
             />
             <label
@@ -25,7 +25,7 @@ export default function WidgetButton({ size = '10 10', link = '' }) {
                 halign="center"
                 valign="top"
                 textcolor={colors.widget_text}
-                textfont="RobotoCondensedBold"
+                textfont={fonts.widget}
                 textsize="1.2"
             />
             <label

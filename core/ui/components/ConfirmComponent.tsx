@@ -1,7 +1,7 @@
 import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2, setScriptHeader } from '@core/ui/forge';
 
 export default function Confirm() {
-    const { data, size, colors, pos } = getProperties();
+    const { data, size, colors, fonts, pos } = getProperties();
 
     const out: any = [];
     let i = 0;
@@ -14,7 +14,7 @@ export default function Confirm() {
                 text={line}
                 textcolor={colors.window_text}
                 textsize="1"
-                textfont="RobotoCondensedBold"
+                textfont={fonts.label}
             />
         );
         i += 1;

@@ -13,7 +13,7 @@ export default function Label({
     scale = '1',
     link = ''
 }) {
-    const { data } = getProperties();
+    const { data, fonts } = getProperties();
 
     return (
         <label
@@ -22,7 +22,7 @@ export default function Label({
             z-index={z}
             text={data.text ? data.text : text}
             size={size}
-            textfont="RobotoCondensedBold"
+            textfont={fonts.label}
             textsize={textsize}
             halign={halign}
             valign={valign}

@@ -5,7 +5,7 @@ export default function ListItem({ pos = '0 0', 'z-index': z, size, type = 'text
     const psize = vec2(size);
     const ppos = vec2(pos);
 
-    const { colors } = getProperties();
+    const { colors, fonts } = getProperties();
     let value = text;
 
     let offsetX = 0;
@@ -24,7 +24,7 @@ export default function ListItem({ pos = '0 0', 'z-index': z, size, type = 'text
                     pos={`${ppos.x + psize.x * 0.5} ${ppos.y - psize.y * 0.5}`}
                     z-index={z + 0.2}
                     size={size}
-                    textfont="RobotoCondensedBold"
+                    textfont={fonts.label}
                     textcolor={colors.window_text}
                     text={percentage}
                     halign={halign}
@@ -43,7 +43,7 @@ export default function ListItem({ pos = '0 0', 'z-index': z, size, type = 'text
                     pos={`${ppos.x + offsetX} ${ppos.y - psize.y * 0.5}`}
                     z-index={z + 1}
                     size={size}
-                    textfont="RobotoCondensedBold"
+                    textfont={fonts.label}
                     textcolor={colors.window_text}
                     default={value ?? ' '}
                     halign={halign}
@@ -65,7 +65,7 @@ export default function ListItem({ pos = '0 0', 'z-index': z, size, type = 'text
                 pos={`${ppos.x + offsetX} ${ppos.y - psize.y * 0.5}`}
                 z-index={z + 2}
                 size={size}
-                textfont="RobotoCondensedBold"
+                textfont={fonts.label}
                 textcolor={colors.window_text}
                 text={value ?? ' '}
                 halign={halign}

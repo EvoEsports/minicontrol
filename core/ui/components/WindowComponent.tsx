@@ -6,7 +6,7 @@ export default function Window({ title = '', 'z-index': zi = '0', pos = '0 0', s
     const ppos = vec2(pos);
     const z = Number.parseFloat(zi);
 
-    const { actions, colors, data, id } = getProperties();
+    const { actions, colors, fonts, data, id } = getProperties();
     const draggable = data.draggable ? 'True' : 'False';
 
     setScript(() => {
@@ -101,7 +101,7 @@ if (Event.Control.HasClass("title")) {
                     textsize="2.5"
                     valign="center2"
                     textcolor={colors.title_fg}
-                    textfont="RobotoCondensedBold"
+                    textfont={fonts.title}
                 />
                 <label
                     id="close"
@@ -111,7 +111,7 @@ if (Event.Control.HasClass("title")) {
                     halign="center"
                     valign="center2"
                     text="x"
-                    textfont="RobotoCondensedBold"
+                    textfont={fonts.title}
                     focusareacolor1={colors.title_bg}
                     focusareacolor2="d00"
                     scriptevents="1"

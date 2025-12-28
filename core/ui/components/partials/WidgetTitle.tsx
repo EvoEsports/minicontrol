@@ -4,7 +4,7 @@ export default function WidgetTitle({ pos = '0 0', 'z-index': z = 1, text = '', 
     const psize = vec2(size);
     const ppos = vec2(pos);
 
-    const { colors, actions } = getProperties();
+    const { colors, fonts, actions } = getProperties();
 
     return (
         <frame pos={pos} z-index={z}>
@@ -13,7 +13,7 @@ export default function WidgetTitle({ pos = '0 0', 'z-index': z = 1, text = '', 
                 z-index={z + 1}
                 size={`${psize.x} ${psize.y}`}
                 textsize="0.9"
-                textfont="RobotoCondensed"
+                textfont={fonts.widget}
                 text={text}
                 focusareacolor1="0000"
                 focusareacolor2={colors.highlight}

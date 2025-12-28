@@ -1,7 +1,7 @@
 import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2 } from '@core/ui/forge';
 
 export default function EmotesWidget() {
-    const { size, data, actions, colors } = getProperties();
+    const { size, data, actions, colors, fonts } = getProperties();
     const { width, height } = size;
 
     return (
@@ -14,7 +14,7 @@ export default function EmotesWidget() {
                 text={`${data.positive} likes on this map`}
                 halign="left"
                 valign="center2"
-                textfont="RobotoCondensedBold"
+                textfont={fonts.widget}
                 textsize="1"
             />
             <label
