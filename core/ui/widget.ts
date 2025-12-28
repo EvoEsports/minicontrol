@@ -24,7 +24,6 @@ export default class Widget extends Manialink implements IWidget {
         this._jsxComponent = () => Widget({
             pos: `${this.pos.x} ${this.pos.y}`,
             size: `${this.size.width} ${this.size.height}`,
-            title: this.title,
             "z-index": this.pos.z || 2,
             children: createElement(jsxComponent, {})
         });

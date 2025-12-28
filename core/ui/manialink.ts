@@ -34,7 +34,7 @@ export default class Manialink implements IManialink {
     recipient: string | undefined = undefined;
     displayDuration = 0;
     canHide = true;
-    size: MlSize = { width: 320, height: 180 };
+    size: MlSize = { width: 120, height: 120 };
     pos: MlPos = { x: 0, y: 0, z: 0 };
 
     protected _jsxComponent: any;
@@ -44,6 +44,7 @@ export default class Manialink implements IManialink {
     constructor(jsxComponent: any) {
         this._jsxComponent = jsxComponent;
     }
+
 
     async show() {
         await this.display();

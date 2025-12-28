@@ -10,7 +10,6 @@ export default class Window extends Manialink implements IWindow {
         super("");
         this.recipient = login;
         this.name = name;
-        this.data.windowName = name;
         this.actions.close = tmc.ui.addAction(() => this.destroy(), null);
         this.setDraggable(true);
         this.constructWindow(jsxComponent);
@@ -27,6 +26,11 @@ export default class Window extends Manialink implements IWindow {
         }
     }
 
+    async render() {
+        this.data.windowName = this.name;
+        this.data.draggable = this.data.draggable ?? true;
+        return await super.render();
+    }
     /**
      * override this to handle apply button
      * @param login
@@ -43,7 +47,7 @@ export default class Window extends Manialink implements IWindow {
             pos: `${this.pos.x} ${this.pos.y}`,
             size: `${this.size.width} ${this.size.height}`,
             title: this.title,
-            "z-index": this.pos.z || 2,
+            "z-index": "" + this.pos.z || "2",
             children: createElement(jsxComponent, {})
         });
     }
