@@ -1,0 +1,8 @@
+{% extends "core/templates/widget.xml.twig" %}
+
+{% block content %}
+<frame pos="2 -2" z-index="1">
+    <label pos="0 0" text="{{ data.greeting }}" textsize="1.4" textcolor="{{ colors.highlight }}"/>
+    <label pos="0 -5" text="Players: {{ data.count }}" textsize="1.2" />
+</frame>
+{% endblock %}

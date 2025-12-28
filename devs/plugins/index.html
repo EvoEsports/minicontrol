@@ -1,0 +1,1649 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for MINIcontrol">
+      
+      
+      
+        <link rel="canonical" href="https://evoesports.github.io/minicontrol/devs/plugins/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Plugins - MINIcontrol Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#plugins" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="MINIcontrol Docs" class="md-header__button md-logo" aria-label="MINIcontrol Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MINIcontrol Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Plugins
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="MINIcontrol Docs" class="md-nav__button md-logo" aria-label="MINIcontrol Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MINIcontrol Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concept/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concept
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ui-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UI System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../forge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Forge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Users
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Users
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../users/install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../users/plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin-manifestjson-012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugin manifest.json (0.12+)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Plugin manifest.json (0.12+)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manifest-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manifest Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependency-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dependency Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#declaring-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Declaring Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#semver-range-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Semver Range Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependency-resolution-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Resolution Algorithm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-order-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load Order Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fallback-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fallback Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#game-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Game Compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#minicontrol-version-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MINIcontrol Version Compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin-discovery-and-the-plugins-environment-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugin Discovery and the PLUGINS Environment Variable
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Plugin Discovery and the PLUGINS Environment Variable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#restricting-plugin-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restricting Plugin Loading
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-new-plugin-with-manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a New Plugin with Manifest
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating a New Plugin with Manifest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-plugin-directory-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Create Plugin Directory Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-write-your-manifestjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Write Your manifest.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-implement-your-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Implement Your Plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-test-plugin-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Test Plugin Loading
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-verify-in-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Verify in Runtime
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plugin-not-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugin Not Loading
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependency-resolution-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Resolution Failures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#game-compatibility-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Game Compatibility Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#version-range-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Range Debugging
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-methods-introduced-in-012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Helper methods introduced in 0.12
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper methods introduced in 0.12">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#addlistener-server-event-listeners" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addListener() - Server Event Listeners
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removelistener-manual-listener-removal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        removeListener() - Manual Listener Removal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addcommand-chat-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addCommand() - Chat Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addsetting-plugin-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addSetting() - Plugin Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removesetting-manual-setting-removal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        removeSetting() - Manual Setting Removal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<p><a href="../concept/">Back to Concept</a></p>
+<h1 id="plugins">Plugins</h1>
+<h2 id="table-of-contents">Table of contents</h2>
+<ul>
+<li><a href="#plugin-manifestjson-012">Plugin manifest.json (0.12+)</a></li>
+<li><a href="#basic-structure">Basic Structure</a></li>
+<li><a href="#manifest-schema">Manifest Schema</a></li>
+<li><a href="#required-fields">Required Fields</a></li>
+<li><a href="#optional-fields">Optional Fields</a></li>
+<li><a href="#dependency-management">Dependency Management</a></li>
+<li><a href="#declaring-dependencies">Declaring Dependencies</a></li>
+<li><a href="#semver-range-examples">Semver Range Examples</a></li>
+<li><a href="#dependency-resolution-algorithm">Dependency Resolution Algorithm</a></li>
+<li><a href="#load-order-example">Load Order Example</a></li>
+<li><a href="#fallback-resolution">Fallback Resolution</a></li>
+<li><a href="#game-compatibility">Game Compatibility</a></li>
+<li><a href="#minicontrol-version-compatibility">MINIcontrol Version Compatibility</a></li>
+<li><a href="#plugin-discovery-and-the-plugins-environment-variable">Plugin Discovery and the PLUGINS Environment Variable</a></li>
+<li><a href="#creating-a-new-plugin-with-manifest">Creating a New Plugin with Manifest</a></li>
+<li><a href="#1-create-plugin-directory-structure">Create Plugin Directory Structure</a></li>
+<li><a href="#2-write-your-manifestjson">Write Your manifest.json</a></li>
+<li><a href="#3-implement-your-plugin">Implement Your Plugin</a></li>
+<li><a href="#4-test-plugin-loading">Test Plugin Loading</a></li>
+<li><a href="#5-verify-in-runtime">Verify in Runtime</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#plugin-not-loading">Plugin Not Loading</a></li>
+<li><a href="#dependency-resolution-failures">Dependency Resolution Failures</a></li>
+<li><a href="#game-compatibility-issues">Game Compatibility Issues</a></li>
+<li><a href="#version-range-debugging">Version Range Debugging</a></li>
+<li><a href="#helper-methods-introduced-in-012">Helper methods introduced in 0.12</a></li>
+<li><a href="#addlistener-server-event-listeners">addListener</a></li>
+<li><a href="#removelistener-manual-listener-removal">removeListener</a></li>
+<li><a href="#addcommand-chat-commands">addCommand</a></li>
+<li><a href="#addsetting-plugin-settings">addSetting</a></li>
+<li><a href="#removesetting-manual-setting-removal">removeSetting</a></li>
+<li><a href="#addcolor-color-settings">addColor</a></li>
+<li><a href="#removecolor-manual-color-removal">removeColor</a></li>
+<li><a href="#destroy-automatic-cleanup">destroy</a></li>
+<li><a href="#chat-commands">Chat commands</a></li>
+<li><a href="#listeners">Listeners</a></li>
+<li><a href="#interacting-with-the-dedicated-server">Interacting with the dedicated server</a></li>
+<li><a href="#sending-chat-messages">Sending chat messages</a></li>
+<li><a href="#write-to-stdout--log-file">Write to stdout / log file</a></li>
+</ul>
+<h2 id="plugin-manifestjson-012">Plugin manifest.json (0.12+)</h2>
+<p>Starting with MINIcontrol 0.12, every plugin <strong>must</strong> include a <code>manifest.json</code> file in its root directory. The manifest system enables:</p>
+<ul>
+<li><strong>Semantic versioning</strong> with automatic compatibility checking</li>
+<li><strong>Dependency management</strong> with deterministic resolution</li>
+<li><strong>Game compatibility</strong> declarations (TmForever, Trackmania 2020, etc.)</li>
+<li><strong>Topological loading</strong> ensuring dependencies load before dependents</li>
+</ul>
+<h3 id="basic-structure">Basic Structure</h3>
+<p>Every plugin must have a <code>manifest.json</code> at its root:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>core/plugins/myplugin/
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  ├── manifest.json
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  └── index.ts
+</span></code></pre></div>
+<h3 id="manifest-schema">Manifest Schema</h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;myplugin&quot;</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My Plugin&quot;</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Optional description of what the plugin does&quot;</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">&quot;authors&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Your Name&quot;</span><span class="p">,</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-12-10&quot;</span><span class="p">,</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="nt">&quot;requiresMinicontrolVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^0.12.0&quot;</span><span class="p">,</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="nt">&quot;requiresGame&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Trackmania&quot;</span><span class="p">,</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="nt">&quot;depends&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;database&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;range&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.0.0&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;menu&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;range&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&gt;=1.2.0 &lt;2.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;optional&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="required-fields">Required Fields</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>string</td>
+<td>Unique plugin identifier (use folder path for nested plugins, e.g., <code>widgets/records</code>)</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Human-readable plugin name</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>string</td>
+<td>Plugin version following <a href="https://semver.org">semantic versioning</a> (e.g., <code>1.2.3</code>)</td>
+</tr>
+<tr>
+<td><code>requiresMinicontrolVersion</code></td>
+<td>string</td>
+<td>Semver range of compatible MINIcontrol versions (e.g., <code>^0.12.0</code>)</td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>string</td>
+<td>ISO date (YYYY-MM-DD) or datetime when the plugin was last updated</td>
+</tr>
+</tbody>
+</table>
+<h3 id="optional-fields">Optional Fields</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>description</code></td>
+<td>string</td>
+<td>Brief description of the plugin's functionality</td>
+</tr>
+<tr>
+<td><code>authors</code></td>
+<td>string</td>
+<td>Plugin author(s) name(s)</td>
+</tr>
+<tr>
+<td><code>requiresGame</code></td>
+<td>string | null</td>
+<td>Target game: <code>"Trackmania"</code>, <code>"Maniplanet"</code>, <code>"TmForever"</code>, or <code>null</code> for any</td>
+</tr>
+<tr>
+<td><code>depends</code></td>
+<td>array</td>
+<td>List of plugin dependencies (see Dependency Management below)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dependency-management">Dependency Management</h2>
+<h3 id="declaring-dependencies">Declaring Dependencies</h3>
+<p>Dependencies are specified in the <code>depends</code> array. Each dependency must include:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;database&quot;</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&quot;range&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.0.0&quot;</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">&quot;optional&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>Plugin ID of the dependency</td>
+</tr>
+<tr>
+<td><code>range</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>Semver range specifying compatible versions</td>
+</tr>
+<tr>
+<td><code>optional</code></td>
+<td>boolean</td>
+<td>No</td>
+<td>If <code>true</code>, plugin loads even if dependency is missing (default: <code>false</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="semver-range-examples">Semver Range Examples</h3>
+<p>MINIcontrol uses standard <a href="https://semver.org">semantic versioning</a> ranges:</p>
+<table>
+<thead>
+<tr>
+<th>Range</th>
+<th>Matches</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>^1.0.0</code></td>
+<td><code>&gt;=1.0.0 &lt;2.0.0</code></td>
+<td>Compatible with 1.x (caret range)</td>
+</tr>
+<tr>
+<td><code>~1.2.3</code></td>
+<td><code>&gt;=1.2.3 &lt;1.3.0</code></td>
+<td>Compatible with 1.2.x (tilde range)</td>
+</tr>
+<tr>
+<td><code>&gt;=1.0.0 &lt;2.0.0</code></td>
+<td>1.0.0 to 1.9.9</td>
+<td>Explicit range</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td>any version</td>
+<td>Any version (use sparingly!)</td>
+</tr>
+<tr>
+<td><code>1.2.3</code></td>
+<td>exactly 1.2.3</td>
+<td>Exact version match</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Best practice:</strong> Use caret ranges (<code>^1.0.0</code>) for most dependencies to allow backward-compatible updates.</p>
+<h3 id="dependency-resolution-algorithm">Dependency Resolution Algorithm</h3>
+<p>MINIcontrol uses a sophisticated resolver to compute the optimal plugin load order:</p>
+<ol>
+<li><strong>Discovery</strong>: Scans <code>core/plugins</code> and <code>userdata/plugins</code> for all available plugins</li>
+<li><strong>Validation</strong>: Validates each <code>manifest.json</code> against the schema</li>
+<li><strong>Compatibility Check</strong>: Filters out plugins incompatible with the current game or MINIcontrol version</li>
+<li><strong>Version Selection</strong>: For each required plugin, picks the highest compatible version</li>
+<li><strong>Dependency Graph</strong>: Builds a directed acyclic graph (DAG) of dependencies</li>
+<li><strong>Topological Sort</strong>: Orders plugins so dependencies always load before dependents</li>
+<li><strong>Cycle Detection</strong>: Fails fast if circular dependencies are detected</li>
+</ol>
+<h3 id="load-order-example">Load Order Example</h3>
+<p>Given these manifests:</p>
+<p><strong>records/manifest.json:</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;records&quot;</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&quot;depends&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;database&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;range&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.0.0&quot;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>widgets/records/manifest.json:</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;widgets/records&quot;</span><span class="p">,</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&quot;depends&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;records&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;range&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.0.0&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;widgets&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;range&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.0.0&quot;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p>The resolver will load in this order:
+1. <code>database</code> (no dependencies)
+2. <code>records</code> (depends on database)
+3. <code>widgets</code> (no dependencies)
+4. <code>widgets/records</code> (depends on records and widgets)</p>
+<h3 id="fallback-resolution">Fallback Resolution</h3>
+<p>If the strict resolver fails (due to version conflicts or missing dependencies), MINIcontrol falls back to a more lenient algorithm:</p>
+<ol>
+<li>Attempts to load plugins in discovery order</li>
+<li>Skips plugins with unmet dependencies</li>
+<li>Logs warnings for each skipped plugin</li>
+<li>Continues loading remaining plugins</li>
+</ol>
+<p>This fallback ensures the server starts even with dependency issues, though some plugins may not load.</p>
+<h2 id="game-compatibility">Game Compatibility</h2>
+<p>The <code>requiresGame</code> field declares which Trackmania title(s) your plugin supports:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;requiresGame&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TmForever&quot;</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>Valid values:</strong>
+- <code>"TmForever"</code> - TrackMania Forever / Nations / United
+- <code>"Trackmania"</code> - Trackmania 2020 / Trackmania²
+- <code>"Maniplanet"</code> - ManiaPlanet titles
+- <code>null</code> - Works with any game (default if field is omitted)</p>
+<p><strong>How it works:</strong>
+- During discovery, MINIcontrol checks the current game against each plugin's <code>requiresGame</code>
+- Incompatible plugins are automatically excluded from the load list
+- This prevents runtime errors from game-specific API calls</p>
+<p><strong>Example - TmForever-only plugin:</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tmnf/dedimania&quot;</span><span class="p">,</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">&quot;requiresGame&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TmForever&quot;</span><span class="p">,</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">&quot;requiresMinicontrolVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^0.12.0&quot;</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h2 id="minicontrol-version-compatibility">MINIcontrol Version Compatibility</h2>
+<p>The <code>requiresMinicontrolVersion</code> field ensures your plugin only loads on compatible controller versions:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&quot;requiresMinicontrolVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^0.12.0&quot;</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>Common patterns:</strong>
+- <code>^0.12.0</code> - Compatible with 0.12.x (recommended for new plugins)
+- <code>&gt;=0.11.0 &lt;1.0.0</code> - Works with 0.11+ but not yet tested with 1.0
+- <code>*</code> - Any version (risky! Only use if truly compatible with any version)</p>
+<p><strong>How it's checked:</strong>
+- MINIcontrol compares its own version against the range
+- Incompatible plugins are excluded during discovery
+- Prevents crashes from API changes between versions</p>
+<h2 id="plugin-discovery-and-the-plugins-environment-variable">Plugin Discovery and the PLUGINS Environment Variable</h2>
+<p>By default, MINIcontrol discovers and attempts to load all compatible plugins from:
+- <code>core/plugins/</code> (built-in plugins)
+- <code>userdata/plugins/</code> (custom/third-party plugins)</p>
+<h3 id="restricting-plugin-loading">Restricting Plugin Loading</h3>
+<p>Set the <code>PLUGINS</code> environment variable to control which plugins load:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a># Load only specific plugins
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>PLUGINS=&quot;database,records,menu,admin&quot;
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a># Use wildcards for nested plugins
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>PLUGINS=&quot;kacky,kacky/*,widgets/records,admin&quot;
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a># Leave empty to auto-load all compatible plugins
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>PLUGINS=&quot;&quot;
+</span></code></pre></div>
+<p><strong>Wildcard patterns:</strong>
+- <code>kacky/*</code> matches <code>kacky/foo</code>, <code>kacky/bar/baz</code>, etc.
+- <code>widgets/*</code> matches any plugin under <code>widgets/</code>
+- <code>*</code> matches everything (same as empty)</p>
+<p><strong>Important:</strong> When using <code>PLUGINS</code> as a whitelist, you must explicitly include dependencies:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a># ❌ Wrong - widgets/records won&#39;t load (missing dependencies)
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>PLUGINS=&quot;widgets/records&quot;
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a># ✅ Correct - includes all dependencies
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>PLUGINS=&quot;database,records,widgets,widgets/records&quot;
+</span></code></pre></div>
+<h2 id="creating-a-new-plugin-with-manifest">Creating a New Plugin with Manifest</h2>
+<h3 id="1-create-plugin-directory-structure">1. Create Plugin Directory Structure</h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>userdata/plugins/myplugin/
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  ├── manifest.json
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>  └── index.ts
+</span></code></pre></div>
+<h3 id="2-write-your-manifestjson">2. Write Your manifest.json</h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;myplugin&quot;</span><span class="p">,</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My Plugin&quot;</span><span class="p">,</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Does something useful&quot;</span><span class="p">,</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="nt">&quot;authors&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Your Name&quot;</span><span class="p">,</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-12-10&quot;</span><span class="p">,</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">  </span><span class="nt">&quot;requiresMinicontrolVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^0.12.0&quot;</span><span class="p">,</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">  </span><span class="nt">&quot;requiresGame&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">  </span><span class="nt">&quot;depends&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="3-implement-your-plugin">3. Implement Your Plugin</h3>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">import</span><span class="w"> </span><span class="nx">Plugin</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@core/plugins&#39;</span><span class="p">;</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">MyPlugin</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Plugin</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">onLoad</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;TMC.PlayerConnect&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onConnect</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">addCommand</span><span class="p">(</span><span class="s2">&quot;/mycommand&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">handleCommand</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;My command&quot;</span><span class="p">);</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">onConnect</span><span class="p">(</span><span class="nx">player</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">        </span><span class="nx">tmc</span><span class="p">.</span><span class="nx">chat</span><span class="p">(</span><span class="sb">`Welcome </span><span class="si">${</span><span class="nx">player</span><span class="p">.</span><span class="nx">nickname</span><span class="si">}</span><span class="sb">!`</span><span class="p">,</span><span class="w"> </span><span class="nx">player</span><span class="p">.</span><span class="nx">login</span><span class="p">);</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">handleCommand</span><span class="p">(</span><span class="nx">login</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">        </span><span class="nx">tmc</span><span class="p">.</span><span class="nx">chat</span><span class="p">(</span><span class="s2">&quot;Command executed!&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">login</span><span class="p">);</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="4-test-plugin-loading">4. Test Plugin Loading</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Check if plugin is discovered</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>tsx<span class="w"> </span>plugins.ts<span class="w"> </span>list
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># Verify load order</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>tsx<span class="w"> </span>plugins.ts<span class="w"> </span>order
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="c1"># Start MINIcontrol</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>npm<span class="w"> </span>start
+</span></code></pre></div>
+<h3 id="5-verify-in-runtime">5. Verify in Runtime</h3>
+<p>Use admin commands to manage your plugin:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>//plugins              # Plugin manager
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>//plugin list          # See all loaded plugins
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>//plugin reload myplugin  # Reload after changes
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>//plugin unload myplugin  # Unload plugin
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>//plugin load myplugin    # Load plugin
+</span></code></pre></div></p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="plugin-not-loading">Plugin Not Loading</h3>
+<p><strong>Check manifest validation:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>tsx<span class="w"> </span>plugins.ts<span class="w"> </span>list
+</span></code></pre></div></p>
+<p>Common issues:
+- Missing required fields (<code>id</code>, <code>name</code>, <code>version</code>, etc.)
+- Invalid semver in <code>version</code> or <code>requiresMinicontrolVersion</code>
+- Invalid date format (use YYYY-MM-DD)
+- Circular dependencies in <code>depends</code> array</p>
+<h3 id="dependency-resolution-failures">Dependency Resolution Failures</h3>
+<p><strong>View resolver output:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>tsx<span class="w"> </span>plugins.ts<span class="w"> </span>order
+</span></code></pre></div></p>
+<p><strong>Console logs show:</strong>
+- "Plugin X missing dependency Y" - Add Y to your environment or its manifest
+- "Version conflict" - Adjust semver ranges to be more permissive
+- "Circular dependency detected" - Refactor plugin architecture to remove cycles</p>
+<h3 id="game-compatibility-issues">Game Compatibility Issues</h3>
+<p>If plugin doesn't load on TmForever but works on TM2020:
+- Check <code>requiresGame</code> in manifest
+- Verify API calls are game-agnostic or conditionally executed
+- Use <code>tmc.game.Name</code> to detect current game and branch logic</p>
+<h3 id="version-range-debugging">Version Range Debugging</h3>
+<p>Test semver ranges in Node.js REPL:
+<div class="language-js highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">semver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;semver&#39;</span><span class="p">);</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="nx">semver</span><span class="p">.</span><span class="nx">satisfies</span><span class="p">(</span><span class="s1">&#39;1.2.3&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;^1.0.0&#39;</span><span class="p">);</span><span class="w">  </span><span class="c1">// true</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="nx">semver</span><span class="p">.</span><span class="nx">satisfies</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;^1.0.0&#39;</span><span class="p">);</span><span class="w">  </span><span class="c1">// false</span>
+</span></code></pre></div></p>
+<h2 id="helper-methods-introduced-in-012">Helper methods introduced in 0.12</h2>
+<p>MINIcontrol 0.12+ provides convenient helper methods in the base <code>Plugin</code> class that automatically track registrations for proper cleanup when your plugin is unloaded. Using these helpers ensures your plugin doesn't leak memory or leave dangling references.</p>
+<h3 id="addlistener-server-event-listeners">addListener() - Server Event Listeners</h3>
+<p>Register server callbacks with automatic cleanup tracking. Use this instead of <code>tmc.server.addListener()</code> directly.</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1">// In your plugin&#39;s onLoad() method:</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;TMC.PlayerConnect&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onPlayerConnect</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;Trackmania.BeginMap&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onBeginMap</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+</span></code></pre></div>
+<p><strong>Benefits:</strong>
+- Automatically tracked for cleanup when plugin unloads
+- No need to manually call <code>removeListener()</code> in <code>onUnload()</code>
+- Prevents memory leaks from forgotten listener removals</p>
+<h3 id="removelistener-manual-listener-removal">removeListener() - Manual Listener Removal</h3>
+<p>Explicitly remove a tracked listener before plugin unload (optional, as <code>destroy()</code> handles this automatically).</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">this</span><span class="p">.</span><span class="nx">removeListener</span><span class="p">(</span><span class="s2">&quot;TMC.PlayerConnect&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onPlayerConnect</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="addcommand-chat-commands">addCommand() - Chat Commands</h3>
+<p>Register chat commands with automatic cleanup. Replaces direct <code>tmc.addCommand()</code> calls.</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">this</span><span class="p">.</span><span class="nx">addCommand</span><span class="p">(</span><span class="s2">&quot;/mycommand&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">handleCommand</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Command description&quot;</span><span class="p">);</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="k">this</span><span class="p">.</span><span class="nx">addCommand</span><span class="p">(</span><span class="s2">&quot;//admincommand&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">handleAdminCommand</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Admin command&quot;</span><span class="p">);</span>
+</span></code></pre></div>
+<p><strong>Features:</strong>
+- Automatically binds callback to plugin instance (no need for <code>.bind(this)</code>)
+- Tracked for cleanup on plugin unload
+- Third parameter is the help text shown in <code>/help</code></p>
+<h3 id="addsetting-plugin-settings">addSetting() - Plugin Settings</h3>
+<p>Register plugin settings with automatic cleanup and optional change callbacks.</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1">// Simple setting</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="k">this</span><span class="p">.</span><span class="nx">addSetting</span><span class="p">(</span><span class="s2">&quot;myplugin.enabled&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Enable my plugin feature&quot;</span><span class="p">);</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1">// Setting with change callback</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="k">this</span><span class="p">.</span><span class="nx">addSetting</span><span class="p">(</span><span class="s2">&quot;myplugin.maxPlayers&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">100</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onMaxPlayersChanged</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Maximum players&quot;</span><span class="p">);</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="c1">// In your plugin:</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="k">async</span><span class="w"> </span><span class="nx">onMaxPlayersChanged</span><span class="p">(</span><span class="nx">newValue</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="nx">oldValue</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="w">    </span><span class="nx">tmc</span><span class="p">.</span><span class="nx">cli</span><span class="p">(</span><span class="sb">`Setting </span><span class="si">${</span><span class="nx">key</span><span class="si">}</span><span class="sb"> changed from </span><span class="si">${</span><span class="nx">oldValue</span><span class="si">}</span><span class="sb"> to </span><span class="si">${</span><span class="nx">newValue</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>Parameters:</strong>
+- <code>name</code>: Setting key (use <code>pluginname.settingname</code> convention)
+- <code>defaultValue</code>: Default value (any type)
+- <code>callback</code>: Optional callback when setting changes (automatically bound to plugin instance)
+- <code>description</code>: Human-readable description</p>
+<h3 id="removesetting-manual-setting-removal">removeSetting() - Manual Setting Removal</h3>
+<p>Explicitly unregister a setting (optional, handled by <code>destroy()</code>).</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">this</span><span class="p">.</span><span class="nx">removeSetting</span><span class="p">(</span><span class="s2">&quot;myplugin.enabled&quot;</span><span class="p">);</span>
+</span></code></pre></div>
+<h1 id="ui-components-manialink-custom-tags">UI Components (Manialink custom tags)</h1>
+<p>Components let you register handlers that expand custom tags into Manialink markup and optional page script.</p>
+<ul>
+<li>Handlers implement the <code>ComponentFunction</code> signature: <code>(attrs, inner, obj) =&gt; { replacement, script? } | Promise&lt;...&gt;</code></li>
+<li>Obj hold all values from the manialink itself: like: <code>obj.colors</code>,<code>obj.data</code>, <code>obj.actions</code></li>
+<li>Custom components should always start with capital letter.</li>
+</ul>
+<p>Example handler (Mybutton):</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1">// plugin code</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="k">this</span><span class="p">.</span><span class="nx">addComponent</span><span class="p">(</span><span class="s2">&quot;Mybutton&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">attrs</span><span class="p">,</span><span class="w"> </span><span class="nx">inner</span><span class="p">,</span><span class="w"> </span><span class="nx">obj</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">replacement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`&lt;frame pos=&quot;...&quot;&gt;&lt;label text=&quot;</span><span class="si">${</span><span class="nx">attrs</span><span class="p">.</span><span class="nx">label</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">inner</span><span class="si">}</span><span class="sb">&quot; /&gt;&lt;/frame&gt;`</span><span class="p">;</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`// ManiaScript for mouse events or animations`</span><span class="p">;</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">replacement</span><span class="p">,</span><span class="w"> </span><span class="nx">script</span><span class="w"> </span><span class="p">};</span>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="p">});</span>
+</span></code></pre></div>
+<p>Notes:
+- Handlers are registered with <code>tmc.ui.registerComponentHandler</code> (plugins should use <code>plugin.addComponent</code>).
+- Tag names are matched case-insensitively.
+- Returned <code>script</code> fragments are concatenated into the final page script. Be careful to avoid duplicate global symbol names.
+- For syntax highlighting of embedded scripts/templates in VS Code: prefer a tagged template (e.g. <code>html</code>`...`<code>) or install an extension like</code>es6-string-html<code>. For ManiaScript you can also use a comment hint (e.g.</code>/<em> ManiaScript </em>/`) before the template and use an extension that supports language injection.</p>
+<h3 id="addcolor-color-settings">addColor() - Color Settings</h3>
+<p>Register theme color settings with automatic cleanup.</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1">// Simple color</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="k">this</span><span class="p">.</span><span class="nx">addColor</span><span class="p">(</span><span class="s2">&quot;myplugin.highlight&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;f07&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Highlight color&quot;</span><span class="p">);</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="c1">// Color with change callback</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="k">this</span><span class="p">.</span><span class="nx">addColor</span><span class="p">(</span><span class="s2">&quot;myplugin.background&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onColorChanged</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Background color&quot;</span><span class="p">);</span>
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="k">async</span><span class="w"> </span><span class="nx">onColorChanged</span><span class="p">(</span><span class="nx">newValue</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">oldValue</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="w">    </span><span class="c1">// Update UI with new color</span>
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">refreshWidgets</span><span class="p">();</span>
+</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>Benefits:</strong>
+- Colors are automatically available in templates via <code>tmc.settings.colors</code>
+- Respects user's theme customization
+- Can be changed via admin settings interface</p>
+<h3 id="removecolor-manual-color-removal">removeColor() - Manual Color Removal</h3>
+<p>Explicitly unregister a color setting.</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="k">this</span><span class="p">.</span><span class="nx">removeColor</span><span class="p">(</span><span class="s2">&quot;myplugin.highlight&quot;</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="destroy-automatic-cleanup">destroy() - Automatic Cleanup</h3>
+<p>Called automatically when plugin is unloaded. You typically don't call this directly, but it's important to understand what it does:</p>
+<p><strong>Cleanup actions:</strong>
+1. Removes all tracked server listeners
+2. Unregisters all chat commands
+3. Unregisters all settings
+4. Unregisters all color settings
+5. Destroys any Manialink instances
+6. Nulls out plugin fields to allow garbage collection</p>
+<p><strong>Important:</strong> If you override <code>onUnload()</code>, you don't need to manually clean up resources registered via helper methods — <code>destroy()</code> handles this automatically.</p>
+<h3 id="migration-from-old-pattern">Migration from old pattern</h3>
+<p><strong>Before (0.11 and earlier):</strong>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">async</span><span class="w"> </span><span class="nx">onLoad</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">    </span><span class="nx">tmc</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;TMC.PlayerConnect&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onConnect</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">    </span><span class="nx">tmc</span><span class="p">.</span><span class="nx">addCommand</span><span class="p">(</span><span class="s2">&quot;/mycommand&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">handleCmd</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;Help&quot;</span><span class="p">);</span>
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">    </span><span class="nx">tmc</span><span class="p">.</span><span class="nx">settings</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s2">&quot;myplugin.enabled&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onEnabledChanged</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;Enable&quot;</span><span class="p">);</span>
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="p">}</span>
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="k">async</span><span class="w"> </span><span class="nx">onUnload</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="w">    </span><span class="c1">// Easy to forget these!</span>
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="w">    </span><span class="nx">tmc</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">removeListener</span><span class="p">(</span><span class="s2">&quot;TMC.PlayerConnect&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onConnect</span><span class="p">);</span>
+</span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="w">    </span><span class="nx">tmc</span><span class="p">.</span><span class="nx">removeCommand</span><span class="p">(</span><span class="s2">&quot;/mycommand&quot;</span><span class="p">);</span>
+</span><span id="__span-26-11"><a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="w">    </span><span class="nx">tmc</span><span class="p">.</span><span class="nx">settings</span><span class="p">.</span><span class="nx">unregister</span><span class="p">(</span><span class="s2">&quot;myplugin.enabled&quot;</span><span class="p">);</span>
+</span><span id="__span-26-12"><a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>After (0.12+):</strong>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="k">async</span><span class="w"> </span><span class="nx">onLoad</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;TMC.PlayerConnect&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onConnect</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">addCommand</span><span class="p">(</span><span class="s2">&quot;/mycommand&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">handleCmd</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Help&quot;</span><span class="p">);</span>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">addSetting</span><span class="p">(</span><span class="s2">&quot;myplugin.enabled&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onEnabledChanged</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Enable&quot;</span><span class="p">);</span>
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="p">}</span>
+</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>
+</span><span id="__span-27-7"><a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="k">async</span><span class="w"> </span><span class="nx">onUnload</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-27-8"><a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="w">    </span><span class="c1">// Nothing needed! Cleanup is automatic via destroy()</span>
+</span><span id="__span-27-9"><a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="best-practices">Best Practices</h3>
+<ol>
+<li><strong>Use helpers consistently</strong>: Always prefer <code>this.addListener()</code>, <code>this.addCommand()</code>, etc. over direct <code>tmc.*</code> calls</li>
+<li><strong>Let destroy() handle cleanup</strong>: Don't manually remove registered items in <code>onUnload()</code> unless you have a specific reason</li>
+<li><strong>Name settings properly</strong>: Use <code>pluginname.settingname</code> convention to avoid conflicts</li>
+<li><strong>Bind callbacks automatically</strong>: Helper methods handle binding, so avoid <code>.bind(this)</code> in your calls</li>
+<li><strong>Test unload/reload</strong>: Use <code>//plugin reload &lt;name&gt;</code> to verify your plugin cleans up properly</li>
+</ol>
+<h2 id="chat-commands">Chat commands</h2>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="k">this</span><span class="p">.</span><span class="nx">addCommand</span><span class="p">(</span><span class="s2">&quot;/mycommand&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">myCommand</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;description&quot;</span><span class="p">);</span>
+</span></code></pre></div>
+<h2 id="listeners">Listeners</h2>
+<p>To make plugins work across all generations of Trackmania games, we took some creative liberties to make our lives easier.</p>
+<ul>
+<li>Callbacks starting with: <code>TrackMania.</code> and  <code>ManiaPlanet.</code> are all renamed to start with <code>Trackmania.</code>.</li>
+<li>All script callbacks will be redirected as events.</li>
+</ul>
+<p>Also note that there's a few <code>TMC.events</code> that should be used instead of the native dedicated server callbacks.
+These are writen as adapters so they'll provide the right info from each game in the same way,
+even if the game's underlying data differs.</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="c1">// async onPlayerConnect(player: Player) {}</span>
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;TMC.PlayerConnect&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onPlayerConnect</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">)</span>
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>
+</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="c1">// async onPlayerDisconnect(player: Player) {}</span>
+</span><span id="__span-29-5"><a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;TMC.PlayerDisconnect&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onPlayerDisconnect</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">)</span>
+</span><span id="__span-29-6"><a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>
+</span><span id="__span-29-7"><a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="c1">// async onPlayerCheckpoint(login:string, racetime:int, checkpointinrace:int) {}</span>
+</span><span id="__span-29-8"><a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;TMC.PlayerCheckpoint&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onPlayerCheckpoint</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+</span><span id="__span-29-9"><a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>
+</span><span id="__span-29-10"><a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a><span class="c1">// async onPlayerFinish(login:string, time:int) {}</span>
+</span><span id="__span-29-11"><a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;TMC.PlayerFinish&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">finish</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+</span><span id="__span-29-12"><a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a>
+</span><span id="__span-29-13"><a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a><span class="c1">// async onPlayerGiveup(login:string) {}</span>
+</span><span id="__span-29-14"><a id="__codelineno-29-14" name="__codelineno-29-14" href="#__codelineno-29-14"></a><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;TMC.PlayerGiveup&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">giveup</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+</span><span id="__span-29-15"><a id="__codelineno-29-15" name="__codelineno-29-15" href="#__codelineno-29-15"></a>
+</span><span id="__span-29-16"><a id="__codelineno-29-16" name="__codelineno-29-16" href="#__codelineno-29-16"></a><span class="c1">//  onVoteCancel(data: VoteStruct) {}</span>
+</span><span id="__span-29-17"><a id="__codelineno-29-17" name="__codelineno-29-17" href="#__codelineno-29-17"></a><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;TMC.Vote.Cancel&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">voteCancel</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+</span><span id="__span-29-18"><a id="__codelineno-29-18" name="__codelineno-29-18" href="#__codelineno-29-18"></a>
+</span><span id="__span-29-19"><a id="__codelineno-29-19" name="__codelineno-29-19" href="#__codelineno-29-19"></a><span class="c1">//  onVoteDeny(data: VoteStruct) {}</span>
+</span><span id="__span-29-20"><a id="__codelineno-29-20" name="__codelineno-29-20" href="#__codelineno-29-20"></a><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;TMC.Vote.Deny&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">voteDeny</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+</span><span id="__span-29-21"><a id="__codelineno-29-21" name="__codelineno-29-21" href="#__codelineno-29-21"></a>
+</span><span id="__span-29-22"><a id="__codelineno-29-22" name="__codelineno-29-22" href="#__codelineno-29-22"></a><span class="c1">//  onVotePass(data: VoteStruct) {}</span>
+</span><span id="__span-29-23"><a id="__codelineno-29-23" name="__codelineno-29-23" href="#__codelineno-29-23"></a><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;TMC.Vote.Pass&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">votePass</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+</span><span id="__span-29-24"><a id="__codelineno-29-24" name="__codelineno-29-24" href="#__codelineno-29-24"></a>
+</span><span id="__span-29-25"><a id="__codelineno-29-25" name="__codelineno-29-25" href="#__codelineno-29-25"></a><span class="c1">// generic ones use this callbacks</span>
+</span><span id="__span-29-26"><a id="__codelineno-29-26" name="__codelineno-29-26" href="#__codelineno-29-26"></a><span class="k">this</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s2">&quot;Trackmania.*&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">callback</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+</span></code></pre></div>
+<h2 id="interacting-with-the-dedicated-server">Interacting with the dedicated server</h2>
+<p>To interact with the dedicated server, you usually subscribe to Dedicated Server callbacks and act upon them.
+You have 3 options in MINIcontrol:</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="c1">// Execute an XML-RPC API call and receive the server response</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">answer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">tmc</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">&quot;method&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">params</span><span class="p">);</span>
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="c1">// Execute an XML-RPC API call but ignore the server response</span>
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="nx">tmc</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s2">&quot;method&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">params</span><span class="p">);</span>
+</span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a><span class="c1">// Execute an XML-RPC API multicall, containing several XML-RPC API methods</span>
+</span><span id="__span-30-6"><a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a><span class="kd">const</span><span class="w"> </span><span class="nx">answers</span><span class="o">:</span><span class="kt">any</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">tmc</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">multicall</span><span class="p">([</span>
+</span><span id="__span-30-7"><a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">params</span><span class="p">],</span>
+</span><span id="__span-30-8"><a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;method2&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">params</span><span class="p">],</span>
+</span><span id="__span-30-9"><a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;method3&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">params</span><span class="p">]</span>
+</span><span id="__span-30-10"><a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a><span class="w">    </span><span class="p">]);</span>
+</span></code></pre></div>
+<p>You can also override methods if needed...</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="nx">tmc</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">addOverride</span><span class="p">(</span><span class="s2">&quot;method&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">myOverride</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+</span></code></pre></div>
+<p>In case you need to call the original GBX method, use</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="k">async</span><span class="w"> </span><span class="nx">myOverride</span><span class="p">(</span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">tmc</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">gbx</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">&quot;method&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">params</span><span class="p">);</span>
+</span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="sending-chat-messages">Sending chat messages</h2>
+<p>Sending public and private chat messages.</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="c1">// For sending chat messages, await is not needed.</span>
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="nx">tmc</span><span class="p">.</span><span class="nx">chat</span><span class="p">(</span><span class="sb">`Hello World!`</span><span class="p">);</span>
+</span><span id="__span-33-3"><a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>
+</span><span id="__span-33-4"><a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="c1">// To send chat messages to specific players, provide a (comma-separated list or array of) login(s) as second parameter</span>
+</span><span id="__span-33-5"><a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a><span class="nx">tmc</span><span class="p">.</span><span class="nx">chat</span><span class="p">(</span><span class="sb">`Hello World!`</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;login&quot;</span><span class="p">)</span>
+</span><span id="__span-33-6"><a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a><span class="nx">tmc</span><span class="p">.</span><span class="nx">chat</span><span class="p">(</span><span class="sb">`Hello World!`</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;login1, login2, ...&quot;</span><span class="p">)</span>
+</span><span id="__span-33-7"><a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a><span class="nx">tmc</span><span class="p">.</span><span class="nx">chat</span><span class="p">(</span><span class="sb">`Hello World!`</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;login1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;login2&quot;</span><span class="p">])</span>
+</span></code></pre></div>
+<h2 id="write-to-stdout-log-file">Write to stdout / log file</h2>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="c1">// To log a message to stdout/log file, TM colors will be parsed to ansi sequences</span>
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="nx">tmc</span><span class="p">.</span><span class="nx">cli</span><span class="p">(</span><span class="s2">&quot;trackmania color coded string&quot;</span><span class="p">);</span>
+</span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="c1">// To log a debug message, shows only when debug is enabled in `.env`</span>
+</span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="nx">tmc</span><span class="p">.</span><span class="nx">debug</span><span class="p">(</span><span class="s2">&quot;trackmania color coded string&quot;</span><span class="p">);</span>
+</span></code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/EvoEsports/minicontrol" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
