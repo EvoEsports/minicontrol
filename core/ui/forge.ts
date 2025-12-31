@@ -228,11 +228,11 @@ export function render(element: any, rootId = 'default', obj?: objMap): string {
     }
 
     const headersArray = root.hooks.map(h => h.header).filter(Boolean);
-    const uniqueHeaders = Array.from(new Set(headersArray));
+    const uniqueHeaders = Array.from(new Set(headersArray)).toReversed();
     const headers = uniqueHeaders.join('\n');
 
     const scriptsArray = root.hooks.map(h => h.script).filter(Boolean);
-    const uniqueScripts = Array.from(new Set(scriptsArray));
+    const uniqueScripts = Array.from(new Set(scriptsArray)).toReversed();
     const scripts = uniqueScripts.join('\n');
     const outScripts = `
     <script><!--
