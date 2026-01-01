@@ -116,6 +116,7 @@ export default class PlayerManager {
         const players = await tmc.server.call("GetPlayerList", -1, 0);
         for (const data of players) {
             if (data.PlayerId === 0) continue;
+            if (data.Login === tmc.server.login) continue;
             await this.getPlayer(data.Login);
         }
     }
