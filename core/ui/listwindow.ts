@@ -5,7 +5,7 @@ export interface columnDef {
     title: string;
     width: number;
     description?: string;
-    type?: "text" | "entry" | "time" | "date" | "progressbar";
+    type?: "text" | "entry" | "time" | "date" | "progressbar" | "quad"
     actionKey?: string;
     align?: "left" | "center" | "right";
     sort?: -1 | 0 | 1;

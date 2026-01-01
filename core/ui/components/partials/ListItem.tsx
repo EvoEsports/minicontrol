@@ -15,6 +15,24 @@ export default function ListItem({ pos = '0 0', 'z-index': z, size, type = 'text
     if (type === 'time') {
         value = formatTime(text);
     }
+    if (type === "quad") {
+        return (
+            <>
+                <quad
+                    pos={`${ppos.x + offsetX} ${ppos.y - psize.y * 0.5}`}
+                    z-index={z + 0.2}
+                    size={size}
+                    valign="center"
+                    halign={halign}
+                    image={value}
+                    opacity="1"
+                    keepratio="Fit"
+                    action={action}
+                />
+            </>
+        );
+
+    }
     if (type === 'progressbar') {
         const sizeX = psize.x * Math.min(Number.parseFloat(value), 1);
         const percentage = '$s' + (Number.parseFloat(value) * 100 || 0).toFixed(2) + '%';
