@@ -32,6 +32,9 @@ export default class DedimaniaWidget extends Plugin {
 
     async onPlayerConnect(player: Player) {
         const login = player.login;
+        const dedimania = tmc.getPlugin("tmnf/dedimania");
+        if (!dedimania || !dedimania.enabled) return;
+
         this.updateWidget(login);
         if (this.widgets[login]) {
             await tmc.ui.displayManialink(this.widgets[login]);
