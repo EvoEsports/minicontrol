@@ -1,0 +1,1123 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for MINIcontrol">
+      
+      
+      
+        <link rel="canonical" href="https://evoesports.github.io/minicontrol/devs/concept/">
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../ui-system/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Concept - MINIcontrol Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#minicontrol-for-developers" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="MINIcontrol Docs" class="md-header__button md-logo" aria-label="MINIcontrol Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MINIcontrol Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Concept
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="MINIcontrol Docs" class="md-nav__button md-logo" aria-label="MINIcontrol Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MINIcontrol Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concept
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concept
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview-of-the-folder-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview of the folder structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trackmania-mini-control-the-tmc-global-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trackmania Mini Control - the tmc global variable
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Trackmania Mini Control - the tmc global variable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quick-reference-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick reference table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#public-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#public-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public methods
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database manager
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ui-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UI System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../forge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Forge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Users
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Users
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../users/install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../users/plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview-of-the-folder-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview of the folder structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trackmania-mini-control-the-tmc-global-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trackmania Mini Control - the tmc global variable
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Trackmania Mini Control - the tmc global variable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quick-reference-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick reference table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#public-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#public-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public methods
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database manager
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="minicontrol-for-developers">MINIcontrol for developers</h1>
+<p>MINIcontrol is a modern, modular server controller designed to work across the various Trackmania titles. It provides a lightweight framework and a consistent plugin API so server operators and developers can manage servers, build features, and author plugins with minimal friction.</p>
+<p>The project began as a response to the limitations of older server controllers. <a href="https://xaseco.org">XAseco</a> — long the most widely used controller — is built on legacy PHP versions, and attempts to port it to newer PHP runtimes often break compatibility with existing plugins. While alternatives such as <a href="https://github.com/lythx/trakman">Trakman</a> exist, they did not fully meet the modularity and plugin-compatibility goals we wanted.</p>
+<p>To address these issues, reaby started MINIcontrol to deliver a future-proof controller with a single codebase able to support multiple Trackmania games. Evo Esports later adopted the project and contributed development resources to accelerate development and broaden the feature set.</p>
+<p>One of MINIcontrol's core principles is cross-game plugin compatibility: plugins should work across multiple Trackmania titles with the same code. This is achievable because the Dedicated Server's XML-RPC API has remained relatively stable, and the controller provides small adapters to normalize differences between games.</p>
+<p>This isn't our first server controller project — we have worked on several prior controllers (MLEPP, Expansion, Expansion², EvoSC, and others) — and we've learned many lessons that shaped MINIcontrol's architecture and design.</p>
+<h2 id="core">Core</h2>
+<p>The core of MINIcontrol is intentionally compact and focused: it provides the essential runtime services and a stable foundation that plugin authors rely on. The core handles low-level tasks such as connecting to the dedicated server (GBX/XML-RPC), normalizing events across Trackmania titles, managing a small set of first-class managers (maps, players, UI, settings, bills), and providing a safe plugin lifecycle and loader for installing, resolving, and loading plugins.</p>
+<p>Key responsibilities of the core include:</p>
+<ul>
+<li>Server connection and transport: A GBX client that wraps XML-RPC interactions and normalizes server method names for different game families.</li>
+<li>Event normalization: Converts different server callbacks and modescripts into unified <code>TMC.*</code> events for plugin authors.</li>
+<li>Plugin lifecycle, discovery and resolution: Scans standard plugin directories, validates <code>manifest.json</code>, resolves dependency graphs using semver ranges, and loads plugins in deterministic order.</li>
+<li>Built-in managers: Lightweight managers provide common services (players, maps, UI, settings, billing, and more) that plugins use to avoid reimplementing core functionality.</li>
+<li>Logging and telemetry: Centralized logging, optional Sentry integration, and consistent debug/logging utilities.</li>
+<li>Database manager: Handles DB connection, migrations (Umzug + Sequelize) and exposes models under <code>core/schemas/*</code>. Registers standard models such as <code>players</code> and <code>map</code> and keeps runtime sync between server state and the DB.</li>
+</ul>
+<p>The core intentionally avoids implementing high-level features directly — instead it exposes a simple, opinionated API and helpers (like <code>addListener</code>, <code>addCommand</code>, <code>addSetting</code>) so plugins can register functionality cleanly and the runtime can manage resources and lifecycle events safely.</p>
+<p>This approach keeps the core small and maintainable while enabling a rich ecosystem of plugins that implement features on top of the same stable API.</p>
+<h3 id="overview-of-the-folder-structure">Overview of the folder structure</h3>
+<ul>
+<li>📂 <strong>minicontrol</strong></li>
+<li>📁 <strong>core</strong>  - core contains all built-in classes and also plugins MINIcontrol ships with<ul>
+<li>📄 minicontrol.ts - entry for controller</li>
+<li>📄 billmanager.ts - <a href="../class/billmanager/">BillManager class</a></li>
+<li>📄 commandmanager.ts - <a href="../class/chatcmd/">CommandManager class</a></li>
+<li>📄 mapmanager.ts - <a href="../class/maps/">MapManager class</a></li>
+<li>📄 playermanager.ts - <a href="../class/playermanager/">PlayerManager class</a></li>
+<li>📄 settingsmanager.ts - <a href="../class/settingsmanager/">SettingsManager class</a></li>
+<li>📄 database.ts - <a href="../class/database/">Database manager</a></li>
+<li>📄 server.ts - <a href="../class/server/">Server class</a></li>
+<li>📄 menu.ts - <a href="../class/menu/">Menu class</a></li>
+<li>📄 uimanager.ts - <a href="../class/uimanager/">UIManager class</a></li>
+<li>📄 plugins/ - <a href="../plugins/">Plugins guide</a></li>
+<li>📄 gbx/ - <a href="../class/gbx/">GBX client</a></li>
+<li>📄 log.ts - <a href="../class/log/">Logger</a></li>
+<li>📄 sentry.ts - <a href="../class/sentry/">Sentry integration</a></li>
+<li>📄 utils.ts - <a href="../class/utils/">Utilities &amp; helpers</a></li>
+<li>📄 quickstart-plugin.md - <a href="../quickstart-plugin/">Plugin Quickstart</a></li>
+<li>📄 class/index.md - <a href="../class/">All core class docs</a></li>
+<li>📄 schemas/ - Sequelize models (e.g., <code>map.model.ts</code>, <code>players.model.ts</code>) and migration hooks</li>
+</ul>
+</li>
+<li>📁 <strong>documentation</strong>  - this folder</li>
+<li>📁 <strong>docker</strong> - Dockerfile and example Docker Compose</li>
+<li>📁 <strong>userdata</strong> - contains all user data, e.g. the db migrations and schemas, the .sqlite file and user-installed plugins</li>
+<li>📄 .env - environmental variables for config</li>
+</ul>
+<h2 id="trackmania-mini-control-the-tmc-global-variable">Trackmania Mini Control - the <code>tmc</code> global variable</h2>
+<p><code>tmc</code> is available for everywhere and should be always used to interact with the dedicated server, plugins, database and such.</p>
+<h3 id="quick-reference-table">Quick reference table</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Short description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tmc.server</code></td>
+<td>Server</td>
+<td>Main server call wrapper; use <code>call</code>, <code>send</code>, <code>multicall</code></td>
+<td><code>await tmc.server.call('GetCurrentMapInfo')</code></td>
+</tr>
+<tr>
+<td><code>tmc.players</code></td>
+<td>PlayerManager</td>
+<td>Player cache &amp; lookups</td>
+<td><code>await tmc.players.getPlayer(login)</code></td>
+</tr>
+<tr>
+<td><code>tmc.ui</code></td>
+<td>UiManager</td>
+<td>Display UI, add actions, clipboard</td>
+<td><code>tmc.ui.setClipboard(login, text)</code></td>
+</tr>
+<tr>
+<td><code>tmc.maps</code></td>
+<td>MapManager</td>
+<td>Maplist helpers and map info</td>
+<td><code>tmc.maps.currentMap</code></td>
+</tr>
+<tr>
+<td><code>tmc.chatCmd</code></td>
+<td>CommandManager</td>
+<td>Add/remove commands</td>
+<td><code>tmc.addCommand('/hello', cb)</code></td>
+</tr>
+<tr>
+<td><code>tmc.settings</code></td>
+<td>SettingsManager</td>
+<td>Persistent settings and colors</td>
+<td><code>tmc.settings.set('tmf.hud.round_scores', true)</code></td>
+</tr>
+<tr>
+<td><code>tmc.database</code></td>
+<td>Database</td>
+<td>DB connection + models (Sequelize). Use <code>tmc.database.sequelize</code> or <code>tmc.database.addModels([...])</code></td>
+<td><code>await tmc.database.syncPlayers()</code></td>
+</tr>
+<tr>
+<td><code>tmc.plugins</code></td>
+<td>{ [key: string]: Plugin }</td>
+<td>Loaded plugin instances</td>
+<td><code>tmc.plugins['example']</code></td>
+</tr>
+<tr>
+<td><code>tmc.admins</code></td>
+<td>string[]</td>
+<td>List of admin logins</td>
+<td><code>tmc.admins.includes(login)</code></td>
+</tr>
+<tr>
+<td><code>tmc.game</code></td>
+<td>object</td>
+<td>Dedicated server game info (<code>Name</code>)</td>
+<td><code>if (tmc.game.Name === 'TmForever')</code></td>
+</tr>
+<tr>
+<td><code>tmc.storage</code></td>
+<td>any</td>
+<td>Runtime shared key-value store</td>
+<td><code>tmc.storage['minicontrol.foo'] = 'bar'</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="public-variables">Public variables</h3>
+<p>Below are the <code>tmc</code> global variables available everywhere in plugins and core code. Each entry includes a short description and a cross-link to the relevant class or documentation.</p>
+<ul>
+<li><code>tmc.admins</code> — string[] | List of admin logins maintained by <code>SettingsManager</code>.</li>
+<li>Example: <code>if (tmc.admins.includes(login)) { /* allow admin action */ }</code></li>
+<li>
+<p>See: <a href="../class/settingsmanager/">SettingsManager class</a></p>
+</li>
+<li>
+<p><code>tmc.version</code> — string | The controller runtime version (from package.json / version.json).</p>
+</li>
+<li>
+<p>Example: <code>tmc.cli(</code>MINIcontrol ${tmc.version}<code>)</code></p>
+</li>
+<li>
+<p><code>tmc.startTime</code> — number | Controller start timestamp (ms since epoch) useful for uptime calculation.</p>
+</li>
+<li>
+<p>Example: <code>const upSeconds = Math.floor((Date.now()-tmc.startTime)/1000);</code></p>
+</li>
+<li>
+<p><code>tmc.server</code> — Server | All server calls (XMLRPC) and event listener helper.</p>
+</li>
+<li>Example: <code>await tmc.server.call('GetCurrentMapInfo');</code></li>
+<li>
+<p>See: <a href="../class/server/">Server class</a></p>
+</li>
+<li>
+<p><code>tmc.players</code> — PlayerManager | Player helpers, caches and utilities.</p>
+</li>
+<li>Example: <code>const players = tmc.players.getAll(); const player = await tmc.players.getPlayer(login);</code></li>
+<li>
+<p>See: <a href="../class/playermanager/">PlayerManager class</a></p>
+</li>
+<li>
+<p><code>tmc.ui</code> — UiManager | UI helpers for displaying manialinks, widgets and windows.</p>
+</li>
+<li>Example: <code>await tmc.ui.displayManialink(widget); tmc.ui.setClipboard(login, text);</code></li>
+<li>
+<p>See: <a href="../class/uimanager/">UiManager class</a></p>
+</li>
+<li>
+<p><code>tmc.chatCmd</code> — CommandManager | Chat command registration and execution.</p>
+</li>
+<li>Example: <code>tmc.addCommand('/hello', (login) =&gt; tmc.chat('Hi', login));</code></li>
+<li>
+<p>See: <a href="../class/chatcmd/">CommandManager class</a></p>
+</li>
+<li>
+<p><code>tmc.maps</code> — MapManager | Map list helpers with <code>get()</code>, <code>getMap(uid)</code>, <code>currentMap</code> and <code>nextMap</code> properties.</p>
+</li>
+<li>Example: <code>const mp = tmc.maps.getMap(uid); const current = tmc.maps.currentMap;</code></li>
+<li>
+<p>See: <a href="../class/maps/">MapManager class</a></p>
+</li>
+<li>
+<p><code>tmc.plugins</code> — { [key: string]: Plugin } | Dictionary of loaded plugin instances keyed by ID. Prefer using public APIs over calling plugin internals directly.</p>
+</li>
+<li>Example: <code>if (tmc.plugins['example']) { await tmc.plugins['example'].someMethod(); }</code></li>
+<li>
+<p>See: <a href="../plugins/">Plugin base &amp; loader</a></p>
+</li>
+<li>
+<p><code>tmc.game</code> — object | Runtime game info obtained from the dedicated server, e.g. <code>tmc.game.Name</code>.</p>
+</li>
+<li>
+<p>Example: <code>if (tmc.game.Name === 'TmForever') { /* tmf specific */ }</code></p>
+</li>
+<li>
+<p><code>tmc.mapsPath</code> — string | Absolute path to the dedicated server's map directory for file operations.</p>
+</li>
+<li>
+<p>Example: <code>tmc.cli(</code>Maps folder: ${tmc.mapsPath}<code>)</code></p>
+</li>
+<li>
+<p><code>tmc.storage</code> — { [key: string]: any } | A small global key-value store that persists only in runtime memory and is shared across plugins.</p>
+</li>
+<li>
+<p>Example: <code>tmc.storage['minicontrol.someKey'] = 'value'; const v = tmc.storage['minicontrol.someKey'];</code></p>
+</li>
+<li>
+<p><code>tmc.database</code> — Database | Sequelize instance, models and sync helpers. Plugins can register models via <code>tmc.database.addModels([...])</code>.</p>
+</li>
+<li>Example: <code>await tmc.database.syncPlayers()</code></li>
+</ul>
+<p>Note: Use the provided manager classes to access runtime data instead of relying on plugin internals where possible; this improves maintainability and reduces risk of breaking changes.</p>
+<h3 id="public-methods">Public methods</h3>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">MiniControl</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="c1">// Get player by login</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">getPlayer</span><span class="p">(</span><span class="nx">login</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Player</span><span class="o">&gt;</span><span class="p">;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="c1">// Command helpers (wrapping CommandManager)</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nx">addCommand</span><span class="p">(</span><span class="nx">command</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">callback</span><span class="o">:</span><span class="w"> </span><span class="kt">CallableCommand</span><span class="p">,</span><span class="w"> </span><span class="nx">help?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nx">removeCommand</span><span class="p">(</span><span class="nx">command</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="c1">// Plugin lifecycle helpers</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nx">findPlugin</span><span class="p">(</span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nx">discoverPlugins</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="nx">manifest?</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">;</span><span class="w"> </span><span class="nx">compatible?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"> </span><span class="nx">loaded?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="p">}[]</span><span class="o">&gt;</span><span class="p">;</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nx">listPlugins</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="nx">manifest?</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">;</span><span class="w"> </span><span class="nx">compatible?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"> </span><span class="nx">loaded?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="p">}[]</span><span class="o">&gt;</span><span class="p">;</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="nx">installPlugin</span><span class="p">(</span><span class="nx">fromPath</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">;</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nx">removePlugin</span><span class="p">(</span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="p">;</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="nx">loadPlugin</span><span class="p">(</span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="p">;</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nx">unloadPlugin</span><span class="p">(</span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="p">;</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="c1">// Logging / debugging / chat</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="nx">cli</span><span class="p">(</span><span class="nx">object</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="nx">debug</span><span class="p">(</span><span class="nx">object</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">  </span><span class="nx">chat</span><span class="p">(</span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">login?</span><span class="o">:</span><span class="w"> </span><span class="kt">undefined</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">string</span><span class="p">[])</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="database-manager">Database manager</h2>
+<p>The Database manager centralizes runtime database access and migration handling. Key points:</p>
+<ul>
+<li>Initialization is optional and only runs when <code>DATABASE</code> is set in <code>.env</code>. During <code>tmc.database.init()</code> it connects, runs migrations, and registers models.</li>
+<li>Built-in models are in <code>core/schemas/*</code> (e.g. <code>map.model.ts</code>, <code>players.model.ts</code>). Plugins should register additional Sequelize models using <code>tmc.database.addModels([MyModel])</code>.</li>
+<li>Migrations: the controller runs Umzug migrations from three locations:</li>
+<li><code>./core/migrations/*.ts</code> — core migrations</li>
+<li><code>./userdata/migrations/*.ts</code> — user-level migrations</li>
+<li><code>./userdata/plugins/**/migrations/*.ts</code> — plugin-provided migrations</li>
+<li>The database manager emits event-driven sync and registers listeners for <code>TMC.PlayerConnect</code>, <code>TMC.PlayerDisconnect</code>, and <code>Trackmania.EndMap</code> to persist runtime data to DB.</li>
+<li>Runtime commands added by the Database manager include <code>/active</code> and <code>/topactive</code>.</li>
+</ul>
+<p>Plugin author recommendations:</p>
+<ul>
+<li>Prefer using model classes from <code>core/schemas/*</code> for common tables (players, maps) to maintain compatibility.</li>
+<li>When registering models from a plugin, call <code>tmc.database.addModels([MyModel])</code> during <code>onLoad()</code> so models are discovered and used by the running Sequelize instance.</li>
+<li>Avoid direct raw SQL unless required; prefer model APIs for queries, transactions and updates.</li>
+</ul>
+<p>Notes &amp; troubleshooting:</p>
+<ul>
+<li>Supported DB drivers: <code>sqlite</code>, <code>mysql</code>, <code>postgres</code> as parsed from <code>DATABASE</code> env prefix.</li>
+<li>Migrations are run at startup and will cause the process to exit on failure — test migrations locally before deploying.</li>
+<li>If you need to add long-running imports or heavy parse work (like GBX parsing for map vehicles), do it lazily or in a background async task to avoid blocking startup.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/EvoEsports/minicontrol" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

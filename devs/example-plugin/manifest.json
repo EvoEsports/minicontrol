@@ -1,0 +1,11 @@
+{
+  "id": "example-plugin",
+  "name": "Example Plugin",
+  "description": "A tiny example plugin that greets players, demonstrates commands, list window, clipboard copy, and showing a bill.",
+  "authors": "EvoEsports",
+  "date": "2025-12-10",
+  "version": "0.2.0",
+  "requiresMinicontrolVersion": "^0.12.0",
+  "requiresGame": null,
+  "depends": []
+}

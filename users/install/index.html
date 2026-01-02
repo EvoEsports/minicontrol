@@ -1,0 +1,1276 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for MINIcontrol">
+      
+      
+      
+        <link rel="canonical" href="https://evoesports.github.io/minicontrol/users/install/">
+      
+      
+        <link rel="prev" href="../../devs/forge/">
+      
+      
+        <link rel="next" href="../plugins/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Install - MINIcontrol Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#install-minicontrol" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="MINIcontrol Docs" class="md-header__button md-logo" aria-label="MINIcontrol Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MINIcontrol Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Install
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="MINIcontrol Docs" class="md-nav__button md-logo" aria-label="MINIcontrol Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MINIcontrol Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devs/concept/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concept
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devs/ui-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UI System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devs/forge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Forge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Users
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Users
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start-node-bun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start (Node / Bun)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-tldr-one-liner-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick TL;DR — One-liner setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands-cheat-sheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands cheat-sheet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker-recommended-for-production-easy-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker (recommended for production / easy setup)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database &amp; migrations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin-management-plugins-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugin management &amp; PLUGINS variable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-the-controller" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing the controller
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verifying-your-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verifying your installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-env-minimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example .env (minimal)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-expanded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting (expanded)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#production-hints-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Production hints &amp; security
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help-reporting-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting help &amp; reporting issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting help &amp; reporting issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#feedback-contributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feedback &amp; contributions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start-node-bun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start (Node / Bun)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-tldr-one-liner-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick TL;DR — One-liner setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands-cheat-sheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands cheat-sheet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker-recommended-for-production-easy-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker (recommended for production / easy setup)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database &amp; migrations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin-management-plugins-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugin management &amp; PLUGINS variable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-the-controller" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing the controller
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verifying-your-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verifying your installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-env-minimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example .env (minimal)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-expanded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting (expanded)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#production-hints-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Production hints &amp; security
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help-reporting-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting help &amp; reporting issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting help &amp; reporting issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#feedback-contributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feedback &amp; contributions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<p><a href="../../">Back to Index</a></p>
+<h1 id="install-minicontrol">Install MINIcontrol</h1>
+<p>This guide walks through installing and running MINIcontrol using either a native Node/Bun environment or Docker. It covers prerequisites, environment configuration, database migrations, and running the controller in development or production.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>Node.js &gt;= 21.5.0 (recommended) and npm, or Bun. The runtime uses <code>tsx</code> for TypeScript execution.</li>
+<li>Git (for cloning the repository)</li>
+<li>A supported database. By default MINIcontrol uses SQLite (no external DB server required), but PostgreSQL and MySQL are supported.</li>
+<li>Docker &amp; Docker Compose (optional — recommended for production or reproducible deployments)</li>
+</ul>
+<h2 id="quick-start-node-bun">Quick Start (Node / Bun)</h2>
+<ol>
+<li>Clone the repository (see above) and change into the folder.</li>
+<li>Install dependencies:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>npm<span class="w"> </span>install<span class="w"> </span>--production
+</span></code></pre></div>
+<ol>
+<li>Copy the example environment file and configure it.  PowerShell (Windows) and Bash examples are shown.</li>
+</ol>
+<p>PowerShell (Windows):</p>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">Copy-Item</span> <span class="p">.</span><span class="n">env</span><span class="p">.</span><span class="n">example</span> <span class="p">.</span><span class="n">env</span>
+</span></code></pre></div>
+<p>Bash (Linux, macOS):</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cp<span class="w"> </span>.env.example<span class="w"> </span>.env
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># Edit .env to set your XMLRPC host/user/password and database config</span>
+</span></code></pre></div>
+<p>Important entries in <code>.env</code> (basic):</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XMLRPC_HOST</td>
+<td>"127.0.0.1"</td>
+<td>Hostname or IP of the Trackmania server (or container name in Docker)</td>
+</tr>
+<tr>
+<td>XMLRPC_PORT</td>
+<td>5000</td>
+<td>RPC port for your server</td>
+</tr>
+<tr>
+<td>XMLRPC_USER</td>
+<td>"SuperAdmin"</td>
+<td>Superadmin login (from the server config)</td>
+</tr>
+<tr>
+<td>XMLRPC_PASS</td>
+<td>"SuperAdmin"</td>
+<td>Password for the RPC account</td>
+</tr>
+<tr>
+<td>DATABASE</td>
+<td><code>sqlite://userdata/local.sqlite</code></td>
+<td>DB connection string: sqlite, postgres or mysql URL</td>
+</tr>
+<tr>
+<td>ADMINS</td>
+<td>(empty)</td>
+<td>Comma-separated logins with admin permissions in MINIcontrol</td>
+</tr>
+<tr>
+<td>PLUGINS</td>
+<td>(empty)</td>
+<td>Inclusive whitelist of plugin IDs to load; use <code>""</code> to allow auto-discovery</td>
+</tr>
+<tr>
+<td>DEBUG</td>
+<td>false</td>
+<td>Basic debugging flags for the runtime</td>
+</tr>
+<tr>
+<td>ANSILEVEL</td>
+<td>1</td>
+<td>Log color level: 0 none, 1 4-bit, 2 24-bit</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>Start the controller</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>npm<span class="w"> </span>start
+</span></code></pre></div>
+<p>For development with Bun (fast startup &amp; hot reload), use:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>npm<span class="w"> </span>run<span class="w"> </span>dev
+</span></code></pre></div>
+<h2 id="quick-tldr-one-liner-setup">Quick TL;DR — One-liner setup</h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/EvoEsports/minicontrol.git<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>minicontrol<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npm<span class="w"> </span>install<span class="w"> </span>--production<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>cp<span class="w"> </span>.env.example<span class="w"> </span>.env<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npm<span class="w"> </span>start
+</span></code></pre></div>
+<p>PowerShell (Windows):</p>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">://</span><span class="n">github</span><span class="p">.</span><span class="n">com</span><span class="p">/</span><span class="n">EvoEsports</span><span class="p">/</span><span class="n">minicontrol</span><span class="p">.</span><span class="n">git</span><span class="p">;</span> <span class="nb">Set-Location</span> <span class="p">./</span><span class="n">minicontrol</span><span class="p">;</span> <span class="n">npm</span> <span class="n">install</span> <span class="p">-</span><span class="n">-production</span><span class="p">;</span> <span class="nb">Copy-Item</span> <span class="p">.</span><span class="n">env</span><span class="p">.</span><span class="n">example</span> <span class="p">.</span><span class="n">env</span><span class="p">;</span> <span class="n">npm</span> <span class="nb">start</span>
+</span></code></pre></div>
+<p>Note: <code>start:bun</code> script is available if you prefer to run Bun directly.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Use Bun to install and run with the example env</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>bun<span class="w"> </span>install
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>bun<span class="w"> </span>--env-file<span class="w"> </span>.env<span class="w"> </span>./core/minicontrol.ts
+</span></code></pre></div>
+<hr />
+<h2 id="commands-cheat-sheet">Commands cheat-sheet</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>npm install</td>
+<td>Install dependencies</td>
+</tr>
+<tr>
+<td>npm run dev</td>
+<td>Run with Bun in dev/watch mode (hot reload)</td>
+</tr>
+<tr>
+<td>npm start</td>
+<td>Start production controller (uses tsx)</td>
+</tr>
+<tr>
+<td>npm run migrate</td>
+<td>Run local migrations (requires env configured)</td>
+</tr>
+<tr>
+<td>npm run migrate:docker</td>
+<td>Run migrations inside the Docker container</td>
+</tr>
+<tr>
+<td>docker compose -f docker/compose.yml up -d --build</td>
+<td>Build and start the Docker environment</td>
+</tr>
+<tr>
+<td>docker compose -f docker/compose.yml logs -f minicontrol</td>
+<td>Follow controller logs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="docker-recommended-for-production-easy-setup">Docker (recommended for production / easy setup)</h2>
+<p>MINIcontrol includes an example Docker Compose in <code>docker/compose.yml</code>. It demonstrates how to run a Trackmania server (TmForever) and the controller in separate containers.</p>
+<ol>
+<li>Build the Docker image (from repo root):</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Build the minicontrol image</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>minicontrol:latest<span class="w"> </span>-f<span class="w"> </span>docker/Dockerfile<span class="w"> </span>.
+</span></code></pre></div>
+<ol>
+<li>Or use docker compose to build &amp; run:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># from repo root</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build
+</span></code></pre></div>
+<ol>
+<li>
+<p>The example compose file sets <code>XMLRPC_HOST: trackmania</code> so the controller can communicate with the local Trackmania container. It also mounts <code>userdata</code> to persist configuration and plugin files across container restarts.</p>
+</li>
+<li>
+<p>To view logs:</p>
+</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yml<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>minicontrol
+</span></code></pre></div>
+<ol>
+<li>To run migrations inside the Docker environment:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Run migrations inside the running container</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yml<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>minicontrol<span class="w"> </span>npm<span class="w"> </span>run<span class="w"> </span>migrate:docker
+</span></code></pre></div>
+<p>Tip: Make sure you configure <code>XMLRPC_USER</code> and <code>XMLRPC_PASS</code> in the compose environment or the <code>.env</code> file so MiniControl can authenticate with the server.</p>
+<h2 id="database-migrations">Database &amp; migrations</h2>
+<p>MINIcontrol uses Umzug and Sequelize for schema management. By default, the controller uses SQLite, but you can switch to Postgres or MySQL by setting the <code>DATABASE</code> environment variable to a proper DB URL.</p>
+<p>Local migration (recommended after <code>.env</code> configuration):</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>npm<span class="w"> </span>run<span class="w"> </span>migrate
+</span></code></pre></div>
+<p>In Docker:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yml<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>minicontrol<span class="w"> </span>npm<span class="w"> </span>run<span class="w"> </span>migrate:docker
+</span></code></pre></div>
+<p>Notes:
+- Migrations are applied automatically on startup, but running the scripts manually can help during CI and debugging.
+- For production, prefer a dedicated PostgreSQL / MySQL instance to avoid SQLite file locking and to allow backups.</p>
+<h2 id="plugin-management-plugins-variable">Plugin management &amp; <code>PLUGINS</code> variable</h2>
+<p>By default MINIcontrol discovers plugins under <code>core/plugins/</code> and <code>userdata/plugins/</code>.</p>
+<p><code>PLUGINS</code> is an <strong>inclusive (whitelist)</strong> environment variable: if provided it will only load the listed plugin IDs and their explicitly listed dependencies. If <code>PLUGINS</code> is not set or is empty, the controller will attempt to discover and load all compatible plugins.</p>
+<p>Examples:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>PLUGINS=&quot;admin,announces&quot;
+</span></code></pre></div>
+<p>Use wildcards for nested plugins:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>PLUGINS=&quot;kacky,kacky/*,widgets/records&quot;
+</span></code></pre></div>
+<p>Important: When using <code>PLUGINS</code> explicitly, include required dependencies in the list (e.g., include <code>database</code> if your plugin depends on it); otherwise the resolver will mark the plugin as missing dependencies.</p>
+<p>Examples combining dependencies and wildcards:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>PLUGINS=&quot;database,kacky,kacky/*,widgets/records&quot;
+</span></code></pre></div>
+<p>Setting an empty value has the same effect as not setting <code>PLUGINS</code> at all (all compatible plugins will be loaded):</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>PLUGINS=&quot;&quot;
+</span></code></pre></div>
+<h2 id="managing-the-controller">Managing the controller</h2>
+<ul>
+<li>Start: <code>npm start</code> or <code>docker compose -f docker/compose.yml up -d</code></li>
+<li>Stop: <code>Ctrl+C</code> (local) or <code>docker compose -f docker/compose.yml down</code> (Docker)</li>
+<li>Restart (Docker): <code>docker compose -f docker/compose.yml restart</code></li>
+</ul>
+<p>Use a process manager (systemd, pm2, or Docker) in production for monitoring and restarts.</p>
+<p>Admin CLI commands in-game (as SuperAdmin):
+- <code>//plugins</code> — show plugin manager UI
+- <code>//plugin load &lt;id&gt;</code> — load a plugin
+- <code>//plugin unload &lt;id&gt;</code> — unload a plugin
+- <code>//plugin reload &lt;id&gt;</code> — reload a plugin</p>
+<hr />
+<h2 id="verifying-your-installation">Verifying your installation</h2>
+<ol>
+<li>Ensure the <code>XMLRPC_HOST</code> / port / credentials match your dedicated server.</li>
+<li>Verify that the controller is able to connect and authenticate:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Run the controller and watch logs for successful connection and &#39;Connected to Trackmania Dedicated server.&#39; message</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>npm<span class="w"> </span>start
+</span></code></pre></div>
+<ol>
+<li>Confirm your plugins are loaded: check the <code>//plugins</code> command in-game or <code>tmc.discoverPlugins()</code> in dev console.</li>
+</ol>
+<p>If all else fails, check logs (<code>docker logs</code> or console output), and open an issue with reproduction steps.</p>
+<p>For additional details and examples see:</p>
+<ul>
+<li><a href="../../devs/quickstart-plugin/">Dev: Quickstart plugin</a></li>
+<li><a href="../../devs/class/">Developer docs and class references</a></li>
+</ul>
+<hr />
+<h2 id="example-env-minimal">Example .env (minimal)</h2>
+<p>Copy <code>.env.example</code> and fill values you need. Minimal example for local testing using SQLite:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>XMLRPC_HOST=127.0.0.1
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>XMLRPC_PORT=2350
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>XMLRPC_USER=SuperAdmin
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>XMLRPC_PASS=your_password_here
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>DATABASE=sqlite://userdata/local.sqlite
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>ADMINS=MyLogin
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a># Optional: PLUGINS=&quot;admin,announces&quot;
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>PLUGINS=
+</span></code></pre></div>
+<blockquote>
+<p>Tip: On Windows use PowerShell <code>Copy-Item .env.example .env</code> instead of <code>cp</code></p>
+</blockquote>
+<hr />
+<h2 id="troubleshooting-expanded">Troubleshooting (expanded)</h2>
+<ul>
+<li>Cannot connect / authentication errors: verify <code>XMLRPC_*</code> credentials, service names in Docker (<code>XMLRPC_HOST</code>), and ensure the server accepts XML-RPC connections for your version.</li>
+<li>Plugins not loaded: check <code>PLUGINS</code> whitelist, plugin <code>manifest.json</code> and semver compatibility with <code>requiresMinicontrolVersion</code>.</li>
+<li>DB migration failures: confirm <code>DATABASE</code> URL and run migrations manually (<code>npm run migrate</code> or <code>docker exec</code> into container to run <code>npm run migrate:docker</code>).</li>
+<li><code>SendDisplayManialinkPage</code> or Manialink issues: check <code>uimanager</code> logs for template parsing errors and confirm your server version matches the UI API.</li>
+<li>For permission errors in-game, ensure <code>ADMINS</code> covers the login you are using.</li>
+</ul>
+<p>If the issue persists, please provide logs (console or <code>docker logs</code>) and a copy of your <code>.env</code> with secrets removed.</p>
+<hr />
+<h2 id="production-hints-security">Production hints &amp; security</h2>
+<ul>
+<li>Do not commit <code>.env</code> or secrets to the repository.</li>
+<li>Use a managed DB (Postgres / MySQL) for production and configure backups.</li>
+<li>Use TLS / reverse proxies for HTTP frontends if exposing a UI or webhooks.</li>
+<li>Use a process manager (systemd/pm2) or Docker orchestrator to ensure restarts and log collection.</li>
+</ul>
+<hr />
+<h2 id="getting-help-reporting-issues">Getting help &amp; reporting issues</h2>
+<ul>
+<li>Join our <a href="https://discord.gg/evoesports">Discord server</a> for real-time help and developer discussion.</li>
+<li>Open a bug report or feature request on GitHub: https://github.com/EvoEsports/minicontrol/issues</li>
+<li>Read the developer docs under <code>documentation/devs/</code> for plugin development guidance and API references.</li>
+</ul>
+<hr />
+<h3 id="feedback-contributions">Feedback &amp; contributions</h3>
+<p>If you’d like to contribute improvements (docs, tests, or code), please open an issue before sending a PR — we’ll gladly help you align with the project’s goals.</p>
+<hr />
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/EvoEsports/minicontrol" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
