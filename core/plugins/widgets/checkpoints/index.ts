@@ -45,7 +45,7 @@ export default class Checkpoints extends Plugin {
             widget.recipient = login;
             widget.pos = { x: 0, y: -74, z: 0 };
             widget.size = { width: 20, height: 5 };
-            const text = (tmc.maps.currentMap?.NbCheckpoints || 0) - 1 + " / " + (this.checkpointCounter[login] || 0);
+            const text = (this.checkpointCounter[login] || 0) + " / " + ((tmc.maps.currentMap?.NbCheckpoints || 1) - 1);
             widget.data = {
                 text
             };
