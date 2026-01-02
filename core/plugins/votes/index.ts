@@ -255,7 +255,7 @@ export default class VotesPlugin extends Plugin {
         await tmc.server.call("SetTimeAttackLimit", this.newLimit * 1000); */
         await this.vote(login, true);
         this.widget = new Widget(VoteWidget, "voteWidget");
-        this.widget.pos = { x: 0, y: 60, z: 10 };
+        this.widget.pos = { x: 0, y: 60, z: 0 };
         this.widget.size = { width: 128, height: 28.5 };
         this.widget.actions["yes"] = tmc.ui.addAction(this.vote.bind(this), true);
         this.widget.actions["no"] = tmc.ui.addAction(this.vote.bind(this), false);

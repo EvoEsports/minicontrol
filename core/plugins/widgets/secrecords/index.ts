@@ -26,7 +26,7 @@ export default class SecRecordsWidget extends Plugin {
         const oldRecord: TopRecord = data[3];
         const time = newRecord.time - oldRecord.time;
         let color = "f00";
-        const outTime = formatTime(time);
+        const outTime = formatTime(time, false);
 
         if (time < 0) color = "00f";
         let prefix = "";
