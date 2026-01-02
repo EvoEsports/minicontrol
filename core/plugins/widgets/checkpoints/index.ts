@@ -106,7 +106,7 @@ export default class Checkpoints extends Plugin {
             const player = await tmc.getPlayer(login);
             await this.onPlayerConnect(player);
         }
-        const text = (tmc.maps.currentMap?.NbCheckpoints || 0) - 1 + " / " + (this.checkpointCounter[login] || 0);
+        const text = (this.checkpointCounter[login] || 0) + " / " + ((tmc.maps.currentMap?.NbCheckpoints || 1) - 1);
         this.widgets[login].data = {
             text
         };
