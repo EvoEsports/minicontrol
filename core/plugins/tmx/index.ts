@@ -34,6 +34,8 @@ declare module "@core/plugins" {
     }
 }
 
+const headers: [string, string][] = [["User-Agent", `MINIcontrol v${tmc.version}`]];
+
 export default class Tmx extends Plugin {
     readonly SITE_NAMES = ["TMN", "TMO", "TMS", "TMUF", "TMNF"];
     readonly TM1X_TAGS = [
@@ -85,7 +87,7 @@ export default class Tmx extends Plugin {
     }
 
     getDownloadEndpoint() {
-        return tmc.game.Name === "TmForever" ? "trackgbx/" : "mapgbx/";
+        return tmc.game.Name === "TmForever" ? "trackgbx" : "mapgbx";
     }
 
     async onLoad() {
@@ -120,7 +122,7 @@ export default class Tmx extends Plugin {
         const uuid = tmc.maps.currentMap.UId;
         let type: undefined | string = undefined;
         if (uuid) {
-            if (tmc.game.Name === "TmForever" && tmc.maps.currentMap.Environnement !== "Stadium") {
+            if (tmc.game.Name === "TmForever" && tmc.server.packmask == "United") {
                 type = "TMUF";
             }
             this.getTmxInfo(uuid, type).then((info) => {
@@ -141,7 +143,7 @@ export default class Tmx extends Plugin {
 
         const url = `${this.getBaseUrl()}/${urlPath}?fields=${fields}&name=${query}&count=150`;
 
-        const res = await fetch(url, { keepalive: false });
+        const res = await fetch(url, { headers: headers, keepalive: false });
 
         const json: any = await res.json();
         if (!json) {
@@ -187,7 +189,7 @@ export default class Tmx extends Plugin {
             name: { title: "Name", width: 40 },
             author: { title: "Author", width: 20 },
             tags: { title: "Tags", width: 40 },
-            length: { title: "Length", width: 20,type: "time", align: "center" },
+            length: { title: "Length", width: 20, type: "time", align: "center" },
             awards: { title: "Awards", width: 10, align: "center" },
         });
 
@@ -287,6 +289,9 @@ export default class Tmx extends Plugin {
                 }
                 const id = data[0];
                 let site = "TMNF";
+                if (tmc.server.packmask === "United") {
+                    site = "TMUF";
+                }
                 if (this.SITE_NAMES.includes(data[1].toUpperCase())) {
                     site = data[1].toUpperCase();
                 }
@@ -295,7 +300,10 @@ export default class Tmx extends Plugin {
                 return await this.downloadMap(map, login);
             } else {
                 const id = mapId;
-                const site = "TMNF";
+                let site = "TMNF";
+                if (tmc.server.packmask === "United") {
+                    site = "TMUF";
+                }
                 const baseUrl = this.getBaseUrl(site);
                 const map: Map = { id, baseUrl, site };
                 return await this.downloadMap(map, login);
@@ -335,14 +343,14 @@ export default class Tmx extends Plugin {
         const baseUrl = map.baseUrl;
         const endpoint = this.getDownloadEndpoint();
         const ext = this.getFileExtension();
-        const fileUrl = baseUrl + endpoint + map.id;
+        const fileUrl = `${baseUrl}/${endpoint}/${map.id}`;
 
         let filePath = `tmx/${map.id}`;
         if (map.site) filePath += `_${map.site}`;
         filePath += ext;
         map.filePath = filePath;
 
-        const res = await fetch(fileUrl, { keepalive: false });
+        const res = await fetch(fileUrl, { headers: headers, keepalive: false });
         if (!res) {
             tmc.chat(`Invalid http response for ID ${map.id}`, login);
             throw new Error(`Invalid http response for ID ${map.id}`);
@@ -380,6 +388,9 @@ export default class Tmx extends Plugin {
                 }
                 const id = data[0];
                 let site = "TMNF";
+                if (tmc.server.packmask === "United") {
+                    site = "TMUF";
+                }
                 if (this.SITE_NAMES.includes(data[1].toUpperCase())) {
                     site = data[1].toUpperCase();
                 }
@@ -415,7 +426,7 @@ export default class Tmx extends Plugin {
             return;
         }
 
-        const res = await fetch(url, { keepalive: false });
+        const res = await fetch(url, { headers: headers, keepalive: false });
         const json: any = await res.json();
         tmc.chat(`Processing Map Pack ¤white¤${packId}`);
         if (!json) {
@@ -452,7 +463,7 @@ export default class Tmx extends Plugin {
             const controller = new AbortController();
             const { signal } = controller;
             const timeoutID = setTimeout(() => controller.abort(), 3000);
-            const res = await fetch(url, { keepalive: false, signal: signal });
+            const res = await fetch(url, { headers: headers, keepalive: false, signal: signal });
             clearTimeout(timeoutID);
             if (res.ok === false) return {} as TmxMapInfo;
             const json: any = await res.json();
