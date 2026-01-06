@@ -289,7 +289,7 @@ export default class Tmx extends Plugin {
                 }
                 const id = data[0];
                 let site = "TMNF";
-                if (tmc.server.packmask === "United") {
+                if (tmc.server.packmask !== "Stadium") {
                     site = "TMUF";
                 }
                 if (this.SITE_NAMES.includes(data[1].toUpperCase())) {
@@ -301,7 +301,7 @@ export default class Tmx extends Plugin {
             } else {
                 const id = mapId;
                 let site = "TMNF";
-                if (tmc.server.packmask === "United") {
+                if (tmc.server.packmask !== "Stadium") {
                     site = "TMUF";
                 }
                 const baseUrl = this.getBaseUrl(site);
@@ -388,7 +388,7 @@ export default class Tmx extends Plugin {
                 }
                 const id = data[0];
                 let site = "TMNF";
-                if (tmc.server.packmask === "United") {
+                if (tmc.server.packmask !== "Stadium") {
                     site = "TMUF";
                 }
                 if (this.SITE_NAMES.includes(data[1].toUpperCase())) {
@@ -398,7 +398,10 @@ export default class Tmx extends Plugin {
                 await this.downloadMapPack(id, baseUrl, login, site);
             } else {
                 const id = packId;
-                const site = "TMNF";
+                let site = "TMNF";
+                if (tmc.server.packmask !== "Stadium") {
+                    site = "TMUF";
+                }
                 const baseUrl = this.getBaseUrl(site);
                 await this.downloadMapPack(id, baseUrl, login, site);
             }
@@ -418,9 +421,9 @@ export default class Tmx extends Plugin {
     async downloadMapPack(packId: string, baseUrl: string, login: string, site?: string) {
         let url = baseUrl;
         if (tmc.game.Name === "TmForever") {
-            url += `api/tracks?packid=${packId}&fields=${encodeURIComponent("TrackId,TrackName")}`;
+            url += `/api/tracks?packid=${packId}&fields=${encodeURIComponent("TrackId,TrackName")}`;
         } else if (tmc.game.Name === "ManiaPlanet" || tmc.game.Name === "Trackmania") {
-            url += `api/maps/?mappackid=${packId}&fields=${encodeURIComponent("MapId,GbxMapName")}`;
+            url += `/api/maps/?mappackid=${packId}&fields=${encodeURIComponent("MapId,GbxMapName")}`;
         } else {
             tmc.chat(`¤error¤Game ${tmc.game.Name} is not supported for this command.`);
             return;

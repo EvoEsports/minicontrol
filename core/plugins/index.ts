@@ -34,6 +34,17 @@ export interface IMap {
     MapType: string;
     MapStyle: string;
 }
+export interface IPlayerRanking {
+    Login: string;
+    NickName: string;
+    PlayerId: number;
+    Rank: number;
+    BestTime: number;
+    BestCheckpoints: number[];
+    Score: number;
+    NbrLapsFinished: number;
+    LadderScore: number;
+}
 
 export interface IEntryVal {
     Name: string;
@@ -47,15 +58,15 @@ export interface EventMap {
     'Trackmania.BeginRound': [];
     'Trackmania.BillUpdated': [billId: number, state: number, stateName: string, transactionId: number];
     'Trackmania.Echo': [value1: string, value2: string];
-    'Trackmania.EndMap': [];
+    'Trackmania.EndMap': [map: IMap];
     'Trackmania.EndRound': [];
-    'Trackmania.EndMatch': [map: IMap];
+    'Trackmania.EndMatch': [rankings: IPlayerRanking[], winnerTeam: number];
     'Trackmania.PlayerAlliesChanged': [playerLogin: string];
     'Trackmania.PlayerConnect': [playerLogin: string, isSpectator: boolean, playerUid: number];
-    'Trackmania.PlayerDisconnect': [playerLogin: string, reason: string];
+    'Trackmania.PlayerDisconnect': [playerLogin: string, disconnectReason: string];
     'Trackmania.PlayerCheckpoint': [playerid: number, playerLogin: string, time: number, curLap: number, checkpointIndex: number];
     'Trackmania.PlayerFinish': [playerid: number, playerLogin: string, finishTime: number];
-    'Trackmania.PlayerChat': [playerid: number, playerLogin: string, message: string, isREgisteredCmd: boolean, options: number];
+    'Trackmania.PlayerChat': [playerid: number, playerLogin: string, message: string, isRegisteredCmd: boolean, options: number];
     'Trackmania.PlayerInfoChanged': [playerinfo: IPlayerInfo];
     'Trackmania.PlayerManialinkPageAnswer': [playerid: number, login: string, answer: string, entries: IEntryVal];
     'Trackmania.PlayerIncoherence': [playerid: number, playerLogin: string];
@@ -64,9 +75,11 @@ export interface EventMap {
     'Trackmania.StatusChanged': [statuscode: number, statusName: string];
     'Trackmania.TunnelDataReceived': [playerUid: number, playerLogin: string, data: Buffer];
     'Trackmania.VoteUpdated': [stateName: StateNames, login: string, cmdName: string, cmdParam: string];
-    'Trackmania.LoadData': [type: string, id: string];
-    'Trackmania.SaveData': [type: string, id: string];
+    'ScriptCloud.LoadData': [type: string, id: string];
+    'ScriptCloud.SaveData': [type: string, id: string];
     'Trackmania.MapListModified': [curMapIndex: number, nextMapIndex: number, isListModified: boolean];
+    'Trackmania.ModeScriptCallback': [callbackName: string, param1: string, param2: string];
+    'Trackmania.ModeScriptCallbackArray': [callbackName: string, params: string[]];
     'TMC.MapListModified': [curMapIndex: number, nextMapIndex: number, isListModified: boolean];
     'TMC.SettingsChanged': [];
     'TMC.ColorsChanged': [];
