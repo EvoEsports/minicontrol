@@ -21,6 +21,14 @@ declare module "@core/plugins" {
     }
 }
 
+function getGame(): string {
+    let game = "TMNF";
+    if (tmc.server.packmask !== "Stadium") {
+        game = "TMUF";
+    }
+    return game;
+}
+
 export default class Dedimania extends Plugin {
     enabled = true;
     authError = false;
@@ -126,7 +134,7 @@ export default class Dedimania extends Plugin {
 
             await this.api.call(
                 "dedimania.UpdateServerPlayers",
-                "TMF",
+                getGame(),
                 serverGameMode,
                 {
                     SrvName: serverInfo.Name,
@@ -160,8 +168,9 @@ export default class Dedimania extends Plugin {
 
         this.server = await tmc.server.call("GetDetailedPlayerInfo", this.serverInfo.Login);
         try {
+
             const res: any = await this.api.call("dedimania.Authenticate", {
-                Game: "TMF",
+                Game: getGame(),
                 Login: this.serverLogin,
                 Password: this.pass.toString(),
                 Tool: "MINIcontrol",
@@ -272,7 +281,7 @@ export default class Dedimania extends Plugin {
                 map.Name,
                 map.Environnement,
                 map.Author,
-                "TMF",
+                getGame(),
                 serverGameMode,
                 map.NbCheckpoints,
                 this.maxRank,
@@ -281,28 +290,30 @@ export default class Dedimania extends Plugin {
             tmc.debug("¤info¤Dedimania: Sent scores.");
         } catch (e: any) {
             tmc.cli(`¤error¤Dedimania: ${e.message}`);
-            this.authError = true;
-            try {
-                tmc.cli("¤info¤Dedimania: Error occurred, re-authenticating and retrying...");
-                const authRes = await this.authenticate();
-                if (authRes) {
-                    await this.api.call(
-                        "dedimania.ChallengeRaceTimes",
-                        map.UId,
-                        map.Name,
-                        map.Environnement,
-                        map.Author,
-                        "TMF",
-                        serverGameMode,
-                        map.NbCheckpoints,
-                        this.maxRank,
-                        this.getDedimaniaScores(scores),
-                    );
-                    tmc.cli("¤info¤Dedimania: Scores sent after retry.");
-                    return;
+            if (e.message.includes("Authentication")) {
+                this.authError = true;
+                try {
+                    tmc.cli("¤info¤Dedimania: Error occurred, re-authenticating and retrying...");
+                    const authRes = await this.authenticate();
+                    if (authRes) {
+                        await this.api.call(
+                            "dedimania.ChallengeRaceTimes",
+                            map.UId,
+                            map.Name,
+                            map.Environnement,
+                            map.Author,
+                            getGame(),
+                            serverGameMode,
+                            map.NbCheckpoints,
+                            this.maxRank,
+                            this.getDedimaniaScores(scores),
+                        );
+                        tmc.cli("¤info¤Dedimania: Scores sent after retry.");
+                        return;
+                    }
+                } catch (retryError: any) {
+                    tmc.cli(`¤error¤Dedimania (retry): ${retryError.message}`);
                 }
-            } catch (retryError: any) {
-                tmc.cli(`¤error¤Dedimania (retry): ${retryError.message}`);
             }
         }
     }
@@ -326,7 +337,6 @@ export default class Dedimania extends Plugin {
         // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
         const serverGameMode = await tmc.server.call("GetGameMode");
         const serverInfo = tmc.server.serverOptions;
-
         try {
             const res: any = await this.api.call(
                 "dedimania.CurrentChallenge",
@@ -334,7 +344,7 @@ export default class Dedimania extends Plugin {
                 map.Name,
                 map.Environnement,
                 map.Author,
-                "TMF",
+                getGame(),
                 serverGameMode,
                 {
                     SrvName: serverInfo.Name,
@@ -363,10 +373,12 @@ export default class Dedimania extends Plugin {
             tmc.debug("¤info¤Dedimania: Got records.");
             tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
         } catch (e: any) {
-            this.records = [];
-            this.authError = true;
-            tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
+            if (e.message.includes("Authentication")) {
+                this.authError = true;
+            }
             tmc.cli(`¤error¤Dedimania: ${e.message}`);
+            this.records = [];
+            tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
         }
     }
 
@@ -394,11 +406,13 @@ export default class Dedimania extends Plugin {
             await this.getRecords(map);
         } catch (e: any) {
             tmc.cli(e.message);
-            this.authenticate().then(async (res) => {
-                if (res) {
-                    await this.getRecords(map);
-                }
-            });
+            if (e.message.includes("Authentication")) {
+                this.authenticate().then(async (res) => {
+                    if (res) {
+                        await this.getRecords(map);
+                    }
+                });
+            }
         }
     }
 }
