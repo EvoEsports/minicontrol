@@ -10,7 +10,7 @@ export default function WidgetComponent() {
 
     const records = data.records.map((record, i) => (
         <RecordItem
-            pos={`0 -${i * 3}`}
+            pos={`0 -${i * 3.5}`}
             size={`${width} 3`}
             z-index={pos.z + 1}
             rank={record.rank}

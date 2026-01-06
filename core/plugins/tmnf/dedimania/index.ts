@@ -32,7 +32,7 @@ function getGame(): string {
 export default class Dedimania extends Plugin {
     enabled = true;
     authError = false;
-
+    recordFetchError = false;
     maxRank = 30;
     api: Api = new Api();
     serverLogin = "";
@@ -186,6 +186,7 @@ export default class Dedimania extends Plugin {
             if (res) {
                 this.enabled = true;
                 this.authError = false;
+                this.recordFetchError = false;
                 return true;
             }
         } catch (e: any) {
@@ -212,11 +213,13 @@ export default class Dedimania extends Plugin {
                 Vote: 0,
             };
             this.records.push(record);
-            tmc.server.emit("Plugin.Dedimania.onNewRecord", {
-                oldRecord: null,
-                record: clone(record || {}),
-                records: clone(this.records),
-            });
+            if (!this.recordFetchError) {
+                tmc.server.emit("Plugin.Dedimania.onNewRecord", {
+                    oldRecord: null,
+                    record: clone(record || {}),
+                    records: clone(this.records),
+                });
+            }
             return;
         }
 
@@ -261,11 +264,13 @@ export default class Dedimania extends Plugin {
         this.records = this.records.slice(0, this.maxRank);
 
         if (newRecord.Rank < this.maxRank) {
-            tmc.server.emit("Plugin.Dedimania.onNewRecord", {
-                oldRecord: clone(oldRecord),
-                record: clone(newRecord),
-                records: clone(this.records),
-            });
+            if (!this.recordFetchError) {
+                tmc.server.emit("Plugin.Dedimania.onNewRecord", {
+                    oldRecord: clone(oldRecord),
+                    record: clone(newRecord),
+                    records: clone(this.records),
+                });
+            }
         }
     }
 
@@ -370,6 +375,7 @@ export default class Dedimania extends Plugin {
                 return;
             }
             this.records = res?.Records ?? [];
+            this.recordFetchError = false;
             tmc.debug("¤info¤Dedimania: Got records.");
             tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
         } catch (e: any) {
@@ -378,6 +384,7 @@ export default class Dedimania extends Plugin {
             }
             tmc.cli(`¤error¤Dedimania: ${e.message}`);
             this.records = [];
+            this.recordFetchError = true;
             tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
         }
     }
