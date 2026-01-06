@@ -51,7 +51,11 @@ export default class DedimaniaClient {
                         }
                         for (const method of res[1][0].methods) {
                             if (method.errors !== "") {
-                                return reject(new DediamaniaError(method.errors));
+                                if (!method.errors.includes("Warning")) {
+                                    return reject(new DediamaniaError(method.errors));
+                                } else {
+                                    tmc.debug(`¤warn¤${method.errors}`);
+                                }
                             }
                         }
                         return resolve(res[0][0]);

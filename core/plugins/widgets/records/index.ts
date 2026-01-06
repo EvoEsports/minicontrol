@@ -105,11 +105,7 @@ export default class RecordsWidget extends Plugin {
     async updatePerformanceWidget() {
         if (!this.performanceWidget) {
             const widget = new Widget(undefined);
-            if (tmc.game.Name === "TmForever") {
-                widget.pos = { x: -159, y: 38, z: 0 };
-            } else {
-                widget.pos = { x: 121, y: 30, z: 0 };
-            }
+            widget.pos = { x: 121, y: 30, z: 0 };
             widget.size = { width: 38, height: 45 };
             widget.setOpenAction(this.widgetClick.bind(this));
             this.performanceWidget = widget;
@@ -131,11 +127,7 @@ export default class RecordsWidget extends Plugin {
 
         if (!widget) {
             widget = new Widget(login);
-            if (tmc.game.Name === "TmForever") {
-                widget.pos = { x: -159, y: 38, z: 0 };
-            } else {
-                widget.pos = { x: 121, y: 30, z: 0 };
-            }
+            widget.pos = { x: 121, y: 30, z: 0 };
             widget.size = { width: 38, height: 45 };
             widget.setOpenAction(this.widgetClick.bind(this));
         }
