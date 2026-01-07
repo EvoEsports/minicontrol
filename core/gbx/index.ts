@@ -33,6 +33,7 @@ export class GbxClient {
     };
     private useCounters = process.env.DEBUG_GBX_COUNTERS === "true";
     private counterInterval = 5;
+    private counterIntervalId: ReturnType<typeof setInterval> | null = null;
 
     /**
      * Creates an instance of GbxClient.
@@ -52,7 +53,7 @@ export class GbxClient {
             this.counterInterval = 1;
         }
         if (this.useCounters) {
-            setInterval(() => {
+            this.counterIntervalId = setInterval(() => {
                 const c = this.counters;
                 c.sendKbsec = c.sendKbsec - c.sendKbsecLast;
                 c.receiveKbsec = c.receiveKbsec - c.receiverKbSecLast;
@@ -408,12 +409,8 @@ export class GbxClient {
             }
         });
 
-        // If not waiting for a response, return an empty object.
+        // If not waiting for a response, return immediately without tracking.
         if (!wait) {
-            this.promiseCallbacks[handle] = {
-                resolve: () => {},
-                reject: () => {},
-            };
             return {};
         }
 
@@ -444,7 +441,26 @@ export class GbxClient {
      * @memberof GbxClient
      */
     async disconnect(): Promise<true> {
+        // Clear counter interval
+        if (this.counterIntervalId) {
+            clearInterval(this.counterIntervalId);
+            this.counterIntervalId = null;
+        }
+
+        // Reject all pending promises to prevent memory leaks
+        for (const handle of Object.keys(this.promiseCallbacks)) {
+            try {
+                this.promiseCallbacks[handle].reject(new Error("Disconnected"));
+            } catch { /* ignore */ }
+        }
+        this.promiseCallbacks = {};
+
+        // Clear receive buffer
+        this.recvData = Buffer.from([]);
+        this.responseLength = null;
+
         this.socket?.destroy();
+        this.socket = null;
         this.isConnected = false;
         this.server.onDisconnect("disconnect");
         return true;

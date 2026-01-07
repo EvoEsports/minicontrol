@@ -47,8 +47,6 @@ export default class Server {
     events: EventEmitter = new EventEmitter();
     /** @ignore */
     methodOverrides: { [key: string]: CallableFunction } = {};
-    /** @ignore */
-    scriptCalls: { [key: string]: Promise<unknown> } = {};
 
     login = "";
     name = "";
@@ -181,6 +179,21 @@ export default class Server {
         delete this.methodOverrides[method];
     }
 
+    /**
+     * clears all method overrides - useful for cleanup
+     */
+    clearOverrides() {
+        this.methodOverrides = {};
+    }
+
+    /**
+     * checks if a method has an override
+     * @param method method to check
+     */
+    hasOverride(method: string): boolean {
+        return method in this.methodOverrides;
+    }
+
     addListener(method: string, callback: any, obj: object) {
         const wrapper = callback.bind(obj);
         wrapper.listener = callback;
@@ -262,15 +275,26 @@ export default class Server {
                 }
 
                 this.gbx.sendScript(method, ...args, uid);
-                const timeout = setTimeout(() => {
-                    reject(new Error(`Script call to ${method} timed out after 5 seconds`));
-                }, 5000);
-                this.events.on(method.replace("Get", ""), (result: any) => {
+                const eventName = method.replace("Get", "");
+                let resolved = false;
+
+                const listener = (result: any) => {
                     if (result.responseid === uid) {
+                        resolved = true;
                         clearTimeout(timeout);
+                        this.events.removeListener(eventName, listener);
                         resolve(result);
                     }
-                });
+                };
+
+                const timeout = setTimeout(() => {
+                    if (!resolved) {
+                        this.events.removeListener(eventName, listener);
+                        reject(new Error(`Script call to ${method} timed out after 5 seconds`));
+                    }
+                }, 5000);
+
+                this.events.on(eventName, listener);
             } catch (e: any) {
                 reject(e);
             }

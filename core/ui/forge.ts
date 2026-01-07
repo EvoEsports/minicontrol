@@ -138,6 +138,9 @@ export function setScript(effect: () => string | (() => void), deps?: any[]) {
     const changed = !prevDeps || !deps || prevDeps.length !== deps.length || deps.some((d, i) => d !== prevDeps[i]);
     hook.deps = deps;
     if (changed) {
+        // Run cleanup before replacing the effect to prevent memory leaks
+        try { hook.cleanup?.(); } catch (e) { console.error(e); }
+        hook.cleanup = undefined;
         hook.effect = effect;
         hook.pending = true;
     }
@@ -152,6 +155,9 @@ export function setScriptHeader(effect: () => string | (() => void), deps?: any[
     const changed = !prevDeps || !deps || prevDeps.length !== deps.length || deps.some((d, i) => d !== prevDeps[i]);
     hook.headerDeps = deps;
     if (changed) {
+        // Run cleanup before replacing the header effect to prevent memory leaks
+        try { hook.cleanup?.(); } catch (e) { console.error(e); }
+        hook.cleanup = undefined;
         hook.headerEffect = effect;
         hook.headerPending = true;
     }
@@ -169,6 +175,37 @@ export function disposeScript(rootId = 'default') {
         try { h.cleanup?.(); } catch (e) { console.error(e); }
     }
     roots.delete(rootId);
+}
+
+/** Dispose all roots and their hooks - useful for shutdown/cleanup */
+export function clearAllRoots() {
+    for (const [rootId, root] of roots) {
+        for (const h of root.hooks) {
+            try { h.cleanup?.(); } catch (e) { console.error(e); }
+        }
+    }
+    roots.clear();
+}
+
+/** Clear all registered components - useful for plugin cleanup */
+export function clearAllComponents() {
+    components.clear();
+}
+
+/** Trim hooks array to current hook count - call after render to free unused hooks */
+export function trimHooks(root: { hooks: Hook[] }, count: number) {
+    if (root.hooks.length > count) {
+        // Run cleanup on hooks being removed
+        for (let i = count; i < root.hooks.length; i++) {
+            try { root.hooks[i]?.cleanup?.(); } catch (e) { console.error(e); }
+        }
+        root.hooks.length = count;
+    }
+}
+
+/** Get current hook index - useful for trimming after render */
+export function getCurrentHookIndex(): number {
+    return hookIndex;
 }
 
 export function renderJsx(element: any, zOffset: number = 0): string {
@@ -203,7 +240,29 @@ export function renderJsx(element: any, zOffset: number = 0): string {
 
         const compProps = rawProps;
         const ownZ = Number((compProps as any)["z-index"]) || 0;
-        return renderJsx(type(compProps), ownZ + zOffset); // Component
+
+        const root = currentRoot; // Capture hooks added by this component (Parent)
+        const startIdx = root ? root.hooks.length : 0;
+
+        const renderedComponent = type(compProps);
+
+        const midIdx = root ? root.hooks.length : 0;
+
+        // Recursively render children (which adds Children hooks)
+        const resultStr = renderJsx(renderedComponent, ownZ + zOffset);
+
+        if (root && midIdx > startIdx) {
+            const endIdx = root.hooks.length;
+            // If hooks were added by both parent (start->mid) and children (mid->end),
+            // move Parent hooks to the end of the list.
+            if (endIdx > midIdx) {
+                const parentHooks = root.hooks.slice(startIdx, midIdx);
+                const childHooks = root.hooks.slice(midIdx, endIdx);
+                // Replace the whole range [start, end] with [childHooks, parentHooks]
+                root.hooks.splice(startIdx, endIdx - startIdx, ...childHooks, ...parentHooks);
+            }
+        }
+        return resultStr;
     }
 
     let { children = [], ...attrs } = props || {};

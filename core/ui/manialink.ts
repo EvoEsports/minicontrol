@@ -1,5 +1,5 @@
 import type IManialink from "./interfaces/imanialink";
-import { renderJsx, roots, setHookIndex, setCurrentRoot, disposeScript } from "./forge";
+import { renderJsx, roots, setHookIndex, setCurrentRoot, disposeScript, trimHooks, getCurrentHookIndex } from "./forge";
 import type { ColorKey, FontKey } from "@core/settingsmanager";
 
 export interface MlSize {
@@ -118,9 +118,28 @@ export default class Manialink implements IManialink {
         setCurrentRoot(root);
         setHookIndex(0);
 
-        let jsx = renderJsx(this._jsxComponent());
+        let jsx: string;
+        let finalHookCount: number;
+        try {
+            const startIdx = root.hooks.length;
+            const componentElement = this._jsxComponent();
+            const midIdx = root.hooks.length;
 
-        setCurrentRoot(null);
+            jsx = renderJsx(componentElement);
+
+            const endIdx = root.hooks.length;
+
+            // If the root component wrapper added hooks, move them to the end (after children)
+            if (midIdx > startIdx && endIdx > midIdx) {
+                const parentHooks = root.hooks.slice(startIdx, midIdx);
+                const childHooks = root.hooks.slice(midIdx, endIdx);
+                root.hooks.splice(startIdx, endIdx - startIdx, ...childHooks, ...parentHooks);
+            }
+
+            finalHookCount = getCurrentHookIndex();
+        } finally {
+            setCurrentRoot(null);
+        }
 
         // Commit phase: run pending header effects first and save header strings
         for (const hook of root.hooks) {
@@ -141,7 +160,6 @@ export default class Manialink implements IManialink {
             }
         }
 
-
         // Commit phase: run pending effects and save cleanups or script strings
         for (const hook of root.hooks) {
             if (hook.pending && hook.effect) {
@@ -161,12 +179,15 @@ export default class Manialink implements IManialink {
             }
         }
 
+        // Trim excess hooks from previous renders to prevent memory leaks
+        trimHooks(root, finalHookCount);
+
         const headersArray = root.hooks.map(h => h.header).filter(Boolean);
-        const uniqueHeaders = Array.from(new Set(headersArray)).toReversed();
+        const uniqueHeaders = Array.from(new Set(headersArray));
         const headers = uniqueHeaders.join('\n');
 
         const scriptsArray = root.hooks.map(h => h.script).filter(Boolean);
-        const uniqueScripts = Array.from(new Set(scriptsArray)).toReversed();
+        const uniqueScripts = Array.from(new Set(scriptsArray));
         const scripts = uniqueScripts.join('\n');
         let combinedScripts = "";
         if (headers.trim() !== "" || scripts.trim() !== "") {
@@ -258,7 +279,8 @@ export default class Manialink implements IManialink {
         const output = `<manialink version="3" id="${this.id}" layer="${this.layer}" name="${this.name}">
         ${jsx}
         ${tmc.game.Name !== "TmForever" ? combinedScripts : ""}
-   </manialink>`;
+</manialink>`;
+
         return output;
     }
 
