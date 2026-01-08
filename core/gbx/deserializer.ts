@@ -64,7 +64,7 @@ export default class Deserializer {
                 error.faultString = fault.faultString;
                 this.callback(error);
             } else {
-                this.callback(null, this.stack);
+                this.callback(null, this.stack.slice());
             }
         }
     }

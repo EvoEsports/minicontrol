@@ -34,8 +34,8 @@ export class GbxClient {
     private counterInterval = 5;
     private counterIntervalId: ReturnType<typeof setInterval> | null = null;
     // Reusable deserializers to avoid creating new instances for each message
-    private Deserializer = new ReusableDeserializer();
-
+    private callbackDeserializer = new ReusableDeserializer();
+    private methodDeserializer = new ReusableDeserializer();
     /**
      * Creates an instance of GbxClient.
      * @memberof GbxClient
@@ -208,7 +208,7 @@ export class GbxClient {
                         const cb = this.promiseCallbacks[requestHandle];
                         if (cb) {
                             // Use reusable deserializer for method responses
-                            const deserializer = this.Deserializer;
+                            const deserializer = this.methodDeserializer;
                             deserializer.parse(xmlPayload, (error, result) => {
                                 if (error) {
                                     cb.resolve([undefined, error]);
@@ -227,7 +227,7 @@ export class GbxClient {
                     } else {
                         if (this.useCounters) this.counters.callbackReceived++;
                         // Use reusable deserializer for method calls (callbacks from server)
-                        const deserializer = this.Deserializer;
+                        const deserializer = this.callbackDeserializer;
                         deserializer.parse(xmlPayload, (error, result) => {
                             if (error) {
                                 if (this.options.showErrors) console.error(error);
@@ -437,7 +437,7 @@ export class GbxClient {
             ) {
                 this.socket?.once("drain", resolve);
             } else {
-                setImmediate(resolve);
+                process.nextTick(resolve);
             }
         });
 

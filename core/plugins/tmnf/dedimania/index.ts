@@ -22,9 +22,9 @@ declare module "@core/plugins" {
 }
 
 function getGame(): string {
-    let game = "TMNF";
+    let game = "TMF";
     if (tmc.server.packmask !== "Stadium") {
-        game = "TMUF";
+        game = "TMU";
     }
     return game;
 }
@@ -165,8 +165,8 @@ export default class Dedimania extends Plugin {
      */
     async authenticate(): Promise<boolean> {
         if (!this.enabled) return false;
-
         this.server = await tmc.server.call("GetDetailedPlayerInfo", this.serverInfo.Login);
+
         try {
 
             const res: any = await this.api.call("dedimania.Authenticate", {
@@ -295,7 +295,7 @@ export default class Dedimania extends Plugin {
             tmc.debug("¤info¤Dedimania: Sent scores.");
         } catch (e: any) {
             tmc.cli(`¤error¤Dedimania: ${e.message}`);
-            if (e.message.includes("Authentication")) {
+            if (e.message.includes("Not Authenticated")) {
                 this.authError = true;
                 try {
                     tmc.cli("¤info¤Dedimania: Error occurred, re-authenticating and retrying...");
