@@ -405,7 +405,7 @@ export default class SettingsManager {
         this.save();
         this.fonts[key] = newValue;
         if (this.callbacks[`font.${key}`]) {
-            await this.callbacks[`font.${key}`](newValue, oldValue, key);
+            await this.callbacks[`font.${key}`]?.(newValue, oldValue, key);
         }
         tmc.server.emit("TMC.FontsChanged", {});
     }

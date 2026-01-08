@@ -71,9 +71,12 @@ export default class Window extends Manialink implements IWindow {
         --></script>
     </manialink>
 </manialinks>`;
-        await tmc.server.call('SendDisplayManialinkPageToLogin', this.recipient, xml, 500, false);
-        super.destroy();
+        try {
+            await tmc.server.call('SendDisplayManialinkPageToLogin', this.recipient, xml, 500, false);
+        } catch (e) {
+            // Log but continue with cleanup
+            console.error('Failed to send window cleanup:', e);
+        }
+        await super.destroy();
     }
-
-
 }

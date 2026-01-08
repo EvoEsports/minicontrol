@@ -30,6 +30,9 @@ export default class Widget extends Manialink implements IWidget {
     }
 
     setOpenAction(action: ActionCallback) {
+        if (this.actions.openWidget) {
+            tmc.ui.removeAction(this.actions.openWidget);
+        }
         this.actions.openWidget = tmc.ui.addAction(action, null);
     }
 

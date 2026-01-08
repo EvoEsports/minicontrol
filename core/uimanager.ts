@@ -4,6 +4,14 @@ import { chunkArray, parseEntries } from "./utils";
 import type IManialink from "@core/ui/interfaces/imanialink";
 import Manialink from "@core/ui/manialink.ts";
 
+// Module-level regex patterns - created once, reused
+const TAG_REGEX = /<([a-zA-Z0-9_-]+)([^>]*)>/g;
+const Z_INDEX_REGEX = /\bz-index\s*=\s*(['"])(-?\d+(?:\.\d+)?)\1/;
+const POS_REGEX = /\bpos\s*=\s*(['"])(.*?)\1/g;
+const SIZE_REGEX = /\bsize\s*=\s*(['"])(.*?)\1/g;
+const Z_INDEX_REMOVE_REGEX = /\s*z-index\s*=\s*(['"])(-?\d+(?:\.\d+)?)\1/g;
+const NUMERIC_REGEX = /^-?([.\d]+)?$/;
+
 
 export interface uiModule {
     id: string;
@@ -38,6 +46,8 @@ export default class UiManager {
     private hiddenManialinks: string[] = [];
     private uiProperties: uiModule[] = [];
     private tagHandlers: Map<string, ComponentFunction> = new Map();
+    // cached global manialink action ID
+    private globalActionId: string | null = null;
 
     tmnfCustomUi: CustomUI = {
         notice: false,
@@ -58,7 +68,7 @@ export default class UiManager {
      */
     async init() {
         tmc.server.addListener("Trackmania.PlayerManialinkPageAnswer", this.onManialinkAnswer, this);
-        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
         tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
         if (tmc.game.Name === "Trackmania") {
             await this.getUiProperties();
@@ -133,32 +143,32 @@ export default class UiManager {
      */
     private convertLine(line: string): string {
         // Process each tag separately so we only use/remove z-index that belongs to that tag.
-        const tagRegex = /<([a-zA-Z0-9_-]+)([^>]*)>/g;
+        TAG_REGEX.lastIndex = 0;  // Reset regex state for reuse
         let out = line;
         let tagMatch: RegExpExecArray | null;
-        while ((tagMatch = tagRegex.exec(line)) !== null) {
+        while ((tagMatch = TAG_REGEX.exec(line)) !== null) {
             const fullTag = tagMatch[0];
             const attrs = tagMatch[2]; // attributes text including leading space
 
             // find tag-local z-index if present (supports single or double quotes)
-            const zMatch = attrs.match(/\bz-index\s*=\s*(['"])(-?\d+(?:\.\d+)?)\1/);
+            const zMatch = attrs.match(Z_INDEX_REGEX);
             const zFromAttr = zMatch ? zMatch[2] : undefined;
 
             let newAttrs = attrs;
 
             // Replace pos attributes (supports single/double quotes, works regardless of order)
-            newAttrs = newAttrs.replace(/\bpos\s*=\s*(['"])(.*?)\1/g, (_m, _q, raw) => {
+            POS_REGEX.lastIndex = 0;
+            newAttrs = newAttrs.replace(POS_REGEX, (_m, _q, raw) => {
                 const parts = raw.trim().split(/\s+/);
                 const xStr = parts[0] ?? "";
                 const yStr = parts[1] ?? "";
                 const zStr = parts[2];
-                const isNumeric = (s: string) => /^-?([\.\d]+)?$/.test(s);
-                if (isNumeric(xStr) && isNumeric(yStr)) {
+                if (NUMERIC_REGEX.test(xStr) && NUMERIC_REGEX.test(yStr)) {
                     const x = (Number.parseFloat(xStr) / 160) * 64;
                     const y = (Number.parseFloat(yStr) / 90) * 48;
                     let zVal = 0;
-                    if (zStr !== undefined && isNumeric(zStr)) zVal = Number.parseFloat(zStr);
-                    else if (zFromAttr !== undefined && isNumeric(zFromAttr)) zVal = Number.parseFloat(zFromAttr);
+                    if (zStr !== undefined && NUMERIC_REGEX.test(zStr)) zVal = Number.parseFloat(zStr);
+                    else if (zFromAttr !== undefined && NUMERIC_REGEX.test(zFromAttr)) zVal = Number.parseFloat(zFromAttr);
                     return ` posn="${x.toFixed(3)} ${y.toFixed(3)} ${zVal.toFixed(3)}"`;
                 } else {
                     let zPart = "";
@@ -169,12 +179,12 @@ export default class UiManager {
             });
 
             // Replace size attributes (supports single/double quotes)
-            newAttrs = newAttrs.replace(/\bsize\s*=\s*(['"])(.*?)\1/g, (_m, _q, raw) => {
+            SIZE_REGEX.lastIndex = 0;
+            newAttrs = newAttrs.replace(SIZE_REGEX, (_m, _q, raw) => {
                 const parts = raw.trim().split(/\s+/);
                 const xStr = parts[0] ?? "";
                 const yStr = parts[1] ?? "";
-                const isNumeric = (s: string) => /^-?([\.\d]+)?$/.test(s);
-                if (isNumeric(xStr) && isNumeric(yStr)) {
+                if (NUMERIC_REGEX.test(xStr) && NUMERIC_REGEX.test(yStr)) {
                     const x = (Number.parseFloat(xStr) / 160) * 64;
                     const y = (Number.parseFloat(yStr) / 90) * 48;
                     return ` sizen="${x.toFixed(3)} ${y.toFixed(3)}"`;
@@ -184,7 +194,8 @@ export default class UiManager {
             });
 
             // remove the tag-local z-index (we moved it into posn if needed)
-            newAttrs = newAttrs.replace(/\s*z-index\s*=\s*(['"])(-?\d+(?:\.\d+)?)\1/g, "");
+            Z_INDEX_REMOVE_REGEX.lastIndex = 0;
+            newAttrs = newAttrs.replace(Z_INDEX_REMOVE_REGEX, "");
 
             // Replace the attributes section in the original tag with the new attributes
             const newTag = fullTag.replace(attrs, newAttrs);
@@ -202,11 +213,11 @@ export default class UiManager {
         if (tmc.game.Name !== "TmForever") return text;
 
         const lines = text.split("\n");
-        let out = "";
+        const result: string[] = new Array(lines.length);
         for (let i = 0; i < lines.length; i++) {
-            out += this.convertLine(lines[i]);
+            result[i] = this.convertLine(lines[i]);
         }
-        return out;
+        return result.join("");
     }
 
     /**
@@ -306,8 +317,8 @@ export default class UiManager {
     }
 
     /** @ignore */
-    private async onPlayerConnect(data: any) {
-        const login = data[0];
+    private async onPlayerConnect(player: any) {
+        const login = player.login;
 
         const multi = [["SendDisplayManialinkPage", this.convert(this.getGlobalManialink()), 0, false]];
         for (const manialink of Object.values(this.publicManialinks)) {
@@ -322,7 +333,7 @@ export default class UiManager {
             const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
             multi.push(["SendDisplayManialinkPageToLogin", login, xml, manialink.displayDuration, false]);
         }
-        tmc.server.multicall(multi);
+        await tmc.server.multicall(multi);
 
         if (tmc.game.Name === "TmForever") {
             this.sendTmnfCustomUI();
@@ -339,11 +350,14 @@ export default class UiManager {
 
         if (!this.playerManialinks[login]) return;
 
+        // Destroy all manialinks for this player
+        // destroyManialink will handle cleaning up references and removing from playerManialinks
         for (const manialink of Object.values(this.playerManialinks[login])) {
-            const id = manialink.id;
-            manialink.destroy();
-            delete this.playerManialinks[login][id];
+            await manialink.destroy();
         }
+
+        // Clean up the player's manialink container if it still exists
+        delete this.playerManialinks[login];
     }
 
     /**
@@ -550,8 +564,7 @@ export default class UiManager {
      */
     async refreshManialink(manialink: IManialink) {
         const render = await manialink.render();
-        const xml = `<?xml version="1.0" encoding="UTF-8"?>
-        <manialinks>${this.convert(render)}</manialinks>`;
+        const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
             if (!this.hiddenManialinks.includes(manialink.recipient) || !manialink.canHide) {
                 tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, manialink.displayDuration, false);
@@ -676,34 +689,39 @@ export default class UiManager {
     }
 
     getGlobalManialink() {
-        const action = this.addAction(async (login: string, _data: any) => {
-            if (!this.hiddenManialinks.includes(login)) {
-                this.hiddenManialinks.push(login);
-                let hide = '<?xml version="1.0" encoding="UTF-8"?><manialinks>';
-                for (const manialink of Object.values(this.publicManialinks)) {
-                    if (manialink.canHide) {
-                        hide += `<manialink id="${manialink.id}"></manialink>`;
+        // Cache the action ID to avoid creating new actions on every call
+        if (!this.globalActionId) {
+            this.globalActionId = this.addAction(async (login: string, _data: any) => {
+                if (!this.hiddenManialinks.includes(login)) {
+                    this.hiddenManialinks.push(login);
+                    const hideIds: string[] = [];
+                    for (const manialink of Object.values(this.publicManialinks)) {
+                        if (manialink.canHide) {
+                            hideIds.push(`<manialink id="${manialink.id}"></manialink>`);
+                        }
                     }
-                }
-                for (const manialink of Object.values(this.playerManialinks[login])) {
-                    if (manialink.canHide) {
-                        hide += `<manialink id="${manialink.id}"></manialink>`;
+                    if (this.playerManialinks[login]) {
+                        for (const manialink of Object.values(this.playerManialinks[login])) {
+                            if (manialink.canHide) {
+                                hideIds.push(`<manialink id="${manialink.id}"></manialink>`);
+                            }
+                        }
                     }
+                    const hide = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${hideIds.join("")}</manialinks>`;
+                    tmc.server.send("SendDisplayManialinkPageToLogin", login, hide, 0, false);
+                } else {
+                    this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
+                    await this.onPlayerConnect([login]);
                 }
-                hide += "</manialinks>";
-                tmc.server.send("SendDisplayManialinkPageToLogin", login, hide, 0, false);
-            } else {
-                this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
-                await this.onPlayerConnect([login]);
-            }
-        }, null);
+            }, null);
+        }
 
         return `
         <?xml version="1.0" encoding="UTF-8"?>
         <manialinks>
         <manialink id="1" version="3">
             <frame pos="900 900" z-index="1">
-                <label pos="0 0" size="0 0" valign="center2" halign="center" textsize="0.5" textcolor="fff" text=" " focusareacolor1="0000" focusareacolor2="0000" actionkey="3" action="${action}"/>
+                <label pos="0 0" size="0 0" valign="center2" halign="center" textsize="0.5" textcolor="fff" text=" " focusareacolor1="0000" focusareacolor2="0000" actionkey="3" action="${this.globalActionId}"/>
             </frame>
         </manialink>
         </manialinks>`;

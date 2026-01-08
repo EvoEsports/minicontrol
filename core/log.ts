@@ -77,63 +77,61 @@ export function Tm2Console(input: string, ansiLevel = 0) {
         }[0m`;
 }
 
-class log {
-    ansiLevel = 0;
-    formatter: (str: string) => string; // function to convert color codes to ANSI/stripped text based on ANSILEVEL
-    constructor() {
-        this.ansiLevel = Number.parseInt(process.env.ANSILEVEL || "0");
-        const path = `${process.cwd()}/userdata/log/`;
-        try {
-            if (!existsSync(path)) mkdirSync(path);
-        } catch (e: any) {
-            console.log(e.message);
-            process.exit(1);
-        }
-        // initialize the formatter function according to ansi level once
-        if (this.ansiLevel === 0) this.formatter = (s) => removeColors(s);
-        else if (this.ansiLevel === 1) this.formatter = (s) => Tm2Console(s, 1);
-        else this.formatter = (s) => Tm2Console(s, 2);
-    }
+// Initialize log directory on module load
+const logPath = `${process.cwd()}/userdata/log/`;
+try {
+    if (!existsSync(logPath)) mkdirSync(logPath);
+} catch (e: any) {
+    console.log(e.message);
+    process.exit(1);
+}
 
-    debug(str: string) {
-        console.log(this.formatter(str));
-        // write debug messages to disk only when WRITELOG + DEBUG are enabled
-        if (process.env.WRITELOG?.toLowerCase() === "true" && process.env.DEBUG === "true") {
-            this.writeLog(str, "DEBUG");
-        }
-    }
+// Cache ansi level and formatter at module load
+const ansiLevel = Number.parseInt(process.env.ANSILEVEL || "0");
+const formatter: (str: string) => string =
+    ansiLevel === 0 ? (s) => removeColors(s) :
+    ansiLevel === 1 ? (s) => Tm2Console(s, 1) :
+    (s) => Tm2Console(s, 2);
 
-    info(str: string) {
-        const date = new Date();
-        const message = `$888[${date.toISOString()}] $z${str}`;
-        console.log(this.formatter(message));
-        this.writeLog(str, "INFO");
-    }
-
-    warn(str: string) {
-        console.log(this.formatter(str));
-        this.writeLog(str, "WARN");
-    }
-
-    error(str: string) {
-        console.log(this.formatter(str));
-        this.writeLog(str, "ERROR");
-    }
-
-    writeLog(message: string, level: "INFO" | "WARN" | "ERROR" | "DEBUG" = "INFO") {
-        if (process.env.WRITELOG?.toLowerCase() !== "true") return;
-        const date = new Date();
-        // ISO date in filename (YYYY-MM-DD) standard
-        const fileDate = date.toISOString().slice(0, 10);
-        const file = `${fileDate}_console.log`;
-        // Compose a standardized line: timestamp level message
-        const line = `${date.toISOString()} [${level}] ${removeColors(message)}\n`;
-        try {
-            appendFileSync(`${process.cwd()}/userdata/log/${file}`, line, { encoding: "utf-8" });
-        } catch (err: any) {
-            /* ignore */
-        }
+function writeLog(message: string, level: "INFO" | "WARN" | "ERROR" | "DEBUG" = "INFO") {
+    if (process.env.WRITELOG?.toLowerCase() !== "true") return;
+    const date = new Date();
+    // ISO date in filename (YYYY-MM-DD) standard
+    const fileDate = date.toISOString().slice(0, 10);
+    const file = `${fileDate}_console.log`;
+    // Compose a standardized line: timestamp level message
+    const line = `${date.toISOString()} [${level}] ${removeColors(message)}\n`;
+    try {
+        appendFileSync(`${process.cwd()}/userdata/log/${file}`, line, { encoding: "utf-8" });
+    } catch (err: any) {
+        /* ignore */
     }
 }
 
-export default new log();
+export function debug(str: string) {
+    console.log(formatter(str));
+    // write debug messages to disk only when WRITELOG + DEBUG are enabled
+    if (process.env.WRITELOG?.toLowerCase() === "true" && process.env.DEBUG === "true") {
+        writeLog(str, "DEBUG");
+    }
+}
+
+export function info(str: string) {
+    const date = new Date();
+    const message = `$888[${date.toISOString()}] $z${str}`;
+    console.log(formatter(message));
+    writeLog(str, "INFO");
+}
+
+export function warn(str: string) {
+    console.log(formatter(str));
+    writeLog(str, "WARN");
+}
+
+export function error(str: string) {
+    console.log(formatter(str));
+    writeLog(str, "ERROR");
+}
+
+// Default export for backward compatibility
+export default { debug, info, warn, error };

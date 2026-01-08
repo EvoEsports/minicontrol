@@ -1,7 +1,6 @@
 import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
 import Widget from "@core/plugins/widgets/records/recordsWidget";
-import { formatTime } from "@core/utils";
 
 export default class RecordsWidget extends Plugin {
     widgets: { [key: string]: Widget } = {};
@@ -55,7 +54,7 @@ export default class RecordsWidget extends Plugin {
 
         this.updateWidget(login);
         if (this.widgets[login]) {
-            tmc.ui.displayManialink(this.widgets[login]);
+            await tmc.ui.displayManialink(this.widgets[login]);
         }
     }
 
@@ -99,7 +98,7 @@ export default class RecordsWidget extends Plugin {
             this.updateWidget(login);
         }
 
-        tmc.ui.displayManialinks(Object.values(this.widgets));
+        await tmc.ui.displayManialinks(Object.values(this.widgets));
     }
 
     async updatePerformanceWidget() {
@@ -111,7 +110,7 @@ export default class RecordsWidget extends Plugin {
             this.performanceWidget = widget;
         }
 
-        const records = tmc.getPlugin("records").records;
+        const records = [...tmc.getPlugin("records").records];
         const outRecords = records.slice(0, 10).map((r: any) => (r && typeof r.toJSON === 'function' ? r.toJSON() : r));
         this.performanceWidget.setData({ records: outRecords, game: tmc.game.Name });
         this.performanceWidget.size.height = 4 * outRecords.length + 5;
@@ -131,7 +130,7 @@ export default class RecordsWidget extends Plugin {
             widget.size = { width: 38, height: 45 };
             widget.setOpenAction(this.widgetClick.bind(this));
         }
-        const records = tmc.getPlugin("records").records;
+        const records = [...tmc.getPlugin("records").records];
 
         outRecords = records.slice(0, 5);
         this.myIndex = records.findIndex((val: any) => val.login === login);
@@ -146,9 +145,6 @@ export default class RecordsWidget extends Plugin {
         if (addRecords) {
             outRecords = [...outRecords, ...records.slice(5, 10)];
         }
-
-        // Convert Sequelize model instances to plain objects so includes like `player` are present
-        outRecords = outRecords.map((r: any) => (r && typeof r.toJSON === "function" ? r.toJSON() : r));
 
         widget.setData({ myRank: this.myIndex, records: outRecords });
         widget.size.height = 4 * outRecords.length + 5;

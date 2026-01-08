@@ -1,9 +1,8 @@
 import { Buffer } from "node:buffer";
 import { Socket } from "node:net";
 import type Server from "../../core/server";
-import { Readable } from "node:stream";
 import Serializer from "xmlrpc/lib/serializer.js";
-import Deserializer from "xmlrpc/lib/deserializer.js";
+import ReusableDeserializer from "./deserializer";
 
 export class GbxClient {
     isConnected: boolean;
@@ -31,9 +30,11 @@ export class GbxClient {
         receiveKbsec: 0,
         receiverKbSecLast: 0,
     };
-    private useCounters = process.env.DEBUG_GBX_COUNTERS === "true";
+    private useCounters = true;
     private counterInterval = 5;
     private counterIntervalId: ReturnType<typeof setInterval> | null = null;
+    // Reusable deserializers to avoid creating new instances for each message
+    private Deserializer = new ReusableDeserializer();
 
     /**
      * Creates an instance of GbxClient.
@@ -158,23 +159,26 @@ export class GbxClient {
             this.recvData = Buffer.concat([this.recvData, data]);
         }
 
+        // Track how much we've consumed to compact buffer at the end
+        let offset = 0;
+
         // Process all complete messages present in recvData.
         while (true) {
             // If we haven't read the header yet, do so.
             if (this.responseLength === null) {
                 // Need at least 4 bytes for the header.
-                if (this.recvData.length < 4) break;
-                this.responseLength = this.recvData.readUInt32LE(0);
+                if (this.recvData.length - offset < 4) break;
+                this.responseLength = this.recvData.readUInt32LE(offset);
                 if (this.isConnected) this.responseLength += 4;
-                this.recvData = this.recvData.subarray(4);
+                offset += 4;
             }
 
             // Wait until the full message is available.
-            if (this.responseLength && this.recvData.length >= this.responseLength) {
-                const message = this.recvData.subarray(0, this.responseLength);
+            if (this.responseLength && this.recvData.length - offset >= this.responseLength) {
+                const message = this.recvData.subarray(offset, offset + this.responseLength);
                 if (this.useCounters) this.counters.receiveKbsec += this.responseLength / 1024;
 
-                this.recvData = this.recvData.subarray(this.responseLength);
+                offset += this.responseLength;
                 // Reset state for the next message.
                 this.responseLength = null;
 
@@ -195,27 +199,44 @@ export class GbxClient {
                     }
                 } else {
                     // Processing regular messages.
-                    const deserializer = new Deserializer("utf-8");
-
                     // The first 4 bytes in the message represent the request handle.
                     const requestHandle = message.readUInt32LE(0);
-                    const readable = Readable.from(message.subarray(4));
+                    const xmlPayload = message.subarray(4).toString("utf-8");
+
                     if (requestHandle >= 0x80000000) {
                         if (this.useCounters) this.counters.methodsReceive++;
                         const cb = this.promiseCallbacks[requestHandle];
                         if (cb) {
-                            deserializer.deserializeMethodResponse(readable, async (err: any, res: any) => {
-                                cb.resolve([res, err]);
+                            // Use reusable deserializer for method responses
+                            const deserializer = this.Deserializer;
+                            deserializer.parse(xmlPayload, (error, result) => {
+                                if (error) {
+                                    cb.resolve([undefined, error]);
+                                } else if (result!.length > 1) {
+                                    cb.resolve([undefined, new Error('Response has more than one param')]);
+                                } else if (deserializer.type !== 'methodresponse') {
+                                    cb.resolve([undefined, new Error('Not a method response')]);
+                                } else if (!deserializer.responseType) {
+                                    cb.resolve([undefined, new Error('Invalid method response')]);
+                                } else {
+                                    cb.resolve([result![0], null]);
+                                }
                                 delete this.promiseCallbacks[requestHandle];
                             });
                         }
                     } else {
                         if (this.useCounters) this.counters.callbackReceived++;
-                        deserializer.deserializeMethodCall(readable, async (err: any, method: any, res: any) => {
-                            if (err && this.options.showErrors) {
-                                console.error(err);
+                        // Use reusable deserializer for method calls (callbacks from server)
+                        const deserializer = this.Deserializer;
+                        deserializer.parse(xmlPayload, (error, result) => {
+                            if (error) {
+                                if (this.options.showErrors) console.error(error);
+                            } else if (deserializer.type !== 'methodcall') {
+                                if (this.options.showErrors) console.error('Not a method call');
+                            } else if (!deserializer.methodname) {
+                                if (this.options.showErrors) console.error('Method call did not contain a method name');
                             } else {
-                                this.server.onCallback(method, res).catch((err: any) => {
+                                this.server.onCallback(deserializer.methodname, result!).catch((err: any) => {
                                     if (this.options.showErrors) {
                                         console.error(`[ERROR] gbxclient > ${err.message}`);
                                     }
@@ -230,6 +251,17 @@ export class GbxClient {
             } else {
                 // Not enough data for a full message, exit the loop.
                 break;
+            }
+        }
+
+        // Compact the buffer: copy remaining data to release the old backing buffer
+        if (offset > 0) {
+            if (offset >= this.recvData.length) {
+                // All data consumed - release the buffer entirely
+                this.recvData = Buffer.allocUnsafe(0);
+            } else {
+                // Copy remaining bytes to a fresh buffer (releases old backing buffer)
+                this.recvData = Buffer.from(this.recvData.subarray(offset));
             }
         }
     }
@@ -405,7 +437,7 @@ export class GbxClient {
             ) {
                 this.socket?.once("drain", resolve);
             } else {
-                process.nextTick(resolve);
+                setImmediate(resolve);
             }
         });
 

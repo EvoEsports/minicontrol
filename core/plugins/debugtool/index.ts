@@ -24,22 +24,22 @@ export default class DebugTool extends Plugin {
     intervalId: any = null;
 
     async onLoad() {
-        this.addSetting("debugtool.enableGbxCounters", process.env.DEBUG_GBX_COUNTERS === "true", async (value: boolean) => {
+        this.addSetting("debugtool.enableGbxCounters", false, async (value: boolean) => {
             if (!value && this.gbxWidget) {
                 await this.gbxWidget.hide();
             } else {
-               await this.gbxWidget?.display();
+                await this.gbxWidget?.display();
             }
         }, "DebugTool: Enable GBX Client Counters widget");
-        this.addSetting("debugtool.enableMemoryWidget", process.env.DEBUG === "true", async (value: boolean) => {
+        this.addSetting("debugtool.enableMemoryWidget", false, async (value: boolean) => {
             if (!value && this.memoryWidget) {
                 await this.memoryWidget.hide();
-            } else if (value && !this.memoryWidget) {
+            } else {
                 await this.displayMemInfo();
             }
         }, "DebugTool: Enable Memory Usage widget");
 
-        this.gbxWidget = new Widget(Label,"gbxCounters");
+        this.gbxWidget = new Widget(Label, "gbxCounters");
         this.gbxWidget.pos = { x: 159, y: -85, z: 0 };
         this.addListener("GbxClient.Counters", this.onCounters, this);
 

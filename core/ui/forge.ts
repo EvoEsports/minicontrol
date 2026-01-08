@@ -174,6 +174,17 @@ export function disposeScript(rootId = 'default') {
     for (const h of root.hooks) {
         try { h.cleanup?.(); } catch (e) { console.error(e); }
     }
+    // Only clear hooks array, keep root and dataObj for reuse
+    root.hooks = [];
+}
+
+/** Completely remove a root - call on manialink destruction */
+export function disposeRoot(rootId = 'default') {
+    const root = roots.get(rootId);
+    if (!root) return;
+    for (const h of root.hooks) {
+        try { h.cleanup?.(); } catch (e) { console.error(e); }
+    }
     roots.delete(rootId);
 }
 
@@ -208,6 +219,17 @@ export function getCurrentHookIndex(): number {
     return hookIndex;
 }
 
+/** In-place array reversal for a range [start, end] */
+export function reverseArray<T>(arr: T[], start: number, end: number): void {
+    while (start < end) {
+        const temp = arr[start];
+        arr[start] = arr[end];
+        arr[end] = temp;
+        start++;
+        end--;
+    }
+}
+
 export function renderJsx(element: any, zOffset: number = 0): string {
     if ([null, undefined, false].includes(element)) return ""; // Empty
     if (typeof element === "string") {
@@ -229,16 +251,16 @@ export function renderJsx(element: any, zOffset: number = 0): string {
 
     // Function components: inherit z-index when not explicitly set, then render result with base z
     if (typeof type === "function") {
-        // normalize model-like objects in props (but keep JSX `children` unchanged)
-        const rawProps = { ...(props || {}) } as any;
-        const childrenProp = rawProps.children;
-        for (const k of Object.keys(rawProps)) {
+        // Normalize model-like objects in props (including arrays containing models)
+        const compProps = props || {};
+        for (const k of Object.keys(compProps)) {
             if (k === "children") continue;
-            rawProps[k] = normalizeModels(rawProps[k]);
+            const val = compProps[k];
+            // Normalize if it's an array or an object with toJSON (but not a JSX element)
+            if (val && typeof val === "object" && val.type === undefined && (Array.isArray(val) || typeof val.toJSON === "function")) {
+                compProps[k] = normalizeModels(val);
+            }
         }
-        rawProps.children = childrenProp;
-
-        const compProps = rawProps;
         const ownZ = Number((compProps as any)["z-index"]) || 0;
 
         const root = currentRoot; // Capture hooks added by this component (Parent)
@@ -254,29 +276,27 @@ export function renderJsx(element: any, zOffset: number = 0): string {
         if (root && midIdx > startIdx) {
             const endIdx = root.hooks.length;
             // If hooks were added by both parent (start->mid) and children (mid->end),
-            // move Parent hooks to the end of the list.
+            // move Parent hooks to the end using in-place rotation
             if (endIdx > midIdx) {
-                const parentHooks = root.hooks.slice(startIdx, midIdx);
-                const childHooks = root.hooks.slice(midIdx, endIdx);
-                // Replace the whole range [start, end] with [childHooks, parentHooks]
-                root.hooks.splice(startIdx, endIdx - startIdx, ...childHooks, ...parentHooks);
+                reverseArray(root.hooks, startIdx, midIdx - 1);
+                reverseArray(root.hooks, midIdx, endIdx - 1);
+                reverseArray(root.hooks, startIdx, endIdx - 1);
             }
         }
         return resultStr;
     }
 
     let { children = [], ...attrs } = props || {};
-    // Normalize model-like objects in attributes and children
+    // Normalize model-like objects in attributes (including arrays containing models)
     for (const k of Object.keys(attrs)) {
-        attrs[k] = normalizeModels((attrs as any)[k]);
-    }
-    if (!Array.isArray(children)) children = [children];
-    children = children.map((c) => {
-        if (c && typeof (c as any).toJSON === "function" && (c as any).type === undefined) {
-            return normalizeModels((c as any).toJSON());
+        const val = (attrs as any)[k];
+        // Normalize if it's an array or an object with toJSON (but not a JSX element)
+        if (val && typeof val === "object" && val.type === undefined && (Array.isArray(val) || typeof val.toJSON === "function")) {
+            attrs[k] = normalizeModels(val);
         }
-        return c;
-    });
+    }
+    // Ensure children is an array without creating new array if already one
+    if (!Array.isArray(children)) children = [children];
 
     const ownZ = Number(attrs["z-index"]) || 0;
     attrs["z-index"] = ownZ + zOffset;
@@ -297,20 +317,20 @@ function escapeForHtml(unsafeText: string) {
 }
 
 /* Convert an object of HTML attributes to a string */
-function attrsToStr(attrs: Record<string, any>) {
+function attrsToStr(attrs: Record<string, any>): string {
     const illegal = /[ "'>\/= \u0000-\u001F\uFDD0-\uFDEF\uFFFF\uFFFE]/;
-    const result = Object.entries(attrs)
-        .map(([key, value]) => {
-            if (illegal.test(key)) {
-                throw Error(`Illegal attribute name: ${key}`);
-            }
-            if (value === true) return ` ${key}`; // Boolean (true)
-            // Skip null, undefined and false values
-            if (value == null) return null; // Skipped
-            const escapedValue = escapeForHtml(value.toString());
-            return ` ${key}="${escapedValue}"`;
-        })
-        .filter(Boolean)
-        .join("");
+    let result = "";
+    for (const key in attrs) {
+        if (!Object.prototype.hasOwnProperty.call(attrs, key)) continue;
+        const value = attrs[key];
+        if (illegal.test(key)) {
+            throw Error(`Illegal attribute name: ${key}`);
+        }
+        if (value === true) {
+            result += ` ${key}`;
+        } else if (value != null && value !== false) {
+            result += ` ${key}="${escapeForHtml(value.toString())}"`;
+        }
+    }
     return result;
 }
