@@ -19,7 +19,7 @@ export function Tm2Console(input: string, ansiLevel = 0) {
         if (str === "$n" || str === "$m") return "";
         if (str === "$z") return `${ansi_esc}[0m`;
         if (str === "$s") return ``;
-        if (str === "$i") return `${ansi_esc}[3m`;
+        if (str === "$i") return ``;
         if (str.match(/[$][obw]/gi)) return `${ansi_esc}[1m`;
 
         const [r, g, b] = str.replace("$", "").split("");
