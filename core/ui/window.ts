@@ -1,18 +1,26 @@
 import type IWindow from "./interfaces/iwindow";
 import Manialink from "./manialink";
 import DefaultWindow from "./components/WindowComponent";
-import { createElement, getComponent } from "./forge";
+import { createElement } from "./forge";
+import ComponentRegistry from "./componentregistry";
 
 export default class Window extends Manialink implements IWindow {
     title: string = "Window";
 
+
     constructor(jsxComponent: any, login: string, name: string) {
-        super("");
+        const Window = ComponentRegistry.get('Window', DefaultWindow);
+        super(() => Window({
+            pos: `${this.pos.x} ${this.pos.y}`,
+            size: `${this.size.width} ${this.size.height}`,
+            title: this.title,
+            "z-index": "" + this.pos.z || "2",
+            children: createElement(jsxComponent, {})
+        }));
         this.recipient = login;
         this.name = name;
         this.actions.close = tmc.ui.addAction(() => this.destroy(), null);
         this.setDraggable(true);
-        this.constructWindow(jsxComponent);
     }
 
     setDraggable(draggable: boolean) {
@@ -39,17 +47,6 @@ export default class Window extends Manialink implements IWindow {
      */
     async onApply(login: string, data: any, entries: any) {
         // override to handle apply button
-    }
-
-    private constructWindow(jsxComponent: any) {
-        const Window = getComponent('Window', DefaultWindow);
-        this._jsxComponent = () => Window({
-            pos: `${this.pos.x} ${this.pos.y}`,
-            size: `${this.size.width} ${this.size.height}`,
-            title: this.title,
-            "z-index": "" + this.pos.z || "2",
-            children: createElement(jsxComponent, {})
-        });
     }
 
     async hide() {

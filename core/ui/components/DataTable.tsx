@@ -1,4 +1,4 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment } from '@core/ui/forge';
+import { createElement, Fragment, setScript, getProperties, maniascriptFragment } from '@core/ui/forge';
 import { removeColors } from '@core/utils';
 import DefaultListHeader from './partials/ListHeader';
 import DefaultListItem from './partials/ListItem';
@@ -6,15 +6,15 @@ import DefaultListTitle from './partials/ListTitle';
 import DefaultButton from './Button';
 import { type dataTableDef } from '../listwindow';
 import PaginateControls from './partials/PaginateControls';
-
+import ComponentRegistry from '../componentregistry';
 export default function DataTable(props: any) {
     const { pos = '0 0', 'z-index': z = 1, usetitle = false, data } = (props || {}) as { pos: string; 'z-index': number; usetitle: boolean; data: dataTableDef };
     const { actions, size } = getProperties();
 
-    const ListHeader = getComponent('ListHeader', DefaultListHeader);
-    const ListItem = getComponent('ListItem', DefaultListItem);
-    const ListTitle = getComponent('ListTitle', DefaultListTitle);
-    const Button = getComponent('Button', DefaultButton);
+    const ListHeader = ComponentRegistry.get('ListHeader', DefaultListHeader);
+    const ListItem = ComponentRegistry.get('ListItem', DefaultListItem);
+    const ListTitle = ComponentRegistry.get('ListTitle', DefaultListTitle);
+    const Button = ComponentRegistry.get('Button', DefaultButton);
 
     const outHeaders: any = [];
     let rowCounter = 0,

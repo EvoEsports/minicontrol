@@ -2,7 +2,7 @@ import Window from "@core/ui/window";
 
 import { chunkArray, parseEntries } from "./utils";
 import type IManialink from "@core/ui/interfaces/imanialink";
-import Manialink from "@core/ui/manialink.ts";
+import Manialink from "@core/ui/manialink";
 
 // Module-level regex patterns - created once, reused
 const TAG_REGEX = /<([a-zA-Z0-9_-]+)([^>]*)>/g;

@@ -1,4 +1,4 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2, setScriptHeader } from '@core/ui/forge';
+import { createElement, Fragment, setScript, getProperties, maniascriptFragment, vec2, setScriptHeader } from '@core/ui/forge';
 
 export default function Widget({ 'z-index': z = 0, pos = '0 0', size = '38 6', children = {} }) {
     const psize = vec2(size);
@@ -7,8 +7,7 @@ export default function Widget({ 'z-index': z = 0, pos = '0 0', size = '38 6', c
     const { actions, colors, data } = getProperties();
     const draggable = data.draggable ? 'True' : 'False';
 
-    setScript(() => {
-        return `
+    setScript(`
 
 Void Drag() {
     if (!${draggable}) return;
@@ -53,8 +52,7 @@ if (Event.Control.HasClass("draggable")) {
     Drag();
 }
 ***
-        `;
-    });
+`);
 
     let move = null;
     if (actions.move) {

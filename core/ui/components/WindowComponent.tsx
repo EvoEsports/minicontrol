@@ -1,5 +1,6 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment, vec2, setScriptHeader } from '@core/ui/forge';
+import { createElement, Fragment, setScript, getProperties, maniascriptFragment, vec2} from '@core/ui/forge';
 import DefaultButton from './Button';
+import ComponentRegistry from '../componentregistry';
 
 export default function Window({ title = '', 'z-index': zi = '0', pos = '0 0', size = '120 90', children = {} }) {
     const psize = vec2(size);
@@ -9,8 +10,7 @@ export default function Window({ title = '', 'z-index': zi = '0', pos = '0 0', s
     const { actions, colors, fonts, data, id } = getProperties();
     const draggable = data.draggable ? 'True' : 'False';
 
-    setScript(() => {
-        return `
+    setScript(`
 
 Void SetActive() {
     declare Text[] G_MC_ActiveWindow for UI;
@@ -77,10 +77,10 @@ if (Event.Control.HasClass("title")) {
     Drag();
 }
 ***
-        `;
-    });
+`);
 
-    const Button = getComponent('Button', DefaultButton);
+
+    const Button = ComponentRegistry.get('Button', DefaultButton);
     let applyButtons: any = [];
 
     if (data.applyButtons) {
@@ -121,13 +121,13 @@ if (Event.Control.HasClass("title")) {
                     {children}
                 </frame>
                 {applyButtons}
-                <quad pos="0 0" z-index={z-1} size={`${psize.x + 4} ${psize.y}`} bgcolor={`${colors.window_bg}e`} />
+                <quad pos="0 0" z-index={z - 1} size={`${psize.x + 4} ${psize.y}`} bgcolor={`${colors.window_bg}e`} />
 
                 {tmc.game.Name !== 'TmForever'
                     ? [
-                          <quad pos="-0.5 6.5" z-index={z + 1} size={`${psize.x + 1} ${psize.y + 7}`} bgcolor="0000" scriptevents="1" />,
-                          <quad pos="0 0" z-index={z + 10} size={`${psize.x + 4} ${psize.y}`} bgcolor="0008" id="inactive" scriptevents="1" hidden="1" />
-                      ]
+                        <quad pos="-0.5 6.5" z-index={z + 1} size={`${psize.x + 1} ${psize.y + 7}`} bgcolor="0000" scriptevents="1" />,
+                        <quad pos="0 0" z-index={z + 10} size={`${psize.x + 4} ${psize.y}`} bgcolor="0008" id="inactive" scriptevents="1" hidden="1" />
+                    ]
                     : null}
             </frame>
         </>

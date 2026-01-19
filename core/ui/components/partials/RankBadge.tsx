@@ -1,4 +1,4 @@
-import { createElement, Fragment, getProperties, vec2 } from '@core/ui/forge';
+import { createElement, Fragment, vec2 } from '@core/ui/forge';
 
 interface RankBadgeProps {
     /** The rank number to display */

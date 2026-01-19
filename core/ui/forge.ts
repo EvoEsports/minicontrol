@@ -1,336 +1,99 @@
-import { type objMap } from "@core/ui/manialink";
+import ComponentRegistry from "./componentregistry";
+import type { ManialinkModel } from "./manialinkmodel";
+import { RenderContext } from "./rendercontext";
 
-export interface Properties {
-    colors?: { [key: string]: string };
-    [key: string]: any;
+export type FunctionalComponent<P = any> = (props: P & { children?: any }) => any;
+export interface JsxElement { type: string | FunctionalComponent; props: Record<string, any>; }
+export function createElement(type: string | FunctionalComponent, props: any, ...children: any[]): JsxElement {
+    return { type, props: { ...props, children: children.flat() } };
 }
-
-export interface Element {
-    type: string | Function;
-    props: { [key: string]: any };
+export function Fragment(props: any) {
+    return props.children || [];
 }
-
-export type ComponentType<P = any> = (props: P & { children?: any }) => any;
-
 export function vec2(str: string) {
     const [x, y] = str.split(' ').map(Number);
     return { x, y };
 }
 
-export function createElement(tagName: string, props, ...children): Element {
-    return { type: tagName, props: { ...props, children } };
-}
-
-export function Fragment(props) {
-    return props.children || [];
-}
-
-export function jsx(tagName, props, key): Element {
-    let children = props.children || [];
-    if (!Array.isArray(children)) children = [children];
-    return createElement(tagName, { ...props, key }, ...children);
-}
-
-export function jsxs(type, props, key) {
-    return jsx(type, props, key);
-}
-
-/**
- * Create an XML comment node for inclusion in JSX.
- * Example: <script>{maniascriptFragment(`log("works");`)}</script>
- */
 export function maniascriptFragment(text?: string) {
     const safe = (text ?? '').toString().replace(/-->/g, '');
     return `<!-- ${safe} -->`;
 }
 
-export const comment = maniascriptFragment;
-
-// Simple component registry for runtime overrides (suitable for plugins)
-const components = new Map<string, any>();
-
-/** Register a component by name (overrides existing) */
-export function registerComponent(name: string, comp: any) {
-    components.set(name, comp);
+export function setScript(script: string) {
+    RenderContext.active.addScript(script);
 }
 
-/** Unregister a component by name */
-export function unregisterComponent(name: string) {
-    components.delete(name);
+export function setScriptHeader(header: string) {
+    RenderContext.active.addHeader(header);
 }
 
-export function getComponent(name: string): any | undefined;
-export function getComponent<T>(name: string, fallback: T): T;
-export function getComponent<T>(name: string, fallback?: T | undefined): T | undefined {
-    if (arguments.length === 1) {
-        if (!components.has(name)) {
-            if (process.env.DEBUG === "true") {
-                tmc.cli(`¤error¤Component not registered: $fff${name}`);
-                tmc.cli(`¤info¤Registered components: $fff${Array.from(components.keys()).join(", ")}`);
-                process.exit(1);
-            }
-            throw Error(`Component not registered: ${name}`);
+export function getProperties(): ManialinkModel {
+    return RenderContext.active.model;
+}
+
+export function getComponent(component: string, def?: any): any {
+    return ComponentRegistry.get(component, def);
+}
+
+
+export const JsxEngine = {
+
+    renderToString(element: any, zOffset = 0): string {
+        if (element === null || element === undefined || element === false) return "";
+
+        if (typeof element === "string" || typeof element === "number") {
+            return this.escapeHtml(String(element));
         }
-        return components.get(name);
-    }
-    if (!components.has(name)) {
-        components.set(name, fallback);
-        return fallback;
-    }
-    return components.get(name);
-}
 
-/** For debugging: get a copy of current registration map */
-export function getRegisteredComponents() {
-    return new Map(components);
-}
-
-export type Hook = { deps?: any[]; effect?: () => string | (() => void); cleanup?: (() => void); pending?: boolean; script?: string; headerEffect?: () => string | (() => void); headerDeps?: any[]; headerPending?: boolean; header?: string };
-export const roots = new Map<string, { hooks: Hook[]; dataObj?: objMap }>();
-
-/**
- * Normalize values by calling toJSON() on model-like objects.
- * - Arrays and plain objects are traversed recursively
- * - Objects with a `toJSON` function are replaced with the result of that call
- * - JSX element objects (which have a `type` property) are left intact
- */
-export function normalizeModels(value: any): any {
-    if (value === null || value === undefined) return value;
-    if (Array.isArray(value)) return value.map((v) => normalizeModels(v));
-    if (typeof value === "object") {
-        // If it's a JSX element (has `type`), don't touch it
-        if ((value as any).type !== undefined) return value;
-        // If it's a model-like object with toJSON, convert it
-        if (typeof (value as any).toJSON === "function") {
-            try {
-                const json = (value as any).toJSON();
-                return normalizeModels(json);
-            } catch (e) {
-                return value;
-            }
+        if (Array.isArray(element)) {
+            return element.map((child, i) => this.renderToString(child, zOffset + 0.01)).join("");
         }
-        // Plain object: traverse keys
-        const out: any = {};
-        for (const k of Object.keys(value)) {
-            out[k] = normalizeModels((value as any)[k]);
+
+        const { type, props } = element;
+        const children = Array.isArray(props.children) ? props.children : [props.children];
+
+        if (typeof type === "function") {
+
+            const normalizedProps = this.normalizeProps(props);
+            const ownZ = Number(normalizedProps["z-index"] || 0);
+            const output = type(normalizedProps);
+            return this.renderToString(output, ownZ + zOffset);
         }
-        return out;
-    }
-    return value;
-}
-let currentRoot: { hooks: Hook[]; dataObj?: any } | null = null;
-let hookIndex = 0;
 
-export function setHookIndex(index: number) {
-    hookIndex = index;
-}
+        const ownZ = Number(props["z-index"] || 0);
+        const finalZ = ownZ + zOffset;
 
-export function setCurrentRoot(root: { hooks: Hook[] } | null) {
-    currentRoot = root;
-}
+        const attributes = this.buildAttributes({ ...props, "z-index": finalZ });
+        const childrenXml = this.renderToString(children, finalZ);
 
-export function setScript(effect: () => string | (() => void), deps?: any[]) {
-    if (!currentRoot) throw Error("useEffect may only be used during render");
-    const hooks = currentRoot.hooks;
-    const idx = hookIndex++;
-    const hook = hooks[idx] ?? (hooks[idx] = {});
-    const prevDeps = hook.deps;
-    const changed = !prevDeps || !deps || prevDeps.length !== deps.length || deps.some((d, i) => d !== prevDeps[i]);
-    hook.deps = deps;
-    if (changed) {
-        // Run cleanup before replacing the effect to prevent memory leaks
-        try { hook.cleanup?.(); } catch (e) { console.error(e); }
-        hook.cleanup = undefined;
-        hook.effect = effect;
-        hook.pending = true;
-    }
-}
-
-export function setScriptHeader(effect: () => string | (() => void), deps?: any[]) {
-    if (!currentRoot) throw Error("setScriptHeader may only be used during render");
-    const hooks = currentRoot.hooks;
-    const idx = hookIndex++;
-    const hook = hooks[idx] ?? (hooks[idx] = {});
-    const prevDeps = hook.headerDeps;
-    const changed = !prevDeps || !deps || prevDeps.length !== deps.length || deps.some((d, i) => d !== prevDeps[i]);
-    hook.headerDeps = deps;
-    if (changed) {
-        // Run cleanup before replacing the header effect to prevent memory leaks
-        try { hook.cleanup?.(); } catch (e) { console.error(e); }
-        hook.cleanup = undefined;
-        hook.headerEffect = effect;
-        hook.headerPending = true;
-    }
-}
-
-export function getProperties(): objMap {
-    // Access the object attached to the current render root (if any)
-    return currentRoot?.dataObj as objMap || {};
-}
-
-export function disposeScript(rootId = 'default') {
-    const root = roots.get(rootId);
-    if (!root) return;
-    for (const h of root.hooks) {
-        try { h.cleanup?.(); } catch (e) { console.error(e); }
-    }
-    // Only clear hooks array, keep root and dataObj for reuse
-    root.hooks = [];
-}
-
-/** Completely remove a root - call on manialink destruction */
-export function disposeRoot(rootId = 'default') {
-    const root = roots.get(rootId);
-    if (!root) return;
-    for (const h of root.hooks) {
-        try { h.cleanup?.(); } catch (e) { console.error(e); }
-    }
-    roots.delete(rootId);
-}
-
-/** Dispose all roots and their hooks - useful for shutdown/cleanup */
-export function clearAllRoots() {
-    for (const [rootId, root] of roots) {
-        for (const h of root.hooks) {
-            try { h.cleanup?.(); } catch (e) { console.error(e); }
+        if (!childrenXml && children.length === 0) {
+            return `<${type}${attributes} />\n`;
         }
-    }
-    roots.clear();
-}
+        return `<${type}${attributes}>\n${childrenXml}</${type}>\n`;
+    },
 
-/** Clear all registered components - useful for plugin cleanup */
-export function clearAllComponents() {
-    components.clear();
-}
-
-/** Trim hooks array to current hook count - call after render to free unused hooks */
-export function trimHooks(root: { hooks: Hook[] }, count: number) {
-    if (root.hooks.length > count) {
-        // Run cleanup on hooks being removed
-        for (let i = count; i < root.hooks.length; i++) {
-            try { root.hooks[i]?.cleanup?.(); } catch (e) { console.error(e); }
-        }
-        root.hooks.length = count;
-    }
-}
-
-/** Get current hook index - useful for trimming after render */
-export function getCurrentHookIndex(): number {
-    return hookIndex;
-}
-
-/** In-place array reversal for a range [start, end] */
-export function reverseArray<T>(arr: T[], start: number, end: number): void {
-    while (start < end) {
-        const temp = arr[start];
-        arr[start] = arr[end];
-        arr[end] = temp;
-        start++;
-        end--;
-    }
-}
-
-export function renderJsx(element: any, zOffset: number = 0): string {
-    if ([null, undefined, false].includes(element)) return ""; // Empty
-    if (typeof element === "string") {
-        const text = element;
+    escapeHtml(text: string): string {
         const trimmed = text.trim();
-        // Allow XML-style comments to pass through without being escaped so they render as comments
-        if (trimmed.startsWith('<!--') && trimmed.endsWith('-->')) {
-            return text;
-        }
-        return escapeForHtml(element); // Text
-    }
-    if (typeof element === "number") return element.toString(); // Number
+        if (trimmed.startsWith('')) return text;
+        return text.replace(/[\u00A0-\uFFFF<>&"']/g, (i) => `&#${i.charCodeAt(0)};`);
+    },
 
-    // If element is an array, render each child with an increasing zOffset per sibling
-    if (Array.isArray(element)) return element.map((e, i) => renderJsx(e, zOffset + 0.01)).join(""); // List
+    buildAttributes(props: Record<string, any>): string {
+        let result = "";
+        for (const [key, val] of Object.entries(props)) {
+            if (key === "children" || val === undefined || val === null || val === false) continue;
 
-    if (typeof element !== "object") throw Error("Element must be an object");
-    const { type, props } = element;
-
-    // Function components: inherit z-index when not explicitly set, then render result with base z
-    if (typeof type === "function") {
-        // Normalize model-like objects in props (including arrays containing models)
-        const compProps = props || {};
-        for (const k of Object.keys(compProps)) {
-            if (k === "children") continue;
-            const val = compProps[k];
-            // Normalize if it's an array or an object with toJSON (but not a JSX element)
-            if (val && typeof val === "object" && val.type === undefined && (Array.isArray(val) || typeof val.toJSON === "function")) {
-                compProps[k] = normalizeModels(val);
+            let valStr = val;
+            if (typeof val === "object" && typeof val.toJSON === "function") {
+                valStr = JSON.stringify(val);
             }
+            result += ` ${key}="${this.escapeHtml(String(valStr))}"`;
         }
-        const ownZ = Number((compProps as any)["z-index"]) || 0;
+        return result;
+    },
 
-        const root = currentRoot; // Capture hooks added by this component (Parent)
-        const startIdx = root ? root.hooks.length : 0;
-
-        const renderedComponent = type(compProps);
-
-        const midIdx = root ? root.hooks.length : 0;
-
-        // Recursively render children (which adds Children hooks)
-        const resultStr = renderJsx(renderedComponent, ownZ + zOffset);
-
-        if (root && midIdx > startIdx) {
-            const endIdx = root.hooks.length;
-            // If hooks were added by both parent (start->mid) and children (mid->end),
-            // move Parent hooks to the end using in-place rotation
-            if (endIdx > midIdx) {
-                reverseArray(root.hooks, startIdx, midIdx - 1);
-                reverseArray(root.hooks, midIdx, endIdx - 1);
-                reverseArray(root.hooks, startIdx, endIdx - 1);
-            }
-        }
-        return resultStr;
+    normalizeProps(props: any): any {
+        return props;
     }
-
-    let { children = [], ...attrs } = props || {};
-    // Normalize model-like objects in attributes (including arrays containing models)
-    for (const k of Object.keys(attrs)) {
-        const val = (attrs as any)[k];
-        // Normalize if it's an array or an object with toJSON (but not a JSX element)
-        if (val && typeof val === "object" && val.type === undefined && (Array.isArray(val) || typeof val.toJSON === "function")) {
-            attrs[k] = normalizeModels(val);
-        }
-    }
-    // Ensure children is an array without creating new array if already one
-    if (!Array.isArray(children)) children = [children];
-
-    const ownZ = Number(attrs["z-index"]) || 0;
-    attrs["z-index"] = ownZ + zOffset;
-
-    const attrsStr = attrsToStr(attrs);
-
-    if (children.length == 0) return `<${type}${attrsStr} />\n`;
-
-    // Use base child offset (ownZ + zOffset); the array rendering will increment per sibling
-    const childZ = ownZ;
-    const childrenStr = renderJsx(children, childZ);
-    return `<${type}${attrsStr}>\n${childrenStr}\n</${type}>\n`;
-}
-
-/* Convert &, <, >, ", ' to escaped HTML codes to prevent XSS attacks */
-function escapeForHtml(unsafeText: string) {
-    return (unsafeText || "").replace(/[\u00A0-\uFFFF<>&"']/g, (i) => `&#${i.charCodeAt(0)};`);
-}
-
-/* Convert an object of HTML attributes to a string */
-function attrsToStr(attrs: Record<string, any>): string {
-    const illegal = /[ "'>\/= \u0000-\u001F\uFDD0-\uFDEF\uFFFF\uFFFE]/;
-    let result = "";
-    for (const key in attrs) {
-        if (!Object.prototype.hasOwnProperty.call(attrs, key)) continue;
-        const value = attrs[key];
-        if (illegal.test(key)) {
-            throw Error(`Illegal attribute name: ${key}`);
-        }
-        if (value === true) {
-            result += ` ${key}`;
-        } else if (value != null && value !== false) {
-            result += ` ${key}="${escapeForHtml(value.toString())}"`;
-        }
-    }
-    return result;
-}
+};

@@ -437,7 +437,7 @@ export class GbxClient {
             ) {
                 this.socket?.once("drain", resolve);
             } else {
-                process.nextTick(resolve);
+                setImmediate(resolve);
             }
         });
 

@@ -1,14 +1,15 @@
-import { createElement, Fragment, setScript, getComponent, getProperties, maniascriptFragment } from '@core/ui/forge';
+import { createElement, Fragment, getProperties, maniascriptFragment } from '@core/ui/forge';
 import DefaultDataTable from './DataTable';
+import ComponentRegistry from '../componentregistry';
 
 export default function ListWindow() {
-    const { pos, size, data, actions } = getProperties();
+    const { data, actions } = getProperties();
 
-    const DataTable = getComponent('DataTable', DefaultDataTable);
+    const DataTable = ComponentRegistry.get('DataTable', DefaultDataTable);
 
     return (
         <>
-            <DataTable pos="0 0" z-index={pos.z} usetitle={data.useTitle} data={data.datatable} />
+            <DataTable pos="0 0" z-index="1" usetitle={data.useTitle} data={data.datatable} />
         </>
     );
 }
