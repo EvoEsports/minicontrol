@@ -75,7 +75,10 @@ export default class Manialink implements IManialink {
             combinedScripts = SCRIPT_TEMPLATE(headers, scripts);
         }
 
-        return `<manialink version="3" id="${this.id}" layer="${this.layer}" name="${this.name}">${xmlBody}${combinedScripts}</manialink>`;
+        return `<manialink version="3" id="${this.id}" layer="${this.layer}" name="${this.name}">
+        ${xmlBody}
+        ${combinedScripts}
+        </manialink>`;
     }
 
     cleanReferences() {

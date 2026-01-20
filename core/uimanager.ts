@@ -152,7 +152,7 @@ export default class UiManager {
 
             // find tag-local z-index if present (supports single or double quotes)
             const zMatch = attrs.match(Z_INDEX_REGEX);
-            const zFromAttr = zMatch ? zMatch[2] : undefined;
+            const zFromAttr = zMatch ? zMatch[2] : "0";
 
             let newAttrs = attrs;
 
@@ -172,9 +172,9 @@ export default class UiManager {
                     return ` posn="${x.toFixed(3)} ${y.toFixed(3)} ${zVal.toFixed(3)}"`;
                 } else {
                     let zPart = "";
-                    if (zStr !== undefined) zPart = ` ${zStr}`;
-                    else if (zFromAttr !== undefined) zPart = ` ${zFromAttr}`;
-                    return ` posn="${xStr} ${yStr}${zPart}"`;
+                    if (zStr !== undefined) zPart = `${zStr}`;
+                    else if (zFromAttr !== undefined) zPart = `${zFromAttr}`;
+                    return ` posn="${xStr} ${yStr} ${zPart}"`;
                 }
             });
 

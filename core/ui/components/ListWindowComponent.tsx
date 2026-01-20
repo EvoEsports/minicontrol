@@ -9,7 +9,7 @@ export default function ListWindow() {
 
     return (
         <>
-            <DataTable pos="0 0" z-index="1" usetitle={data.useTitle} data={data.datatable} />
+            <DataTable pos="0 0" z-index="0" usetitle={data.useTitle} data={data.datatable} />
         </>
     );
 }

@@ -47,7 +47,8 @@ export const JsxEngine = {
         }
 
         if (Array.isArray(element)) {
-            return element.map((child, i) => this.renderToString(child, zOffset + 0.01)).join("");
+            // Give siblings a deterministic slight z offset so ordering is stable.
+            return element.map((child, i) => this.renderToString(child, (zOffset + (i + 1)) * 0.01)).join("");
         }
 
         const { type, props } = element;
@@ -58,16 +59,17 @@ export const JsxEngine = {
             const normalizedProps = this.normalizeProps(props);
             const ownZ = Number(normalizedProps["z-index"] || 0);
             const output = type(normalizedProps);
-            return this.renderToString(output, ownZ + zOffset);
+            return this.renderToString(output, ownZ + (zOffset * 0.01));
         }
 
         const ownZ = Number(props["z-index"] || 0);
-        const finalZ = ownZ + zOffset;
+        const finalZ = ownZ + (zOffset * 0.01);
 
         const attributes = this.buildAttributes({ ...props, "z-index": finalZ });
         const childrenXml = this.renderToString(children, finalZ);
 
-        if (!childrenXml && children.length === 0) {
+        // Prefer self-closing tags when children render to nothing.
+        if (!childrenXml) {
             return `<${type}${attributes} />\n`;
         }
         return `<${type}${attributes}>\n${childrenXml}</${type}>\n`;
@@ -75,8 +77,15 @@ export const JsxEngine = {
 
     escapeHtml(text: string): string {
         const trimmed = text.trim();
-        if (trimmed.startsWith('')) return text;
-        return text.replace(/[\u00A0-\uFFFF<>&"']/g, (i) => `&#${i.charCodeAt(0)};`);
+        // Allow inserting raw XML fragments (used for maniascript fragments like "<!-- ... -->").
+        if (trimmed.startsWith('<')) return text;
+
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#39;");
     },
 
     buildAttributes(props: Record<string, any>): string {

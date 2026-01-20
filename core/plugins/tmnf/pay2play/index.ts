@@ -53,7 +53,7 @@ export default class Pay2Play extends Plugin {
         const widget = new Widget(() => {
             return [Label({
                 pos: "5 -1.5",
-                "z-index": 2,
+                "z-index": 0,
                 size: "20 5",
                 scale: "0.3",
                 style: "TextRaceChrono",
@@ -62,7 +62,7 @@ export default class Pay2Play extends Plugin {
             }),
             Label({
                 pos: "5 -5.5",
-                "z-index": 2,
+                "z-index": 0,
                 size: "20 5",
                 textsize: "1",
                 text: text,
@@ -70,7 +70,7 @@ export default class Pay2Play extends Plugin {
             }),
             Button({
                 pos: "0 0",
-                "z-index": 1,
+                "z-index": 0,
                 size: "10 10",
                 action: action,
                 focusareacolor1: "000a",
