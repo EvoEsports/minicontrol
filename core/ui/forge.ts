@@ -1,5 +1,5 @@
 import ComponentRegistry from "./componentregistry";
-import type { ManialinkModel } from "./manialinkmodel";
+import type { ManialinkModel } from "./interfaces/manialinkmodel";
 import { RenderContext } from "./rendercontext";
 
 export type FunctionalComponent<P = any> = (props: P & { children?: any }) => any;

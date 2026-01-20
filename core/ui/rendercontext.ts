@@ -1,4 +1,4 @@
-import type { ManialinkModel } from "./manialinkmodel";
+import type { ManialinkModel } from "./interfaces/manialinkmodel";
 
 export class RenderContext {
     private static stack: RenderContext[] = [];

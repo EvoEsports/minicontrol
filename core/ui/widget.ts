@@ -1,9 +1,8 @@
 import type IWidget from "./interfaces/iwidget";
 import Manialink from "./manialink";
 import DefaultWidget from "./components/WidgetComponent";
-import { createElement } from "./forge";
+import { createElement, getComponent } from "./forge";
 import type { ActionCallback } from "@core/uimanager";
-import ComponentRegistry from "./componentregistry";
 
 export default class Widget extends Manialink implements IWidget {
     title: string = "Widget";
@@ -11,7 +10,7 @@ export default class Widget extends Manialink implements IWidget {
     size = { width: 30, height: 36 };
 
     constructor(jsxComponent: any, name: string = "defaultWidget") {
-        const Widget = ComponentRegistry.get('Widget', DefaultWidget);
+        const Widget = getComponent('Widget', DefaultWidget);
         super(() => Widget({
             pos: `${this.pos.x} ${this.pos.y}`,
             size: `${this.size.width} ${this.size.height}`,
@@ -22,15 +21,10 @@ export default class Widget extends Manialink implements IWidget {
         this.name = name;
         this.data.name = name;
         this.setDraggable(true);
-        this.constructWidget(jsxComponent);
     }
 
     setDraggable(draggable: boolean) {
         this.data.draggable = draggable;
-    }
-
-    private constructWidget(jsxComponent: any) {
-
     }
 
     setOpenAction(action: ActionCallback) {

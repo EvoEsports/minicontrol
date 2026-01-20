@@ -1,6 +1,6 @@
 import type IManialink from "./interfaces/imanialink";
 import { JsxEngine, type FunctionalComponent } from "./forge";
-import type { ManialinkModel } from "./manialinkmodel";
+import type { ManialinkModel } from "./interfaces/manialinkmodel";
 import { RenderContext } from "./rendercontext";
 import { SCRIPT_TEMPLATE } from "./scripttemplate";
 
