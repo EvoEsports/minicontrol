@@ -1,6 +1,6 @@
 {
     "name": "minicontrol",
-    "version": "0.12.0",
+    "version": "0.20.0",
     "scripts": {
         "dev": "tsx --expose-gc --env-file .env --watch ./core/minicontrol.ts",
         "start": "tsx --expose-gc --env-file .env ./core/minicontrol.ts",
