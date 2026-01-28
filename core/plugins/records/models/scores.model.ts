@@ -31,7 +31,7 @@ class Score extends Model {
     declare login: string;
 
     @BelongsTo(() => Player, { as: "player", foreignKey: "login", targetKey: "login" })
-    player?: Player;
+    declare player?: Player;
 
     @NotNull
     @AllowNull(false)

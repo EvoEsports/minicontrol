@@ -5,7 +5,7 @@
   "authors": "EvoEsports",
   "date": "2025-12-10",
   "version": "0.2.0",
-  "requiresMinicontrolVersion": "^0.12.0",
+  "requiresMinicontrolVersion": "^0.20.0",
   "requiresGame": null,
   "depends": []
 }
