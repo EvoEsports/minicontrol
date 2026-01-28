@@ -29,7 +29,7 @@ class PersonalBest extends Model {
     @Column(DataType.STRING)
     @HasOne(() => Player, { as: "player", sourceKey: "login", foreignKey: "login" })
     declare login: string;
-    player?: Player;
+    declare player?: Player;
 
     @NotNull
     @AllowNull(false)
