@@ -24,6 +24,14 @@ export default class Jukebox extends Plugin {
     history: string[] = [];
     historySize = 2;
 
+    private applyHistorySize(value: number) {
+        const normalized = Number(value);
+        this.historySize = Number.isFinite(normalized) ? Math.max(0, Math.floor(normalized)) : 0;
+        if (this.historySize === 0) {
+            this.history = [];
+        }
+    }
+
     async onLoad() {
         this.addCommand("/addqueue", this.cmdQueue.bind(this), "Add Map to queue");
         this.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");
@@ -38,11 +46,11 @@ export default class Jukebox extends Plugin {
             "jukebox.history_size",
             2,
             async (value: number) => {
-                this.historySize = value;
+                this.applyHistorySize(value);
             },
             "Jukebox: Number of maps to keep in history",
         );
-        this.historySize = tmc.settings.get("jukebox.history_size");
+        this.applyHistorySize(tmc.settings.get("jukebox.history_size"));
 
         if (tmc.game.Name === "TmForever") {
             this.addListener("Trackmania.EndMap", this.onEndRace, this);
@@ -109,8 +117,14 @@ export default class Jukebox extends Plugin {
             return;
         }
         if (!tmc.admins.includes(login)) {
-            if (this.history.includes(map.UId) || (tmc.maps.currentMap && tmc.maps.currentMap.UId === map.UId)) {
+            const isRecent = this.historySize > 0 && this.history.includes(map.UId);
+            const isCurrent = tmc.maps.currentMap && tmc.maps.currentMap.UId === map.UId;
+            if (isRecent) {
                 tmc.chat("¤info¤Map was recently played", login);
+                return;
+            }
+            if (this.historySize > 0 && isCurrent) {
+                tmc.chat("¤info¤Map is currently being played", login);
                 return;
             }
         }
@@ -200,11 +214,13 @@ export default class Jukebox extends Plugin {
     }
 
     async onEndRace(_data: any) {
-        if (tmc.maps.currentMap) {
+        if (this.historySize > 0 && tmc.maps.currentMap) {
             this.history.push(tmc.maps.currentMap.UId);
             if (this.history.length > this.historySize) {
                 this.history.shift();
             }
+        } else if (this.historySize === 0 && this.history.length > 0) {
+            this.history = [];
         }
         const removedMaps = this.queue.filter((map) => !tmc.players.getAllLogins().includes(map.QueueBy));
         for (const map of removedMaps) {
