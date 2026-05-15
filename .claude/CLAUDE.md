@@ -52,6 +52,23 @@ MiniControl ← Redis Streams ← KackyGG API (replies: rank info, state updates
 MiniControl → REST → KackyGG API (modifiers, favorites, server registration)
 ```
 
+## Rules & Conventions
+
+All project rules live in `.claude/rules/`:
+
+- `project-conventions.md` — architecture, plugin patterns, engineering standards
+- `testing.md` — validation workflow, delivery evidence
+- `cross-repo.md` — repo locations, data flow, cross-repo guidance
+
+## Workflow: Model Split
+
+This repo uses a two-model workflow:
+
+- **Planning & Review (Claude Opus 4.6)**: Architecture decisions, Redis Streams contract review, cross-system reasoning
+- **Execution (GPT 5.5 via subagents)**: Plugin implementation, test writing, config changes
+
+Agents: `code-reviewer` (Opus), `implementer` (GPT 5.5), `test-writer` (GPT 5.5)
+
 ## Conventions
 
 - Each plugin: folder with `manifest.json` + `index.ts`, extends `Plugin`
