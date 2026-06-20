@@ -1,3 +1,4 @@
+import type { Map } from "@core/mapmanager";
 import PersonalBest from "@core/plugins/records/models/personalBest.model";
 import ListWindow from "@core/ui/listwindow";
 import { clone, removeColors } from "@core/utils";
@@ -51,9 +52,8 @@ export default class MapsWindow extends ListWindow {
         const login = this.recipient;
         let title = "Maps on server";
 
-        let i = 1;
         const outMaps: any[] = [];
-        let maps = clone(tmc.maps.getMaplist() || []);
+        let maps: Map[] = clone(tmc.maps.getMaplist() || []);
         let rankings: any[] = [];
         const uids = tmc.maps.getUids() || [];
         if (tmc.existsPlugin("records")) {
@@ -99,6 +99,7 @@ export default class MapsWindow extends ListWindow {
             }
         }
 
+        let i = 0;
         for (const map of maps) {
             if (
                 !params[0] ||
@@ -108,7 +109,7 @@ export default class MapsWindow extends ListWindow {
                     .indexOf(params[0].toLocaleLowerCase()) !== -1 ||
                 removeColors(map.Environnement).toLocaleLowerCase().indexOf(params[0].toLocaleLowerCase()) !== -1
             ) {
-                const outKarma = Number.parseFloat(map.Karma?.total ?? 0)*0.01 || 0;
+                const outKarma = (map.Karma?.total ?? 0) * 0.01 || 0;
 
                 const rank =
                     rankings.find((val) => {
@@ -121,8 +122,8 @@ export default class MapsWindow extends ListWindow {
                 }
 
                 outMaps.push(
-                    Object.assign(map, {
-                        Index: i++,
+                    {
+                        Index: i,
                         Name: map.Name.trim(),
                         AuthorName: map.AuthorNickname || map.Author || "",
                         ATime: map.AuthorTime || map.GoldTime,
@@ -130,8 +131,10 @@ export default class MapsWindow extends ListWindow {
                         Rank: myRank,
                         Karma: outKarma,
                         Date: map.CreatedAt || "",
-                    }),
+                        UId: map.UId
+                    }
                 );
+                i += 1;
             }
         }
 

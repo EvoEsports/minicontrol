@@ -33,7 +33,7 @@ interface Actions {
 
 export default class ListWindow extends Window {
     private targetActions: Actions[] = [];
-    title = "Dedimania Records";
+    title = "ListWindow";
     size = { width: 160, height: 120 };
     datatable: dataTableDef = {
         columns: {},
@@ -63,6 +63,7 @@ export default class ListWindow extends Window {
     setColumns(columns: { [key: string]: columnDef }) {
         this.datatable.columns = columns;
     }
+
     setItems(items: { [key: string]: any }[]) {
         this.datatable.items = items.map((item, index) => ({ index, ...item }));
     }
@@ -99,17 +100,6 @@ export default class ListWindow extends Window {
             }
         }
 
-        for (const actionIndex in this.targetActions) {
-            const action = this.targetActions[actionIndex];
-            for (const itemIndex in this.datatable.items) {
-                const item = this.datatable.items[itemIndex];
-                const actionKey = `item_${itemIndex}_${action.key}`;
-                if (!this.actions[actionKey]) {
-                    this.actions[actionKey] = tmc.ui.addAction(this.execAction.bind(this), { actionIndex: actionIndex, item: item });
-                }
-            }
-        }
-
         const pre = this.datatable.items.slice(0, this.datatable.pageNb * this.datatable.pageSize);
         const post = this.datatable.items.slice((this.datatable.pageNb + 1) * this.datatable.pageSize);
         const paginatedItems = this.datatable.items.slice(
@@ -117,9 +107,21 @@ export default class ListWindow extends Window {
             (this.datatable.pageNb + 1) * this.datatable.pageSize
         );
 
-        this.data.datatable = this.datatable;
+        this.data.datatable = {...this.datatable};
         this.data.datatable.listActions = this.targetActions.map((a) => ({ key: a.key, title: a.title, width: a.width }));
         this.data.datatable.items = [...pre, ...await this.onPageItemsUpdate(paginatedItems), ...post].filter((i) => i !== undefined) as any[];
+
+        for (const actionIndex in this.targetActions) {
+            const action = this.targetActions[actionIndex];
+            for (const itemIndex in this.datatable.items) {
+                const item = this.datatable.items[itemIndex];
+                const actionKey = `item_${itemIndex}_${action.key}`;
+                if (this.actions[actionKey]) {
+                    tmc.ui.removeAction(this.actions[actionKey]);
+                }
+                this.actions[actionKey] = tmc.ui.addAction(this.execAction.bind(this), { actionIndex: actionIndex, item: item });
+            }
+        }
 
         return super.display();
     }
