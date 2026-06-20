@@ -229,7 +229,7 @@ export default class UiManager {
     uuid(): string {
         this.manialinkUUID += 1;
         const prefix = tmc.game.Name === "TmForever" ? "" : "tmc";
-        tmc.debug('¤info¤new manialink uuid: ¤white¤' + prefix + this.manialinkUUID.toString());
+        // tmc.debug('¤info¤new manialink uuid: ¤white¤' + prefix + this.manialinkUUID.toString());
         return prefix + this.manialinkUUID.toString();
     }
 
