@@ -14,7 +14,7 @@ export default function EmotesWidget({ text = '' }) {
                 pos="2 -11.5"
                 z-index="2"
                 size={`${width - 10} 4`}
-                text={`$${colors.widget_text}${data.author}`}
+                text={`${data.author}`}
                 halign="left"
                 valign="center2"
                 textcolor="fff"
@@ -38,7 +38,7 @@ export default function EmotesWidget({ text = '' }) {
                 pos={`${width - 1} -15.5`}
                 z-index="2"
                 size="35 4"
-                text={`$${colors.widget_text}${data.wrTime}`}
+                text={`${data.wrTime}`}
                 halign="right"
                 valign="center2"
                 textcolor="fff"
@@ -51,11 +51,11 @@ export default function EmotesWidget({ text = '' }) {
                 z-index="0"
                 size={`${width} ${height}`}
                 text=" "
-                focusareacolor1={`${colors.widget_bg}9`}
+                focusareacolor1="0000"
                 focusareacolor2={`${colors.highlight}e`}
                 action={actions.openWidget}
             />
-            <quad pos="0 0" z-index="1" size={`0.5 ${size.height}`} bgcolor={colors.highlight} />
+
         </>
     );
 }

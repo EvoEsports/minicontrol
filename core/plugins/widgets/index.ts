@@ -3,6 +3,7 @@ import Manialink from "@core/ui/manialink";
 import WidgetSettings from "./widgets";
 import Grid from "@core/ui/components/Grid";
 import Window from "@core/ui/window";
+
 export default class WidgetPlugin extends Plugin {
     grids: { [key: string]: Manialink } = {};
     moveTargets: { [key: string]: any } = {};
@@ -24,6 +25,7 @@ export default class WidgetPlugin extends Plugin {
     }
 
     async createGrid(login: string) {
+        if (this.grids[login]) return;
         const widget = new Manialink(() => Grid({
             pos: "-180 90",
             size: "360 180",
@@ -39,8 +41,8 @@ export default class WidgetPlugin extends Plugin {
         widget.recipient = login;
         await widget.display();
         this.grids[login] = widget;
-
     }
+
     async move(login: string, data: { x: number, y: number }) {
         if (!this.moveTargets[login]) return;
         const manialink = tmc.ui.getManialinks(undefined).find(m => m.id === this.moveTargets[login] && m.recipient === login);

@@ -23,10 +23,10 @@ export default function ListHeader({ pos = '0 0', 'z-index': z = 1, size, text, 
                 textsize="1"
                 valign="center2"
                 focusareacolor1="0000"
-                focusareacolor2={colors.button_bg_hover}
+                focusareacolor2={colors.title_bg}
                 action={action}
             />
-            <quad pos={`${ppos.x} ${ppos.y - psize.y * 0.5}`} z-index="3" size={`${psize.x} .3`} bgcolor={colors.highlight} valign="bottom" />
+            <quad pos={`${ppos.x} ${ppos.y - psize.y * 0.5}`} z-index="3" size={`${psize.x} .3`} bgcolor={colors.black} valign="bottom" />
         </>
     );
 }

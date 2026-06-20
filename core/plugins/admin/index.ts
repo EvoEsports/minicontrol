@@ -9,6 +9,7 @@ import ColorsWindow from "./ui/ColorsWindow";
 import ModeSettingsWindow from "./ui/ModeSettingsWindow";
 import LocalMapsWindow from "./ui/LocalMapsWindow";
 import PlayerListsWindow from "./ui/PlayerListsWindow";
+import ThemeWindow from "./ui/ThemesWindow";
 
 enum TmnfMode {
     Rounds = 0,
@@ -42,6 +43,7 @@ export default class AdminPlugin extends Plugin {
 
         this.addCommand("//settings", this.cmdSettings.bind(this), "Set settings");
         this.addCommand("//colors", this.cmdColors.bind(this), "Set colors");
+        this.addCommand("//theme", this.cmdTheme.bind(this), "Change color theme");
         this.addCommand("//set", this.cmdSetSetting.bind(this), "Set setting value");
         this.addCommand("//skip", async () => tmc.server.send("NextMap"), "Skips Map");
         this.addCommand("//res", async () => tmc.server.send("RestartMap"), "Restarts Map");
@@ -1027,4 +1029,10 @@ export default class AdminPlugin extends Plugin {
         const window = new ColorsWindow(login);
         window.display();
     }
+
+    async cmdTheme(login: string, args: string[]) {
+        const window = new ThemeWindow(login);
+        window.display();
+    }
+
 }

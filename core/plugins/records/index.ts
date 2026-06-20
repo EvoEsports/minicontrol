@@ -79,7 +79,6 @@ export default class Records extends Plugin {
     }
 
     async cmdRecords(login: string, args: string[]) {
-        const records: any = [];
         let mapUuid = tmc.maps.currentMap.UId;
 
         if (args.length > 0) {
@@ -87,7 +86,8 @@ export default class Records extends Plugin {
         }
 
         const window = new RecordsWindow(login, mapUuid);
-        window.display();
+        await window.updateRecords();
+        await window.display();
     }
 
     async getRecords(mapUuid: string) {
@@ -265,8 +265,10 @@ export default class Records extends Plugin {
             await prev;
 
             // Ensure checkpoints array exists and update it
-            if (!this.playerCheckpoints[login]) this.playerCheckpoints[login] = [];
-            this.playerCheckpoints[login].push(finishTime.toString());
+            if (!this.playerCheckpoints[login]) {
+                this.playerCheckpoints[login] = [];
+            }
+            // this.playerCheckpoints[login].push(finishTime.toString());
 
             try {
                 if (this.personalBest[login]) {

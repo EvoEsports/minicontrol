@@ -166,7 +166,7 @@ export default class Chat extends Plugin {
         const outItems = clone(emotesMap).map((item) => {
             return {
                 emote: `:${item.emote}:`,
-                glyph: item.glyph,
+                glyph: `$fff${item.glyph}`,
             };
         });
         window.setItems(outItems);

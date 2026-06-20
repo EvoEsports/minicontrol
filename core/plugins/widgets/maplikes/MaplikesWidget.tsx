@@ -6,12 +6,11 @@ export default function EmotesWidget() {
 
     return (
         <>
-            <label pos={`2 -${height * 0.5}`} z-index="1" size={`4 ${height}`} text="" textsize="1" halign="left" valign="center2" />
             <label
                 pos={`7 -${height * 0.5}`}
                 z-index="1"
                 size={`${width} ${height}`}
-                text={`${data.positive} likes on this map`}
+                text={`$o${data.positive}$o likes`}
                 halign="left"
                 valign="center2"
                 textfont={fonts.widget}

@@ -3,6 +3,7 @@ import Window from "@core/ui/window";
 import { chunkArray, parseEntries } from "./utils";
 import type IManialink from "@core/ui/interfaces/imanialink";
 import Manialink from "@core/ui/manialink";
+import { _ } from "ajv";
 
 // Module-level regex patterns - created once, reused
 const TAG_REGEX = /<([a-zA-Z0-9_-]+)([^>]*)>/g;
@@ -69,6 +70,7 @@ export default class UiManager {
     async init() {
         tmc.server.addListener("Trackmania.PlayerManialinkPageAnswer", this.onManialinkAnswer, this);
         tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("TMC.ColorsChanged", this.onColorsChanged, this);
         tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
         if (tmc.game.Name === "Trackmania") {
             await this.getUiProperties();
@@ -227,7 +229,7 @@ export default class UiManager {
     uuid(): string {
         this.manialinkUUID += 1;
         const prefix = tmc.game.Name === "TmForever" ? "" : "tmc";
-        // tmc.debug('¤info¤new manialink uuid: ¤white¤' + prefix + this.manialinkUUID.toString());
+        tmc.debug('¤info¤new manialink uuid: ¤white¤' + prefix + this.manialinkUUID.toString());
         return prefix + this.manialinkUUID.toString();
     }
 
@@ -383,7 +385,15 @@ export default class UiManager {
 
             // ensure only one window of each type per player
             const playerWindows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
-            if (playerWindows.find((win) => win.name === (manialink as Window).name)) {
+            const test = playerWindows.find((win) => {
+                    let wname = win.name;
+                    if (wname == "") wname = win.title;
+                    let mname = (manialink as Window).name;
+                    if (mname == "") mname == (manialink as Window).title;
+                    return wname === mname;
+                });
+
+            if (test) {
                 return;
             }
 
@@ -396,8 +406,8 @@ export default class UiManager {
                             if (win.recipient !== undefined) {
                                 const id = win.id;
                                 const recipient = win.recipient;
-                                win.destroy();
-                                delete this.playerManialinks[recipient][id.toString()];
+                                await win.destroy();
+                                delete this.playerManialinks[recipient][id];
                             }
                         }),
                     );
@@ -496,6 +506,7 @@ export default class UiManager {
                     if (playerWindows.find((win) => win.name === (manialink as Window).name)) {
                         return;
                     }
+
                     if (tmc.game.Name === "TmForever") {
                         // If manialink is a NewWindow, destroy all existing windows for this recipient.
                         if (manialink instanceof Window) {
@@ -505,7 +516,7 @@ export default class UiManager {
                                     if (win.recipient !== undefined) {
                                         const id = win.id;
                                         const recipient = win.recipient;
-                                        win.destroy();
+                                        await win.destroy();
                                         delete this.playerManialinks[recipient][id.toString()];
                                     }
                                 }),
@@ -657,6 +668,14 @@ export default class UiManager {
     getCustomUI() {
         return this.tmnfCustomUi;
     }
+
+    onColorsChanged() {
+        this.displayManialinks(Object.values(this.publicManialinks));
+        for (const login in this.playerManialinks) {
+            this.displayManialinks(Object.values(this.playerManialinks[login]));
+        }
+    }
+
 
     async uiSettingsChange(value: string, oldValue: boolean, _key: string) {
         const key = _key.replace("tmf.hud.", "");

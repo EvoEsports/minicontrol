@@ -1,5 +1,5 @@
 import { createElement, Fragment, setScript, getProperties, maniascriptFragment } from '@core/ui/forge';
-import { removeColors } from '@core/utils';
+import { modLightness, removeColors } from '@core/utils';
 import DefaultListHeader from './partials/ListHeader';
 import DefaultListItem from './partials/ListItem';
 import DefaultListTitle from './partials/ListTitle';
@@ -7,9 +7,10 @@ import DefaultButton from './Button';
 import { type dataTableDef } from '../listwindow';
 import PaginateControls from './partials/PaginateControls';
 import ComponentRegistry from '../componentregistry';
+
 export default function DataTable(props: any) {
     const { pos = '0 0', 'z-index': z = 1, usetitle = false, data } = (props || {}) as { pos: string; 'z-index': number; usetitle: boolean; data: dataTableDef };
-    const { actions, size } = getProperties();
+    const { actions, size, colors } = getProperties();
 
     const ListHeader = ComponentRegistry.get('ListHeader', DefaultListHeader);
     const ListItem = ComponentRegistry.get('ListItem', DefaultListItem);
@@ -83,14 +84,20 @@ export default function DataTable(props: any) {
             width += column.width;
             colIndex += 1;
         }
+
+        const startX = width;
+        let actionWidth = 0;
         for (const action2 of data.listActions) {
             const outAction = actions[`item_${item.index}_${action2.key}`];
             const awidth = action2.width || 10;
             if (action2.title) {
-                outItems.push(<Button pos={`${width} -${5 * rowCounter}`} z-index={"" + z} size={`${awidth} 4`} text={action2.title} action={outAction} halign="center" />);
+                outItems.push(<Button pos={`${width} -${(5 * rowCounter)+0.5}`} z-index={"" + (z+0.1)} size={`${awidth} 3`} text={action2.title} action={outAction} halign="center" />);
                 width += awidth + 1;
+                actionWidth += awidth + 1;
             }
         }
+        outItems.push(<quad pos={`${startX} -${5 * rowCounter}`} z-index={"" + (z - 0.1)} size={`${actionWidth} 4`} bgcolor={modLightness(colors.window_bg, -10) + "a"} />);
+
         rowCounter += 1;
         itemCounter += 1;
     }

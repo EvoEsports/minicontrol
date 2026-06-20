@@ -2,6 +2,7 @@ import ListWindow from "@core/ui/listwindow";
 import { clone } from "@core/utils";
 
 function getPreviewColor(color: string) {
+    if (color === undefined || color == null) return "fff";
     if (color.startsWith("$")) color.replace("$", "");
     if (color.length === 6) {
         return `${color[0]}${color[2]}${color[4]}`;
@@ -17,9 +18,9 @@ export default class SettingsWindow extends ListWindow {
 
     constructor(login: string) {
         super(login);
-        this.setItemsPerPage(10);
+        this.setItemsPerPage(20);
         this.setColumns({
-            key: { title: "Key", width: 50 },
+            preview: { title: "Key", width: 50 },
             value: { title: "Value", width: 60, actionKey: "set" },
             default: { title: "Default", width: 20 },
         });
@@ -34,6 +35,9 @@ export default class SettingsWindow extends ListWindow {
             await tmc.settings.resetColor(item.key);
             this.display();
         });
+
+        this.setUseTitle(false);
+
     }
 
     async display() {
@@ -52,14 +56,15 @@ export default class SettingsWindow extends ListWindow {
             }
             out.push({
                 key: data,
+                preview: "$"+getPreviewColor(value)+data,
                 default: defaultValue,
                 value: prefix + value,
                 type: "color",
-                title: `$<$${getPreviewColor(value)}Color$> for ${data}`,
             });
         }
+
         this.setItems(out.sort((a: any, b: any) => a.key.localeCompare(b.key)));
-        await super.display();
+        super.display();
     }
 
 }

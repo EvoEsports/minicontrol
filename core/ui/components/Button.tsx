@@ -25,7 +25,7 @@ export default function Button({ id = '', 'z-index': zi = 1, pos = '0 0', size =
                 action={action}
                 textcolor={colors.button_text}
                 focusareacolor1={focusareacolor1 !== "" ? focusareacolor1 : colors.button_bg}
-                focusareacolor2={focusareacolor2 !== "" ? focusareacolor2 : colors.button_bg_hover}
+                focusareacolor2={focusareacolor2 !== "" ? focusareacolor2 : colors.highlight}
             />
         </frame>
     );

@@ -6,6 +6,7 @@ import fsPath from "node:path";
 
 export default class LocalMapsWindow extends ListWindow {
     size = { width: 180, height: 120 };
+    title = "Local maps";
 
     constructor(login: string) {
         super(login);

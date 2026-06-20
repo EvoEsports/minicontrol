@@ -21,7 +21,7 @@ export default class DedimaniaClient {
     }
 
     async call(method: string, ...params: any[]) {
-        const url = "http://dedimania.net:8002/Dedimania";
+        const url = "http://dedimania.net:8058/Dedimania";
         const body = await Serializer.serializeMethodCall("system.multicall", [
             { methodName: method, params: params },
             { methodName: "dedimania.WarningsAndTTR", params: null },

@@ -92,7 +92,7 @@ if (Event.Control.HasClass("title")) {
         <>
             <frame id="root" pos={`-${psize.x * 0.5} ${psize.y * 0.5 + ppos.y}`} z-index={z}>
                 <quad class="title" pos="0 0" z-index={z + 2} size={`${psize.x + 4} 6`} bgcolor={`${colors.title_bg}e`} halign="left" valign="bottom" scriptevents="1" />
-                <quad pos={`${psize.x + 4} 0`} z-index={z + 2} size={`${psize.x + 4} 0.4`} bgcolor={colors.highlight} opacity="1" valign="top" halign="right" />
+                <quad pos={`${psize.x + 4} 0`} z-index={z + 2} size={`${psize.x + 4} 0.4`} bgcolor={colors.black} opacity="1" valign="top" halign="right" />
                 <label
                     pos="2 3"
                     z-index={z + 3}

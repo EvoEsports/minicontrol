@@ -33,7 +33,7 @@ interface Actions {
 
 export default class ListWindow extends Window {
     private targetActions: Actions[] = [];
-    title = "";
+    title = "Dedimania Records";
     size = { width: 160, height: 120 };
     datatable: dataTableDef = {
         columns: {},

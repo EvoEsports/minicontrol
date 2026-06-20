@@ -39,20 +39,20 @@ export default class RecordsWindow extends ListWindow {
     async updateRecords() {
         const plugin = tmc.getPlugin("records");
         const data = await plugin.getRecords(this.mapUuid);
-        this.data.records = [];
+        const recs:any = [];
 
         for (const record of data) {
-            this.data.records.push({
+            recs.push({
                 rank: record.rank,
                 nickname: htmlEntities(record?.player?.customNick ?? record?.player?.nickname ?? ""),
                 login: record.login,
-                time: formatTime(record.time ?? 0),
+                time: record.time ?? 0,
                 mapUuid: this.mapUuid,
             });
         }
         const map = tmc.maps.getMap(this.mapUuid) ?? tmc.maps.currentMap;
-        this.title = `Server Records for ${map.Name}$z$s [${this.data.records.length}]`;
-
+        this.title = `Server Records for ${map.Name}$z$s [${recs.length}]`;
+        this.setItems(recs);
     }
 
     async applyCommand(login: string, item: any) {
@@ -123,7 +123,7 @@ class DetailsWindow extends ListWindow {
         const items: { key: string; value: string }[] = [
             { key: "Rank", value: `${this.record.rank}` },
             { key: "Nickname", value: htmlEntities(this.record.nickname) },
-            { key: "Time", value: formatTime(this.record.time).replace("0:", "") },
+            { key: "Time", value: formatTime(this.record.time,false).replace("00:", "") },
         ];
 
         if (this.record.checkpoints) {
@@ -148,10 +148,10 @@ class DetailsWindow extends ListWindow {
                             if (lapIndex > 0) {
                                 items.push({
                                     key: checkpointKey,
-                                    value: `${formatTime(lapTime).replace("0:", "")} (${formatTime(cpTime).replace("0:", "")})`,
+                                    value: `${formatTime(lapTime,false).replace("00:", "")} (${formatTime(cpTime,false).replace("00:", "")})`,
                                 });
                             } else {
-                                items.push({ key: checkpointKey, value: `${formatTime(lapTime).replace("0:", "")}` });
+                                items.push({ key: checkpointKey, value: `${formatTime(lapTime,false).replace("00:", "")}` });
                             }
                         }
                     });

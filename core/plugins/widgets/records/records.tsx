@@ -7,15 +7,16 @@ export default function WidgetComponent() {
     const { width, height } = size;
     const RecordItem = getComponent('RecordItem', DefaultRecordItem);
     const WidgetTitle = getComponent('WidgetTitle', DefaultTitle);
+    const first = data.records[0]?.time || 0;
 
     const records = data.records.map((record, i) => (
         <RecordItem
-            pos={`0 -${i * 3.5}`}
-            size={`${width} 3`}
+            pos={`0 -${i * 4.5}`}
+            size={`${width} 4`}
             z-index={pos.z + 1}
             rank={record.rank}
             nickname={record.player?.customNick || record.player?.nickname || 'asd'}
-            time={record.time}
+            time={record.rank==1?record.time:Math.abs(first-record.time)}
             highlight={record.login == data.login}
         />
     ));

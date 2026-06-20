@@ -7,7 +7,6 @@ import ComponentRegistry from "./componentregistry";
 export default class Window extends Manialink implements IWindow {
     title: string = "Window";
 
-
     constructor(jsxComponent: any, login: string, name: string) {
         const Window = ComponentRegistry.get('Window', DefaultWindow);
         super(() => Window({
@@ -35,7 +34,11 @@ export default class Window extends Manialink implements IWindow {
     }
 
     async render() {
-        this.data.windowName = this.name;
+        let name = this.name;
+        if (name == "") {
+            name = this.title;
+        }
+        this.data.windowName = name;
         this.data.draggable = this.data.draggable ?? true;
         return await super.render();
     }

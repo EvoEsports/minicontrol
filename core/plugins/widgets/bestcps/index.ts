@@ -52,7 +52,7 @@ export default class BestCps extends Plugin {
         const nickname = player.customNickname || player.nickname || "Unknown";
         if (!this.bestTimes[nb - 1] && nb > 0) return;
         if (!this.bestTimes[nb] || time < this.bestTimes[nb].time) {
-            this.bestTimes[nb] = { nickname: nickname, time: time, prettyTime: formatTime(time) };
+            this.bestTimes[nb] = { nickname: nickname, time: time, prettyTime: formatTime(time,false) };
             await this.display();
         }
     }
