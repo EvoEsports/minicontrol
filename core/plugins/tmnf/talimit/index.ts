@@ -14,6 +14,7 @@ export default class TAlimitPlugin extends Plugin {
     startTime: number = Date.now();
     timeLimit = 0;
     active = false;
+    run = false;
     extend = false;
     widget: Widget | null = null;
     intervalId: any | null = null;
@@ -56,7 +57,8 @@ export default class TAlimitPlugin extends Plugin {
         }
         tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
         tmc.server.addOverride("GetTimeAttackLimit", this.overrideGetLimit.bind(this));
-        this.intervalId = setInterval(() => this.tick(), 1000);
+        this.run = true;
+        this.tick();
     }
 
     async onStart() {
@@ -64,9 +66,7 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async onUnload() {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-        }
+        this.run = false;
         tmc.server.removeOverride("SetTimeAttackLimit");
         tmc.server.removeOverride("GetTimeAttackLimit");
         this.active = false;
@@ -76,6 +76,9 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async tick() {
+        if (this.run) {
+            setTimeout(() => this.tick(), 1000);
+        }
         if (this.timeLimit < 1) {
             return;
         }

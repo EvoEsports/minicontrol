@@ -21,7 +21,6 @@ declare module "@core/plugins" {
 export default class DebugTool extends Plugin {
     memoryWidget: Widget | null = null;
     gbxWidget: Widget | null = null;
-    intervalId: any = null;
 
     async onLoad() {
         this.addSetting("debugtool.enableGbxCounters", false, async (value: boolean) => {
@@ -34,8 +33,6 @@ export default class DebugTool extends Plugin {
         this.addSetting("debugtool.enableMemoryWidget", false, async (value: boolean) => {
             if (!value && this.memoryWidget) {
                 await this.memoryWidget.hide();
-            } else {
-                await this.displayMemInfo();
             }
         }, "DebugTool: Enable Memory Usage widget");
 
@@ -50,9 +47,6 @@ export default class DebugTool extends Plugin {
             this.addCommand("//addfake", this.cmdFakeUsers.bind(this), "Connect Fake users");
             this.addCommand("//removefake", this.cmdRemoveFakeUsers.bind(this), "Connect Fake users");
         }
-        this.intervalId = setInterval(() => {
-            this.displayMemInfo();
-        }, 30000) as any;
 
         this.addCommand("//mem", this.cmdMeminfo.bind(this), "Show Memory usage");
         this.addCommand("//uptime", this.cmdUptime.bind(this), "Show Uptime");
@@ -72,16 +66,19 @@ export default class DebugTool extends Plugin {
 
     async onStart() {
         await this.displayMemInfo();
-        setInterval(() => {
-            const currentMem = process.memoryUsage().rss / 1048576;
-            const diff = currentMem - startValueMem;
-            if (diff > 450) {
-                const msg = `Stopping MINIcontrol, Memory usage is too high: $fff${currentMem.toFixed(2)}MB ¤error¤(${diff.toFixed(2)}MB)`;
-                console.log(msg);
-                tmc.chat(msg);
-                process.exit(1);
-            }
-        }, 10000);
+        this.watchDog();
+    }
+
+    private async watchDog() {
+        const currentMem = process.memoryUsage().rss / 1048576;
+        const diff = currentMem - startValueMem;
+        if (diff > 450) {
+            const msg = `Stopping MINIcontrol, Memory usage is too high: $fff${currentMem.toFixed(2)}MB ¤error¤(${diff.toFixed(2)}MB)`;
+            console.log(msg);
+            tmc.chat(msg);
+            process.exit(1);
+        }
+        setTimeout(() => this.watchDog(), 10 * 1000);
     }
 
     async onCounters(counters: Counters) {
@@ -93,7 +90,6 @@ export default class DebugTool extends Plugin {
     }
 
     async onUnload() {
-        clearInterval(this.intervalId);
         this.memoryWidget?.destroy();
         this.gbxWidget?.destroy();
     }
@@ -127,6 +123,7 @@ export default class DebugTool extends Plugin {
     }
 
     async displayMemInfo() {
+        setTimeout(() => this.displayMemInfo(), 30 * 1000);
         if (!tmc.settings.get("debugtool.enableMemoryWidget")) {
             return;
         }
