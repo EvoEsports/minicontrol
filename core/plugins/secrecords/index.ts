@@ -301,7 +301,7 @@ export default class RecordsSector extends Plugin {
 
             items[i] = {
                 cp: Number.parseInt(i) + 1,
-                nickname: htmlEntities(rec.nickname ?? "-"),
+                nickname: (rec.nickname ?? "-"),
                 time: formatTime(rec.time),
                 myTime: myTime,
                 diff: color + diff,

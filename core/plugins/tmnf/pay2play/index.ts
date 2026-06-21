@@ -50,6 +50,7 @@ export default class Pay2Play extends Plugin {
 
     createWidget(index: number, text: string, amount: number, callback: ActionCallback) {
         const action = tmc.ui.addAction(callback, []);
+        const colors = tmc.settings.colors;
         const widget = new Widget(() => {
             return [Label({
                 pos: "5 -1.5",
@@ -57,7 +58,7 @@ export default class Pay2Play extends Plugin {
                 size: "20 5",
                 scale: "0.3",
                 style: "TextRaceChrono",
-                text: `$fa0${amount}`,
+                text: `$${colors.highlight}${amount}`,
                 halign: "center",
             }),
             Label({
@@ -65,7 +66,7 @@ export default class Pay2Play extends Plugin {
                 "z-index": 0,
                 size: "20 5",
                 textsize: "1",
-                text: text,
+                text: `$${colors.widget_text}${text}`,
                 halign: "center",
             }),
             Button({
@@ -73,7 +74,7 @@ export default class Pay2Play extends Plugin {
                 "z-index": 0,
                 size: "10 10",
                 action: action,
-                focusareacolor1: "000a",
+                focusareacolor1: `${colors.widget_bg}a`,
             })];
 
         }, "pay2play_" + text.toLowerCase());

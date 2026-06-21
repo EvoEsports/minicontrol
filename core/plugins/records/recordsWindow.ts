@@ -44,7 +44,7 @@ export default class RecordsWindow extends ListWindow {
         for (const record of data) {
             recs.push({
                 rank: record.rank,
-                nickname: htmlEntities(record?.player?.customNick ?? record?.player?.nickname ?? ""),
+                nickname: (record?.player?.customNick ?? record?.player?.nickname ?? ""),
                 login: record.login,
                 time: record.time ?? 0,
                 mapUuid: this.mapUuid,
@@ -112,7 +112,7 @@ class DetailsWindow extends ListWindow {
         super(login);
         this.size = { width: 160, height: 120 };
         this.record = record;
-        this.title = `Record Details for ${htmlEntities(this.record?.nickname || "Unknown")}`;
+        this.title = `Record Details for ${(this.record?.nickname || "Unknown")}`;
     }
 
     async display() {
@@ -122,7 +122,7 @@ class DetailsWindow extends ListWindow {
 
         const items: { key: string; value: string }[] = [
             { key: "Rank", value: `${this.record.rank}` },
-            { key: "Nickname", value: htmlEntities(this.record.nickname) },
+            { key: "Nickname", value: (this.record.nickname) },
             { key: "Time", value: formatTime(this.record.time,false).replace("00:", "") },
         ];
 

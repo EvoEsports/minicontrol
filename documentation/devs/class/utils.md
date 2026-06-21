@@ -51,12 +51,6 @@ Important for Manialinks:
 - Removes Trackmania link formatting `$l[...]` and highlight codes `$l` and `$h`
 - Replaces double hyphens `--` with an HTML entity to avoid XML comment trouble
 
-**Use this when rendering user content in Twing templates or Manialinks**
-
-```ts
-title = htmlEntities(map.Name);
-```
-
 ### removeLinks / removeColors
 Helpers to strip link and color formatting.
 

@@ -357,7 +357,7 @@ export default class VotesPlugin extends Plugin {
             vote: this.currentVote,
             total: total,
             yes_ratio: percent,
-            voteText: htmlEntities(processColorString(this.currentVote.question)),
+            voteText: (processColorString(this.currentVote.question)),
             time_percent: (this.currentVote.timeout - Date.now()) / (this.timeout * 1000),
             timer: Math.round((this.currentVote.timeout - Date.now()) / 1000),
         });

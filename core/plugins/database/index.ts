@@ -375,7 +375,7 @@ export default class Database extends Plugin {
                 const formattedPlaytime = `${hours.toString().padStart(2, "0")}h ${minutes.toString().padStart(2, "0")}min ${seconds.toString().padStart(2, "0")}s`;
                 return {
                     rank: index + 1,
-                    nickname: htmlEntities(player.nickname),
+                    nickname: (player.nickname),
                     playtime: formattedPlaytime,
                 };
             }),

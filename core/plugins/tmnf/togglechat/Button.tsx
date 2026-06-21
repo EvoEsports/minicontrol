@@ -3,7 +3,7 @@ import { createElement, Fragment, setScript, getComponent, getProperties, manias
 
 export default function ButtonWidget() {
     const Button = getComponent('Button', DefaultButton);
-    const { actions, size, pos } = getProperties();
+    const { actions, size, colors } = getProperties();
 
-    return <Button pos="0 0" size={`${size.width} ${size.height}`} z-index="2" text=" Chat" halign="left" action={actions.openWidget} focusareacolor1="0008" />;
+    return <Button pos="0 0" size={`${size.width} ${size.height}`} z-index="2" text=" Chat" halign="left" action={actions.openWidget} focusareacolor1={`${colors.widget_bg}9`} />;
 }

@@ -32,8 +32,8 @@ export default class CommandManager {
                 for (const command in this.commands) {
                     if (this.commands[command]?.admin) continue;
                     outCommands.push({
-                        command: htmlEntities(this.commands[command].trigger),
-                        help: htmlEntities(this.commands[command].help),
+                        command: (this.commands[command].trigger),
+                        help: (this.commands[command].help),
                         rawCommand: this.commands[command].trigger,
                     });
                 }
@@ -57,8 +57,8 @@ export default class CommandManager {
                 for (const command in this.commands) {
                     if (!this.commands[command]?.admin) continue;
                     outCommands.push({
-                        command: htmlEntities(this.commands[command].trigger),
-                        help: htmlEntities(this.commands[command].help),
+                        command: (this.commands[command].trigger),
+                        help: (this.commands[command].help),
                     });
                 }
                 const window = new ListWindow(login);
