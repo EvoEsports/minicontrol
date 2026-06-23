@@ -15,6 +15,7 @@ export default function EmotesWidget() {
                 valign="center2"
                 textfont={fonts.widget}
                 textsize="1"
+                textcolor={`${colors.widget_text}`}
             />
             <label
                 pos="0 0"

@@ -4,8 +4,12 @@
  * This module exports a JSON Schema for validating plugin `manifest.json` files
  * and TypeScript runtime types + a small validator helper using AJV.
  */
-import Ajv, { type ValidateFunction } from 'ajv';
-import addFormats from 'ajv-formats';
+import Ajv, { type Plugin, type ValidateFunction } from 'ajv';
+import ajvFormats, { type FormatsPluginOptions } from 'ajv-formats';
+
+// Force TypeScript to treat it as a callable Ajv plugin
+const addFormats = ajvFormats as unknown as Plugin<FormatsPluginOptions>;
+
 
 /** JSON Schema for the plugin manifest.json */
 export const ManifestSchema = {

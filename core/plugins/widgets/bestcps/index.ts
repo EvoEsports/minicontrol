@@ -29,8 +29,8 @@ export default class BestCps extends Plugin {
         this.addListener("TMC.PlayerCheckpoint", this.checkpoint, this);
         this.addCommand("/checkpoints", this.cmdCheckpoints.bind(this), "Display best Checkpoints");
         this.widget = new Widget(BestCpsWidget, "bestCpsWidget");
-        this.widget.pos = { x: -160, z: 0, y: 90 };
-        this.widget.size = { width: 240, height: 20 };
+        this.widget.pos = { x: -130, z: 0, y: 90 };
+        this.widget.size = { width: 210, height: 20 };
         this.nbCheckpoints = tmc.maps.currentMap.NbCheckpoints || -1;
         await this.display();
     }

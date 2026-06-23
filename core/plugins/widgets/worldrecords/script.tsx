@@ -285,8 +285,8 @@ main() {
             oldCount == TMGame_Record_State.ZonesRecords[0].Records.count;
             for(Idx, 0, 7) {
                 declare Item <=> (Page.GetFirstChild("r_"^Idx) as CMlFrame);
-                (Item.Controls[4] as CMlQuad).BgColor = TextLib::ToColor("000");
-                (Item.Controls[5] as CMlQuad).BgColor = TextLib::ToColor("000");
+                (Item.Controls[3] as CMlQuad).BgColor = TextLib::ToColor("${colors.widget_bg}");
+                // (Item.Controls[5] as CMlQuad).BgColor = TextLib::ToColor("000");
                 Item.Hide();
             }
             if (TMGame_Record_State.ZonesRecords[0].Records.count < 1) {
@@ -295,14 +295,16 @@ main() {
 
             foreach(Idx => Record in TMGame_Record_State.ZonesRecords[0].Records) {
                 declare Item <=> (Page.GetFirstChild("r_"^Idx) as CMlFrame);
-                Item.Show();
-                (Item.Controls[1] as CMlLabel).Value = TextLib::Replace(TextLib::FormatRank(Record.Rank, True), "th", "");
-                (Item.Controls[2] as CMlLabel).Value = Record.DisplayName;
-                (Item.Controls[3] as CMlLabel).Value = TextLib::TimeToText(Record.Score, True, True);
+                let Prefix = "";
                 if (Record.AccountId == LocalUser.WebServicesUserId) {
-                    (Item.Controls[4] as CMlQuad).BgColor = TextLib::ToColor("${colors.highlight}");
-                    (Item.Controls[5] as CMlQuad).BgColor = TextLib::ToColor("${colors.highlight}");
+                    Prefix = "$fff";
+                    (Item.Controls[3] as CMlQuad).BgColor = TextLib::ToColor("${colors.highlight}");
                 }
+                (Item.Controls[0] as CMlLabel).Value = Prefix ^ TextLib::Replace(TextLib::FormatRank(Record.Rank, True), "th", "");
+                (Item.Controls[1] as CMlLabel).Value = Prefix ^ Record.DisplayName;
+                (Item.Controls[2] as CMlLabel).Value = Prefix ^ TextLib::TimeToText(Record.Score, True, True);
+                Item.Show();
+
             }
         }
     }

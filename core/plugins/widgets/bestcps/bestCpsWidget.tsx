@@ -11,9 +11,9 @@ export default function bestCpsWidget() {
         if (index > data.maxCp) break;
 
         out.push(
-            <frame pos={`${34.25 * (index % 8)} -${Math.floor(index / 8) * 3.5}`}>
-                <label pos="2 -2" z-index="1" size="10 3" text={index+1} textcolor="000" halign="center" valign="center2" textsize="0.5" />
-                <quad pos="2 -2" z-index="0" size="3 3" bgcolor="fffa" valign="center" halign="center" />
+            <frame pos={`${34.25 * (index % 6)} -${Math.floor(index / 6) * 3.5}`}>
+                <label pos="2 -2" z-index="1" size="10 3" text={`$o${index+1}`} textcolor={`${colors.widget_bg}a`} halign="center" valign="center2" textsize="0.5" />
+                <quad pos="2 -2" z-index="0" size="3 3" bgcolor={`${colors.widget_text}a`} valign="center" halign="center" />
 
                 <label pos="4.5 -2" z-index="1" size="19 3" text={cpdata.nickname} textcolor={colors.widget_text} halign="left" textsize="0.9" valign="center2" />
                 <quad pos="3.75 -2" z-index="0" size="20 3" bgcolor={`${colors.widget_bg}a`} valign="center" halign="left" />

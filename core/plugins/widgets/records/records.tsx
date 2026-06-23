@@ -3,7 +3,7 @@ import DefaultRecordItem from '@core/ui/components/partials/RecordItem';
 import DefaultTitle from '@core/ui/components/partials/WidgetTitle';
 
 export default function WidgetComponent() {
-    const { pos, size, data, actions, colors } = getProperties();
+    const { pos, size, data, actions, colors, recipient } = getProperties();
     const { width, height } = size;
     const RecordItem = getComponent('RecordItem', DefaultRecordItem);
     const WidgetTitle = getComponent('WidgetTitle', DefaultTitle);
@@ -17,7 +17,7 @@ export default function WidgetComponent() {
             rank={record.rank}
             nickname={record.player?.customNick || record.player?.nickname || 'asd'}
             time={record.rank==1?record.time:Math.abs(first-record.time)}
-            highlight={record.login == data.login}
+            highlight={record.login == recipient}
         />
     ));
 

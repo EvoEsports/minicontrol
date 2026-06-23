@@ -21,7 +21,6 @@ export default class RecordsWidget extends Plugin {
     }
 
     async onUnload() {
-
         for (const login of Object.keys(this.widgets)) {
             this.widgets[login].destroy();
             delete this.widgets[login];
@@ -156,7 +155,6 @@ export default class RecordsWidget extends Plugin {
 
     async widgetClick(login: string) {
         await tmc.chatCmd.execute(login, "/records");
-
     }
 
 }
