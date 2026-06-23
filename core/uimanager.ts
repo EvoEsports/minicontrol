@@ -386,12 +386,12 @@ export default class UiManager {
             // ensure only one window of each type per player
             const playerWindows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
             const test = playerWindows.find((win) => {
-                    let wname = win.name;
-                    if (wname == "") wname = win.title;
-                    let mname = (manialink as Window).name;
-                    if (mname == "") mname == (manialink as Window).title;
-                    return wname === mname;
-                });
+                let wname = win.name;
+                if (wname == "") wname = win.title;
+                let mname = (manialink as Window).name;
+                if (mname == "") mname == (manialink as Window).title;
+                return wname === mname;
+            });
 
             if (test) {
                 return;
@@ -730,7 +730,7 @@ export default class UiManager {
                     tmc.server.send("SendDisplayManialinkPageToLogin", login, hide, 0, false);
                 } else {
                     this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
-                    await this.onPlayerConnect([login]);
+                    await this.onPlayerConnect({ login: login });
                 }
             }, null);
         }

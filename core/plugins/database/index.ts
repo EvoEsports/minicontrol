@@ -80,6 +80,7 @@ export default class Database extends Plugin {
                 return;
             }
             await this.connect();
+            await this.syncPlayers();
         } catch (e: any) {
             tmc.cli(`¤error¤${e.message}`);
             process.exit(1);
@@ -164,20 +165,13 @@ export default class Database extends Plugin {
      */
     async onStart() {
         if (this.sequelize) {
-            tmc.server.prependListener("TMC.PlayerConnect", this.onPlayerConnect, this);
             tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
             tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
             tmc.server.addListener("TMC.MapListModified", this.onMapListModified, this);
-
             tmc.addCommand("/active", this.cmdActive.bind(this), "Show playtime");
             tmc.addCommand("/topactive", this.cmdTopActive.bind(this), "Show top100 playtime");
-            await this.syncPlayers();
-            await this.syncMaps();
+            this.syncMaps(); // removed await to ease initial loading times
         }
-    }
-
-    private async onPlayerConnect(player: PlayerType) {
-        await this.syncPlayer(player);
     }
 
     private async onPlayerDisconnect(player: PlayerType) {
@@ -286,12 +280,15 @@ export default class Database extends Plugin {
         });
         tmc.cli("¤white¤Importing vehicle data from maps, if missing");
         tmc.cli("¤white¤This can take a while...");
+        let counter = 0;
         for (const map of result) {
             const mapInfo = tmc.maps.getMap(map.uuid ?? "");
             if (!mapInfo) continue;
-            mapInfo.CreatedAt = new Date(map.createdAt).toISOString().split("T")[0];
             if (!map.playerModel) {
                 if (!mapInfo.Vehicle) {
+                    mapInfo.CreatedAt = new Date(map.createdAt).toISOString().split("T")[0];
+                    counter += 1;
+                    tmc.cli(`Processing file ${counter} of ${result.length}`);
                     const fileName = path.resolve(tmc.mapsPath, mapInfo.FileName);
                     if (existsSync(fileName)) {
                         const stream = await fsPromises.readFile(fileName);
@@ -301,7 +298,9 @@ export default class Database extends Plugin {
                         }
                         const gbx = new GBX<CGameCtnChallenge>(stream, 0);
                         gbx.parse()
-                            .then((file) => map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || "" }))
+                            .then((file) =>{
+                             map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || "" })
+                            })
                             .catch(async (error) => {
                                 tmc.debug(`¤error¤Failed to parse "¤white¤${fileName}¤error¤" file, falling back to the map environment...`);
                                 tmc.debug(error);
@@ -342,7 +341,6 @@ export default class Database extends Plugin {
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
         const formattedPlaytime = `${hours.toString().padStart(2, "0")}h ${minutes.toString().padStart(2, "0")}min ${seconds.toString().padStart(2, "0")}s`;
-
         tmc.chat(`¤info¤Your playtime: ¤white¤${formattedPlaytime}`, login);
     }
 

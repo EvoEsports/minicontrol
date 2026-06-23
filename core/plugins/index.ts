@@ -165,7 +165,7 @@ export default abstract class Plugin {
     /**
      * Helper to register a chat/command for cleanup
      */
-    protected registerCommand(name: string) {
+    private registerCommand(name: string) {
         this.__registeredCommands.push(name);
     }
 

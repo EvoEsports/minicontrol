@@ -142,6 +142,10 @@ export default class PlayerManager {
                 return;
             }
             const player = await this.getPlayer(login);
+            const database = tmc.getPlugin("database");
+            if (database) {
+                await database.syncPlayer(player);
+            }
             tmc.server.emit("TMC.PlayerConnect", player);
         } else {
             tmc.debug("¤error¤Unknown player tried to connect, ignored.");
