@@ -16,12 +16,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 import { require } from "tsx/cjs/api";
-import type * as SentryType from "@sentry/node";
+// import type * as SentryType from "@sentry/node";
 
 // const Sentry = require("./sentry", import.meta.url);
 declare global {
     const tmc: MiniControl;
-   // const sentry: typeof SentryType;
+    // const sentry: typeof SentryType;
 }
 
 import PlayerManager, { type Player } from "./playermanager";
@@ -592,6 +592,7 @@ class MiniControl {
         this.discoveredPlugins = await this.discoverPlugins();
         // if PLUGINS env var is provided, it acts as an inclusive whitelist
         const includeEnv = process.env.PLUGINS?.split(",")?.map(s => s.trim()).filter(Boolean) || [];
+        const excludeEnv = process.env.EXCLUDED_PLUGINS?.split(",")?.map(s => s.trim()).filter(Boolean) || [];
 
         // Compile include patterns (supports '*' wildcard, e.g. kacky/*)
         const includePatterns = includeEnv;
@@ -629,6 +630,8 @@ class MiniControl {
         };
 
         const matchesInclude = makeMatcher(includePatterns);
+        const matchesExclude = makeMatcher(excludeEnv);
+
         const loadList: string[] = [];
         for (const entry of this.discoveredPlugins) {
             const pluginId = entry.id;
@@ -639,6 +642,11 @@ class MiniControl {
             if (entry.compatible === false) include = false;
             // if PLUGINS env var provided, treat it as whitelist for initial load list
             if (includePatterns.length > 0 && !matchesInclude(pluginId)) include = false;
+            if (excludeEnv.length > 0 && matchesExclude(pluginId)) {
+                tmc.cli(`Excluding plugin from autoload: ¤cmd¤${pluginId}`);
+                include = false;
+            }
+
             if (include) loadList.push(pluginId);
         }
 
@@ -761,7 +769,7 @@ class MiniControl {
 
         this.startComplete = true;
         setMemStart();
-        const msg = `¤info¤Welcome to ${this.brand} ¤info¤version ¤white¤${this.version}¤info¤!`;
+        const msg = `¤info¤Welcome to ${this.brand} ¤info¤version ¤white¤${this.version} (${version.build})¤info¤!`;
         this.chat(msg);
         this.cli(msg);
         for (const plugin of Object.values(this.plugins)) {

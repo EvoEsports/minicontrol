@@ -2,6 +2,12 @@ import type { Player } from "@core/playermanager";
 import Plugin from "../index";
 import { formatTime, getCountryFromPath } from "@core/utils";
 import type { DediRecord } from "../tmnf/dedimania";
+import * as version from "../../../version.json";
+
+interface Version {
+    build: string;
+    version: string;
+}
 
 declare module "@core/plugins" {
     interface PluginRegistry {
@@ -10,6 +16,8 @@ declare module "@core/plugins" {
 }
 
 export default class Announces extends Plugin {
+    repoVersion: Version = {} as Version;
+
     async onLoad() {
         this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
@@ -26,9 +34,29 @@ export default class Announces extends Plugin {
         this.addSetting("announce.localrec.threshold", 15, null, "Announces: Improved local records public threshold");
         this.addSetting("announce.localrec.threshold.new", 50, null, "Announces: New local records public threshold");
         this.addColor("dedirec", "0a0", null, "Dedimania record color");
+
     }
 
     async onStart() {
+        const branch = process.env.CHECKVERSION ?? "main";
+        if (branch !== "false") {
+            tmc.cli(`Fetching MiniControl version from github for "${branch}"-branch...`);
+            fetch(`https://raw.githubusercontent.com/EvoEsports/minicontrol/refs/heads/${branch}/version.json`, { keepalive: false }).then(async (res) => {
+                this.repoVersion = (await res.json()) as Version;
+                const currentDate = new Date(version.build);
+                const repoDate = new Date(this.repoVersion.build);
+
+                if (repoDate > currentDate) {
+                    const msg = `$fffUpdate available at "${branch}"-branch: ${this.repoVersion.version} (${this.repoVersion.build})`;
+                    tmc.cli(msg);
+                    tmc.chat(msg);
+                } else {
+                    tmc.cli("No updates available at this time.");
+                }
+            });
+        } else {
+            tmc.cli("Skipping version check!");
+        }
         await this.onBeginMap([tmc.maps.currentMap]);
     }
 
@@ -44,16 +72,12 @@ export default class Announces extends Plugin {
     }
 
     async onPlayerConnect(player: Player) {
-        if (tmc.settings.get("announce.brand")) tmc.chat(`${tmc.brand} ¤info¤version ¤white¤${tmc.version}`, player.login);
+        if (tmc.settings.get("announce.brand")) tmc.chat(`${tmc.brand} ¤info¤version ¤white¤${version.build} ${tmc.version}`, player.login);
         const nick = player.customNick ?? player.nickname;
         const msg = `¤info¤Player ¤white¤${nick}¤info¤ from ¤white¤${getCountryFromPath(player.path)} ¤info¤joins the server!`;
         if (tmc.settings.get("announce.playerconnect")) tmc.chat(msg);
         tmc.cli(msg);
 
-        if (tmc.game.Name === "TmForever" && tmc.settings.get("chat.useEmotes") === true) {
-            tmc.chat("$z$fff回$s Emoji chat is $0f0enabled$fff! Your version: 攻龚 Server support: $d0025apr", player.login);
-            tmc.chat("$fffUpdate? $3cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$L", player.login);
-        }
     }
 
     async onPlayerDisconnect(player: Player) {
