@@ -17,6 +17,8 @@ export interface Map {
     NbLaps: number;
     NbCheckpoints: number;
     Vehicle?: string;
+    CreatedAt?: string;
+    TmxId?: string;
     Karma?: {
         positive: number;
         negative: number;

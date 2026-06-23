@@ -63,7 +63,7 @@ export default function ListItem({ pos = '0 0', 'z-index': z, size, type = 'text
                     size={size}
                     textfont={fonts.label}
                     textcolor={colors.window_text}
-                    default={value ?? ' '}
+                    default={value?.toString() ?? ' '}
                     halign={halign}
                     textsize="1"
                     valign="center2"

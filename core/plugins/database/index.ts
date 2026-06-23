@@ -286,7 +286,6 @@ export default class Database extends Plugin {
             if (!mapInfo) continue;
             if (!map.playerModel) {
                 if (!mapInfo.Vehicle) {
-                    mapInfo.CreatedAt = new Date(map.createdAt).toISOString().split("T")[0];
                     counter += 1;
                     tmc.cli(`Processing file ${counter} of ${result.length}`);
                     const fileName = path.resolve(tmc.mapsPath, mapInfo.FileName);
@@ -304,7 +303,7 @@ export default class Database extends Plugin {
                             .catch(async (error) => {
                                 tmc.debug(`¤error¤Failed to parse "¤white¤${fileName}¤error¤" file, falling back to the map environment...`);
                                 tmc.debug(error);
-                                await map.update({ playerModel: mapInfo.Environnement || "" });
+                                map.update({ playerModel: mapInfo.Environnement || "" });
                             })
                             .catch((error) => {
                                 tmc.debug(
@@ -322,6 +321,9 @@ export default class Database extends Plugin {
                     }
                 }
             }
+            mapInfo.Vehicle = strToCar[map.environment ?? ""] || "";
+            mapInfo.TmxId = map.tmxId ?? "";
+            mapInfo.CreatedAt = new Date(map.createdAt).toISOString().split("T")[0];
         }
         tmc.cli("¤success¤Done!");
     }

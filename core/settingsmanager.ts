@@ -256,7 +256,7 @@ export default class SettingsManager {
         return this.colors[key] || "fff";
     }
 
-    getSettings(): { settings: { [key: string]: any }; defaults: { [key: string]: any }; descriptions: { [key: string]: string } } {
+    getSettings(): { settings: { [key: string]: any }; defaults: { [key: string]: any }; descriptions: { [key: string]: any } } {
         return {
             settings: this.settings,
             defaults: this._defaultSettings,
