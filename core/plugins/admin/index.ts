@@ -1,4 +1,4 @@
-import { castType } from "@core/utils";
+import { castType, sleep } from "@core/utils";
 
 import Plugin from "@core/plugins";
 import type { Map as TmMap } from "@core/mapmanager.ts";
@@ -10,6 +10,7 @@ import ModeSettingsWindow from "./ui/ModeSettingsWindow";
 import LocalMapsWindow from "./ui/LocalMapsWindow";
 import PlayerListsWindow from "./ui/PlayerListsWindow";
 import ThemeWindow from "./ui/ThemesWindow";
+import LogWindow from "./ui/LogWindow";
 
 enum TmnfMode {
     Rounds = 0,
@@ -40,7 +41,8 @@ export default class AdminPlugin extends Plugin {
         if (tmc.game.Name !== "TmForever") {
             this.addCommand("//modesettings", this.cmdModeSettings.bind(this), "Display mode settings");
         }
-
+        this.addListener("TMC.Console", this.onConsole, this);
+        this.addCommand("//log", this.cmdConsoleLog.bind(this), "Show console log");
         this.addCommand("//settings", this.cmdSettings.bind(this), "Set settings");
         this.addCommand("//colors", this.cmdColors.bind(this), "Set colors");
         this.addCommand("//theme", this.cmdTheme.bind(this), "Change color theme");
@@ -1035,4 +1037,18 @@ export default class AdminPlugin extends Plugin {
         window.display();
     }
 
+    async cmdConsoleLog(login: string, args: string[]) {
+        const type = args[0] ?? "all";
+        const window = new LogWindow(login, type);
+        window.display();
+    }
+
+    async onConsole() {
+        // sleep 50ms so we don't get errors on ui.getManialinks > display();
+        sleep(50).then(() => {
+            for (const ml of tmc.ui.getManialinks("ConsoleLogWindow")) {
+                ml.display();
+            }
+        });
+    }
 }

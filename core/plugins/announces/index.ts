@@ -74,7 +74,14 @@ export default class Announces extends Plugin {
     async onPlayerConnect(player: Player) {
         if (tmc.settings.get("announce.brand")) tmc.chat(`${tmc.brand} ¤info¤version ¤white¤${version.build} ${tmc.version}`, player.login);
         const nick = player.customNick ?? player.nickname;
-        const msg = `¤info¤Player ¤white¤${nick}¤info¤ from ¤white¤${getCountryFromPath(player.path)} ¤info¤joins the server!`;
+        const country = getCountryFromPath(player.path);
+        let msg = `¤info¤Player ¤white¤${nick}$z$s¤info¤ from ¤white¤${country} ¤info¤joins the server!`;
+        if (player.connectCount === 0) {
+            msg = `¤info¤Welcome ¤white¤${nick}$z$s¤info¤ from ¤white¤${country} ¤info¤to the server for the first time!`;
+        } else if (player.connectCount && player.connectCount > 0) {
+            msg = `¤info¤Welcome ¤white¤${nick}$z$s¤info¤ from ¤white¤${country} ¤info¤for $fff${player.connectCount} ¤info¤visits!`;
+        }
+
         if (tmc.settings.get("announce.playerconnect")) tmc.chat(msg);
         tmc.cli(msg);
 

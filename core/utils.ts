@@ -178,6 +178,7 @@ export function formatTime(time: number, pretty = true, mainColor = "fff", secon
     return out;
 }
 
+
 export function castType(value: string, type?: string): any {
     if (type !== undefined) {
         if (type === "string") return value;

@@ -59,6 +59,15 @@ interface DbPlayer extends PlayerType {
     joinedAt: number;
     totalPlaytime: number;
     customNick: string;
+    connectCount: number;
+}
+
+declare module "@core/playermanager" {
+    interface Player {
+        joinedAt: number;
+        totalPlaytime: number;
+        connectCount: number;
+    }
 }
 
 declare module "@core/plugins" {

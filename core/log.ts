@@ -9,6 +9,72 @@ const ansi_esc = String.fromCharCode(0x1b);
 // Order: [red, yellow, green, cyan, blue, magenta]
 const SECTOR_TO_ANSI = [1, 3, 2, 6, 4, 5] as const;
 
+interface LogLine {
+    date: string;
+    level: string;
+    message: string;
+}
+
+export let logLines: LogLine[] = [];
+
+/**
+* Formats values to pretty printed string
+ *
+ * @param value - value to format
+ * @param indentLevel  - ident level 0-n
+ * @param seen - is the value seen
+ * @param formatString - add string formatting
+ * @returns pretty printed string
+ */
+function formatValue(value: unknown, indentLevel = 0, seen = new Set<unknown>(), formatString = false): string {
+    const indent = "  ".repeat(indentLevel);
+    const nextIndent = "  ".repeat(indentLevel + 1);
+
+    if (value === null) return "$59dnull";
+    if (value === undefined) return "$59dundefined";
+    if (typeof value === "number" || typeof value === "bigint" || typeof value === "symbol") {
+        return "$dd8" + String(value) + "$z";
+    }
+    if (typeof value === "boolean") {
+        return "$59d" + String(value) + "$z";
+    }
+
+    if (typeof value === "string") {
+        if (formatString) {
+            return `$c97"${value}"$z`;
+        }
+        return value;
+    }
+    if (Array.isArray(value)) {
+        if (value.length === 0) return "[]";
+        const items = value.map((item) => `${nextIndent}- ${formatValue(item, indentLevel + 1, seen, true)}`);
+        return `[Array]\n$c8c[$z
+${items.join("\n")}
+${indent}$c8c]$z`;
+    }
+
+    if (typeof value === "object") {
+        if (seen.has(value)) {
+            return "[Circular]";
+        }
+        seen.add(value);
+
+        const entries = Object.entries(value as Record<string, unknown>);
+        if (entries.length === 0) {
+            seen.delete(value);
+            return "$z{}";
+        }
+
+        const lines = entries.map(([key, val]) => `${nextIndent}$9df${key}$z: ${formatValue(val, indentLevel + 1, seen, true)},`);
+        seen.delete(value);
+        return `[Object] $z{
+${lines.join("\n")}
+${indent}$z}`;
+    }
+
+    return String(value);
+}
+
 export function Tm2Console(input: string, ansiLevel = 0) {
     if (ansiLevel === 0) return removeColors(input);
 
@@ -90,12 +156,19 @@ try {
 const ansiLevel = Number.parseInt(process.env.ANSILEVEL || "0");
 const formatter: (str: string) => string =
     ansiLevel === 0 ? (s) => removeColors(s) :
-    ansiLevel === 1 ? (s) => Tm2Console(s, 1) :
-    (s) => Tm2Console(s, 2);
+        ansiLevel === 1 ? (s) => Tm2Console(s, 1) :
+            (s) => Tm2Console(s, 2);
 
-function writeLog(message: string, level: "INFO" | "WARN" | "ERROR" | "DEBUG" = "INFO") {
-    if (process.env.WRITELOG?.toLowerCase() !== "true") return;
+function writeLog(message: unknown, level: "INFO" | "WARN" | "ERROR" | "DEBUG" = "INFO") {
     const date = new Date();
+    logLines.push({ date: date.toISOString().slice(11), level, message: formatValue(message) });
+    tmc.server.emit("TMC.Console", {});
+    if (logLines.length > 1000) {
+        logLines.shift(); // Removes the oldest item (at index 0)
+    }
+
+    if (process.env.WRITELOG?.toLowerCase() !== "true") return;
+
     // ISO date in filename (YYYY-MM-DD) standard
     const fileDate = date.toISOString().slice(0, 10);
     const file = `${fileDate}_console.log`;
@@ -108,28 +181,25 @@ function writeLog(message: string, level: "INFO" | "WARN" | "ERROR" | "DEBUG" = 
     }
 }
 
-export function debug(str: string) {
-    console.log(formatter(str));
-    // write debug messages to disk only when WRITELOG + DEBUG are enabled
-    if (process.env.WRITELOG?.toLowerCase() === "true" && process.env.DEBUG === "true") {
-        writeLog(str, "DEBUG");
-    }
+export function debug(str: unknown) {
+    console.log(formatter(formatValue(str)));
+    writeLog(str, "DEBUG");
 }
 
-export function info(str: string) {
+export function info(str: unknown) {
     const date = new Date();
-    const message = `$888[${date.toISOString()}] $z${str}`;
-    console.log(formatter(message));
+    const prefix = `$888[${date.toISOString()}] $z`;
+    console.log(formatter(prefix) + formatter(formatValue(str)));
     writeLog(str, "INFO");
 }
 
-export function warn(str: string) {
-    console.log(formatter(str));
+export function warn(str: unknown) {
+    console.log(formatter(formatValue(str)));
     writeLog(str, "WARN");
 }
 
-export function error(str: string) {
-    console.log(formatter(str));
+export function error(str: unknown) {
+    console.log(formatter(formatValue(str)));
     writeLog(str, "ERROR");
 }
 
