@@ -180,12 +180,32 @@ export default class AdminPlugin extends Plugin {
         this.addCommand(
             "//maxplayers",
             async (login: string, params: string[]) => {
+                if (params.length == 0) {
+                    const amount = await tmc.server.call("GetMaxPlayers");
+                    return tmc.chat(`¤info¤Max players is currently set to ¤white¤${amount}`, login);
+                }
                 const newMax = Number.parseInt(params[0]);
-                if (newMax < 0) {
-                    return tmc.chat("¤cmd¤setmaxplayers ¤info¤needs a positive numeric value", login);
+                if (Number.isFinite(newMax) && newMax < 0) {
+                    return tmc.chat("¤cmd¤//maxplayers ¤info¤needs a positive numeric value", login);
                 }
                 await tmc.server.call("SetMaxPlayers", newMax);
                 tmc.chat(`¤info¤Max players set to ¤white¤${newMax}`, login);
+            },
+            "Sets max players",
+        );
+        this.addCommand(
+            "//maxspec",
+            async (login: string, params: string[]) => {
+                if (params.length == 0) {
+                    const amount = await tmc.server.call("GetMaxSpectators");
+                    return tmc.chat(`¤info¤Max spectators is currently set to ¤white¤${amount}`, login);
+                }
+                const newMax = Number.parseInt(params[0]);
+                if (Number.isFinite(newMax) && newMax < 0) {
+                    return tmc.chat("¤cmd¤//maxspec ¤info¤needs a positive numeric value", login);
+                }
+                await tmc.server.call("SetMaxSpectators", newMax);
+                tmc.chat(`¤info¤Max spectators set to ¤white¤${newMax}`, login);
             },
             "Sets max players",
         );
