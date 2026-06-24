@@ -322,8 +322,8 @@ export default class Tmx extends Plugin {
         }
     }
 
-    async addToServer(login: string, map: Map | undefined) {
-        if (!map?.filePath) return;
+    async addToServer(login: string, map: Map | undefined): Promise<TmMap> {
+        if (!map?.filePath) throw new Error();
         await tmc.server.call("AddMap", map.filePath);
         await tmc.maps.syncMaplist();
         const info = await tmc.server.call("GetMapInfo", tmc.mapsPath + map.filePath);
@@ -335,17 +335,18 @@ export default class Tmx extends Plugin {
             if (jb) jb.addToJukebox(login, info);
 
             const db = tmc.getPlugin("database");
-            if (!db) return;
+            if (!db) return info;
             try {
                 const dbmap = await db.getMap(info.UId);
-                if (!dbmap) return;
+                if (!dbmap) return info;
                 await dbmap.update({ tmxId: map.tmxId });
                 info.TmxId = map.tmxId;
             } catch (e: any) {
                 tmc.cli(e.message);
             }
+            return info;
         } else {
-            tmc.chat(`¤info¤Added map but didn't find map info!`);
+            throw new Error(`¤info¤Added map but didn't find map info!`);
         }
     }
 
