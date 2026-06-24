@@ -225,6 +225,7 @@ export default class Jukebox extends Plugin {
         const removedMaps = this.queue.filter((map) => !tmc.players.getAllLogins().includes(map.QueueBy));
         for (const map of removedMaps) {
             tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤removed from the queue. Player ¤white¤${map.QueueNickName} ¤info¤has left the server.`);
+            tmc.server.emit("Jukebox.MapRemoved", map.UId);
         }
 
         this.queue = this.queue.filter((map) => tmc.players.getAllLogins().includes(map.QueueBy));
@@ -234,6 +235,7 @@ export default class Jukebox extends Plugin {
             if (map) {
                 try {
                     await tmc.server.call("ChooseNextMap", map.File);
+                    tmc.server.emit("Jukebox.NextMap", map.UId);
                     tmc.chat(`¤info¤Next map ¤white¤${map.Name} ¤info¤jukeboxed by ¤white¤${map.QueueNickName}`);
                 } catch (e: any) {
                     tmc.cli(`¤error¤${e.message}`);
