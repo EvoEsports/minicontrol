@@ -174,6 +174,7 @@ export default class Jukebox extends Plugin {
 
         if (map) {
             this.removeFromJukebox(map.UId);
+            tmc.server.emit("Jukebox.MapRemoved", map.UId);
             tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤dropped from the queue by ¤white¤${map.QueueNickName}`);
         } else {
             tmc.chat(`¤info¤You don't have any map in queue`, login);
