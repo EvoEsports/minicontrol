@@ -1,3 +1,4 @@
+import log from "@core/log";
 import Plugin from "@core/plugins";
 import Confirm from "@core/ui/confirm";
 
@@ -77,7 +78,7 @@ export default class CoPlanets extends Plugin {
             };
             await bill.send();
         } catch (e: any) {
-            tmc.chat(`¤error¤${e.message}`);
+            log.error(`¤error¤${e.message}`);
         }
     }
 

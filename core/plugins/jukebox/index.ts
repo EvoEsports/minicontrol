@@ -1,7 +1,8 @@
-import { clone, htmlEntities, formatTime } from "@core/utils";
 import Plugin from "@core/plugins";
 import QueueWindow from "./queueWIndow";
 import Menu from "@core/menu";
+import { type Map as TmMap } from "@core/mapmanager";
+import log from "@core/log";
 
 export interface JbMap {
     UId: string;
@@ -86,6 +87,30 @@ export default class Jukebox extends Plugin {
         });
     }
 
+    async addToJukebox(login: string, map: TmMap) {
+        const player = await tmc.getPlayer(login);
+        this.queue.push({
+            UId: map.UId,
+            File: map.FileName,
+            Name: map.Name,
+            Author: map.AuthorNickname || map.Author,
+            AuthorTime: map.AuthorTime,
+            Environment: map.Environnement,
+            QueueBy: login,
+            QueueNickName: player.customNick || player.nickname,
+        });
+    }
+
+    async removeFromJukebox(mapUid: string) {
+        const index = this.queue.findIndex((m) => m.UId === mapUid);
+        if (index > -1) {
+            this.queue.splice(index, 1);
+            return;
+        }
+        throw new Error("Map not found.");
+    }
+
+
     async cmdQueue(login: any, params: string[]) {
         let map: any = null;
         if (!tmc.settings.get("jukebox.enabled")) {
@@ -128,24 +153,15 @@ export default class Jukebox extends Plugin {
                 return;
             }
         }
-        this.queue.push({
-            UId: map.UId,
-            File: map.FileName,
-            Name: map.Name,
-            Author: map.AuthorNickname || map.Author,
-            AuthorTime: map.AuthorTime,
-            Environment: map.Environnement,
-            QueueBy: login,
-            QueueNickName: player.nickname,
-        });
+        this.addToJukebox(login, map);
         tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤added to the queue by ¤white¤${player.nickname}`);
     }
 
     async cmdDrop(login: any, args: string[]) {
         let index: number;
-        let map: any;
+        let map: JbMap | undefined;
         if (tmc.admins.includes(login) && args.length > 0) {
-            index = Number.parseInt(args[0]) - 1;
+            index = Number.parseInt(args[0], 10) - 1;
             map = this.queue[index];
         } else {
             map = this.queue.find((m) => m.QueueBy === login);
@@ -157,7 +173,7 @@ export default class Jukebox extends Plugin {
         }
 
         if (map) {
-            this.queue.splice(index, 1);
+            this.removeFromJukebox(map.UId);
             tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤dropped from the queue by ¤white¤${map.QueueNickName}`);
         } else {
             tmc.chat(`¤info¤You don't have any map in queue`, login);
@@ -238,7 +254,7 @@ export default class Jukebox extends Plugin {
                     tmc.server.emit("Jukebox.NextMap", map.UId);
                     tmc.chat(`¤info¤Next map ¤white¤${map.Name} ¤info¤jukeboxed by ¤white¤${map.QueueNickName}`);
                 } catch (e: any) {
-                    tmc.cli(`¤error¤${e.message}`);
+                    log.error(e.message);
                 }
             }
         }

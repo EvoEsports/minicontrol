@@ -6,6 +6,7 @@ import { clone, htmlEntities, formatTime } from "@core/utils";
 import RecordsWindow from "./recordsWindow";
 import { Op } from "sequelize";
 import Menu from "@core/menu";
+import log from "@core/log";
 
 declare module "@core/plugins" {
     interface PluginRegistry {
@@ -70,7 +71,7 @@ export default class Records extends Plugin {
                 this.personalBest[login] = personalBest;
             }
         } catch (e: any) {
-            tmc.cli(`¤error¤Error fetching personal best: ${e.message}`);
+            log.warn(`¤error¤Error fetching personal best: ${e.message}`);
         }
     }
 
@@ -105,7 +106,7 @@ export default class Records extends Plugin {
                 include: [{ model: Player, as: 'player' }],
             });
         } catch (err: any) {
-            tmc.cli(`Error fetching records: ${err.message}`);
+            log.warn(`Error fetching records: ${err.message}`);
             return [];
         }
 
@@ -184,7 +185,7 @@ export default class Records extends Plugin {
 
         } catch (err: any) {
             const msg = `Error deleting record: ${err.message}`;
-            tmc.cli(msg);
+            log.warn(msg);
             tmc.chat(msg, login);
         }
     }
@@ -288,7 +289,7 @@ export default class Records extends Plugin {
                     this.personalBest[login] = pb;
                 }
             } catch (e: any) {
-                tmc.cli(`¤error¤updatePB: ${e.message}`);
+                log.warn(`¤error¤updatePB: ${e.message}`);
                 return;
             }
 
@@ -407,7 +408,7 @@ export default class Records extends Plugin {
                 }
             }
         } catch (e: any) {
-            tmc.cli(`¤error¤[records.onPlayerFinish]: ${e.message}`);
+            log.warn(`¤error¤[records.onPlayerFinish]: ${e.message}`);
         } finally {
             resolveLock();
             if (this.finishLocks[lockKey] === prev) delete this.finishLocks[lockKey];
@@ -445,8 +446,8 @@ export default class Records extends Plugin {
                 updateOnDuplicate: ["finishCount", "time", "avgTime", "checkpoints", "updatedAt"],
             });
         } catch (e: any) {
-            tmc.cli(`¤error¤[records.onEndRace]: ${e.message}`);
-            console.error(e);
+            log.warn(`¤error¤[records.onEndRace]: ${e.message}`);
+            console.warn(e);
         }
     }
 }

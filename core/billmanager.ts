@@ -1,4 +1,5 @@
 type Callable = (name: BillState) => Promise<void>;
+import log from '@core/log';
 
 export class BillState {
     issuerLogin = "";
@@ -95,7 +96,7 @@ export default class BillManager {
         if (index >= 0) {
             this.billStates.splice(index, 1);
         } else {
-            tmc.cli("¤error¤Tried to remove a bill, but can't find it by index.");
+            log.error("Tried to remove a bill, but can't find it by index.");
         }
     }
 

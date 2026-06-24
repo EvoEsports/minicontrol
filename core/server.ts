@@ -1,6 +1,7 @@
 import EventEmitter from "node:events";
 import { GbxClient } from "./gbx";
 import { uuidv4 } from "./utils";
+import log from "./log";
 
 export type CallMethod = "system.listMethods" | "system.methodSignature" | "system.methodHelp" | "system.multicall" | "Authenticate" | "ChangeAuthPassword" | "EnableCallbacks" | "GetVersion" | "CallVote" | "CallVoteEx" | "InternalCallVote" | "CancelVote" | "GetCurrentCallVote" | "SetCallVoteTimeOut" | "GetCallVoteTimeOut" | "SetCallVoteRatio" | "GetCallVoteRatio" | "SetCallVoteRatios" | "GetCallVoteRatios" | "ChatSendServerMessage" | "ChatSendServerMessageToLanguage" | "ChatSendServerMessageToId" | "ChatSendServerMessageToLogin" | "ChatSend" | "ChatSendToLanguage" | "ChatSendToLogin" | "ChatSendToId" | "GetChatLines" | "ChatEnableManualRouting" | "ChatForwardToLogin" | "SendNotice" | "SendNoticeToId" | "SendNoticeToLogin" | "SendDisplayManialinkPage" | "SendDisplayManialinkPageToId" | "SendDisplayManialinkPageToLogin" | "SendHideManialinkPage" | "SendHideManialinkPageToId" | "SendHideManialinkPageToLogin" | "GetManialinkPageAnswers" | "Kick" | "KickId" | "Ban" | "BanAndBlackList" | "BanId" | "UnBan" | "CleanBanList" | "GetBanList" | "BlackList" | "BlackListId" | "UnBlackList" | "CleanBlackList" | "GetBlackList" | "LoadBlackList" | "SaveBlackList" | "AddGuest" | "AddGuestId" | "RemoveGuest" | "RemoveGuestId" | "CleanGuestList" | "GetGuestList" | "LoadGuestList" | "SaveGuestList" | "SetBuddyNotification" | "GetBuddyNotification" | "WriteFile" | "TunnelSendDataToId" | "TunnelSendDataToLogin" | "Echo" | "Ignore" | "IgnoreId" | "UnIgnore" | "UnIgnoreId" | "CleanIgnoreList" | "GetIgnoreList" | "Pay" | "SendBill" | "GetBillState" | "GetServerCoppers" | "GetSystemInfo" | "SetConnectionRates" | "SetServerName" | "GetServerName" | "SetServerComment" | "GetServerComment" | "SetHideServer" | "GetHideServer" | "IsRelayServer" | "SetServerPassword" | "GetServerPassword" | "SetServerPasswordForSpectator" | "GetServerPasswordForSpectator" | "SetMaxPlayers" | "GetMaxPlayers" | "SetMaxSpectators" | "GetMaxSpectators" | "EnableP2PUpload" | "IsP2PUpload" | "EnableP2PDownload" | "IsP2PDownload" | "AllowMapDownload" | "IsMapDownloadAllowed" | "AutoSaveReplays" | "AutoSaveValidationReplays" | "IsAutoSaveReplaysEnabled" | "IsAutoSaveValidationReplaysEnabled" | "SaveCurrentReplay" | "SaveBestGhostsReplay" | "GetValidationReplay" | "SetLadderMode" | "GetLadderMode" | "GetLadderServerLimits" | "SetVehicleNetQuality" | "GetVehicleNetQuality" | "SetServerOptions" | "GetServerOptions" | "SetServerPackMask" | "GetServerPackMask" | "SetForcedMods" | "GetForcedMods" | "SetForcedMusic" | "GetForcedMusic" | "SetForcedSkins" | "GetForcedSkins" | "GetLastConnectionErrorMessage" | "SetRefereePassword" | "GetRefereePassword" | "SetRefereeMode" | "GetRefereeMode" | "SetUseChangingValidationSeed" | "GetUseChangingValidationSeed" | "SetWarmUp" | "GetWarmUp" | "MapRestart" | "RestartMap" | "NextMap" | "StopServer" | "ForceEndRound" | "SetGameInfos" | "GetCurrentGameInfo" | "GetNextGameInfo" | "GetGameInfos" | "SetGameMode" | "GetGameMode" | "SetChatTime" | "GetChatTime" | "SetFinishTimeout" | "GetFinishTimeout" | "SetAllWarmUpDuration" | "GetAllWarmUpDuration" | "SetDisableRespawn" | "GetDisableRespawn" | "SetForceShowAllOpponents" | "GetForceShowAllOpponents" | "SetTimeAttackLimit" | "GetTimeAttackLimit" | "SetTimeAttackSynchStartPeriod" | "GetTimeAttackSynchStartPeriod" | "SetLapsTimeLimit" | "GetLapsTimeLimit" | "SetNbLaps" | "GetNbLaps" | "SetRoundForcedLaps" | "GetRoundForcedLaps" | "SetRoundPointsLimit" | "GetRoundPointsLimit" | "SetRoundCustomPoints" | "GetRoundCustomPoints" | "SetUseNewRulesRound" | "GetUseNewRulesRound" | "SetTeamPointsLimit" | "GetTeamPointsLimit" | "SetMaxPointsTeam" | "GetMaxPointsTeam" | "SetUseNewRulesTeam" | "GetUseNewRulesTeam" | "SetCupPointsLimit" | "GetCupPointsLimit" | "SetCupRoundsPerMap" | "GetCupRoundsPerMap" | "SetCupWarmUpDuration" | "GetCupWarmUpDuration" | "SetCupNbWinners" | "GetCupNbWinners" | "GetCurrentMapIndex" | "GetNextMapIndex" | "SetNextMapIndex" | "GetCurrentMapInfo" | "GetNextMapInfo" | "GetMapInfo" | "CheckMapForCurrentServerParams" | "GetMapList" | "AddMap" | "AddMapList" | "RemoveMap" | "RemoveMapList" | "InsertMap" | "InsertMapList" | "ChooseNextMap" | "ChooseNextMapList" | "LoadMatchSettings" | "AppendPlaylistFromMatchSettings" | "SaveMatchSettings" | "InsertPlaylistFromMatchSettings" | "GetPlayerList" | "GetPlayerInfo" | "GetDetailedPlayerInfo" | "GetMainServerPlayerInfo" | "GetCurrentRanking" | "GetCurrentRankingForLogin" | "ForceScores" | "ForcePlayerTeam" | "ForcePlayerTeamId" | "ForceSpectator" | "ForceSpectatorId" | "ForceSpectatorTarget" | "ForceSpectatorTargetId" | "SpectatorReleasePlayerSlot" | "SpectatorReleasePlayerSlotId" | "ManualFlowControlEnable" | "ManualFlowControlProceed" | "ManualFlowControlIsEnabled" | "ManualFlowControlGetCurTransition" | "CheckEndMatchCondition" | "GetNetworkStats" | "StartServerLan" | "StartServerInternet" | "GetStatus" | "QuitGame" | "GameDataDirectory" | "GetTracksDirectory" | "GetSkinsDirectory" | "SetApiVersion" | "SetCallVoteRatiosEx" | "GetCallVoteRatiosEx" | "SendOpenLinkToId" | "SendOpenLinkToLogin" | "GetServerPlanets" | "GetServerTags" | "SetServerTag" | "UnsetServerTag" | "ResetServerTags" | "SetLobbyInfo" | "GetLobbyInfo" | "CustomizeQuitDialog" | "SendToServerAfterMatchEnd" | "KeepPlayerSlots" | "IsKeepingPlayerSlots" | "AllowMapDownload" | "IsMapDownloadAllowed" | "GetMapsDirectory" | "SetTeamInfo" | "GetTeamInfo" | "SetForcedClubLinks" | "GetForcedClubLinks" | "ConnectFakePlayer" | "DisconnectFakePlayer" | "GetDemoTokenInfosForPlayer" | "DisableHorns" | "AreHornsDisabled" | "DisableServiceAnnounces" | "AreServiceAnnouncesDisabled" | "DisableProfileSkins" | "AreProfileSkinsDisabled" | "SetForcedTeams" | "GetForcedTeams" | "GetModeScriptText" | "SetModeScriptText" | "GetModeScriptInfo" | "GetModeScriptSettings" | "SetModeScriptSettings" | "SendModeScriptCommands" | "SetModeScriptSettingsAndCommands" | "GetModeScriptVariables" | "SetModeScriptVariables" | "TriggerModeScriptEvent" | "TriggerModeScriptEventArray" | "SetServerPlugin" | "GetServerPlugin" | "GetServerPluginVariables" | "SetServerPluginVariables" | "TriggerServerPluginEvent" | "TriggerServerPluginEventArray" | "GetScriptCloudVariables" | "SetScriptCloudVariables" | "RestartMap" | "NextMap" | "AutoTeamBalance" | "SetScriptName" | "GetScriptName" | "GetCurrentMapIndex" | "GetNextMapIndex" | "SetNextMapIndex" | "SetNextMapIdent" | "JumpToMapIndex" | "JumpToMapIdent" | "GetCurrentMapInfo" | "GetNextMapInfo" | "GetMapInfo" | "CheckMapForCurrentServerParams" | "GetMapList" | "AddMap" | "AddMapList" | "RemoveMap" | "RemoveMapList" | "InsertMap" | "InsertMapList" | "ChooseNextMap" | "ChooseNextMapList" | "GetCurrentWinnerTeam";
 export type ServerCallback = "TMC.Vote.Pass" | "TMC.Vote.Deny" | "TMC.Vote.Cancel" | "TMC.MaplistModified" | "TMC.SettingsChanged" | "TMC.ColorsChanged" | "TMC.AdminsChanged" | "TMC.PlayerCheckpoint" | "TMC.PlayerFinish" | "TMC.PlayerGiveup" | "Trackmania.BeginMap" | "Trackmania.BeginMatch" | "Trackmania.BeginRound" | "Trackmania.BillUpdated" | "Trackmania.Echo" | "Trackmania.EndMap" | "Trackmania.EndMatch" | "Trackmania.EndRound" | "Trackmania.MaplistModified" | "Trackmania.ModeScriptCallback" | "Trackmania.ModeScriptCallbackArray" | "Trackmania.PlayerAlliesChanged" | "Trackmania.PlayerChat" | "Trackmania.PlayerConnect" | "Trackmania.PlayerDisconnect" | "Trackmania.PlayerInfoChanged" | "Trackmania.PlayerManialinkPageAnswer" | "Trackmania.ServerStop" | "Trackmania.ServerStart" | "Trackmania.StatusChanged" | "Trackmania.TunnelDataReceived" | "Trackmania.VoteUpdated" | "Trackmania.PlayerCheckpoint" | "Trackmania.PlayerFinish" | "Trackmania.PlayerIncoherence";
@@ -60,7 +61,7 @@ export default class Server {
     }
 
     onDisconnect(str: string) {
-        tmc.cli(`¤error¤Disconnected from server. ${str}`);
+        log.error(`¤error¤Disconnected from server. ${str}`);
         process.exit(1);
     }
 
@@ -71,8 +72,8 @@ export default class Server {
         // Handle Trackmania.Echo
         if (normalizedMethod === "Trackmania.Echo") {
             if (data[0] === "MiniControl" && data[1] !== tmc.startTime.toString()) {
-                tmc.cli("¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!");
-                process.exit(1);
+                log.error("¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!");
+                process.exit(0);
             } else if (data[0] === "MiniControl" && data[1] === tmc.startTime.toString()) {
                 await tmc.afterStart();
             }
@@ -253,7 +254,7 @@ export default class Server {
         try {
             return this.gbx.send(sendMethod, ...args);
         } catch (e: any) {
-            tmc.cli(e.message);
+            log.error(e.message);
             return undefined;
         }
     }
@@ -317,7 +318,7 @@ export default class Server {
         try {
             return this.gbx.multicall(methods);
         } catch (e: any) {
-            tmc.cli(e.message);
+            log.error(e.message);
             return undefined;
         }
     }
@@ -327,7 +328,7 @@ export default class Server {
         try {
             return this.gbx.multisend(methods);
         } catch (e: any) {
-            tmc.cli(e.message);
+            log.error(e.message);
             return undefined;
         }
     }
@@ -341,7 +342,7 @@ export default class Server {
         try {
             return this.gbx.connect(host, port);
         } catch (e: any) {
-            tmc.cli(e.message);
+            log.error(e.message);
         }
         return false;
     }
@@ -394,11 +395,11 @@ export default class Server {
             }
             const enabledCb = await tmc.server.callScript("XmlRpc.GetCallbacksList_Enabled");
 
-            tmc.cli(
+            log.info(
                 `¤info¤Enabled Script Callbacks: $fff${enabledCb.callbacks.length}/${cbList.callbacks.length} ¤gray¤(${enabledCb.callbacks.join(", ")})`,
             );
         } catch (e: any) {
-            tmc.cli(`¤error¤Failed to limit script callbacks: ${e.message}`);
+            log.error(`¤error¤Failed to limit script callbacks: ${e.message}`);
         }
     }
 }

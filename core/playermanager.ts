@@ -1,4 +1,5 @@
 import { clone } from "./utils";
+import log from '@core/log';
 
 interface PlayerRanking {
     Path: string;
@@ -137,7 +138,7 @@ export default class PlayerManager {
         const login = data[0].toString();
         if (login) {
             if (this.players[login]) {
-                tmc.cli(`$888Player ${login} already connected, kicking player due a bug to allow them joining again.`);
+                tmc.cli(`$888Player $fff${login} $888already connected, kicking player due a bug to allow them joining again.`);
                 tmc.server.send("Kick", login, "You are already connected, please rejoin.");
                 return;
             }
@@ -199,7 +200,7 @@ export default class PlayerManager {
      */
     async getPlayer(login: string): Promise<Player> {
         if (login === tmc.server.login) {
-            tmc.cli("¤error¤Tried to fetch server login as a player.");
+            log.error("Tried to fetch server login as a player.");
             return new Player();
         }
         if (this.players[login]) return this.players[login];

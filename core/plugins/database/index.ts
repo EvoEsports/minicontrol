@@ -1,7 +1,7 @@
 import { Sequelize, type ModelCtor } from "sequelize-typescript";
 import type { Player as PlayerType } from "@core/playermanager";
 import { chunkArray, htmlEntities, sleep } from "@core/utils";
-import TmMap from "@core/plugins/database/models/map.model";
+import DbMap from "@core/plugins/database/models/map.model";
 import Player from "@core/plugins/database/models/players.model";
 import { SequelizeStorage, Umzug, type MigrationParams } from "umzug";
 import { removeColors } from "@core/utils";
@@ -11,6 +11,7 @@ import path from "node:path";
 import { Op } from "sequelize";
 import ListWindow from "@core/ui/listwindow";
 import Plugin from "@core/plugins";
+import log from '@core/log';
 
 export type Migration = (params: MigrationParams<Sequelize>, context: Sequelize) => Promise<unknown>;
 
@@ -85,13 +86,13 @@ export default class Database extends Plugin {
     async onLoad() {
         try {
             if (!process.env["DATABASE"]) {
-                tmc.cli("¤info¤No database configured, skipping database.");
+                log.info("¤info¤No database configured, skipping database.");
                 return;
             }
             await this.connect();
             await this.syncPlayers();
         } catch (e: any) {
-            tmc.cli(`¤error¤${e.message}`);
+            log.error(e.message);
             process.exit(1);
         }
     }
@@ -100,7 +101,7 @@ export default class Database extends Plugin {
         let sequelize: Sequelize;
         const dbString = (process.env["DATABASE"] ?? "").split("://", 1)[0];
         if (!["sqlite", "mysql", "postgres"].includes(dbString)) {
-            tmc.cli("¤error¤Seems you .env is missing 'DATABASE=' define or the database not sqlite, mysql or postgres");
+            log.error("Seems your .env is missing 'DATABASE=' define or the database not sqlite, mysql or postgres");
             return;
         }
 
@@ -115,7 +116,7 @@ export default class Database extends Plugin {
             await sequelize.authenticate();
             tmc.cli("¤success¤Success!");
         } catch (e: any) {
-            tmc.cli(`¤error¤${e.message}`);
+            log.error(e.message);
             process.exit(1);
         }
 
@@ -146,13 +147,13 @@ export default class Database extends Plugin {
                 tmc.cli(`¤info¤Running migrations for ${path}`);
                 await migrator.up();
                 tmc.cli("¤success¤Success!");
-                this.addModels([TmMap, Player]);
+                this.addModels([DbMap, Player]);
                 this.sequelize = sequelize;
             }
         } catch (e: any) {
-            tmc.cli(`¤error¤${e.message}`);
-            tmc.cli("¤error¤Failed to run migrations, please check your database.");
-            tmc.cli("¤info¤Notice: Sometimes running migrations 2x can fix this issue.");
+            log.error(`${e.message}`);
+            log.error("Failed to run migrations, please check your database.");
+            log.error("¤info¤Notice: Sometimes running migrations 2x can fix this issue.");
             process.exit(1);
         }
 
@@ -207,7 +208,7 @@ export default class Database extends Plugin {
 
     private async onEndMap(data: any) {
         try {
-            const map = await TmMap.findByPk(data[0].UId);
+            const map = await DbMap.findByPk(data[0].UId);
             if (map) {
                 await map.update({
                     lastPlayed: new Date().toISOString(),
@@ -249,9 +250,13 @@ export default class Database extends Plugin {
         }
     }
 
+    async getMap(uid: string): Promise<DbMap | null> {
+        return await DbMap.findByPk(uid);
+    }
+
     async syncMaps() {
         const serverUids = tmc.maps.getUids();
-        let result = await TmMap.findAll();
+        let result = await DbMap.findAll();
         const dbUids = result.map((value: any) => value.uuid);
         const missingUids = chunkArray(
             serverUids.filter((item) => dbUids.indexOf(item) < 0),
@@ -274,13 +279,13 @@ export default class Database extends Plugin {
             }
 
             try {
-                await TmMap.bulkCreate(missingMaps);
+                await DbMap.bulkCreate(missingMaps);
             } catch (e: any) {
                 tmc.cli(`¤error¤${e.message}`);
             }
         }
 
-        result = await TmMap.findAll({
+        result = await DbMap.findAll({
             where: {
                 uuid: {
                     [Op.in]: serverUids,
@@ -306,8 +311,8 @@ export default class Database extends Plugin {
                         }
                         const gbx = new GBX<CGameCtnChallenge>(stream, 0);
                         gbx.parse()
-                            .then((file) =>{
-                             map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || "" })
+                            .then((file) => {
+                                map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || "" })
                             })
                             .catch(async (error) => {
                                 tmc.debug(`¤error¤Failed to parse "¤white¤${fileName}¤error¤" file, falling back to the map environment...`);

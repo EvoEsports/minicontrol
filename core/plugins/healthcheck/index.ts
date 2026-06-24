@@ -1,6 +1,7 @@
 import { Server, type Socket } from "node:net";
 import Plugin from "@core/plugins";
 import { isDocker } from "@core/utils";
+import log from "@core/log";
 
 declare module "@core/plugins" {
     interface PluginRegistry {
@@ -20,7 +21,7 @@ export default class HealthCheck extends Plugin {
 
         this.server = new Server((socket: Socket) => {
             socket.on("error", (error: any) => {
-                tmc.cli(`¤error¤HealthCheck: ${error.message}`);
+                log.error(`¤error¤HealthCheck: ${error.message}`);
             });
 
             socket.on("data", (data: Buffer) => {

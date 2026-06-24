@@ -11,6 +11,7 @@ import LocalMapsWindow from "./ui/LocalMapsWindow";
 import PlayerListsWindow from "./ui/PlayerListsWindow";
 import ThemeWindow from "./ui/ThemesWindow";
 import LogWindow from "./ui/LogWindow";
+import log from "@core/log";
 
 enum TmnfMode {
     Rounds = 0,
@@ -87,6 +88,7 @@ export default class AdminPlugin extends Plugin {
                 try {
                     tmc.server.send("ForceEndRound");
                 } catch (err: any) {
+                    log.warn(err.message);
                     tmc.chat(`¤error¤${err.message}`);
                 }
             },

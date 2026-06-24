@@ -1,4 +1,5 @@
 import { chunkArray, clone } from "./utils";
+import log from "./log";
 
 export interface Map {
     UId: string;
@@ -57,7 +58,7 @@ class MapManager {
             this.currentMap = await tmc.server.call("GetCurrentMapInfo");
             this.nextMap = await tmc.server.call("GetNextMapInfo");
         } catch (e: any) {
-            tmc.cli(`¤error¤${e.message}`);
+            log.error(`${e.message}`);
         }
 
         await this.syncMaplist();

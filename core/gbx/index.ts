@@ -3,6 +3,7 @@ import { Socket } from "node:net";
 import type Server from "../../core/server";
 import Serializer from "xmlrpc/lib/serializer.js";
 import ReusableDeserializer from "./deserializer";
+import log from '@core/log';
 
 export class GbxClient {
     isConnected: boolean;
@@ -133,14 +134,14 @@ export class GbxClient {
                     this.handleData(data);
                 });
                 socket.on("timeout", () => {
-                    tmc.cli("¤error¤XMLRPC Connection timeout");
+                    log.error("XMLRPC Connection timeout");
                     process.exit(1);
                 });
             },
         );
 
         this.timeoutHandler = setTimeout(() => {
-            tmc.cli("¤error¤[ERROR] Attempt at connection exceeded timeout value.");
+            log.error("[ERROR] Attempt at connection exceeded timeout value.");
             socket.end();
             this.promiseCallbacks.onConnect?.reject(new Error("Connection timeout"));
             delete this.promiseCallbacks.onConnect;

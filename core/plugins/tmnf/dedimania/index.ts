@@ -3,6 +3,7 @@ import Api from "./api";
 import { clone, htmlEntities, formatTime } from "@core/utils";
 import ListWindow from "@core/ui/listwindow";
 import Plugin from "@core/plugins";
+import log from "@core/log";
 
 export interface DediRecord {
     Game?: string;
@@ -45,7 +46,7 @@ export default class Dedimania extends Plugin {
     async onLoad() {
         if (this.pass === "") {
             this.enabled = false;
-            tmc.cli("¤error¤Dedimania: No password set, plugin disabled.");
+            log.error("¤error¤Dedimania: No password set, plugin disabled.");
             return;
         }
         tmc.cli("¤info¤Dedimania: TmForever detected, enabling plugin.");
@@ -81,16 +82,16 @@ export default class Dedimania extends Plugin {
                         try {
                             await this.updatePlayers();
                         } catch (e: any) {
-                            tmc.cli(`¤error¤Dedimania: ${e.message}`);
+                            log.warn(`¤error¤Dedimania: ${e.message}`);
                         }
                     }, 180 * 1000);
                     this.updatePlayers().then(async () => await this.getRecords(tmc.maps.currentMap));
                 } else {
-                    tmc.cli("¤error¤Dedimania: Failed to authenticate.");
+                    log.warn("Dedimania: Failed to authenticate.");
                 }
             })
             .catch((e) => {
-                tmc.cli(`¤error¤Dedimania: ${e.message}`);
+                log.warn(`¤error¤Dedimania: ${e.message}`);
             });
     }
 
@@ -124,10 +125,10 @@ export default class Dedimania extends Plugin {
         const serverInfo = await tmc.server.call("GetServerOptions", 0);
         try {
             if (this.authError) {
-                tmc.cli("¤info¤Dedimania: Re-authenticating.");
+                log.error("¤info¤Dedimania: Re-authenticating.");
                 const answer = await this.authenticate();
                 if (!answer) {
-                    tmc.cli("¤error¤Dedimania: Failed to authenticate.");
+                    log.error("¤error¤Dedimania: Failed to authenticate.");
                     return;
                 }
             }
@@ -154,7 +155,7 @@ export default class Dedimania extends Plugin {
             );
             tmc.debug("¤info¤Dedimania: Updated players.");
         } catch (e: any) {
-            tmc.cli(`¤error¤Dedimania: ${e.message}`);
+            log.warn(`¤error¤Dedimania: ${e.message}`);
             this.authError = true;
         }
     }
@@ -191,7 +192,7 @@ export default class Dedimania extends Plugin {
             }
         } catch (e: any) {
             console.log(e);
-            tmc.cli(`¤error¤Dedimania: ${e.message}`);
+            log.warn(`¤error¤Dedimania: ${e.message}`);
             this.authError = true;
         }
 
@@ -294,11 +295,11 @@ export default class Dedimania extends Plugin {
             );
             tmc.debug("¤info¤Dedimania: Sent scores.");
         } catch (e: any) {
-            tmc.cli(`¤error¤Dedimania: ${e.message}`);
+            log.warn(`¤error¤Dedimania: ${e.message}`);
             if (e.message.includes("Not Authenticated")) {
                 this.authError = true;
                 try {
-                    tmc.cli("¤info¤Dedimania: Error occurred, re-authenticating and retrying...");
+                    log.warn("¤info¤Dedimania: Error occurred, re-authenticating and retrying...");
                     const authRes = await this.authenticate();
                     if (authRes) {
                         await this.api.call(
@@ -317,7 +318,7 @@ export default class Dedimania extends Plugin {
                         return;
                     }
                 } catch (retryError: any) {
-                    tmc.cli(`¤error¤Dedimania (retry): ${retryError.message}`);
+                    log.warn(`¤error¤Dedimania (retry): ${retryError.message}`);
                 }
             }
         }
@@ -369,7 +370,7 @@ export default class Dedimania extends Plugin {
                 this.getDedimaniaPlayers(),
             );
             if (res.Uid !== map.UId) {
-                tmc.cli("¤error¤Dedimania: Map UId does not match.");
+                log.error("Dedimania: Map UId does not match.");
                 this.records = [];
                 tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));
                 return;
@@ -382,7 +383,7 @@ export default class Dedimania extends Plugin {
             if (e.message.includes("Authentication")) {
                 this.authError = true;
             }
-            tmc.cli(`¤error¤Dedimania: ${e.message}`);
+            log.error(`Dedimania: ${e.message}`);
             this.records = [];
             this.recordFetchError = true;
             tmc.server.emit("Plugin.Dedimania.onSync", clone(this.records));

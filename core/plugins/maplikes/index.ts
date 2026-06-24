@@ -1,6 +1,7 @@
 import Plugin from "@core/plugins";
 import Likes from "./models/maplikes.model";
 import { QueryTypes } from "sequelize";
+import log from "@core/log";
 
 export interface Like {
     login: string;
@@ -71,7 +72,7 @@ export default class MapLikes extends Plugin {
             }
         })
         .catch((err: any) => {
-            tmc.cli(`¤error¤Error while syncing karma: ${err.message}`);
+            log.warn(`¤error¤Error while syncing karma: ${err.message}`);
         });
 
         tmc.server.emit("Plugin.MapLikes.onSync", this.votes);

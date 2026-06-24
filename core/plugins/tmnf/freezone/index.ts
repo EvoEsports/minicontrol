@@ -28,6 +28,7 @@
  * SOFTWARE.
  */
 
+import log from "@core/log";
 import Plugin from "@core/plugins";
 import http, { type ClientRequest } from "node:http";
 
@@ -48,14 +49,14 @@ export default class Freezone extends Plugin {
     onLoad = async () => {
         if (!this.password) {
             const msg = "¤error¤Freezone: No FREEZONE_PASS set in environment variables, unloading plugin.";
-            tmc.cli(msg);
+            log.error(msg);
             await tmc.unloadPlugin("tmnf/freezone");
             return;
         }
 
         const status = await this.sendHeartbeat();
         if (status instanceof Error) {
-            tmc.chat(`¤error¤Freezone: ${status.message}`);
+            log.error(`¤error¤Freezone: ${status.message}`);
             await tmc.unloadPlugin("tmnf/freezone");
             return;
         } else {
@@ -125,7 +126,7 @@ export default class Freezone extends Plugin {
                 .end();
         }).catch((err): Error => {
             const errStr = `Couldn't send Freezone Manialive request. Error: ${err?.message}`;
-            tmc.cli(errStr);
+            log.error(errStr);
             return new Error(errStr);
         });
     };

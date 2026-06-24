@@ -4,6 +4,7 @@ import { chunkArray, parseEntries } from "./utils";
 import type IManialink from "@core/ui/interfaces/imanialink";
 import Manialink from "@core/ui/manialink";
 import { _ } from "ajv";
+import log from "./log";
 
 // Module-level regex patterns - created once, reused
 const TAG_REGEX = /<([a-zA-Z0-9_-]+)([^>]*)>/g;
@@ -563,7 +564,7 @@ export default class UiManager {
         await Promise.all(
             chunks.map(async (calls) => {
                 await tmc.server.multisend(calls).catch((e: any) => {
-                    tmc.cli(`¤error¤error while displaying manialinks: ¤white¤${e}`);
+                    log.warn(`¤error¤error while displaying manialinks: ¤white¤${e}`);
                 });
             }),
         );
@@ -661,7 +662,7 @@ export default class UiManager {
             this.tmnfCustomUi[key] = value;
             this.sendTmnfCustomUI();
         } else {
-            tmc.cli(`¤error¤invalid key: ¤white¤${key}¤error¤ for custom ui`);
+            log.warn(`¤error¤invalid key: ¤white¤${key}¤error¤ for custom ui`);
         }
     }
 

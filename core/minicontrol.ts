@@ -281,7 +281,7 @@ class MiniControl {
             if (!pluginPath) {
                 const msg = `¤error¤Plugin ¤cmd¤${name}¤white¤ not found.`;
                 this.chat(msg, this.admins);
-                this.cli(msg);
+                log.error(msg);
                 return;
             }
             const filename = path.join(pluginPath, "index.ts");
@@ -305,7 +305,7 @@ class MiniControl {
                         // Check requiresGame against runtime
                         if (obj.requiresGame != null && this.game?.Name && obj.requiresGame !== this.game.Name) {
                             const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Manifest requires game ¤cmd¤${obj.requiresGame}¤white¤ but runtime is ¤cmd¤${this.game?.Name}`;
-                            this.cli(msg);
+                            log.warn(msg);
                             if (this.startComplete) this.chat(msg);
                             return;
                         }
@@ -314,13 +314,13 @@ class MiniControl {
                             try {
                                 if (!semver.satisfies(String(this.version), String(obj.requiresMinicontrolVersion))) {
                                     const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Manifest requires MiniControl ${obj.requiresMinicontrolVersion} but runtime is ${this.version}`;
-                                    this.cli(msg);
+                                    log.warn(msg);
                                     if (this.startComplete) this.chat(msg);
                                     return;
                                 }
                             } catch {
                                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ has invalid requiresMinicontrolVersion ${obj.requiresMinicontrolVersion}; skipping.`;
-                                this.cli(msg);
+                                log.warn(msg);
                                 if (this.startComplete) this.chat(msg);
                                 return;
                             }
@@ -343,14 +343,14 @@ class MiniControl {
                             if (!match) {
                                 if (dep.optional) continue; // optional dependency not present/compatible
                                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. No available version for dependency ¤cmd¤${dep.id}¤white¤ matching range ¤cmd¤${dep.range}¤white¤.`;
-                                this.cli(msg);
+                                log.warn(msg);
                                 if (this.startComplete) this.chat(msg);
                                 return;
                             }
                             // ensure dependency is present on disk and loaded
                             if (!this.findPlugin(dep.id)) {
                                 const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ not loaded. Missing dependency manifest ¤cmd¤${dep.id}¤white¤ on disk.`;
-                                this.cli(msg);
+                                log.warn(msg);
                                 if (this.startComplete) this.chat(msg);
                                 return;
                             }
@@ -366,7 +366,7 @@ class MiniControl {
                     }
                 }
             } catch (e: any) {
-                this.cli(`¤gray¤Failed to read manifest for ${name}: ${e.message}`);
+                log.warn(`¤gray¤Failed to read manifest for ${name}: ${e.message}`);
                 manifest = {} as PluginManifest;
             }
 
@@ -375,9 +375,9 @@ class MiniControl {
                 plugin = await import(pluginUrl);
             } catch (e: any) {
                 const msg = `¤error¤Failed to load plugin ¤cmd¤${name}¤white¤: ${e.message}`;
-                console.log(e);
                 this.chat(msg, this.admins);
-                this.cli(msg);
+                log.error(msg);
+                console.error(e);
                 return;
             }
             // load and init the plugin
@@ -392,18 +392,18 @@ class MiniControl {
                 }
                 this.cli("¤success¤Success!");
             } catch (e: any) {
-                tmc.cli(`¤gray¤Error while starting plugin ¤cmd¤${name}`);
+                log.error(`¤gray¤Error while starting plugin ¤cmd¤${name}`);
                 // sentry.captureException(e, {
                 //     tags: {
                 //         section: "initPlugin",
                 //     },
                 // });
-                console.log(e);
+                console.error(e);
             }
         } else {
             const msg = `¤gray¤Plugin ¤cmd¤${name}¤white¤ already loaded.`;
             this.chat(msg);
-            this.cli(msg);
+            log.warn(msg);
         }
     }
 
@@ -414,7 +414,7 @@ class MiniControl {
     async unloadPlugin(id: string) {
         if (!this.plugins[id]) {
             const msg = `¤gray¤Plugin ¤cmd¤${id}¤white¤ not loaded.`;
-            this.cli(msg);
+            log.warn(msg);
             return;
         }
         const plugin = this.discoveredPlugins.find((p) => p.id === id);
@@ -439,12 +439,12 @@ class MiniControl {
         if (dependants.size > 0) {
             const list = Array.from(dependants).map((s) => `¤cmd¤${s}`).join("$fff, ");
             const msg = `¤gray¤Cannot unload plugin ¤cmd¤${id}¤white¤ — dependant plugin(s) still loaded: ${list}`;
-            this.cli(msg);
+            log.warn(msg);
             if (this.startComplete) this.chat(msg, this.admins);
             return;
         }
         try {
-            this.cli(`¤gray¤Unloading ¤cmd¤${id}¤white¤...`);
+            log.info(`¤gray¤Unloading ¤cmd¤${id}¤white¤...`);
             if (typeof this.plugins[id].onUnload === 'function') {
                 await this.plugins[id].onUnload();
             }
@@ -457,18 +457,18 @@ class MiniControl {
                     Loader.registry.delete(file);
                 }
                 delete require.cache[file];
-                tmc.cli(`¤success¤Require cache for ¤cmd¤${id}¤white¤ cleared.`);
+                log.info(`¤success¤Require cache for ¤cmd¤${id}¤white¤ cleared.`);
             } else {
-                this.cli(`$fffFailed to remove require cache for ¤cmd¤${id}¤white¤, hotreload will not work right.`);
+                log.warn(`$fffFailed to remove require cache for ¤cmd¤${id}¤white¤, hotreload will not work right.`);
             }
             this.plugins[id].destroy();
             delete this.plugins[id];
             if (global.gc) global.gc();
 
-            this.cli(`¤success¤Plugin ¤cmd¤${id}¤white¤ unloaded.`);
+            log.info(`¤success¤Plugin ¤cmd¤${id}¤white¤ unloaded.`);
             if (this.startComplete) this.chat(`¤gray¤Plugin ¤cmd¤${id}¤white¤ unloaded.`, this.admins);
         } catch (e: any) {
-            this.cli(`¤error¤Error while unloading plugin ¤cmd¤${id}: ${e.message}`);
+            log.error(`¤error¤Error while unloading plugin ¤cmd¤${id}: ${e.message}`);
             try {
 
                 // sentry.captureException(e, { tags: { section: 'unloadPlugin' } });
@@ -482,9 +482,8 @@ class MiniControl {
      * send message to console
      * @param object The object to log.
      */
-    cli(object: any) {
-        const parsed = processColorString(object.toString());
-        log.info(parsed);
+    cli(object: unknown) {
+        log.info(object);
         if (process.env.DEBUGLEVEL === "3") getCallerName();
     }
 
@@ -492,10 +491,10 @@ class MiniControl {
      * log command to console if debug is enabled
      * @param object The object to log.
      */
-    debug(object: any) {
+    debug(object: unknown) {
         if (process.env.DEBUG === "true") {
             const level = Number.parseInt(process.env.DEBUGLEVEL || "1", 10);
-            if (level >= 1) log.debug(processColorString(object.toString()));
+            if (level >= 1) log.debug(object);
             if (level >= 3) getCallerName();
         }
     }
@@ -530,22 +529,22 @@ class MiniControl {
         } else {
             this.cli(`¤info¤Using Node ¤white¤${process.version}`);
             if (semver.gt("21.5.0", process.version)) {
-                this.cli("¤error¤Your Node version is too old. Must be atleast 21.5.0, please upgrade!");
+                log.error("¤error¤Your Node version is too old. Must be atleast 21.5.0, please upgrade!");
                 process.exit(1);
             }
         }
         this.cli(`¤info¤Connecting to Trackmania Dedicated server at ¤white¤${process.env.XMLRPC_HOST ?? "127.0.0.1"}:${port}`);
         const status = await this.server.connect(process.env.XMLRPC_HOST ?? "127.0.0.1", port);
         if (!status) {
-            this.cli("¤error¤Couldn't connect to server.");
+            log.error("¤error¤Couldn't connect to server.");
             process.exit();
         }
         this.cli("¤info¤Connected to Trackmania Dedicated server.");
         try {
             await this.server.call("Authenticate", process.env.XMLRPC_USER ?? "SuperAdmin", process.env.XMLRPC_PASS ?? "SuperAdmin");
         } catch (e: any) {
-            this.cli("¤error¤Authenticate to server failed.");
-            this.cli(e.message);
+            log.error("¤error¤Authenticate to server failed.");
+            log.error(e.message);
             process.exit();
         }
         await this.server.fetchServerInfo();
@@ -566,14 +565,16 @@ class MiniControl {
                 const settings = { S_UseLegacyXmlRpcCallbacks: false };
                 tmc.server.send("SetModeScriptSettings", settings);
             } catch (e: any) {
-                tmc.cli(e.message);
+                log.error(e.message);
             }
         }
+
         try {
             await this.server.limitScriptCallbacks();
         } catch (e: any) {
-            tmc.cli(e.message);
+            log.error(e.message);
         }
+
         this.settings.load();
         await this.maps.init();
         await this.players.init();
@@ -656,7 +657,7 @@ class MiniControl {
             const entry = this.discoveredPlugins.find((p) => p.id === name);
             if (!entry) {
                 const msg = `¤error¤Didn't find a plugin entry for ${name} in discovered plugins.`;
-                this.cli(msg);
+                log.error(msg);
                 if (this.startComplete) this.chat(msg, this.admins);
                 continue;
             }
@@ -664,7 +665,7 @@ class MiniControl {
             // require a valid manifest; skip otherwise (strict mode)
             if (!entry.manifest) {
                 const msg = `¤error¤Plugin ${name} missing manifest.json — skipping (strict manifest mode).`;
-                this.cli(msg);
+                log.error(msg);
                 if (this.startComplete) this.chat(msg, this.admins);
                 continue;
             }
@@ -709,7 +710,7 @@ class MiniControl {
                     available.push(entry);
                 } else {
                     const msg = `¤error¤Plugin ${name} selected for load but no manifest.json found; skipping.`;
-                    this.cli(msg);
+                    log.error(msg);
                     if (this.startComplete) this.chat(msg, this.admins);
                 }
             }
@@ -728,7 +729,7 @@ class MiniControl {
         } catch (err: any) {
             // resolver failed — fallback to naive load order
             const msg = `¤gray¤Resolver failed: ${err?.message ?? err}. Falling back to simple load order.`;
-            this.cli(msg);
+            log.error(msg);
             if (this.startComplete) this.chat(msg, this.admins);
             for (const name of loadList) {
                 await this.loadPlugin(name);
@@ -736,7 +737,7 @@ class MiniControl {
         }
 
         this.server.send("Echo", this.startTime.toString(), "MiniControl");
-        this.cli("¤info¤Plugins loaded.");
+        this.cli("¤info¤Plugins loaded!");
     }
 
     /**
@@ -776,7 +777,7 @@ class MiniControl {
             try {
                 plugin?.onStart();
             } catch (err: any) {
-                this.cli(`¤error¤Error while starting plugin ¤cmd¤${plugin.constructor.name}`);
+                log.error(`¤error¤Error while starting plugin ¤cmd¤${plugin.constructor.name}`);
                 /*
                 sentry.captureException(err, {
                     tags: {
@@ -812,9 +813,9 @@ process.on("SIGTERM", () => {
 });
 
 process.on("uncaughtException", (err) => {
-    tmc.cli(`¤error¤Uncaught error: ${err.message}`);
+    log.error(`Uncaught error: ${err.message}`);
     if (process.env.DEBUG === "true") {
-        console.log(err);
+        log.error(err);
         // process.exit(1);
     }
 });
@@ -822,7 +823,7 @@ process.on("uncaughtException", (err) => {
 try {
     tmc.run();
 } catch (e: any) {
-    tmc.cli(`¤error¤${e.message}`);
+    log.error(`¤error¤${e.message}`);
 }
 
 console.log("MINIcontrol is running, add debug point this line to get tmc object to debug console.");

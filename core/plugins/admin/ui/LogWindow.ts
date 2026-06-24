@@ -1,9 +1,10 @@
 import ListWindow from "@core/ui/listwindow";
 import { logLines } from "@core/log";
+import { processColorString } from "@core/utils";
 
 export default class LogWindow extends ListWindow {
     title = "Console Log";
-    size = { width: 220, height: 120 };
+    size = { width: 200, height: 120 };
     logType: string = "ALL";
 
     constructor(login: string, type: string) {
@@ -33,9 +34,9 @@ export default class LogWindow extends ListWindow {
         this.setItems(logLines.filter((val) => {
             if (this.logType === "ALL") return true;
             return val.level == this.logType;
-        }
-        ).toReversed());
+        }).toReversed().map( (val) => {
+            return {...val, message: processColorString(val.message)};
+        }));
         await super.display();
     }
-
 }

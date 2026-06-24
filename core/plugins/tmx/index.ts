@@ -17,7 +17,7 @@ export interface TmxMapInfo {
 }
 
 interface Map {
-    id: string;
+    tmxId: string;
     baseUrl: string;
     site?: string;
     /** path relative to dedicated/userdata/maps */
@@ -296,7 +296,7 @@ export default class Tmx extends Plugin {
                     site = data[1].toUpperCase();
                 }
                 const baseUrl = this.getBaseUrl(site);
-                const map: Map = { id, baseUrl, site };
+                const map: Map = { tmxId: id, baseUrl, site };
                 return await this.downloadMap(map, login);
             } else {
                 const id = mapId;
@@ -305,7 +305,7 @@ export default class Tmx extends Plugin {
                     site = "TMUF";
                 }
                 const baseUrl = this.getBaseUrl(site);
-                const map: Map = { id, baseUrl, site };
+                const map: Map = { tmxId: id, baseUrl, site };
                 return await this.downloadMap(map, login);
             }
         } else {
@@ -317,7 +317,7 @@ export default class Tmx extends Plugin {
                 tmc.chat(`¤error¤The supplied ID ${mapId} is invalid.`, login);
                 return;
             }
-            const map: Map = { id: mapId, baseUrl: this.getBaseUrl() };
+            const map: Map = { tmxId: mapId, baseUrl: this.getBaseUrl() };
             return await this.downloadMap(map, login);
         }
     }
@@ -330,8 +330,19 @@ export default class Tmx extends Plugin {
         if (info) {
             const author = info.AuthorNickname || info.Author || "n/a";
             tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
-            if (tmc.existsPlugin("jukebox")) {
-                await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
+
+            const jb = tmc.getPlugin("jukebox");
+            if (jb) jb.addToJukebox(login, info);
+
+            const db = tmc.getPlugin("database");
+            if (!db) return;
+            try {
+                const dbmap = await db.getMap(info.UId);
+                if (!dbmap) return;
+                await dbmap.update({ tmxId: map.tmxId });
+                info.TmxId = map.tmxId;
+            } catch (e: any) {
+                tmc.cli(e.message);
             }
         } else {
             tmc.chat(`¤info¤Added map but didn't find map info!`);
@@ -343,21 +354,21 @@ export default class Tmx extends Plugin {
         const baseUrl = map.baseUrl;
         const endpoint = this.getDownloadEndpoint();
         const ext = this.getFileExtension();
-        const fileUrl = `${baseUrl}/${endpoint}/${map.id}`;
+        const fileUrl = `${baseUrl}/${endpoint}/${map.tmxId}`;
 
-        let filePath = `tmx/${map.id}`;
+        let filePath = `tmx/${map.tmxId}`;
         if (map.site) filePath += `_${map.site}`;
         filePath += ext;
         map.filePath = filePath;
 
         const res = await fetch(fileUrl, { headers: headers, keepalive: false });
         if (!res) {
-            tmc.chat(`Invalid http response for ID ${map.id}`, login);
-            throw new Error(`Invalid http response for ID ${map.id}`);
+            tmc.chat(`Invalid http response for ID ${map.tmxId}`, login);
+            throw new Error(`Invalid http response for ID ${map.tmxId}`);
         }
         if (!res.ok) {
-            tmc.chat(`Invalid http response for ID ${map.id}`, login);
-            throw new Error(`Invalid http response for ID ${map.id}`);
+            tmc.chat(`Invalid http response for ID ${map.tmxId}`, login);
+            throw new Error(`Invalid http response for ID ${map.tmxId}`);
         }
         if (!fs.existsSync(`${tmc.mapsPath}`)) {
             const abuffer = await (await res.blob()).arrayBuffer();
@@ -442,7 +453,7 @@ export default class Tmx extends Plugin {
                 const mapName = tmc.game.Name === "TmForever" ? data.TrackName : data.GbxMapName;
                 const id = tmc.game.Name === "TmForever" ? data.TrackId : data.MapId;
                 tmc.chat(`Downloading: ¤white¤${mapName}`);
-                const map: Map = { id, baseUrl, site };
+                const map: Map = { tmxId: id, baseUrl, site };
 
                 const mapData = await this.downloadMap(map, login);
                 await this.addToServer(login, mapData);

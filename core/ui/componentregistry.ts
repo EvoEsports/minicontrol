@@ -1,3 +1,5 @@
+import log from "@core/log";
+
 export default class ComponentRegistry {
     private static _components = new Map<string, any>();
 
@@ -21,8 +23,8 @@ export default class ComponentRegistry {
         }
         const comp = this._components.get(name);
         if (!comp && process.env.DEBUG === "true") {
-            tmc.cli(`¤error¤Component not registered: $fff${name}`);
-            tmc.cli(`¤info¤Registered components: $fff${Array.from(this._components.keys()).join(", ")}`);
+            log.error(`¤error¤Component not registered: $fff${name}`);
+            log.error(`¤info¤Registered components: $fff${Array.from(this._components.keys()).join(", ")}`);
             process.exit(1);
         }
         return comp;

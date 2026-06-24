@@ -6,6 +6,7 @@ import { Op } from "sequelize";
 import Confirm from "@core/ui/confirm";
 import ListWindow from "@core/ui/listwindow";
 import Menu from "@core/menu";
+import log from "@core/log";
 
 export interface TopRecord {
     login: string;
@@ -86,7 +87,7 @@ export default class RecordsSector extends Plugin {
             // Bulk upsert
             await Promise.all(recordsToSave.map((rec) => rec.save()));
         } catch (err: any) {
-            tmc.cli(`¤error¤Error saving sector records: ${err.message}`);
+            log.error(`¤error¤Error saving sector records: ${err.message}`);
         }
     }
 
@@ -113,7 +114,7 @@ export default class RecordsSector extends Plugin {
             this.recordCache[login] = record;
             this.sectorRecords[login] = JSON.parse(record.jsonData ?? "[]");
         } catch (err: any) {
-            tmc.cli(`¤error¤Error loading sector records for ${login}: ${err.message}`);
+            log.error(`¤error¤Error loading sector records for ${login}: ${err.message}`);
         }
     }
 

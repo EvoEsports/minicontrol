@@ -1,5 +1,6 @@
 import { writeFileSync, readFileSync, existsSync } from "node:fs";
 import { clone, modLightness } from "./utils";
+import log from "./log";
 
 
 export type ColorKey = typeof defaultColors;
@@ -154,7 +155,7 @@ export default class SettingsManager {
             writeFileSync(import.meta.dirname + this.fontsFile, JSON.stringify(fonts));
             writeFileSync(import.meta.dirname + this.adminsFile, JSON.stringify(this.admins.filter((a) => !this.masterAdmins.includes(a))));
         } catch (e: any) {
-            tmc.cli("¤error¤Error while saving settings!");
+            log.error("Error while saving settings!");
             tmc.cli(e.message);
         }
     }
@@ -164,8 +165,8 @@ export default class SettingsManager {
             try {
                 writeFileSync(import.meta.dirname + file, JSON.stringify(data));
             } catch (e: any) {
-                tmc.cli(`$f00Error while creating ${file}`);
-                tmc.cli(e.message);
+                log.error(`$f00Error while creating ${file}`);
+                log.error(e.message);
                 process.exit(1);
             }
         }
@@ -291,7 +292,7 @@ export default class SettingsManager {
 
     addAdmin(login: string) {
         if (this.admins.includes(login)) {
-            tmc.cli("¤error¤Trying to add admin that already exists!");
+            log.warn("¤error¤Trying to add admin that already exists!");
             return;
         }
         this.admins.push(login);
@@ -302,7 +303,7 @@ export default class SettingsManager {
 
     removeAdmin(login: string) {
         if (this.masterAdmins.includes(login)) {
-            tmc.cli("¤error¤Cannot remove master admin!");
+            log.warn("¤error¤Cannot remove master admin!");
             return;
         }
 

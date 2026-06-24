@@ -1,5 +1,5 @@
 import { appendFileSync, existsSync, mkdirSync } from "node:fs";
-import { rgb2hsl, removeColors } from "./utils";
+import { rgb2hsl, removeColors, processColorString } from "./utils";
 
 // Precompile regex and constants to avoid recreating per-call
 const TM_COLOR_SPLIT_RE = /([$][0-9A-F]{3}|[$][zsowin])/gi;
@@ -182,24 +182,24 @@ function writeLog(message: unknown, level: "INFO" | "WARN" | "ERROR" | "DEBUG" =
 }
 
 export function debug(str: unknown) {
-    console.log(formatter(formatValue(str)));
+    console.log((formatter(processColorString(formatValue(str)))));
     writeLog(str, "DEBUG");
 }
 
 export function info(str: unknown) {
     const date = new Date();
     const prefix = `$888[${date.toISOString()}] $z`;
-    console.log(formatter(prefix) + formatter(formatValue(str)));
+    console.log(formatter(prefix) + formatter(processColorString(formatValue(str))));
     writeLog(str, "INFO");
 }
 
 export function warn(str: unknown) {
-    console.log(formatter(formatValue(str)));
+    console.log(formatter(processColorString(formatValue(str))));
     writeLog(str, "WARN");
 }
 
 export function error(str: unknown) {
-    console.log(formatter(formatValue(str)));
+    console.log(formatter(processColorString(formatValue(str))));
     writeLog(str, "ERROR");
 }
 
