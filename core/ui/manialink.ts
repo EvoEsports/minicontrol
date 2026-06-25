@@ -42,6 +42,7 @@ export default class Manialink implements IManialink {
         this.cleanReferences();
     }
 
+    /** @ignore */
     async render(): Promise<string> {
         const model: ManialinkModel = {
             id: this.id,
@@ -81,6 +82,7 @@ export default class Manialink implements IManialink {
         </manialink>`;
     }
 
+    /** @ignore */
     cleanReferences() {
         for (const key of Object.keys(this.actions)) {
             try { tmc.ui.removeAction(this.actions[key]); } catch (e) { console.error(e); }
