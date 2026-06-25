@@ -1,24 +1,27 @@
 import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
+import Button from "./Button";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmnf/togglechat": ToggleChat;
+    }
+}
 export default class ToggleChat extends Plugin {
-    static depends: string[] = ["game:TmForever"];
     enabled: { [key: string]: boolean } = {};
     widget: Widget | null = null;
 
     async onLoad() {
-        this.widget = new Widget("core/plugins/tmnf/togglechat/widget.xml.twig");
-        this.widget.pos = { x: -160, y: -40, z: 5 };
+        this.widget = new Widget(Button, "toggleChatButton");
+        this.widget.pos = { x: -160, y: -40, z: 0 };
         this.widget.size = { width: 15, height: 3 };
         this.widget.setOpenAction(this.manialinkToggle.bind(this));
         await this.widget.display();
-        tmc.addCommand("/togglechat", this.cmdChat.bind(this), "Toggle chat visibility");
+        this.addCommand("/togglechat", this.cmdChat.bind(this), "Toggle chat visibility");
     }
 
     async onUnload() {
-        this.widget?.destroy();
-        this.widget = null;
-        tmc.removeCommand("/togglechat");
+
     }
 
     async cmdChat(login: string, params: string[]) {

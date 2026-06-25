@@ -1,17 +1,19 @@
-import { Sequelize } from "sequelize-typescript";
+import { Sequelize, type ModelCtor } from "sequelize-typescript";
 import type { Player as PlayerType } from "@core/playermanager";
-import Plugin from "@core/plugins";
 import { chunkArray, htmlEntities, sleep } from "@core/utils";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: <explanation>
-import Map from "@core/schemas/map.model";
-import Player from "@core/schemas/players.model";
-import { SequelizeStorage, Umzug } from "umzug";
+import DbMap from "@core/plugins/database/models/map.model";
+import Player from "@core/plugins/database/models/players.model";
+import { SequelizeStorage, Umzug, type MigrationParams } from "umzug";
 import { removeColors } from "@core/utils";
 import { GBX, type CGameCtnChallenge } from "gbx";
 import { existsSync, promises as fsPromises } from "node:fs";
 import path from "node:path";
 import { Op } from "sequelize";
 import ListWindow from "@core/ui/listwindow";
+import Plugin from "@core/plugins";
+import log from '@core/log';
+
+export type Migration = (params: MigrationParams<Sequelize>, context: Sequelize) => Promise<unknown>;
 
 const strToCar: any = {
     Stadium: "StadiumCar",
@@ -58,30 +60,49 @@ interface DbPlayer extends PlayerType {
     joinedAt: number;
     totalPlaytime: number;
     customNick: string;
+    connectCount: number;
 }
 
-export default class GenericDb extends Plugin {
+declare module "@core/playermanager" {
+    interface Player {
+        joinedAt: number;
+        totalPlaytime: number;
+        connectCount: number;
+    }
+}
+
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "database": Database;
+    }
+}
+
+export default class Database extends Plugin {
+    sequelize!: Sequelize;
+
+    /**
+     * @ignore
+     */
     async onLoad() {
         try {
+            if (!process.env["DATABASE"]) {
+                log.info("¤info¤No database configured, skipping database.");
+                return;
+            }
             await this.connect();
-            tmc.server.prependListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-            tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
-            tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
-            tmc.server.addListener("TMC.MapListModified", this.onMapListModified, this);
-            tmc.addCommand("/active", this.cmdActive.bind(this), "Show playtime");
-            tmc.addCommand("/topactive", this.cmdTopActive.bind(this), "Show top100 playtime");
+            await this.syncPlayers();
         } catch (e: any) {
-            tmc.cli(`¤error¤${e.message}`);
+            log.error(e.message);
             process.exit(1);
         }
     }
 
-    async connect() {
+    private async connect() {
         let sequelize: Sequelize;
         const dbString = (process.env["DATABASE"] ?? "").split("://", 1)[0];
         if (!["sqlite", "mysql", "postgres"].includes(dbString)) {
-            tmc.cli("¤error¤Seems you .env is missing 'DATABASE=' define or the database not sqlite, mysql or postgres");
-            process.exit(1);
+            log.error("Seems your .env is missing 'DATABASE=' define or the database not sqlite, mysql or postgres");
+            return;
         }
 
         try {
@@ -95,22 +116,23 @@ export default class GenericDb extends Plugin {
             await sequelize.authenticate();
             tmc.cli("¤success¤Success!");
         } catch (e: any) {
-            tmc.cli(`¤error¤${e.message}`);
+            log.error(e.message);
             process.exit(1);
         }
 
         try {
-            for (const path of ["./core/migrations/", "./userdata/migrations/"]) {
+            const paths = ["./core/plugins/**/migrations/*.ts", "./userdata/plugins/**/migrations/*.ts"];
+            for (const path of paths) {
                 const migrator = new Umzug({
                     migrations: {
-                        glob: [`${path}*.ts`, { cwd: process.cwd() }],
+                        glob: [`${path}`, { cwd: process.cwd() }],
                     },
                     context: sequelize,
                     storage: new SequelizeStorage({
                         sequelize,
                     }),
                     logger: {
-                        debug: (_message) => {},
+                        debug: (_message) => { },
                         error: (message) => {
                             tmc.cli(`$f00${message}`);
                         },
@@ -125,36 +147,44 @@ export default class GenericDb extends Plugin {
                 tmc.cli(`¤info¤Running migrations for ${path}`);
                 await migrator.up();
                 tmc.cli("¤success¤Success!");
+                this.addModels([DbMap, Player]);
+                this.sequelize = sequelize;
             }
         } catch (e: any) {
-            tmc.cli(`¤error¤${e.message}`);
-            tmc.cli("¤error¤Failed to run migrations, please check your database.");
-            tmc.cli("¤info¤Notice: Sometimes running migrations 2x can fix this issue.");
+            log.error(`${e.message}`);
+            log.error("Failed to run migrations, please check your database.");
+            log.error("¤info¤Notice: Sometimes running migrations 2x can fix this issue.");
             process.exit(1);
         }
-        sequelize.addModels([Map, Player]);
-        tmc.storage["db"] = sequelize;
+
     }
 
-    async onUnload() {
-        if (tmc.storage["db"]) {
-            await tmc.storage["db"].close();
-            // biome-ignore lint/performance/noDelete: <explanation>
-            delete tmc.storage["db"];
+    /**
+     *
+     * @param models
+     */
+    addModels(models: ModelCtor[]) {
+        if (this.sequelize) {
+            this.sequelize.addModels(models);
         }
-        tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect.bind(this));
     }
 
+    /**
+     * Called on MiniControl start
+     * @ignore
+     */
     async onStart() {
-        await this.syncPlayers();
-        await this.syncMaps();
+        if (this.sequelize) {
+            tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
+            tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
+            tmc.server.addListener("TMC.MapListModified", this.onMapListModified, this);
+            tmc.addCommand("/active", this.cmdActive.bind(this), "Show playtime");
+            tmc.addCommand("/topactive", this.cmdTopActive.bind(this), "Show top100 playtime");
+            this.syncMaps(); // removed await to ease initial loading times
+        }
     }
 
-    async onPlayerConnect(player: PlayerType) {
-        await this.syncPlayer(player);
-    }
-
-    async onPlayerDisconnect(player: PlayerType) {
+    private async onPlayerDisconnect(player: PlayerType) {
         const dbPlayer = await Player.findByPk(player.login);
         const joinedAt = (player as DbPlayer).joinedAt;
         const sessionTime = Math.floor((new Date().getTime() - joinedAt) / 1000);
@@ -170,15 +200,15 @@ export default class GenericDb extends Plugin {
         }
     }
 
-    async onMapListModified(data: any) {
+    private async onMapListModified(data: any) {
         if (data[2] === true) {
             await this.syncMaps();
         }
     }
 
-    async onEndMap(data: any) {
+    private async onEndMap(data: any) {
         try {
-            const map = await Map.findByPk(data[0].UId);
+            const map = await DbMap.findByPk(data[0].UId);
             if (map) {
                 await map.update({
                     lastPlayed: new Date().toISOString(),
@@ -220,9 +250,13 @@ export default class GenericDb extends Plugin {
         }
     }
 
+    async getMap(uid: string): Promise<DbMap | null> {
+        return await DbMap.findByPk(uid);
+    }
+
     async syncMaps() {
         const serverUids = tmc.maps.getUids();
-        let result = await Map.findAll();
+        let result = await DbMap.findAll();
         const dbUids = result.map((value: any) => value.uuid);
         const missingUids = chunkArray(
             serverUids.filter((item) => dbUids.indexOf(item) < 0),
@@ -245,13 +279,13 @@ export default class GenericDb extends Plugin {
             }
 
             try {
-                await Map.bulkCreate(missingMaps);
+                await DbMap.bulkCreate(missingMaps);
             } catch (e: any) {
                 tmc.cli(`¤error¤${e.message}`);
             }
         }
 
-        result = await Map.findAll({
+        result = await DbMap.findAll({
             where: {
                 uuid: {
                     [Op.in]: serverUids,
@@ -260,12 +294,14 @@ export default class GenericDb extends Plugin {
         });
         tmc.cli("¤white¤Importing vehicle data from maps, if missing");
         tmc.cli("¤white¤This can take a while...");
+        let counter = 0;
         for (const map of result) {
             const mapInfo = tmc.maps.getMap(map.uuid ?? "");
             if (!mapInfo) continue;
-            mapInfo.CreatedAt = new Date(map.createdAt).toISOString().split("T")[0];
             if (!map.playerModel) {
                 if (!mapInfo.Vehicle) {
+                    counter += 1;
+                    tmc.cli(`Processing file ${counter} of ${result.length}`);
                     const fileName = path.resolve(tmc.mapsPath, mapInfo.FileName);
                     if (existsSync(fileName)) {
                         const stream = await fsPromises.readFile(fileName);
@@ -275,11 +311,13 @@ export default class GenericDb extends Plugin {
                         }
                         const gbx = new GBX<CGameCtnChallenge>(stream, 0);
                         gbx.parse()
-                            .then((file) => map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || "" }))
+                            .then((file) => {
+                                map.update({ playerModel: file.playerModel?.id || mapInfo.Environnement || "" })
+                            })
                             .catch(async (error) => {
                                 tmc.debug(`¤error¤Failed to parse "¤white¤${fileName}¤error¤" file, falling back to the map environment...`);
                                 tmc.debug(error);
-                                await map.update({ playerModel: mapInfo.Environnement || "" });
+                                map.update({ playerModel: mapInfo.Environnement || "" });
                             })
                             .catch((error) => {
                                 tmc.debug(
@@ -297,6 +335,9 @@ export default class GenericDb extends Plugin {
                     }
                 }
             }
+            mapInfo.Vehicle = strToCar[map.environment ?? ""] || "";
+            mapInfo.TmxId = map.tmxId ?? "";
+            mapInfo.CreatedAt = new Date(map.createdAt).toISOString().split("T")[0];
         }
         tmc.cli("¤success¤Done!");
     }
@@ -316,7 +357,6 @@ export default class GenericDb extends Plugin {
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
         const formattedPlaytime = `${hours.toString().padStart(2, "0")}h ${minutes.toString().padStart(2, "0")}min ${seconds.toString().padStart(2, "0")}s`;
-
         tmc.chat(`¤info¤Your playtime: ¤white¤${formattedPlaytime}`, login);
     }
 
@@ -334,11 +374,11 @@ export default class GenericDb extends Plugin {
         });
         const window = new ListWindow(login);
         window.title = "Top 100 active players";
-        window.setColumns([
-            { key: "rank", title: "Rank", width: 10 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "playtime", title: "Playtime", width: 20 },
-        ]);
+        window.setColumns({
+            rank: { title: "Rank", width: 10 },
+            nickname: { title: "Nickname", width: 50 },
+            playtime: { title: "Playtime", width: 20 },
+        });
         window.setItems(
             topPlayers.map((player, index) => {
                 // Convert playtime (seconds) to hh:mm format
@@ -349,7 +389,7 @@ export default class GenericDb extends Plugin {
                 const formattedPlaytime = `${hours.toString().padStart(2, "0")}h ${minutes.toString().padStart(2, "0")}min ${seconds.toString().padStart(2, "0")}s`;
                 return {
                     rank: index + 1,
-                    nickname: htmlEntities(player.nickname),
+                    nickname: (player.nickname),
                     playtime: formattedPlaytime,
                 };
             }),

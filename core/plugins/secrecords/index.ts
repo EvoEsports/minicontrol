@@ -1,11 +1,12 @@
 import Plugin from "@core/plugins";
-import SectorRec from "@core/schemas/sectors.model";
-import Player from "@core/schemas/players.model";
+import SectorRec from "./models/sectors.model";
+import Player from "@core/plugins/database/models/players.model";
 import { htmlEntities, formatTime } from "@core/utils";
 import { Op } from "sequelize";
-import ListWindow from "@core/ui/listwindow";
 import Confirm from "@core/ui/confirm";
-import Menu from "../menu/menu";
+import ListWindow from "@core/ui/listwindow";
+import Menu from "@core/menu";
+import log from "@core/log";
 
 export interface TopRecord {
     login: string;
@@ -14,8 +15,12 @@ export interface TopRecord {
     nickname?: string;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "secrecords": RecordsSector;
+    }
+}
 export default class RecordsSector extends Plugin {
-    static depends: string[] = ["database"];
 
     private sectorRecords: { [login: string]: number[] } = {};
     private lastCheckpoint: { [login: string]: number } = {};
@@ -23,22 +28,22 @@ export default class RecordsSector extends Plugin {
     private recordCache: { [login: string]: SectorRec } = {};
 
     async onLoad() {
-        tmc.storage["db"].addModels([SectorRec]);
+        tmc.getPlugin('database').addModels([SectorRec]);
     }
 
     async onStart() {
         await this.onBeginMap();
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         if (tmc.game.Name === "TmForever") {
-            tmc.server.addListener("Trackmania.EndMap", this.onEndRace, this);
+            this.addListener("Trackmania.EndMap", this.onEndRace, this);
         } else {
-            tmc.server.addListener("Trackmania.EndMatch", this.onEndRace, this);
+            this.addListener("Trackmania.EndMatch", this.onEndRace, this);
         }
-        tmc.server.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
-        tmc.addCommand("/sectors", this.cmdSecRecs.bind(this), "Show sector records");
-        tmc.addCommand("//sectors", this.cmdAdminSecRecs.bind(this), "Sector record admin commands");
+        this.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
+        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        this.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
+        this.addCommand("/sectors", this.cmdSecRecs.bind(this), "Show sector records");
+        this.addCommand("//sectors", this.cmdAdminSecRecs.bind(this), "Sector record admin commands");
         Menu.getInstance().addItem({
             category: "Records",
             title: "Sector Records",
@@ -82,7 +87,7 @@ export default class RecordsSector extends Plugin {
             // Bulk upsert
             await Promise.all(recordsToSave.map((rec) => rec.save()));
         } catch (err: any) {
-            tmc.cli(`¤error¤Error saving sector records: ${err.message}`);
+            log.error(`¤error¤Error saving sector records: ${err.message}`);
         }
     }
 
@@ -109,7 +114,7 @@ export default class RecordsSector extends Plugin {
             this.recordCache[login] = record;
             this.sectorRecords[login] = JSON.parse(record.jsonData ?? "[]");
         } catch (err: any) {
-            tmc.cli(`¤error¤Error loading sector records for ${login}: ${err.message}`);
+            log.error(`¤error¤Error loading sector records for ${login}: ${err.message}`);
         }
     }
 
@@ -250,38 +255,15 @@ export default class RecordsSector extends Plugin {
     async cmdSecRecs(login: string, args: string[]) {
         const window = new ListWindow(login);
         window.title = "Sector Records";
-        window.setColumns([
-            {
-                key: "cp",
-                title: "CP",
-                width: 5,
-            },
-            {
-                key: "nickname",
-                title: "Nickname",
-                width: 40,
-            },
-            {
-                key: "time",
-                title: "Time",
-                width: 20,
-            },
-            {
-                key: "diff",
-                title: "Difference",
-                width: 20,
-            },
-            {
-                key: "myTime",
-                title: "My Time",
-                width: 20,
-            },
-            {
-                key: "date",
-                title: "Date",
-                width: 50,
-            },
-        ]);
+        window.setColumns({
+            cp: { title: "CP", width: 5, },
+            nickname: { title: "Nickname", width: 40, },
+            time: { title: "Time", width: 20, },
+            diff: { title: "Difference", width: 20, },
+            myTime: { title: "My Time", width: 20, },
+            date: { title: "Date", width: 50, },
+        });
+
 
         const items: any = [];
         for (const i in this.topRecord) {
@@ -320,7 +302,7 @@ export default class RecordsSector extends Plugin {
 
             items[i] = {
                 cp: Number.parseInt(i) + 1,
-                nickname: htmlEntities(rec.nickname ?? "-"),
+                nickname: (rec.nickname ?? "-"),
                 time: formatTime(rec.time),
                 myTime: myTime,
                 diff: color + diff,

@@ -11,24 +11,26 @@ const sequelize = new Sequelize(process.env['DATABASE'] ?? '', {
 (async () => {
     try {
         log.info('$fffMigrating:');
-        for (const path of ['./core/migrations/', './userdata/migrations/']) {
+        const paths = ["./core/plugins/**/migrations/*.ts", "./userdata/plugins/**/migrations/*.ts"];
+
+        for (const path of paths) {
             const migrator = new Umzug({
                 migrations: {
-                    glob: [path + '*.ts', { cwd: process.cwd() }]
+                    glob: [path, { cwd: process.cwd() }]
                 },
                 context: sequelize,
                 storage: new SequelizeStorage({
                     sequelize
                 }),
                 logger: {
-                    debug: (message) => {},
+                    debug: (message) => { },
                     error: (message) => {
                         log.info('$f00' + message);
                     },
                     warn: (message) => {
                         log.info('$fa0' + message);
                     },
-                    info: (message) => {}
+                    info: (message) => { }
                     //info: (message) => { log.info("$5bf" + message.event + " $fff" + message.name) },
                 }
             });

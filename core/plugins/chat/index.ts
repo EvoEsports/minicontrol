@@ -3,7 +3,8 @@ import { emotesMap } from "./tmnf_emojis";
 import badwords from "./badwords.json";
 import { clone, removeColors } from "@core/utils";
 import ListWindow from "@core/ui/listwindow.ts";
-import Widget from "@core/ui/widget.ts";
+import Widget from "@core/ui/widget.ts"
+import EmotesWidget from "./ui/EmotesWidget.tsx";
 
 const regex: RegExp[] = [];
 
@@ -23,8 +24,13 @@ function filterWords(text: string) {
     return false;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "chat": Chat;
+    }
+}
+
 export default class Chat extends Plugin {
-    static depends: string[] = [];
     pluginEnabled = false;
     publicChatEnabled = true;
     playersDisabled: string[] = [];
@@ -33,26 +39,26 @@ export default class Chat extends Plugin {
     async onLoad() {
         try {
             this.pluginEnabled = (await tmc.server.call("ChatEnableManualRouting", true, false)) as boolean;
-            tmc.server.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
-            tmc.addCommand("//chat", this.cmdChat.bind(this), "Controls chat");
-            tmc.settings.register("chat.color", "ff0", null, "Chat: Public chat color");
-            tmc.settings.register("chat.badge.admin", "f00", null, "Chat: Admin badge color");
-            tmc.settings.register("chat.badge.player", "fff", null, "Chat: Player badge color");
-            tmc.settings.register("chat.profanityFilter", true, null, "Chat: Enable profanity filter");
+            this.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
+            this.addCommand("//chat", this.cmdChat.bind(this), "Controls chat");
+            this.addSetting("chat.color", "ff0", null, "Chat: Public chat color");
+            this.addSetting("chat.badge.admin", "f00", null, "Chat: Admin badge color");
+            this.addSetting("chat.badge.player", "fff", null, "Chat: Player badge color");
+            this.addSetting("chat.profanityFilter", true, null, "Chat: Enable profanity filter");
 
             if (tmc.game.Name === "TmForever") {
-                tmc.settings.register(
+                this.addSetting(
                     "chat.useEmotes",
                     false,
                     this.toggleWidget.bind(this),
                     "Chat: Enable emote replacements in chat $z(see: $lhttp://bit.ly/Celyans_emotes_sheet$l)",
                 );
-                tmc.chatCmd.addCommand("/emotes", this.cmdTmfEmotes.bind(this), "Emotes help");
+                this.addCommand("/emotes", this.cmdTmfEmotes.bind(this), "Emotes help");
                 if (tmc.settings.get("chat.useEmotes")) {
-                    this.toggleWidget(true);
+                    await this.toggleWidget(true);
                 }
             } else {
-                tmc.chatCmd.addCommand("/chatformat", async () => {}, "");
+                this.addCommand("/chatformat", async () => { }, "");
             }
         } catch (e: any) {
             this.pluginEnabled = false;
@@ -66,9 +72,6 @@ export default class Chat extends Plugin {
         } catch (e: any) {
             tmc.chat(e.message);
         }
-        tmc.removeCommand("//chat");
-        tmc.server.removeListener("Trackmania.PlayerChat", this.onPlayerChat);
-        this.pluginEnabled = false;
     }
 
     async cmdChat(login: string, params: string[]) {
@@ -97,8 +100,8 @@ export default class Chat extends Plugin {
 
     async toggleWidget(enabled: boolean) {
         if (enabled && this.widget === null) {
-            this.widget = new Widget("core/plugins/chat/widget.xml.twig");
-            this.widget.pos = { x: -160, y: -35, z: 5 };
+            this.widget = new Widget(EmotesWidget, "emotesWidget");
+            this.widget.pos =  { x: -160, y: -35, z: 0 };
             this.widget.size = { width: 15, height: 3 };
             this.widget.setOpenAction(this.cmdTmfEmotes.bind(this));
             this.widget.display();
@@ -128,7 +131,7 @@ export default class Chat extends Plugin {
             return;
         }
         const player = await tmc.getPlayer(login);
-        const nick = (player.customNick ?? player.nickname).replaceAll(/\$[iwozs]/gi, "");
+        const nick = (player.customNick ?? player.nickname).replaceAll(/\$[w]/gi, "");
 
         if (tmc.game.Name === "TmForever" && tmc.settings.get("chat.useEmotes")) {
             for (const emoteData of emotesMap) {
@@ -155,24 +158,18 @@ export default class Chat extends Plugin {
     async cmdTmfEmotes(login: string, _params: string[]) {
         const window = new ListWindow(login);
         window.title = "Emotes";
-        window.size = { width: 82, height: 95 };
-        window.setColumns([
-            { key: "emote", title: "Name", width: 50 },
-            { key: "glyph", title: "Emote", width: 15 },
-        ]);
+        window.size = { width: 65, height: 120 };
+        window.setColumns({
+            emote: { title: "Name", width: 50 },
+            glyph: { title: "Emote", width: 15, align: "center" },
+        });
         const outItems = clone(emotesMap).map((item) => {
             return {
                 emote: `:${item.emote}:`,
-                glyph: item.glyph,
+                glyph: `$fff${item.glyph}`,
             };
         });
         window.setItems(outItems);
-        window.setActions(["Chat"]);
-        window.onAction = async (login: string, action: string, item: any) => {
-            if (action === "Chat") {
-                this.onPlayerChat([1, login, `$z$fff${item.glyph}`]);
-            }
-        };
         window.display();
     }
 }

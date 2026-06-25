@@ -1,96 +1,98 @@
-import { createEnvironment, createFilesystemLoader, type TwingTemplate } from "twing";
-import * as fs from "node:fs";
+import type IManialink from "./interfaces/imanialink";
+import { JsxEngine, type FunctionalComponent } from "./forge";
+import type { ManialinkModel } from "./interfaces/manialinkmodel";
+import { RenderContext } from "./rendercontext";
+import { SCRIPT_TEMPLATE } from "./scripttemplate";
 
-const loader = createFilesystemLoader(fs);
-const environment = createEnvironment(loader, { charset: "utf-8", parserOptions: { level: 3 } });
+export default class Manialink implements IManialink {
+    public id: string = tmc.ui.uuid();
+    public name: string = "";
+    public layer: "normal" | "ScoresTable" | "ScreenIn3d" | "altmenu" | "cutscene" = "normal";
+    public actions: { [key: string]: string } = {};
+    public data: Record<string, any> = {};
+    public recipient: string | undefined = undefined;
+    public displayDuration = 0;
+    public canHide = true;
+    private scriptHeaders: Set<string> = new Set();
+    public pos = { x: 0, y: 0, z: 0 };
+    public size = { width: 160, height: 120 };
 
-export interface MlSize {
-    width: number;
-    height: number;
-}
+    protected _jsxComponent: FunctionalComponent;
+    private _isFirstDisplay = true;
 
-export interface MlPos {
-    x: number;
-    y: number;
-    z: number;
-}
-
-export default class Manialink {
-    id: string = tmc.ui.uuid();
-    size: MlSize = { width: 160, height: 95 };
-    pos: MlPos = { x: 0, y: 10, z: 1 };
-    template = "core/templates/manialink.xml.twig";
-    actions: { [key: string]: string } = {};
-    data: { [key: string]: any } = {};
-    recipient: string | undefined = undefined;
-    title = "";
-    displayDuration = 0;
-    private _firstDisplay = true;
-    canHide = true;
-    _templateData: TwingTemplate | undefined = undefined;
-
-    constructor(login: string | undefined = undefined) {
-        this.recipient = login;
+    constructor(jsxComponent: FunctionalComponent) {
+        this._jsxComponent = jsxComponent;
     }
 
+    async show() { await this.display(); }
+
+    async hide() { tmc.ui.hideManialink(this); }
+
     async display() {
-        if (this._firstDisplay) {
-            this._firstDisplay = false;
+        if (this._isFirstDisplay) {
+            this._isFirstDisplay = false;
             tmc.ui.displayManialink(this);
         } else {
             tmc.ui.refreshManialink(this);
         }
     }
 
-    async hide() {
-        tmc.ui.hideManialink(this);
-    }
-
-    cleanReferences() {
-        //const template = this.title || this.template || this.id;
-        //tmc.debug('Cleaning references for manialink: $fff' + template);
-
-        for (const key of Object.keys(this)) {
-            // @ts-ignore
-            delete this[key];
-        }
-    }
-
     async destroy(hide = true) {
         tmc.ui.destroyManialink(this, hide);
+        this.cleanReferences();
     }
 
-    /**
-     * render manialink template
-     * @returns
-     */
+    /** @ignore */
     async render(): Promise<string> {
-        const obj = {
+        const model: ManialinkModel = {
             id: this.id,
-            size: this.size,
-            pos: this.pos,
+            layer: this.layer,
             actions: this.actions,
             colors: tmc.settings.colors,
+            fonts: tmc.settings.fonts,
             data: this.data,
-            title: this.title,
+            game: tmc.game.Name,
             recipient: this.recipient,
+            size: this.size,
+            pos: this.pos
         };
 
-        if (!this._templateData) {
-            try {
-                this._templateData = await environment.loadTemplate(`${process.cwd()}/${this.template}`, "utf-8");
-                return this._templateData.render(environment, obj);
-            } catch (e: any) {
-                tmc.cli(`Manialink error: ¤error¤ ${e.message}`);
-                throw new Error(`Failed to load template: ${e.message}`);
-            }
-        } else {
-            try {
-                return (await this._templateData?.render(environment, obj)) ?? "";
-            } catch (e: any) {
-                tmc.cli(`Manialink error: ¤error¤ ${e.message}`);
-                throw new Error(`Failed to render template: ${e.message}`);
-            }
+        const ctx = new RenderContext(model);
+        RenderContext.push(ctx);
+
+        let xmlBody = "";
+        try {
+            const componentElement = this._jsxComponent({});
+            xmlBody = JsxEngine.renderToString(componentElement);
+        } finally {
+            RenderContext.pop();
         }
+
+        const headers = Array.from(this.scriptHeaders).concat(Array.from(ctx.headers)).join('\n');
+        const scripts = Array.from(ctx.scripts).join('\n');
+
+        let combinedScripts = "";
+        if ((headers || scripts) && tmc.game.Name !== "TmForever") {
+            combinedScripts = SCRIPT_TEMPLATE(headers, scripts);
+        }
+
+        return `<manialink version="3" id="${this.id}" layer="${this.layer}" name="${this.name}">
+        ${xmlBody}
+        ${combinedScripts}
+        </manialink>`;
     }
+
+    /** @ignore */
+    cleanReferences() {
+        for (const key of Object.keys(this.actions)) {
+            try { tmc.ui.removeAction(this.actions[key]); } catch (e) { console.error(e); }
+        }
+        this.actions = {};
+        this.data = {};
+    }
+
+    addScriptHeader(header: string) {
+        this.scriptHeaders.add(header);
+    }
+
 }

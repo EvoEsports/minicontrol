@@ -4,13 +4,9 @@ import type { TopRecord } from "@core/plugins/secrecords";
 import type { Player } from "@core/playermanager";
 
 export default class SecRecordsWidget extends Plugin {
-    static depends: string[] = ["widgets", "secrecords"];
-
     async onLoad() {
-        tmc.server.addListener("Plugin.secRecords.newBest", this.newBest, this);
-        tmc.server.addListener("Plugin.secRecords.diffBest", this.diffBest, this);
-        // tmc.server.addListener('Plugin.secRecords.newPB', this.newPB, this);
-        // tmc.server.addListener('Plugin.secRecords.diffPB', this.diffPB, this);
+        this.addListener("Plugin.secRecords.newBest", this.newBest, this);
+        this.addListener("Plugin.secRecords.diffBest", this.diffBest, this);
     }
 
     async newBest(data: any) {
@@ -30,7 +26,7 @@ export default class SecRecordsWidget extends Plugin {
         const oldRecord: TopRecord = data[3];
         const time = newRecord.time - oldRecord.time;
         let color = "f00";
-        const outTime = formatTime(time);
+        const outTime = formatTime(time, false);
 
         if (time < 0) color = "00f";
         let prefix = "";

@@ -1,7 +1,14 @@
 import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
+import MenuButtonComponent from "./ui/MenuButton";
 import MenuWidget from "./menuWidget";
-import Menu from "./menu";
+import Menu from "@core/menu";
+
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "menu": MenuPlugin;
+    }
+}
 
 export default class MenuPlugin extends Plugin {
     menuButton: Widget | null = null;
@@ -23,8 +30,8 @@ export default class MenuPlugin extends Plugin {
     }
 
     async onStart() {
-        this.menuButton = new Widget("core/plugins/menu/menuButton.xml.twig");
-        this.menuButton.pos = { x: 120, y: -65, z: 10 };
+        this.menuButton = new Widget(MenuButtonComponent, "menuButton");
+        this.menuButton.pos = { x: 120, y: -65, z: 0 };
         this.menuButton.size = { width: 12, height: 5 };
         this.menuButton.setOpenAction(this.toggleMenu.bind(this));
         await this.menuButton.display();
@@ -37,9 +44,9 @@ export default class MenuPlugin extends Plugin {
 
     async toggleMenu(login: string) {
         if (!this.menuInstances[login]) {
-            const menu = new MenuWidget(login, "core/plugins/menu/menu.xml.twig", this);
-            menu.pos = { x: 70, y: -15, z: 10 };
-            menu.size = { width: 300, height: 400 };
+            const menu = new MenuWidget(login, this);
+            menu.pos = { x: 70, y: -15, z: 0 };
+            menu.size = { width: 57, height: 50 };
             this.menuInstances[login] = menu;
             await menu.display();
         } else {

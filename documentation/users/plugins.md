@@ -1,3 +1,5 @@
+[Back to Index](../index.md)
+
 # MINIcontrol Core
 
 | Command             | Description |

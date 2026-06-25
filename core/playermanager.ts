@@ -1,4 +1,5 @@
 import { clone } from "./utils";
+import log from '@core/log';
 
 interface PlayerRanking {
     Path: string;
@@ -26,6 +27,7 @@ interface LadderStats {
 export class Player {
     login = "";
     nickname = "";
+    customNick: string | null = null;
     playerId = -1;
     teamId = -1;
     path = "";
@@ -42,8 +44,23 @@ export class Player {
     /** 3 for united */
     onlineRights = -1;
     isAdmin = false;
+
+    /** playerId in server */
     spectatorTarget = 0;
     flags = 0;
+
+    /** 0, 1 or 2*/
+    forcedSpectatorState = 0;
+    isReferee = false;
+    isPodiumReady = false;
+    isUsingStereoScopy = false
+    isManagedByOtherServer = false;
+    isServer = false
+    hasPlayerSlot = false;
+    isBroadcasting = false
+    hasJoinedGame = false;
+    ranking?: PlayerRanking;
+
     [key: string]: any; // Add index signature
 
     syncFromDetailedPlayerInfo(data: any) {
@@ -53,19 +70,31 @@ export class Player {
                 k = "nickname";
                 data[key] = data[key].replace(/[$][lh]\[.*?](.*?)([$][lh])?/i, "$1").replaceAll(/[$][lh]/gi, "");
             }
-            if (k === "flags") {
-                this.spectatorTarget = Math.floor(data.SpecatorStatus / 10000);
-            }
             this[k] = data[key];
         }
+        this.parseFlags(data);
         this.isAdmin = tmc.admins.includes(data.Login);
     }
 
     syncFromPlayerInfo(data: any) {
         this.login = data.Login;
-        this.teamId = Number.parseInt(data.TeamId);
+        this.teamId = Number.parseInt(data.TeamId, 10);
+        this.parseFlags(data);
         this.isSpectator = data.SpectatorStatus !== 0;
         this.isAdmin = tmc.admins.includes(data.Login);
+    }
+
+    private parseFlags(data: any) {
+        this.forcedSpectatorState = data.Flags % 10;
+        this.isReferee = Math.floor(data.Flags / 10) % 10 === 1;
+        this.isPodiumReady = Math.floor(data.Flags / 100) % 10 === 1;
+        this.isUsingStereoScopy = Math.floor(data.Flags / 1000) % 10 === 1;
+        this.isManagedByOtherServer = Math.floor(data.Flags / 10000) % 10 === 1;
+        this.isServer = Math.floor(data.Flags / 100000) % 10 === 1;
+        this.hasPlayerSlot = Math.floor(data.Flags / 1000000) % 10 === 1;
+        this.isBroadcasting = Math.floor(data.Flags / 10000000) % 10 === 1;
+        this.hasJoinedGame = Math.floor(data.Flags / 100000000) % 10 === 1;
+        this.spectatorTarget = Math.floor(data.SpecatorStatus / 10000);
     }
 
     set(key: string, value: any) {
@@ -88,6 +117,7 @@ export default class PlayerManager {
         const players = await tmc.server.call("GetPlayerList", -1, 0);
         for (const data of players) {
             if (data.PlayerId === 0) continue;
+            if (data.Login === tmc.server.login) continue;
             await this.getPlayer(data.Login);
         }
     }
@@ -108,11 +138,15 @@ export default class PlayerManager {
         const login = data[0].toString();
         if (login) {
             if (this.players[login]) {
-                tmc.cli(`$888Player ${login} already connected, kicking player due a bug to allow them joining again.`);
+                tmc.cli(`$888Player $fff${login} $888already connected, kicking player due a bug to allow them joining again.`);
                 tmc.server.send("Kick", login, "You are already connected, please rejoin.");
                 return;
             }
             const player = await this.getPlayer(login);
+            const database = tmc.getPlugin("database");
+            if (database) {
+                await database.syncPlayer(player);
+            }
             tmc.server.emit("TMC.PlayerConnect", player);
         } else {
             tmc.debug("¤error¤Unknown player tried to connect, ignored.");
@@ -126,8 +160,9 @@ export default class PlayerManager {
      */
     private async onPlayerDisconnect(data: any) {
         const login = data[0].toString();
+        const reason = data[1] || "";
         if (login && this.players[login]) {
-            tmc.server.emit("TMC.PlayerDisconnect", clone(this.players[login]));
+            tmc.server.emit("TMC.PlayerDisconnect", clone(this.players[login]), reason);
             delete this.players[login];
         } else {
             tmc.debug(`¤Error¤Unknown player ($fff${login}¤error¤) tried to disconnect or player not found at server. ignored.`);
@@ -153,7 +188,7 @@ export default class PlayerManager {
      */
     getPlayerbyNick(nickname: string): Player | null {
         for (const player in this.players) {
-            if (this.players[player].nick === nickname) return this.players[player];
+            if (this.players[player].nickname === nickname) return this.players[player];
         }
         return null;
     }
@@ -165,7 +200,7 @@ export default class PlayerManager {
      */
     async getPlayer(login: string): Promise<Player> {
         if (login === tmc.server.login) {
-            tmc.cli("¤error¤Tried to fetch server login as a player.");
+            log.error("Tried to fetch server login as a player.");
             return new Player();
         }
         if (this.players[login]) return this.players[login];
@@ -189,12 +224,12 @@ export default class PlayerManager {
      * @returns
      */
     private async onPlayerInfoChanged(data: any) {
-        const playerData = data[0].toString();
+        const playerData = data[0];
         if (playerData.PlayerId === 0 || playerData.Login === tmc.server.login) return;
         if (this.players[playerData.Login]) {
             this.players[playerData.Login].syncFromPlayerInfo(playerData);
         } else {
-            // if player is joined, fetch detailed info
+            // if player has joined the game, fetch detailed info
             if (Math.floor(playerData.Flags / 100000000) % 10 === 1) {
                 this.getPlayer(playerData.Login);
             }

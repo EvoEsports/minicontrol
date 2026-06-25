@@ -2,39 +2,66 @@ import type { Player } from "@core/playermanager";
 import Plugin from "../index";
 import { formatTime, getCountryFromPath } from "@core/utils";
 import type { DediRecord } from "../tmnf/dedimania";
-import version from "../../../version.json";
+import * as version from "../../../version.json";
+
+interface Version {
+    build: string;
+    version: string;
+}
+
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "announces": Announces;
+    }
+}
 
 export default class Announces extends Plugin {
+    repoVersion: Version = {} as Version;
+
     async onLoad() {
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-        tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
-        tmc.server.addListener("Plugin.Records.onNewRecord", this.onNewRecord, this);
-        tmc.server.addListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord, this);
-        tmc.server.addListener("Plugin.Records.onSync", this.onSyncRecord, this);
-        tmc.server.addListener("Plugin.Dedimania.onNewRecord", this.onDediRecord, this);
-        tmc.settings.register("announce.brand", true, null, "Announces: MINIcontrol on player connect");
-        tmc.settings.register("announce.playerconnect", true, null, "Announces: player connect and disconnects");
-        tmc.settings.register("announce.records", true, null, "Announces: Server records");
-        tmc.settings.register("announce.dedimania", true, null, "Announces: Dedimania records");
-        tmc.settings.register("announce.map", true, null, "Announces: Map info on map start");
-        tmc.settings.register("announce.localrec.threshold", 15, null, "Announces: Improved local records public threshold");
-        tmc.settings.register("announce.localrec.threshold.new", 50, null, "Announces: New local records public threshold");
-        tmc.settings.registerColor("dedirec", "0a0", null, "Dedimania record color");
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        this.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
+        this.addListener("Plugin.Records.onNewRecord", this.onNewRecord, this);
+        this.addListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord, this);
+        this.addListener("Plugin.Records.onSync", this.onSyncRecord, this);
+        this.addListener("Plugin.Dedimania.onNewRecord", this.onDediRecord, this);
+        this.addSetting("announce.brand", true, null, "Announces: MINIcontrol on player connect");
+        this.addSetting("announce.playerconnect", true, null, "Announces: player connect and disconnects");
+        this.addSetting("announce.records", true, null, "Announces: Server records");
+        this.addSetting("announce.dedimania", true, null, "Announces: Dedimania records");
+        this.addSetting("announce.map", true, null, "Announces: Map info on map start");
+        this.addSetting("announce.localrec.threshold", 15, null, "Announces: Improved local records public threshold");
+        this.addSetting("announce.localrec.threshold.new", 50, null, "Announces: New local records public threshold");
+        this.addColor("dedirec", "0a0", null, "Dedimania record color");
+
     }
 
     async onStart() {
+        const branch = process.env.CHECKVERSION ?? "main";
+        if (branch !== "false") {
+            tmc.cli(`Fetching MiniControl version from github for "${branch}"-branch...`);
+            fetch(`https://raw.githubusercontent.com/EvoEsports/minicontrol/refs/heads/${branch}/version.json`, { keepalive: false }).then(async (res) => {
+                this.repoVersion = (await res.json()) as Version;
+                const currentDate = new Date(version.build);
+                const repoDate = new Date(this.repoVersion.build);
+
+                if (repoDate > currentDate) {
+                    const msg = `$fffUpdate available at "${branch}"-branch: ${this.repoVersion.version} (${this.repoVersion.build})`;
+                    tmc.cli(msg);
+                    tmc.chat(msg);
+                } else {
+                    tmc.cli("No updates available at this time.");
+                }
+            });
+        } else {
+            tmc.cli("Skipping version check!");
+        }
         await this.onBeginMap([tmc.maps.currentMap]);
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap);
-        tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect);
-        tmc.server.removeListener("TMC.PlayerDisconnect", this.onPlayerDisconnect);
-        tmc.server.removeListener("Plugin.Records.onNewRecord", this.onNewRecord);
-        tmc.server.removeListener("Plugin.Records.onUpdateRecord", this.onUpdateRecord);
-        tmc.server.removeListener("Plugin.Records.onSync", this.onSyncRecord);
-        tmc.server.removeListener("Plugin.Dedimania.onNewRecord", this.onDediRecord);
+
     }
 
     async onBeginMap(data: any) {
@@ -45,16 +72,19 @@ export default class Announces extends Plugin {
     }
 
     async onPlayerConnect(player: Player) {
-        if (tmc.settings.get("announce.brand")) tmc.chat(`${tmc.brand} ¤info¤version ¤white¤${tmc.version}`, player.login);
+        if (tmc.settings.get("announce.brand")) tmc.chat(`${tmc.brand} ¤info¤version ¤white¤${version.build} ${tmc.version}`, player.login);
         const nick = player.customNick ?? player.nickname;
-        const msg = `¤info¤Player ¤white¤${nick}¤info¤ from ¤white¤${getCountryFromPath(player.path)} ¤info¤joins the server!`;
+        const country = getCountryFromPath(player.path);
+        let msg = `¤info¤Player ¤white¤${nick}$z$s¤info¤ from ¤white¤${country} ¤info¤joins the server!`;
+        if (player.connectCount === 0) {
+            msg = `¤info¤Welcome ¤white¤${nick}$z$s¤info¤ from ¤white¤${country} ¤info¤to the server for the first time!`;
+        } else if (player.connectCount && player.connectCount > 0) {
+            msg = `¤info¤Welcome ¤white¤${nick}$z$s¤info¤ from ¤white¤${country} ¤info¤for $fff${player.connectCount} ¤info¤visits!`;
+        }
+
         if (tmc.settings.get("announce.playerconnect")) tmc.chat(msg);
         tmc.cli(msg);
 
-        if (tmc.game.Name === "TmForever" && tmc.settings.get("chat.useEmotes") === true) {
-            tmc.chat("$z$fff回$s Emoji chat is $0f0enabled$fff! Your version: 攻龚 Server support: $d0025apr", player.login);
-            tmc.chat("$fffUpdate? $3cf$L[http://bit.ly/Celyans_emotes_sheet]Click here$L", player.login);
-        }
     }
 
     async onPlayerDisconnect(player: Player) {

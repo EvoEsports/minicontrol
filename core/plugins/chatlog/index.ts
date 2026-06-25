@@ -1,7 +1,7 @@
 import ListWindow from "@core/ui/listwindow";
-import Plugin from "..";
+import Plugin from "@core/plugins";
 import { clone } from "@core/utils";
-import Menu from "../menu/menu";
+import Menu from "@core/menu";
 
 interface ChatLogMessage {
     text: string;
@@ -10,12 +10,18 @@ interface ChatLogMessage {
     date: string;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "chatlog": ChatLog;
+    }
+}
+
 export default class ChatLog extends Plugin {
     private chatLog: ChatLogMessage[] = [];
 
     async onLoad() {
-        tmc.server.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
-        tmc.settings.register(
+        this.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
+        this.addSetting(
             "chatlog.maxlines",
             20,
             async (newValue: any, _oldValue: any) => {
@@ -23,7 +29,7 @@ export default class ChatLog extends Plugin {
             },
             "ChatLog: Max lines in chat log",
         );
-        tmc.addCommand("/chatlog", this.cmdChatLog.bind(this), "Display chat log");
+        this.addCommand("/chatlog", this.cmdChatLog.bind(this), "Display chat log");
 
         Menu.getInstance().addItem({
             category: "Server",
@@ -33,8 +39,6 @@ export default class ChatLog extends Plugin {
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.PlayerChat", this.onPlayerChat);
-        tmc.removeCommand("/chatlog");
     }
 
     async onPlayerChat(data: any) {
@@ -57,16 +61,14 @@ export default class ChatLog extends Plugin {
     async cmdChatLog(login: string, params: string[]) {
         const window = new ListWindow(login);
         window.title = "Chat Log";
-        window.size = { width: 200, height: 120 };
-        window.setColumns([
-            { key: "date", title: "Time", width: 20 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "text", title: "Message", width: 125 },
-        ]);
+        window.size = { width: 195, height: 120 };
+        window.setColumns({
+            date: { title: "Time", width: 20 },
+            nickname: { title: "Nickname", width: 50 },
+            text: { title: "Message", width: 125 },
+        });
         const chatLog = clone(this.chatLog).reverse();
         window.setItems(chatLog);
-
-        window.pageSize = 20;
         window.display();
     }
 }

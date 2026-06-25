@@ -1,20 +1,26 @@
 import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
 import Widget from "@core/ui/widget";
+import Label from "@core/ui/components/partials/Label";
+
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "widgets/checkpoints": Checkpoints;
+    }
+}
 
 export default class Checkpoints extends Plugin {
-    static depends = ["widgets"];
     checkpointCounter: { [key: string]: number } = {};
     widgets: { [key: string]: Widget } = {};
 
     async onLoad() {
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("Trackmania.EndRace", this.onHideWidget, this);
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-        tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
-        tmc.server.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
-        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
-        tmc.server.addListener("TMC.PlayerGiveup", this.onPlayerGiveup, this);
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("Trackmania.EndRace", this.onHideWidget, this);
+        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        this.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
+        this.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
+        this.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
+        this.addListener("TMC.PlayerGiveup", this.onPlayerGiveup, this);
     }
 
     async onStart() {
@@ -22,26 +28,26 @@ export default class Checkpoints extends Plugin {
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap);
-        tmc.server.removeListener("Trackmania.EndRace", this.onHideWidget);
-        tmc.server.removeListener("TMC.PlayerDisconnect", this.onPlayerDisconnect);
-        tmc.server.removeListener("TMC.PlayerConnect", this.onPlayerConnect);
-        tmc.server.removeListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint);
-        tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish);
-        tmc.server.removeListener("TMC.PlayerGiveup", this.onPlayerGiveup);
+        for (const login in this.widgets) {
+            await this.widgets[login].destroy();
+        }
+        this.widgets = {};
     }
 
     async onPlayerConnect(player: Player) {
         const login = player.login;
         this.checkpointCounter[login] = 0;
         if (!this.widgets[login]) {
-            const widget = new Widget("core/plugins/widgets/checkpoints/widget.xml.twig");
+            const widget = new Widget(() => Label({
+                scale: "1.2",
+                halign: "center",
+            }), "checkpointsWidget");
             widget.recipient = login;
             widget.pos = { x: 0, y: -74, z: 0 };
             widget.size = { width: 20, height: 5 };
+            const text = (this.checkpointCounter[login] || 0) + " / " + ((tmc.maps.currentMap?.NbCheckpoints || 1) - 1);
             widget.data = {
-                totalCheckpoints: (tmc.maps.currentMap?.NbCheckpoints || 0) - 1,
-                currentCheckpoint: this.checkpointCounter[login] || 0,
+                text
             };
             this.widgets[login] = widget;
             widget.display();
@@ -100,9 +106,9 @@ export default class Checkpoints extends Plugin {
             const player = await tmc.getPlayer(login);
             await this.onPlayerConnect(player);
         }
+        const text = (this.checkpointCounter[login] || 0) + " / " + ((tmc.maps.currentMap?.NbCheckpoints || 1) - 1);
         this.widgets[login].data = {
-            totalCheckpoints: (tmc.maps.currentMap?.NbCheckpoints || 0) - 1,
-            currentCheckpoint: this.checkpointCounter[login] || 0,
+            text
         };
         await this.widgets[login].display();
     }

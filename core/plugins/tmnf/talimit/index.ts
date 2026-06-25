@@ -1,13 +1,20 @@
 import Widget from "@core/ui/widget";
+import Label from "@core/ui/components/partials/Label";
 import Plugin from "@core/plugins";
 import tm from "tm-essentials";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmnf/talimit": TAlimitPlugin;
+    }
+}
+
 export default class TAlimitPlugin extends Plugin {
-    static depends: string[] = ["game:TmForever", "tmnf"];
     origTimeLimit: number = Number.parseInt(process.env.TALIMIT ?? "300");
     startTime: number = Date.now();
     timeLimit = 0;
     active = false;
+    run = false;
     extend = false;
     widget: Widget | null = null;
     intervalId: any | null = null;
@@ -26,13 +33,18 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async onLoad() {
-        this.widget = new Widget("core/plugins/tmnf/talimit/widget.xml.twig");
-        this.widget.pos = { x: 128, y: 45, z: 1 };
+        this.widget = new Widget(() => Label({
+            pos:"0 0",
+            size:"38 10",
+            scale: "0.7",
+            style: "TextRaceChrono",
+        }), "taTimeLimit");
+        this.widget.pos = { x: 138, y: 45, z: 0 };
         this.widget.size = { width: 38, height: 10 };
         this.timeLimit = tmc.storage["minicontrol.taTimeLimit"] ?? this.origTimeLimit;
         this.startTime = Date.now();
-        tmc.server.addListener("Trackmania.BeginRound", this.onBeginRound, this);
-        tmc.server.addListener("Trackmania.EndRound", this.onEndRound, this);
+        this.addListener("Trackmania.BeginRound", this.onBeginRound, this);
+        this.addListener("Trackmania.EndRound", this.onEndRound, this);
         const gamemode = await tmc.server.call("GetGameMode"); // Rounds (0), TimeAttack (1), Team (2), Laps (3), Stunts (4) and Cup (5)
         if (gamemode === 1) {
             const limit = await tmc.server.call("GetTimeAttackLimit");
@@ -45,7 +57,8 @@ export default class TAlimitPlugin extends Plugin {
         }
         tmc.server.addOverride("SetTimeAttackLimit", this.overrideSetLimit.bind(this));
         tmc.server.addOverride("GetTimeAttackLimit", this.overrideGetLimit.bind(this));
-        this.intervalId = setInterval(() => this.tick(), 1000);
+        this.run = true;
+        this.tick();
     }
 
     async onStart() {
@@ -53,13 +66,9 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async onUnload() {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-        }
+        this.run = false;
         tmc.server.removeOverride("SetTimeAttackLimit");
         tmc.server.removeOverride("GetTimeAttackLimit");
-        tmc.server.removeListener("Trackmania.BeginRound", this.onBeginRound.bind(this));
-        tmc.server.removeListener("Trackmania.EndRound", this.onEndRound.bind(this));
         this.active = false;
         await this.hideWidget();
         tmc.server.send("SetTimeAttackLimit", this.timeLimit * 1000);
@@ -67,6 +76,9 @@ export default class TAlimitPlugin extends Plugin {
     }
 
     async tick() {
+        if (this.run) {
+            setTimeout(() => this.tick(), 1000);
+        }
         if (this.timeLimit < 1) {
             return;
         }
@@ -100,7 +112,7 @@ export default class TAlimitPlugin extends Plugin {
 
         if (this.widget) {
             this.widget.setData({
-                time: `$${color}$s${time}`,
+                text: `$${color}$s${time}`,
             });
             await this.widget.display();
         }

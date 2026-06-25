@@ -1,15 +1,20 @@
 import { formatTime } from "@core/utils";
 import Plugin from "../index";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "atime": ATime;
+    }
+}
+
 export default class ATime extends Plugin {
-    static depends: string[] = [];
     origTAlimit = process.env["TALIMIT"];
 
     async onLoad() {
-        tmc.settings.register("atime.multiplier", -1.0, this.setMultiplier.bind(this), "AuthorTime: Multiplier for the timelimit $z(disable: -1)");
-        tmc.settings.register("atime.min", 180, null, "AuthorTime: Minimum timelimit in seconds");
-        tmc.settings.register("atime.max", 600, null, "AuthorTime: Maximum timelimit in seconds");
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addSetting("atime.multiplier", -1.0, this.setMultiplier.bind(this), "AuthorTime: Multiplier for the timelimit $z(disable: -1)");
+        this.addSetting("atime.min", 180, null, "AuthorTime: Minimum timelimit in seconds");
+        this.addSetting("atime.max", 600, null, "AuthorTime: Maximum timelimit in seconds");
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
     }
 
     async onStart() {
@@ -18,7 +23,6 @@ export default class ATime extends Plugin {
 
     async onUnload() {
         process.env["TALIMIT"] = this.origTAlimit;
-        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap);
     }
 
     async setMultiplier(value: number) {

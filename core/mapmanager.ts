@@ -1,4 +1,5 @@
 import { chunkArray, clone } from "./utils";
+import log from "./log";
 
 export interface Map {
     UId: string;
@@ -17,6 +18,8 @@ export interface Map {
     NbLaps: number;
     NbCheckpoints: number;
     Vehicle?: string;
+    CreatedAt?: string;
+    TmxId?: string;
     Karma?: {
         positive: number;
         negative: number;
@@ -55,7 +58,7 @@ class MapManager {
             this.currentMap = await tmc.server.call("GetCurrentMapInfo");
             this.nextMap = await tmc.server.call("GetNextMapInfo");
         } catch (e: any) {
-            tmc.cli(`¤error¤${e.message}`);
+            log.error(`${e.message}`);
         }
 
         await this.syncMaplist();
@@ -81,22 +84,21 @@ class MapManager {
     /** @ignore */
     private async onMapListModified(data: any) {
         if (data[2] === true) {
-            await this.syncMaplist();
+            await this.syncMaplist(data);
         }
-        tmc.server.emit("TMC.MapListModified", data);
     }
 
     /**
      * Sync the maplist with the server
      */
-    async syncMaplist() {
+    async syncMaplist(data: any = []) {
         const chunckedMaps: any = chunkArray(await tmc.server.call("GetMapList", -1, 0), 100);
         let method = "GetMapInfo";
         if (tmc.game.Name === "TmForever") method = "GetChallengeInfo";
 
-        const newMaps = {};
+        const newMaps: { [key: string]: Map } = {};
         for (const infos of chunckedMaps) {
-            const out: any[] = [];
+            const out: any = [];
 
             for (const map of infos) {
                 out.push([method, map.FileName]);
@@ -114,6 +116,10 @@ class MapManager {
             }
         }
         this.maps = newMaps;
+        data[0] = data[0] ?? Object.values(newMaps).findIndex((m) => m.Uid == this.currentMap.UId);
+        data[1] = data[1] ?? Object.values(newMaps).findIndex((m) => m.Uid == this.nextMap.UId);
+        data[2] = true;
+        tmc.server.emit("TMC.MapListModified", data);
     }
     /**
      * add map

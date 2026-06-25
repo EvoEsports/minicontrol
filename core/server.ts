@@ -1,8 +1,13 @@
-import { GbxClient } from "./gbx";
 import EventEmitter from "node:events";
+import { GbxClient } from "./gbx";
+import { uuidv4 } from "./utils";
+import log from "./log";
+
+export type CallMethod = "system.listMethods" | "system.methodSignature" | "system.methodHelp" | "system.multicall" | "Authenticate" | "ChangeAuthPassword" | "EnableCallbacks" | "GetVersion" | "CallVote" | "CallVoteEx" | "InternalCallVote" | "CancelVote" | "GetCurrentCallVote" | "SetCallVoteTimeOut" | "GetCallVoteTimeOut" | "SetCallVoteRatio" | "GetCallVoteRatio" | "SetCallVoteRatios" | "GetCallVoteRatios" | "ChatSendServerMessage" | "ChatSendServerMessageToLanguage" | "ChatSendServerMessageToId" | "ChatSendServerMessageToLogin" | "ChatSend" | "ChatSendToLanguage" | "ChatSendToLogin" | "ChatSendToId" | "GetChatLines" | "ChatEnableManualRouting" | "ChatForwardToLogin" | "SendNotice" | "SendNoticeToId" | "SendNoticeToLogin" | "SendDisplayManialinkPage" | "SendDisplayManialinkPageToId" | "SendDisplayManialinkPageToLogin" | "SendHideManialinkPage" | "SendHideManialinkPageToId" | "SendHideManialinkPageToLogin" | "GetManialinkPageAnswers" | "Kick" | "KickId" | "Ban" | "BanAndBlackList" | "BanId" | "UnBan" | "CleanBanList" | "GetBanList" | "BlackList" | "BlackListId" | "UnBlackList" | "CleanBlackList" | "GetBlackList" | "LoadBlackList" | "SaveBlackList" | "AddGuest" | "AddGuestId" | "RemoveGuest" | "RemoveGuestId" | "CleanGuestList" | "GetGuestList" | "LoadGuestList" | "SaveGuestList" | "SetBuddyNotification" | "GetBuddyNotification" | "WriteFile" | "TunnelSendDataToId" | "TunnelSendDataToLogin" | "Echo" | "Ignore" | "IgnoreId" | "UnIgnore" | "UnIgnoreId" | "CleanIgnoreList" | "GetIgnoreList" | "Pay" | "SendBill" | "GetBillState" | "GetServerCoppers" | "GetSystemInfo" | "SetConnectionRates" | "SetServerName" | "GetServerName" | "SetServerComment" | "GetServerComment" | "SetHideServer" | "GetHideServer" | "IsRelayServer" | "SetServerPassword" | "GetServerPassword" | "SetServerPasswordForSpectator" | "GetServerPasswordForSpectator" | "SetMaxPlayers" | "GetMaxPlayers" | "SetMaxSpectators" | "GetMaxSpectators" | "EnableP2PUpload" | "IsP2PUpload" | "EnableP2PDownload" | "IsP2PDownload" | "AllowMapDownload" | "IsMapDownloadAllowed" | "AutoSaveReplays" | "AutoSaveValidationReplays" | "IsAutoSaveReplaysEnabled" | "IsAutoSaveValidationReplaysEnabled" | "SaveCurrentReplay" | "SaveBestGhostsReplay" | "GetValidationReplay" | "SetLadderMode" | "GetLadderMode" | "GetLadderServerLimits" | "SetVehicleNetQuality" | "GetVehicleNetQuality" | "SetServerOptions" | "GetServerOptions" | "SetServerPackMask" | "GetServerPackMask" | "SetForcedMods" | "GetForcedMods" | "SetForcedMusic" | "GetForcedMusic" | "SetForcedSkins" | "GetForcedSkins" | "GetLastConnectionErrorMessage" | "SetRefereePassword" | "GetRefereePassword" | "SetRefereeMode" | "GetRefereeMode" | "SetUseChangingValidationSeed" | "GetUseChangingValidationSeed" | "SetWarmUp" | "GetWarmUp" | "MapRestart" | "RestartMap" | "NextMap" | "StopServer" | "ForceEndRound" | "SetGameInfos" | "GetCurrentGameInfo" | "GetNextGameInfo" | "GetGameInfos" | "SetGameMode" | "GetGameMode" | "SetChatTime" | "GetChatTime" | "SetFinishTimeout" | "GetFinishTimeout" | "SetAllWarmUpDuration" | "GetAllWarmUpDuration" | "SetDisableRespawn" | "GetDisableRespawn" | "SetForceShowAllOpponents" | "GetForceShowAllOpponents" | "SetTimeAttackLimit" | "GetTimeAttackLimit" | "SetTimeAttackSynchStartPeriod" | "GetTimeAttackSynchStartPeriod" | "SetLapsTimeLimit" | "GetLapsTimeLimit" | "SetNbLaps" | "GetNbLaps" | "SetRoundForcedLaps" | "GetRoundForcedLaps" | "SetRoundPointsLimit" | "GetRoundPointsLimit" | "SetRoundCustomPoints" | "GetRoundCustomPoints" | "SetUseNewRulesRound" | "GetUseNewRulesRound" | "SetTeamPointsLimit" | "GetTeamPointsLimit" | "SetMaxPointsTeam" | "GetMaxPointsTeam" | "SetUseNewRulesTeam" | "GetUseNewRulesTeam" | "SetCupPointsLimit" | "GetCupPointsLimit" | "SetCupRoundsPerMap" | "GetCupRoundsPerMap" | "SetCupWarmUpDuration" | "GetCupWarmUpDuration" | "SetCupNbWinners" | "GetCupNbWinners" | "GetCurrentMapIndex" | "GetNextMapIndex" | "SetNextMapIndex" | "GetCurrentMapInfo" | "GetNextMapInfo" | "GetMapInfo" | "CheckMapForCurrentServerParams" | "GetMapList" | "AddMap" | "AddMapList" | "RemoveMap" | "RemoveMapList" | "InsertMap" | "InsertMapList" | "ChooseNextMap" | "ChooseNextMapList" | "LoadMatchSettings" | "AppendPlaylistFromMatchSettings" | "SaveMatchSettings" | "InsertPlaylistFromMatchSettings" | "GetPlayerList" | "GetPlayerInfo" | "GetDetailedPlayerInfo" | "GetMainServerPlayerInfo" | "GetCurrentRanking" | "GetCurrentRankingForLogin" | "ForceScores" | "ForcePlayerTeam" | "ForcePlayerTeamId" | "ForceSpectator" | "ForceSpectatorId" | "ForceSpectatorTarget" | "ForceSpectatorTargetId" | "SpectatorReleasePlayerSlot" | "SpectatorReleasePlayerSlotId" | "ManualFlowControlEnable" | "ManualFlowControlProceed" | "ManualFlowControlIsEnabled" | "ManualFlowControlGetCurTransition" | "CheckEndMatchCondition" | "GetNetworkStats" | "StartServerLan" | "StartServerInternet" | "GetStatus" | "QuitGame" | "GameDataDirectory" | "GetTracksDirectory" | "GetSkinsDirectory" | "SetApiVersion" | "SetCallVoteRatiosEx" | "GetCallVoteRatiosEx" | "SendOpenLinkToId" | "SendOpenLinkToLogin" | "GetServerPlanets" | "GetServerTags" | "SetServerTag" | "UnsetServerTag" | "ResetServerTags" | "SetLobbyInfo" | "GetLobbyInfo" | "CustomizeQuitDialog" | "SendToServerAfterMatchEnd" | "KeepPlayerSlots" | "IsKeepingPlayerSlots" | "AllowMapDownload" | "IsMapDownloadAllowed" | "GetMapsDirectory" | "SetTeamInfo" | "GetTeamInfo" | "SetForcedClubLinks" | "GetForcedClubLinks" | "ConnectFakePlayer" | "DisconnectFakePlayer" | "GetDemoTokenInfosForPlayer" | "DisableHorns" | "AreHornsDisabled" | "DisableServiceAnnounces" | "AreServiceAnnouncesDisabled" | "DisableProfileSkins" | "AreProfileSkinsDisabled" | "SetForcedTeams" | "GetForcedTeams" | "GetModeScriptText" | "SetModeScriptText" | "GetModeScriptInfo" | "GetModeScriptSettings" | "SetModeScriptSettings" | "SendModeScriptCommands" | "SetModeScriptSettingsAndCommands" | "GetModeScriptVariables" | "SetModeScriptVariables" | "TriggerModeScriptEvent" | "TriggerModeScriptEventArray" | "SetServerPlugin" | "GetServerPlugin" | "GetServerPluginVariables" | "SetServerPluginVariables" | "TriggerServerPluginEvent" | "TriggerServerPluginEventArray" | "GetScriptCloudVariables" | "SetScriptCloudVariables" | "RestartMap" | "NextMap" | "AutoTeamBalance" | "SetScriptName" | "GetScriptName" | "GetCurrentMapIndex" | "GetNextMapIndex" | "SetNextMapIndex" | "SetNextMapIdent" | "JumpToMapIndex" | "JumpToMapIdent" | "GetCurrentMapInfo" | "GetNextMapInfo" | "GetMapInfo" | "CheckMapForCurrentServerParams" | "GetMapList" | "AddMap" | "AddMapList" | "RemoveMap" | "RemoveMapList" | "InsertMap" | "InsertMapList" | "ChooseNextMap" | "ChooseNextMapList" | "GetCurrentWinnerTeam";
+export type ServerCallback = "TMC.Vote.Pass" | "TMC.Vote.Deny" | "TMC.Vote.Cancel" | "TMC.MaplistModified" | "TMC.SettingsChanged" | "TMC.ColorsChanged" | "TMC.AdminsChanged" | "TMC.PlayerCheckpoint" | "TMC.PlayerFinish" | "TMC.PlayerGiveup" | "Trackmania.BeginMap" | "Trackmania.BeginMatch" | "Trackmania.BeginRound" | "Trackmania.BillUpdated" | "Trackmania.Echo" | "Trackmania.EndMap" | "Trackmania.EndMatch" | "Trackmania.EndRound" | "Trackmania.MaplistModified" | "Trackmania.ModeScriptCallback" | "Trackmania.ModeScriptCallbackArray" | "Trackmania.PlayerAlliesChanged" | "Trackmania.PlayerChat" | "Trackmania.PlayerConnect" | "Trackmania.PlayerDisconnect" | "Trackmania.PlayerInfoChanged" | "Trackmania.PlayerManialinkPageAnswer" | "Trackmania.ServerStop" | "Trackmania.ServerStart" | "Trackmania.StatusChanged" | "Trackmania.TunnelDataReceived" | "Trackmania.VoteUpdated" | "Trackmania.PlayerCheckpoint" | "Trackmania.PlayerFinish" | "Trackmania.PlayerIncoherence";
 
 export interface ServerOptions {
-    LadderMode: any;
+    LadderMode: unknown;
     Name: string;
     Comment: string;
     Password: string;
@@ -29,6 +34,7 @@ export interface VersionStruct {
     Version?: string;
     Build?: string;
 }
+
 /**
  * Server class
  */
@@ -42,8 +48,6 @@ export default class Server {
     events: EventEmitter = new EventEmitter();
     /** @ignore */
     methodOverrides: { [key: string]: CallableFunction } = {};
-    /** @ignore */
-    scriptCalls: { [key: string]: Promise<any> } = {};
 
     login = "";
     name = "";
@@ -57,7 +61,7 @@ export default class Server {
     }
 
     onDisconnect(str: string) {
-        tmc.cli(`¤error¤Disconnected from server. ${str}`);
+        log.error(`¤error¤Disconnected from server. ${str}`);
         process.exit(1);
     }
 
@@ -68,8 +72,8 @@ export default class Server {
         // Handle Trackmania.Echo
         if (normalizedMethod === "Trackmania.Echo") {
             if (data[0] === "MiniControl" && data[1] !== tmc.startTime.toString()) {
-                tmc.cli("¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!");
-                process.exit(1);
+                log.error("¤error¤!! Another instance of MiniControl has been started! Exiting this instance !!");
+                process.exit(0);
             } else if (data[0] === "MiniControl" && data[1] === tmc.startTime.toString()) {
                 await tmc.afterStart();
             }
@@ -89,13 +93,20 @@ export default class Server {
             switch (outmethod) {
                 case "Trackmania.Event.WayPoint":
                     if (params.isendrace) {
+                        if (isDebug) console.log("TMC.PlayerFinish", [params.login, params.racetime, params]);
                         this.events.emit("TMC.PlayerFinish", [params.login, params.racetime, params]);
                     } else {
+                        if (isDebug) console.log("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace, params]);
                         this.events.emit("TMC.PlayerCheckpoint", [params.login, params.racetime, params.checkpointinrace, params]);
                     }
+                    if (isDebug) console.log(outmethod, params);
+                    this.events.emit(outmethod, params);
                     return;
                 case "Trackmania.Event.GiveUp":
+                    if (isDebug) console.log("TMC.PlayerGiveup", [params.login]);
                     this.events.emit("TMC.PlayerGiveup", [params.login]);
+                    if (isDebug) console.log(outmethod, params);
+                    this.events.emit(outmethod, params);
                     return;
                 default:
                     if (isDebug) console.log(outmethod, params);
@@ -107,13 +118,16 @@ export default class Server {
         // Handle legacy events
         switch (normalizedMethod) {
             case "Trackmania.PlayerCheckpoint":
+                if (isDebug) console.log(normalizedMethod, data);
                 this.events.emit("TMC.PlayerCheckpoint", [data[1].toString(), data[2], data[4]]);
                 return;
             case "Trackmania.PlayerFinish":
                 if (data[0] === 0) return;
                 if (data[2] < 1) {
+                    if (isDebug) console.log("TMC.PlayerGiveup", [data[1].toString()]);
                     this.events.emit("TMC.PlayerGiveup", [data[1].toString()]);
                 } else {
+                    if (isDebug) console.log("TMC.PlayerFinish", [data[1].toString(), data[2]]);
                     this.events.emit("TMC.PlayerFinish", [data[1].toString(), data[2]]);
                 }
                 return;
@@ -129,8 +143,8 @@ export default class Server {
      * @param args
      * @returns
      */
-    async call(method: string, ...args: any) {
-        let callMethod = method;
+    async call(method: CallMethod | (string & {}), ...args: any) {
+        let callMethod = method.toString();
         if (this.version.Name === "TmForever") {
             callMethod = callMethod.replace("Map", "Challenge");
         }
@@ -141,7 +155,7 @@ export default class Server {
 
         if (this.version.Name === "Trackmania" || this.version.Name === "ManiaPlanet") {
             if (method === "SetTimeAttackLimit") {
-                const settings = { S_TimeLimit: Number.parseInt(args[0]) / 1000 };
+                const settings = { S_TimeLimit: Number.parseInt(args[0], 10) / 1000 };
                 tmc.server.send("SetModeScriptSettings", settings);
                 return;
             }
@@ -154,7 +168,7 @@ export default class Server {
      * @param method method to override
      * @param callback callback function
      */
-    addOverride(method: string, callback: CallableFunction) {
+    addOverride(method: ServerCallback | (string & {}), callback: CallableFunction) {
         this.methodOverrides[method] = callback;
     }
 
@@ -162,24 +176,51 @@ export default class Server {
      * removes override for a method
      * @param method method to remove override
      */
-    removeOverride(method: string) {
+    removeOverride(method: ServerCallback | (string & {})) {
         delete this.methodOverrides[method];
     }
 
-    addListener(method: string, callback: any, obj: object) {
+    /**
+     * clears all method overrides - useful for cleanup
+     */
+    clearOverrides() {
+        this.methodOverrides = {};
+    }
+
+    /**
+     * checks if a method has an override
+     * @param method method to check
+     */
+    hasOverride(method: string): boolean {
+        return method in this.methodOverrides;
+    }
+
+    addListener(method: ServerCallback | (string & {}), callback: any, obj: object) {
         const wrapper = callback.bind(obj);
         wrapper.listener = callback;
         this.events.addListener(method, wrapper);
     }
 
-    prependListener(method: string, callback: any, obj: object) {
+    prependListener(method: ServerCallback | (string & {}), callback: any, obj: object) {
         const wrapper = callback.bind(obj);
         wrapper.listener = callback;
         this.events.prependListener(method, wrapper);
     }
 
     removeListener(method: string, callback: any) {
+        // First try direct removal (if the exact function reference is in the emitter)
         this.events.removeListener(method, callback);
+        // Additionally, remove any wrapper listeners created by addListener
+        // where wrapper.listener === original callback
+        try {
+            const listeners = this.events.listeners(method) ?? [];
+            for (const l of listeners) {
+                // If listener is a wrapper and stores the original as `listener`, remove it
+                if (l && (l as any).listener === callback) this.events.removeListener(method, l);
+            }
+        } catch {
+            // ignore emitter introspection failures
+        }
     }
 
     emit(method: string, ...args: any) {
@@ -192,7 +233,7 @@ export default class Server {
      * @param args
      * @returns
      */
-    send(method: string, ...args: any) {
+    send(method: CallMethod | (string & {}), ...args: any) {
         let sendMethod = method;
         if (this.version.Name === "TmForever") {
             sendMethod = sendMethod.replace("Map", "Challenge");
@@ -204,7 +245,7 @@ export default class Server {
 
         if (this.version.Name === "Trackmania" || this.version.Name === "ManiaPlanet") {
             if (sendMethod === "SetTimeAttackLimit") {
-                const settings = { S_TimeLimit: Number.parseInt(args[0]) / 1000 };
+                const settings = { S_TimeLimit: Number.parseInt(args[0], 10) / 1000 };
                 this.gbx.send("SetModeScriptSettings", settings);
                 return;
             }
@@ -213,7 +254,7 @@ export default class Server {
         try {
             return this.gbx.send(sendMethod, ...args);
         } catch (e: any) {
-            tmc.cli(e.message);
+            log.error(e.message);
             return undefined;
         }
     }
@@ -225,16 +266,36 @@ export default class Server {
      * @returns
      */
     async callScript(method: string, ...args: any): Promise<any> {
+        const uid = uuidv4();
         const response = new Promise((resolve, reject) => {
             try {
-                this.gbx.callScript(method, ...args);
+                if (method.includes("Get") === false) {
+                    this.gbx.sendScript(method, ...args);
+                    resolve(null);
+                    return;
+                }
+
+                this.gbx.sendScript(method, ...args, uid);
+                const eventName = method.replace("Get", "");
+                let resolved = false;
+
+                const listener = (result: any) => {
+                    if (result.responseid === uid) {
+                        resolved = true;
+                        clearTimeout(timeout);
+                        this.events.removeListener(eventName, listener);
+                        resolve(result);
+                    }
+                };
+
                 const timeout = setTimeout(() => {
-                    reject(new Error(`Script call to ${method} timed out after 1 seconds`));
-                }, 1000);
-                this.events.once(method.replace("Get", ""), (result: any) => {
-                    clearTimeout(timeout);
-                    resolve(result);
-                });
+                    if (!resolved) {
+                        this.events.removeListener(eventName, listener);
+                        reject(new Error(`Script call to ${method} timed out after 5 seconds`));
+                    }
+                }, 5000);
+
+                this.events.on(eventName, listener);
             } catch (e: any) {
                 reject(e);
             }
@@ -257,7 +318,7 @@ export default class Server {
         try {
             return this.gbx.multicall(methods);
         } catch (e: any) {
-            tmc.cli(e.message);
+            log.error(e.message);
             return undefined;
         }
     }
@@ -267,7 +328,7 @@ export default class Server {
         try {
             return this.gbx.multisend(methods);
         } catch (e: any) {
-            tmc.cli(e.message);
+            log.error(e.message);
             return undefined;
         }
     }
@@ -281,7 +342,7 @@ export default class Server {
         try {
             return this.gbx.connect(host, port);
         } catch (e: any) {
-            tmc.cli(e.message);
+            log.error(e.message);
         }
         return false;
     }
@@ -309,24 +370,36 @@ export default class Server {
      */
     async limitScriptCallbacks() {
         if (this.version.Name !== "Trackmania") return;
-        const cbList = await tmc.server.callScript("XmlRpc.GetCallbacksList");
-        const filteredList = cbList.callbacks.filter((cb: string) => {
-            let bool = false;
-            if (
-                cb.endsWith("_Start") ||
-                cb.endsWith("_End") ||
-                cb.startsWith("Trackmania.Event.On") ||
-                cb === "Trackmania.Event.SkipOutro" ||
-                cb === "Trackmania.Event.StartLine"
-            ) {
-                bool = true;
+        const limitCb = (process.env.XMLRPC_LIMIT_SCRIPT_CALLBACKS ?? "true") === "true";
+
+        try {
+            const cbList = await tmc.server.callScript("XmlRpc.GetCallbacksList");
+            await tmc.server.send("TriggerModeScriptEventArray", "XmlRpc.UnblockCallbacks", cbList.callbacks);
+
+            const filteredList = cbList.callbacks.filter((cb: string) => {
+                let bool = false;
+                if (
+                    //cb.endsWith("_Start") ||
+                    cb.endsWith("_End") ||
+                    cb.startsWith("Trackmania.Event.On") ||
+                    cb === "Trackmania.Event.SkipOutro" ||
+                    cb === "Trackmania.Event.StartLine"
+                ) {
+                    bool = true;
+                }
+                return bool;
+            });
+            if (!limitCb) {
+                tmc.cli("Limiting script callbacks...");
+                tmc.server.sendScript("XmlRpc.BlockCallbacks", ...filteredList);
             }
-            return bool;
-        });
-        tmc.server.sendScript("XmlRpc.BlockCallbacks", ...filteredList);
-        const enabledCb = await tmc.server.callScript("XmlRpc.GetCallbacksList_Enabled", "123");
-        tmc.debug(
-            `¤info¤Enabled Script Callbacks: $fff${enabledCb.callbacks.length}/${cbList.callbacks.length} ¤gray¤(${enabledCb.callbacks.join(", ")})`,
-        );
+            const enabledCb = await tmc.server.callScript("XmlRpc.GetCallbacksList_Enabled");
+
+            log.info(
+                `¤info¤Enabled Script Callbacks: $fff${enabledCb.callbacks.length}/${cbList.callbacks.length} ¤gray¤(${enabledCb.callbacks.join(", ")})`,
+            );
+        } catch (e: any) {
+            log.error(`¤error¤Failed to limit script callbacks: ${e.message}`);
+        }
     }
 }

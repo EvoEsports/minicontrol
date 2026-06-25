@@ -1,0 +1,22 @@
+{
+    "white": "fff",
+    "gray": "778",
+    "black": "000",
+    "highlight": "f07",
+    "title_fg": "fff",
+    "title_bg": "778",
+    "widget_bg": "ddd",
+    "widget_text": "222",
+    "window_bg": "ddd",
+    "window_text": "222",
+    "button_bg": "778",
+    "button_text": "fff",
+    "cmd": "fd0",
+    "db": "d7c",
+    "info": "3af",
+    "rec": "2e0",
+    "dedirec": "0d0",
+    "success": "0f0",
+    "warning": "fa0",
+    "error": "f00"
+}

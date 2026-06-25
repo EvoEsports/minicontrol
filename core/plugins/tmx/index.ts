@@ -1,10 +1,9 @@
 import Plugin from "@core/plugins";
-import { formatTime, htmlEntities } from "@core/utils";
 import fs from "node:fs";
-import SearchWindow from "./searchWindow";
-import Menu from "@core/plugins/menu/menu";
+import Menu from "@core/menu";
 import type { Map as TmMap } from "@core/mapmanager";
-import { QueryTypes, type Sequelize } from "sequelize";
+import ListWindow from "@core/ui/listwindow";
+import Confirm from "@core/ui/confirm";
 
 export interface TmxMapInfo {
     TmxId: string;
@@ -18,14 +17,24 @@ export interface TmxMapInfo {
 }
 
 interface Map {
-    id: string;
+    tmxId: string;
     baseUrl: string;
     site?: string;
+    /** path relative to dedicated/userdata/maps */
+    filePath?: string;
 }
 
 export interface TmxMap extends TmMap {
     tmx?: TmxMapInfo;
 }
+
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmx": Tmx;
+    }
+}
+
+const headers: [string, string][] = [["User-Agent", `MINIcontrol v${tmc.version}`]];
 
 export default class Tmx extends Plugin {
     readonly SITE_NAMES = ["TMN", "TMO", "TMS", "TMUF", "TMNF"];
@@ -43,17 +52,23 @@ export default class Tmx extends Plugin {
         "PressForward",
         "Trial",
         "Grass",
+        "Story",
+        "Nascar",
+        "Speedfun",
+        "Endurance",
+        "Altered Nadeo",
+        "Transitional"
     ];
     readonly TM1X_UNLIMITER = ["none", "0.4", "0.6", "0.7", "1.1", "1.2", "1.3", "2.0", "2.1"];
     readonly TMX1X_DIFFICULTY = ["Beginner", "Intermediate", "Expert", "Lunatic"];
     readonly TMX_DIFFICULTY = ["Beginner", "Intermediate", "Advanced", "Expert", "Lunatic", "Impossible"];
-    readonly BASE_URL_NATIONS = "https://nations.tm-exchange.com/";
-    readonly BASE_URL_ORIGINAL = "https://original.tm-exchange.com/";
-    readonly BASE_URL_SUNRISE = "https://sunrise.tm-exchange.com/";
-    readonly BASE_URL_FOREVER_NATIONS = "https://tmnf.exchange/";
-    readonly BASE_URL_FOREVER_UNITED = "https://tmuf.exchange/";
-    readonly BASE_URL_TM2 = "https://tm.mania.exchange/";
-    readonly BASE_URL_TM2020 = "https://trackmania.exchange/";
+    readonly BASE_URL_NATIONS = "https://nations.tm-exchange.com";
+    readonly BASE_URL_ORIGINAL = "https://original.tm-exchange.com";
+    readonly BASE_URL_SUNRISE = "https://sunrise.tm-exchange.com";
+    readonly BASE_URL_FOREVER_NATIONS = "https://tmnf.exchange";
+    readonly BASE_URL_FOREVER_UNITED = "https://tmuf.exchange";
+    readonly BASE_URL_TM2 = "https://tm.mania.exchange";
+    readonly BASE_URL_TM2020 = "https://trackmania.exchange";
     private cancelToken = false;
 
     getBaseUrl(site?: string) {
@@ -72,14 +87,14 @@ export default class Tmx extends Plugin {
     }
 
     getDownloadEndpoint() {
-        return tmc.game.Name === "TmForever" ? "trackgbx/" : "maps/download/";
+        return tmc.game.Name === "TmForever" ? "trackgbx" : "mapgbx";
     }
 
     async onLoad() {
-        tmc.settings.register("tmx.fetchMapInfo", true, null, "TMX: Fetch map info for maps");
-        tmc.addCommand("//add", this.addMap.bind(this), "Add map from TMX");
-        tmc.addCommand("//addpack", this.addMapPack.bind(this), "Add map pack from TMX");
-        tmc.addCommand(
+        this.addSetting("tmx.fetchMapInfo", true, null, "TMX: Fetch map info for maps");
+        this.addCommand("//add", this.addMap.bind(this), "Add map from TMX");
+        this.addCommand("//addpack", this.addMapPack.bind(this), "Add map pack from TMX");
+        this.addCommand(
             "//cancelpack",
             async () => {
                 tmc.chat("Admin cancelled the download!");
@@ -87,7 +102,7 @@ export default class Tmx extends Plugin {
             },
             "Cancel pack download",
         );
-        tmc.addCommand("//search", this.searchMaps.bind(this), "Search maps on TMX");
+        this.addCommand("//search", this.searchMaps.bind(this), "Search maps on TMX");
 
         Menu.getInstance().addItem({
             category: "Map",
@@ -95,13 +110,11 @@ export default class Tmx extends Plugin {
             action: "//search",
             admin: true,
         });
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
         await this.onBeginMap();
     }
 
     async onUnload() {
-        tmc.removeCommand("//add");
-        tmc.removeCommand("//addpack");
     }
 
     async onBeginMap() {
@@ -109,7 +122,7 @@ export default class Tmx extends Plugin {
         const uuid = tmc.maps.currentMap.UId;
         let type: undefined | string = undefined;
         if (uuid) {
-            if (tmc.game.Name === "TmForever" && tmc.maps.currentMap.Environnement !== "Stadium") {
+            if (tmc.game.Name === "TmForever" && tmc.server.packmask == "United") {
                 type = "TMUF";
             }
             this.getTmxInfo(uuid, type).then((info) => {
@@ -128,9 +141,9 @@ export default class Tmx extends Plugin {
             fields = encodeURIComponent("TrackId,TrackName,Authors,AuthorScore,Tags,Awards,UnlimiterVersion");
         }
 
-        const url = `${this.getBaseUrl()}${urlPath}?fields=${fields}&name=${query}&count=150`;
+        const url = `${this.getBaseUrl()}/${urlPath}?fields=${fields}&name=${query}&count=150`;
 
-        const res = await fetch(url, { keepalive: false });
+        const res = await fetch(url, { headers: headers, keepalive: false });
 
         const json: any = await res.json();
         if (!json) {
@@ -151,9 +164,9 @@ export default class Tmx extends Plugin {
             }
             out.push({
                 id: data.TrackId || data.MapId,
-                name: htmlEntities(name),
-                author: htmlEntities(data.Authors[0].User.Name || "n/a"),
-                length: formatTime(data.AuthorScore || data.Length) || "",
+                name: (name),
+                author: (data.Authors[0].User.Name || "n/a"),
+                length: data.AuthorScore || data.Length || 0,
                 tags:
                     data.Tags.map((tag: any) => {
                         let color = "";
@@ -164,34 +177,50 @@ export default class Tmx extends Plugin {
                         if (tag.Name) return color + tag.Name;
                         return this.TM1X_TAGS[tag];
                     }).join("$fff, ") || "n/a",
-                awards: `$fe0${data.Awards || data.AwardCount || "0"}`,
+                awards: `$fe0${data.Awards || data.AwardCount || ""}`,
                 unlimiter: data.UnlimiterVersion ? `$o$f00${this.TM1X_UNLIMITER[data.UnlimiterVersion]}` : "",
             });
         }
 
-        const window = new SearchWindow(login);
+        const window = new ListWindow(login);
         window.title = "Search Results";
-        window.size = { width: 150, height: 95 };
-        window.setColumns([
-            { key: "name", title: "Name", width: 40 },
-            { key: "author", title: "Author", width: 20 },
-            { key: "tags", title: "Tags", width: 40 },
-            { key: "length", title: "Length", width: 20 },
-            { key: "awards", title: "Awards", width: 10 },
-        ]);
+        window.size = { width: 150, height: 120 };
+        window.setColumns({
+            name: { title: "Name", width: 40 },
+            author: { title: "Author", width: 20 },
+            tags: { title: "Tags", width: 40 },
+            length: { title: "Length", width: 20, type: "time", align: "center" },
+            awards: { title: "Awards", width: 10, align: "center" },
+        });
+
 
         if (tmc.game.Name === "TmForever") {
-            window.setColumns([
-                { key: "name", title: "Name", width: 40 },
-                { key: "author", title: "Author", width: 20 },
-                { key: "tags", title: "Tags", width: 40 },
-                { key: "length", title: "Length", width: 12 },
-                { key: "unlimiter", title: "Unlimiter", width: 10 },
-                { key: "awards", title: "Awards", width: 10 },
-            ]);
+            window.setColumns({
+                name: { title: "Name", width: 40 },
+                author: { title: "Author", width: 20 },
+                tags: { title: "Tags", width: 40 },
+                length: { title: "Length", width: 20, type: "time", align: "center" },
+                unlimiter: { title: "Unlimiter", width: 10, align: "center" },
+                awards: { title: "Awards", width: 10, align: "center" },
+            });
         }
 
-        window.setActions(["Install"]);
+        window.setAction("add", "Install", async (login, item, _entries) => {
+            if (item.unlimiter) {
+                const confirm = new Confirm(
+                    login,
+                    "If players do not have the unlimiter, they will not be able to play the map.\nInstall anyway ?",
+                    async (login: string, params: string) => {
+                        await tmc.chatCmd.execute(login, params);
+                    },
+                    [login, `//add ${item.id}`],
+                );
+                await confirm.display();
+            } else {
+                await tmc.chatCmd.execute(login, `//add ${item.id}`);
+            }
+        });
+
         window.setItems(out);
         window.display();
     }
@@ -209,13 +238,21 @@ export default class Tmx extends Plugin {
         if (params[0].includes(",")) {
             const ids = params[0].split(",");
             for (const id of ids) {
-                await this.parseAndDownloadMapId(id, login);
+                try {
+                    const filePath = await this.parseAndDownloadMapId(id, login);
+                    await this.addToServer(login, filePath)
+                } catch (err: any) {
+                    tmc.chat(err, login);
+                }
             }
             return;
         }
-
-        await this.parseAndDownloadMapId(params[0], login);
-        return;
+        try {
+            const map = await this.parseAndDownloadMapId(params[0], login);
+            await this.addToServer(login, map)
+        } catch (err: any) {
+            tmc.chat(err, login);
+        }
     }
 
     async addMapPack(login: string, params: string[]) {
@@ -235,7 +272,11 @@ export default class Tmx extends Plugin {
             return;
         }
 
-        await this.parseAndDownloadTrackPack(params[0], login);
+        try {
+            await this.parseAndDownloadTrackPack(params[0], login);
+        } catch (err: any) {
+            tmc.chat(err, login);
+        }
     }
 
     async parseAndDownloadMapId(mapId: string, login: string) {
@@ -248,18 +289,24 @@ export default class Tmx extends Plugin {
                 }
                 const id = data[0];
                 let site = "TMNF";
+                if (tmc.server.packmask !== "Stadium") {
+                    site = "TMUF";
+                }
                 if (this.SITE_NAMES.includes(data[1].toUpperCase())) {
                     site = data[1].toUpperCase();
                 }
                 const baseUrl = this.getBaseUrl(site);
-                const map: Map = { id, baseUrl, site };
-                await this.downloadMap(map, login);
+                const map: Map = { tmxId: id, baseUrl, site };
+                return await this.downloadMap(map, login);
             } else {
                 const id = mapId;
-                const site = "TMNF";
+                let site = "TMNF";
+                if (tmc.server.packmask !== "Stadium") {
+                    site = "TMUF";
+                }
                 const baseUrl = this.getBaseUrl(site);
-                const map: Map = { id, baseUrl, site };
-                await this.downloadMap(map, login);
+                const map: Map = { tmxId: id, baseUrl, site };
+                return await this.downloadMap(map, login);
             }
         } else {
             if (mapId.includes(":")) {
@@ -270,79 +317,76 @@ export default class Tmx extends Plugin {
                 tmc.chat(`¤error¤The supplied ID ${mapId} is invalid.`, login);
                 return;
             }
-            const map: Map = { id: mapId, baseUrl: this.getBaseUrl() };
-            await this.downloadMap(map, login);
+            const map: Map = { tmxId: mapId, baseUrl: this.getBaseUrl() };
+            return await this.downloadMap(map, login);
         }
     }
+
+    async addToServer(login: string, map: Map | undefined): Promise<TmMap> {
+        if (!map?.filePath) throw new Error();
+        await tmc.server.call("AddMap", map.filePath);
+        await tmc.maps.syncMaplist();
+        const info = await tmc.server.call("GetMapInfo", tmc.mapsPath + map.filePath);
+        if (info) {
+            const author = info.AuthorNickname || info.Author || "n/a";
+            tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
+
+            const jb = tmc.getPlugin("jukebox");
+            if (jb) jb.addToJukebox(login, info);
+
+            const db = tmc.getPlugin("database");
+            if (!db) return info;
+            try {
+                const dbmap = await db.getMap(info.UId);
+                if (!dbmap) return info;
+                await dbmap.update({ tmxId: map.tmxId });
+                info.TmxId = map.tmxId;
+            } catch (e: any) {
+                tmc.cli(e.message);
+            }
+            return info;
+        } else {
+            throw new Error(`¤info¤Added map but didn't find map info!`);
+        }
+    }
+
 
     async downloadMap(map: Map, login: string) {
         const baseUrl = map.baseUrl;
         const endpoint = this.getDownloadEndpoint();
         const ext = this.getFileExtension();
-        const fileUrl = baseUrl + endpoint + map.id;
+        const fileUrl = `${baseUrl}/${endpoint}/${map.tmxId}`;
 
-        let filePath = `tmx/${map.id}`;
+        let filePath = `tmx/${map.tmxId}`;
         if (map.site) filePath += `_${map.site}`;
         filePath += ext;
+        map.filePath = filePath;
 
-        const res = await fetch(fileUrl, { keepalive: false });
+        const res = await fetch(fileUrl, { headers: headers, keepalive: false });
         if (!res) {
-            tmc.chat(`Invalid http response for ID ${map.id}`, login);
-            return;
+            tmc.chat(`Invalid http response for ID ${map.tmxId}`, login);
+            throw new Error(`Invalid http response for ID ${map.tmxId}`);
         }
         if (!res.ok) {
-            tmc.chat(`Invalid http response for ID ${map.id}`, login);
-            return;
+            tmc.chat(`Invalid http response for ID ${map.tmxId}`, login);
+            throw new Error(`Invalid http response for ID ${map.tmxId}`);
         }
         if (!fs.existsSync(`${tmc.mapsPath}`)) {
-            try {
-                const abuffer = await (await res.blob()).arrayBuffer();
-                const status = await tmc.server.call("WriteFile", filePath, Buffer.from(abuffer));
-                if (!status) {
-                    tmc.chat("Error while adding map", login);
-                    return;
-                }
-                await tmc.server.call("AddMap", filePath);
-                await tmc.maps.syncMaplist();
-                const info = await tmc.server.call("GetMapInfo", tmc.mapsPath + filePath);
-                if (info) {
-                    const author = info.AuthorNickname || info.Author || "n/a";
-                    this.updateDatabase(info.UId, map.id);
-                    tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
-                    if (Object.keys(tmc.plugins).includes("jukebox")) {
-                        await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
-                    }
-                } else {
-                    tmc.chat(`¤info¤Added map but didn't find map info!`);
-                }
-                return;
-            } catch (err: any) {
-                tmc.chat(err, login);
-                return;
-            }
-        }
-        try {
-            if (!fs.existsSync(`${tmc.mapsPath}tmx/`)) fs.mkdirSync(`${tmc.mapsPath}tmx/`);
             const abuffer = await (await res.blob()).arrayBuffer();
-
-            fs.writeFileSync(`${tmc.mapsPath}${filePath}`, new Uint8Array(abuffer));
-            await tmc.server.call("AddMap", filePath);
-            await tmc.maps.syncMaplist();
-            const info = await tmc.server.call("GetMapInfo", tmc.mapsPath + filePath);
-            if (info) {
-                const author = info.AuthorNickname || info.Author || "n/a";
-                this.updateDatabase(info.UId, map.id);
-                tmc.chat(`¤info¤Added map ¤white¤${info.Name} ¤info¤by ¤white¤${author} ¤info¤from ¤white¤${map.baseUrl}!`);
-                if (Object.keys(tmc.plugins).includes("jukebox")) {
-                    await tmc.chatCmd.execute(login, `/addqueue ${info.UId}`);
-                }
-            } else {
-                tmc.chat(`¤info¤Added map but didn't find map info!`);
+            const status = await tmc.server.call("WriteFile", filePath, Buffer.from(abuffer));
+            if (!status) {
+                tmc.chat("Error while adding map", login);
+                throw new Error("Error while adding map");
             }
-        } catch (err: any) {
-            tmc.chat(`¤error¤${err.message}`, login);
-            return;
+
+            return map;
         }
+
+        if (!fs.existsSync(`${tmc.mapsPath}tmx/`)) fs.mkdirSync(`${tmc.mapsPath}tmx/`);
+        const abuffer = await (await res.blob()).arrayBuffer();
+
+        fs.writeFileSync(`${tmc.mapsPath}${filePath}`, new Uint8Array(abuffer));
+        return map;
     }
 
     async parseAndDownloadTrackPack(packId: string, login: string) {
@@ -356,6 +400,9 @@ export default class Tmx extends Plugin {
                 }
                 const id = data[0];
                 let site = "TMNF";
+                if (tmc.server.packmask !== "Stadium") {
+                    site = "TMUF";
+                }
                 if (this.SITE_NAMES.includes(data[1].toUpperCase())) {
                     site = data[1].toUpperCase();
                 }
@@ -363,7 +410,10 @@ export default class Tmx extends Plugin {
                 await this.downloadMapPack(id, baseUrl, login, site);
             } else {
                 const id = packId;
-                const site = "TMNF";
+                let site = "TMNF";
+                if (tmc.server.packmask !== "Stadium") {
+                    site = "TMUF";
+                }
                 const baseUrl = this.getBaseUrl(site);
                 await this.downloadMapPack(id, baseUrl, login, site);
             }
@@ -383,30 +433,31 @@ export default class Tmx extends Plugin {
     async downloadMapPack(packId: string, baseUrl: string, login: string, site?: string) {
         let url = baseUrl;
         if (tmc.game.Name === "TmForever") {
-            url += `api/tracks?packid=${packId}&fields=${encodeURIComponent("TrackId,TrackName")}`;
+            url += `/api/tracks?packid=${packId}&fields=${encodeURIComponent("TrackId,TrackName")}`;
         } else if (tmc.game.Name === "ManiaPlanet" || tmc.game.Name === "Trackmania") {
-            url += `api/mappack/get_mappack_tracks/${packId}`;
+            url += `/api/maps/?mappackid=${packId}&fields=${encodeURIComponent("MapId,GbxMapName")}`;
         } else {
             tmc.chat(`¤error¤Game ${tmc.game.Name} is not supported for this command.`);
             return;
         }
 
-        const res = await fetch(url, { keepalive: false });
+        const res = await fetch(url, { headers: headers, keepalive: false });
         const json: any = await res.json();
         tmc.chat(`Processing Map Pack ¤white¤${packId}`);
         if (!json) {
             tmc.chat(`¤error¤Error while adding Pack ID ${packId}: ${res.statusText}`, login);
         }
-        let results = json;
-        if (tmc.game.Name === "TmForever") results = json.Results;
+        let results = json.Results;
         for (const data of results) {
             if (this.cancelToken === true) return;
             try {
                 const mapName = tmc.game.Name === "TmForever" ? data.TrackName : data.GbxMapName;
-                const id = tmc.game.Name === "TmForever" ? data.TrackId : data.TrackID;
+                const id = tmc.game.Name === "TmForever" ? data.TrackId : data.MapId;
                 tmc.chat(`Downloading: ¤white¤${mapName}`);
-                const map: Map = { id, baseUrl, site };
-                await this.downloadMap(map, login);
+                const map: Map = { tmxId: id, baseUrl, site };
+
+                const mapData = await this.downloadMap(map, login);
+                await this.addToServer(login, mapData);
             } catch (err: any) {
                 tmc.chat(`¤error¤Error: ${err.message}`);
             }
@@ -421,13 +472,13 @@ export default class Tmx extends Plugin {
             maps = "tracks";
             wr = "WRReplay.ReplayTime,WRReplay.User.Name,TrackId";
         }
-        const url: string = `${this.getBaseUrl(envir)}api/${maps}?fields=${encodeURIComponent(`${wr},Difficulty,Tags`)}&uid=${encodeURIComponent(uid)}`;
+        const url: string = `${this.getBaseUrl(envir)}/api/${maps}?fields=${encodeURIComponent(`${wr},Difficulty,Tags`)}&uid=${encodeURIComponent(uid)}`;
 
         try {
             const controller = new AbortController();
             const { signal } = controller;
             const timeoutID = setTimeout(() => controller.abort(), 3000);
-            const res = await fetch(url, { keepalive: false, signal: signal });
+            const res = await fetch(url, { headers: headers, keepalive: false, signal: signal });
             clearTimeout(timeoutID);
             if (res.ok === false) return {} as TmxMapInfo;
             const json: any = await res.json();
@@ -461,29 +512,6 @@ export default class Tmx extends Plugin {
         } catch (e: any) {
             tmc.debug(`TmxInfo Error: ${e.message}`);
             return {} as TmxMapInfo;
-        }
-    }
-
-    async updateDatabase(uuid: string, id: string) {
-        const sequelize = tmc.storage["db"] as Sequelize;
-        if (!sequelize) {
-            tmc.debug("Database not initialized");
-            return;
-        }
-        const query = "UPDATE maps SET tmxId = ? WHERE uuid = ?";
-        try {
-            await sequelize
-                .query(query, {
-                    replacements: [id, uuid],
-                    type: QueryTypes.UPDATE,
-                })
-                .then(() => {
-                    tmc.debug(`Updated map ${uuid} with TMX ID ${id}`);
-                });
-            const map = tmc.maps.getMap(uuid);
-            if (map) map.tmx.TmxId = id;
-        } catch (err: any) {
-            tmc.debug(`Error updating map ${uuid} with TMX ID ${id}: ${err.message}`);
         }
     }
 }

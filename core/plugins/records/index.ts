@@ -1,30 +1,31 @@
 import Plugin from "@core/plugins";
-import Score from "@core/schemas/scores.model";
-import Player from "@core/schemas/players.model";
-import PersonalBest from "@core/schemas/personalBest.model";
+import Score from "./models/scores.model";
+import Player from "@core/plugins/database/models/players.model";
+import PersonalBest from "./models/personalBest.model";
 import { clone, htmlEntities, formatTime } from "@core/utils";
 import RecordsWindow from "./recordsWindow";
 import { Op } from "sequelize";
-import Menu from "../menu/menu";
+import Menu from "@core/menu";
+import log from "@core/log";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "records": Records;
+    }
+}
 export default class Records extends Plugin {
-    static depends: string[] = ["database"];
     records: Score[] = [];
     private playerCheckpoints: { [login: string]: string[] } = {};
     personalBest: { [login: string]: PersonalBest } = {};
     private finishLocks: { [key: string]: Promise<any> } = {};
 
     async onLoad() {
-        tmc.storage["db"].addModels([Score, PersonalBest]);
-        tmc.chatCmd.addCommand("/records", this.cmdRecords.bind(this), "Display Records");
-        tmc.settings.register("records.maxRecords", 100, this.settingMaxRecords.bind(this), "LocalRecords: Maximum number of records");
+        tmc.getPlugin('database').addModels([Score, PersonalBest]);
+        this.addCommand("/records", this.cmdRecords.bind(this), "Display Records");
+        this.addSetting("records.maxRecords", 100, this.settingMaxRecords.bind(this), "LocalRecords: Maximum number of records");
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.BeginMap", this.onBeginMap);
-        tmc.server.removeListener("TMC.PlayerFinish", this.onPlayerFinish);
-        tmc.server.removeListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint);
-        tmc.chatCmd.removeCommand("/records");
     }
 
     async onStart() {
@@ -35,14 +36,14 @@ export default class Records extends Plugin {
         });
         await this.syncRecords(tmc.maps.currentMap.UId);
 
-        tmc.server.addListener("Trackmania.BeginMap", this.onBeginMap, this);
-        tmc.server.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
-        tmc.server.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        this.addListener("Trackmania.BeginMap", this.onBeginMap, this);
+        this.addListener("TMC.PlayerFinish", this.onPlayerFinish, this);
+        this.addListener("TMC.PlayerCheckpoint", this.onPlayerCheckpoint, this);
+        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
         if (tmc.game.Name === "TmForever") {
-            tmc.server.addListener("Trackmania.EndMap", this.onEndRace, this);
+            this.addListener("Trackmania.EndMap", this.onEndRace, this);
         } else {
-            tmc.server.addListener("Trackmania.EndMatch", this.onEndRace, this);
+            this.addListener("Trackmania.EndMatch", this.onEndRace, this);
         }
     }
 
@@ -70,7 +71,7 @@ export default class Records extends Plugin {
                 this.personalBest[login] = personalBest;
             }
         } catch (e: any) {
-            tmc.cli(`¤error¤Error fetching personal best: ${e.message}`);
+            log.warn(`¤error¤Error fetching personal best: ${e.message}`);
         }
     }
 
@@ -79,40 +80,15 @@ export default class Records extends Plugin {
     }
 
     async cmdRecords(login: string, args: string[]) {
-        const records: any = [];
         let mapUuid = tmc.maps.currentMap.UId;
 
         if (args.length > 0) {
             mapUuid = args[0].trim() || tmc.maps.currentMap.UId;
         }
 
-        for (const record of await this.getRecords(mapUuid)) {
-            records.push({
-                rank: record.rank,
-                nickname: htmlEntities(record?.player?.customNick ?? record?.player?.nickname ?? ""),
-                login: record.login,
-                time: formatTime(record.time ?? 0),
-                mapUuid: mapUuid,
-            });
-        }
-        const map = tmc.maps.getMap(mapUuid) ?? tmc.maps.currentMap;
-        const window = new RecordsWindow(login, this);
-        window.size = { width: 100, height: 100 };
-        window.title = `Server Records for ${htmlEntities(map.Name)}$z$s [${this.records.length}]`;
-        window.setItems(records);
-        window.setColumns([
-            { key: "rank", title: "Rank", width: 10 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "time", title: "Time", width: 20 },
-        ]);
-
-        window.setActions(["View"]);
-
-        if (tmc.admins.includes(login)) {
-            window.size.width = 115;
-            window.setActions(["View", "Delete"]);
-        }
-        window.display();
+        const window = new RecordsWindow(login, mapUuid);
+        await window.updateRecords();
+        await window.display();
     }
 
     async getRecords(mapUuid: string) {
@@ -127,10 +103,10 @@ export default class Records extends Plugin {
                     ["updatedAt", "ASC"],
                 ],
                 limit: tmc.settings.get("records.maxRecords"),
-                include: [Player],
+                include: [{ model: Player, as: 'player' }],
             });
         } catch (err: any) {
-            tmc.cli(`Error fetching records: ${err.message}`);
+            log.warn(`Error fetching records: ${err.message}`);
             return [];
         }
 
@@ -203,14 +179,13 @@ export default class Records extends Plugin {
                 score.rank = rank;
                 rank += 1;
             }
-
             tmc.server.emit("Plugin.Records.onRefresh", {
                 records: clone(this.records),
             });
-            await this.cmdRecords(login, []);
+
         } catch (err: any) {
             const msg = `Error deleting record: ${err.message}`;
-            tmc.cli(msg);
+            log.warn(msg);
             tmc.chat(msg, login);
         }
     }
@@ -282,7 +257,7 @@ export default class Records extends Plugin {
 
         // Per-player/map lock
         const prev = this.finishLocks[lockKey] || Promise.resolve();
-        let resolveLock: (value?: any) => void = () => {};
+        let resolveLock: (value?: any) => void = () => { };
         this.finishLocks[lockKey] = new Promise((res) => {
             resolveLock = res;
         });
@@ -291,8 +266,10 @@ export default class Records extends Plugin {
             await prev;
 
             // Ensure checkpoints array exists and update it
-            if (!this.playerCheckpoints[login]) this.playerCheckpoints[login] = [];
-            this.playerCheckpoints[login].push(finishTime.toString());
+            if (!this.playerCheckpoints[login]) {
+                this.playerCheckpoints[login] = [];
+            }
+            // this.playerCheckpoints[login].push(finishTime.toString());
 
             try {
                 if (this.personalBest[login]) {
@@ -312,7 +289,7 @@ export default class Records extends Plugin {
                     this.personalBest[login] = pb;
                 }
             } catch (e: any) {
-                tmc.cli(`¤error¤updatePB: ${e.message}`);
+                log.warn(`¤error¤updatePB: ${e.message}`);
                 return;
             }
 
@@ -329,7 +306,7 @@ export default class Records extends Plugin {
                 const newRecord =
                     (await Score.findOne({
                         where: { [Op.and]: { login, mapUuid } },
-                        include: Player,
+                        include: [{ model: Player, as: 'player' }],
                     })) || undefined;
                 if (newRecord) {
                     newRecord.rank = 1;
@@ -390,7 +367,7 @@ export default class Records extends Plugin {
                 record =
                     (await Score.findOne({
                         where: { [Op.and]: { login, mapUuid } },
-                        include: Player,
+                        include: [{ model: Player, as: 'player' }],
                     })) || undefined;
                 if (record) {
                     this.records.push(record);
@@ -431,7 +408,7 @@ export default class Records extends Plugin {
                 }
             }
         } catch (e: any) {
-            tmc.cli(`¤error¤[records.onPlayerFinish]: ${e.message}`);
+            log.warn(`¤error¤[records.onPlayerFinish]: ${e.message}`);
         } finally {
             resolveLock();
             if (this.finishLocks[lockKey] === prev) delete this.finishLocks[lockKey];
@@ -469,8 +446,8 @@ export default class Records extends Plugin {
                 updateOnDuplicate: ["finishCount", "time", "avgTime", "checkpoints", "updatedAt"],
             });
         } catch (e: any) {
-            tmc.cli(`¤error¤[records.onEndRace]: ${e.message}`);
-            console.error(e);
+            log.warn(`¤error¤[records.onEndRace]: ${e.message}`);
+            console.warn(e);
         }
     }
 }

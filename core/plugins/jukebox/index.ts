@@ -1,9 +1,10 @@
-import { clone, htmlEntities, formatTime } from "@core/utils";
-import Plugin from "..";
+import Plugin from "@core/plugins";
 import QueueWindow from "./queueWIndow";
-import Menu from "@core/plugins/menu/menu";
+import Menu from "@core/menu";
+import { type Map as TmMap } from "@core/mapmanager";
+import log from "@core/log";
 
-export interface Map {
+export interface JbMap {
     UId: string;
     File: string;
     Name: string;
@@ -14,36 +15,53 @@ export interface Map {
     QueueNickName: string;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "jukebox": Jukebox;
+    }
+}
 export default class Jukebox extends Plugin {
-    queue: Map[] = [];
+    queue: JbMap[] = [];
+    history: string[] = [];
+    historySize = 2;
+
+    private applyHistorySize(value: number) {
+        const normalized = Number(value);
+        this.historySize = Number.isFinite(normalized) ? Math.max(0, Math.floor(normalized)) : 0;
+        if (this.historySize === 0) {
+            this.history = [];
+        }
+    }
 
     async onLoad() {
-        tmc.addCommand("/addqueue", this.cmdQueue.bind(this), "Add Map to queue");
-        tmc.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");
-        tmc.addCommand("/jukebox", this.cmdListQueue.bind(this), "List maps in queue");
-        tmc.addCommand("/drop", this.cmdDrop.bind(this), "Drop Map from queue");
-        tmc.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
-        tmc.addCommand("//requeue", this.cmdRequeue.bind(this), "Add current map to the front of the queue");
-        tmc.addCommand("//prev", this.cmdPrev.bind(this), "Skip to previous map");
-        tmc.settings.register("jukebox.enabled", true, null, "Jukebox: Enable/Disable jukebox");
+        this.addCommand("/addqueue", this.cmdQueue.bind(this), "Add Map to queue");
+        this.addCommand("/jb", this.cmdListQueue.bind(this), "List maps in queue");
+        this.addCommand("/jukebox", this.cmdListQueue.bind(this), "List maps in queue");
+        this.addCommand("/drop", this.cmdDrop.bind(this), "Drop Map from queue");
+        this.addCommand("//cjb", this.cmdClearQueue.bind(this), "clear queue");
+        this.addCommand("//requeue", this.cmdRequeue.bind(this), "Add current map to the front of the queue");
+        this.addCommand("//prev", this.cmdPrev.bind(this), "Skip to previous map");
+
+        this.addSetting("jukebox.enabled", true, null, "Jukebox: Enable/Disable jukebox");
+        this.addSetting(
+            "jukebox.history_size",
+            2,
+            async (value: number) => {
+                this.applyHistorySize(value);
+            },
+            "Jukebox: Number of maps to keep in history",
+        );
+        this.applyHistorySize(tmc.settings.get("jukebox.history_size"));
 
         if (tmc.game.Name === "TmForever") {
-            tmc.server.addListener("Trackmania.EndMap", this.onEndRace, this);
+            this.addListener("Trackmania.EndMap", this.onEndRace, this);
         } else {
-            tmc.server.addListener("Trackmania.EndMatch", this.onEndRace, this);
+            this.addListener("Trackmania.EndMatch", this.onEndRace, this);
         }
     }
 
     async onUnload() {
-        tmc.server.removeListener("Trackmania.EndMap", this.onEndRace);
-        tmc.server.removeListener("Trackmania.EndMatch", this.onEndRace);
-        tmc.removeCommand("/addqueue");
-        tmc.removeCommand("/jb");
-        tmc.removeCommand("/jukebox");
-        tmc.removeCommand("/drop");
-        tmc.removeCommand("//cjb");
-        tmc.removeCommand("//requeue");
-        tmc.removeCommand("//prev");
+
     }
 
     async onStart() {
@@ -68,6 +86,30 @@ export default class Jukebox extends Plugin {
             admin: true,
         });
     }
+
+    async addToJukebox(login: string, map: TmMap) {
+        const player = await tmc.getPlayer(login);
+        this.queue.push({
+            UId: map.UId,
+            File: map.FileName,
+            Name: map.Name,
+            Author: map.AuthorNickname || map.Author,
+            AuthorTime: map.AuthorTime,
+            Environment: map.Environnement,
+            QueueBy: login,
+            QueueNickName: player.customNick || player.nickname,
+        });
+    }
+
+    async removeFromJukebox(mapUid: string) {
+        const index = this.queue.findIndex((m) => m.UId === mapUid);
+        if (index > -1) {
+            this.queue.splice(index, 1);
+            return;
+        }
+        throw new Error("Map not found.");
+    }
+
 
     async cmdQueue(login: any, params: string[]) {
         let map: any = null;
@@ -99,24 +141,27 @@ export default class Jukebox extends Plugin {
             tmc.chat("¤info¤Map already in queue", login);
             return;
         }
-        this.queue.push({
-            UId: map.UId,
-            File: map.FileName,
-            Name: map.Name,
-            Author: map.AuthorNickname || map.Author,
-            AuthorTime: map.AuthorTime,
-            Environment: map.Environnement,
-            QueueBy: login,
-            QueueNickName: player.nickname,
-        });
+        if (!tmc.admins.includes(login)) {
+            const isRecent = this.historySize > 0 && this.history.includes(map.UId);
+            const isCurrent = tmc.maps.currentMap && tmc.maps.currentMap.UId === map.UId;
+            if (isRecent) {
+                tmc.chat("¤info¤Map was recently played", login);
+                return;
+            }
+            if (this.historySize > 0 && isCurrent) {
+                tmc.chat("¤info¤Map is currently being played", login);
+                return;
+            }
+        }
+        this.addToJukebox(login, map);
         tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤added to the queue by ¤white¤${player.nickname}`);
     }
 
     async cmdDrop(login: any, args: string[]) {
         let index: number;
-        let map: any;
+        let map: JbMap | undefined;
         if (tmc.admins.includes(login) && args.length > 0) {
-            index = Number.parseInt(args[0]) - 1;
+            index = Number.parseInt(args[0], 10) - 1;
             map = this.queue[index];
         } else {
             map = this.queue.find((m) => m.QueueBy === login);
@@ -128,7 +173,8 @@ export default class Jukebox extends Plugin {
         }
 
         if (map) {
-            this.queue.splice(index, 1);
+            this.removeFromJukebox(map.UId);
+            tmc.server.emit("Jukebox.MapRemoved", map.UId);
             tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤dropped from the queue by ¤white¤${map.QueueNickName}`);
         } else {
             tmc.chat(`¤info¤You don't have any map in queue`, login);
@@ -185,14 +231,31 @@ export default class Jukebox extends Plugin {
     }
 
     async onEndRace(_data: any) {
+        if (this.historySize > 0 && tmc.maps.currentMap) {
+            this.history.push(tmc.maps.currentMap.UId);
+            if (this.history.length > this.historySize) {
+                this.history.shift();
+            }
+        } else if (this.historySize === 0 && this.history.length > 0) {
+            this.history = [];
+        }
+        const removedMaps = this.queue.filter((map) => !tmc.players.getAllLogins().includes(map.QueueBy));
+        for (const map of removedMaps) {
+            tmc.chat(`¤info¤Map ¤white¤${map.Name} ¤info¤removed from the queue. Player ¤white¤${map.QueueNickName} ¤info¤has left the server.`);
+            tmc.server.emit("Jukebox.MapRemoved", map.UId);
+        }
+
+        this.queue = this.queue.filter((map) => tmc.players.getAllLogins().includes(map.QueueBy));
+
         if (this.queue.length > 0) {
             const map = this.queue.shift();
             if (map) {
                 try {
                     await tmc.server.call("ChooseNextMap", map.File);
+                    tmc.server.emit("Jukebox.NextMap", map.UId);
                     tmc.chat(`¤info¤Next map ¤white¤${map.Name} ¤info¤jukeboxed by ¤white¤${map.QueueNickName}`);
                 } catch (e: any) {
-                    tmc.cli(`¤error¤${e.message}`);
+                    log.error(e.message);
                 }
             }
         }
@@ -200,31 +263,6 @@ export default class Jukebox extends Plugin {
 
     async cmdListQueue(login: any, _args: string[]) {
         const window = new QueueWindow(login);
-        const maps: any = [];
-        let i = 1;
-        for (const map of clone(this.queue)) {
-            maps.push(
-                Object.assign(map, {
-                    Index: i++,
-                    Name: htmlEntities(map.Name),
-                    Author: htmlEntities(map.Author),
-                    AuthorTime: formatTime(map.AuthorTime),
-                    QueueNickName: htmlEntities(map.QueueNickName),
-                }),
-            );
-        }
-        window.title = `Map Queue [${maps.length}]`;
-        window.size = { width: 205, height: 95 };
-        window.setItems(maps);
-        window.setColumns([
-            { key: "Index", title: "#", width: 4 },
-            { key: "Name", title: "Name", width: 50 },
-            { key: "Author", title: "Author", width: 30 },
-            { key: "Environment", title: "Environment", width: 25 },
-            { key: "QueueNickName", title: "Wish by", width: 50 },
-        ]);
-
-        window.setActions(["Drop"]);
         window.display();
     }
 }

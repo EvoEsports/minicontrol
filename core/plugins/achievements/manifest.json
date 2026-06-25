@@ -1,0 +1,16 @@
+{
+    "id": "achievements",
+    "name": "Achievements plugin",
+    "description": "Enables Achievements",
+    "authors": "MiniControl core",
+    "date": "2025-12-27",
+    "version": "1.0.0",
+    "requiresMinicontrolVersion": "*",
+    "requiresGame": null,
+    "depends": [
+        {
+            "id": "database",
+            "range": "^1.0.0"
+        }
+    ]
+}

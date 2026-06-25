@@ -1,129 +1,118 @@
 import ListWindow from "@core/ui/listwindow";
 import Confirm from "@core/ui/confirm";
-import Score from "@core/schemas/scores.model";
-import Player from "@core/schemas/players.model";
+import Score from "@core/plugins/records/models/scores.model";
+import Player from "@core/plugins/database/models/players.model";
 import { formatTime, htmlEntities } from "@core/utils";
 import { Op } from "sequelize";
-import type WorldRecords from "@core/plugins/tm2020/worldrecords";
-import type Records from "@core/plugins/records";
-import type liverankings from "@core/plugins/liverankings";
-
-interface Column {
-    title: string;
-    key: string;
-    width: number;
-}
-
-type AppType = Records | liverankings | WorldRecords;
 
 export default class RecordsWindow extends ListWindow {
-    app: AppType;
+    size = { width: 100, height: 120 };
+    mapUuid: string;
 
-    constructor(login: string, app: AppType) {
-        super(login);
-        this.app = app;
-    }
+    constructor(login: string, mapUuid: string) {
+        super(login, "recordsWindow");
+        this.mapUuid = mapUuid;
 
-    async onAction(login: string, action: string, item: any): Promise<void> {
-        if (action === "Delete") {
-            if (this.title.includes("Live Records")) {
-                const confirm = new Confirm(login, `Delete record from ${item.nickname} $z$s(no undo)`, this.applyCommand.bind(this), [login, item]);
-                await confirm.display();
-            } else if (this.title.includes("Server Records")) {
-                const confirm = new Confirm(login, `Delete record from ${item.nickname} $z$s(no undo)`, this.applyCommand.bind(this), [login, item]);
-                await confirm.display();
-            }
-        } else if (action === "View") {
-            let recordDetails: any;
-            if (this.title.includes("Live Records")) {
-                recordDetails = await this.getRecordDetails(item.login, item.mapUuid);
-            } else if (this.title.includes("Server Records")) {
-                recordDetails = await this.getRecordDetails(item.login, item.mapUuid);
-            }
+        this.setColumns({
+            rank: { title: "Rank", width: 10, align: "center" },
+            nickname: { title: "Nickname", width: 50 },
+            time: { title: "Time", width: 20, align: "center", type: "time" },
+        });
 
+        this.setAction("View", "View", async (login: string, item: any) => {
+            const recordDetails = await this.getRecordDetails(item.login, item.mapUuid);
             if (recordDetails) {
                 const detailsWindow = new DetailsWindow(login, recordDetails);
                 await detailsWindow.display();
             }
+        });
+
+        if (tmc.admins.includes(login)) {
+            this.size.width = 115;
+            this.setAction("Delete", "Delete", async (login: string, item: any) => {
+                const confirm = new Confirm(login, `Delete record from ${item.nickname} $z$s(no undo)`, this.applyCommand.bind(this), [login, item]);
+                await confirm.display();
+            });
         }
     }
 
+    async updateRecords() {
+        const plugin = tmc.getPlugin("records");
+        const data = await plugin.getRecords(this.mapUuid);
+        const recs:any = [];
+
+        for (const record of data) {
+            recs.push({
+                rank: record.rank,
+                nickname: (record?.player?.customNick ?? record?.player?.nickname ?? ""),
+                login: record.login,
+                time: record.time ?? 0,
+                mapUuid: this.mapUuid,
+            });
+        }
+        const map = tmc.maps.getMap(this.mapUuid) ?? tmc.maps.currentMap;
+        this.title = `Server Records for ${map.Name}$z$s [${recs.length}]`;
+        this.setItems(recs);
+    }
+
     async applyCommand(login: string, item: any) {
-        await this.app.deleteRecord(login, item);
+        const plugin = tmc.getPlugin("records");
+        await plugin.deleteRecord(login, item);
+        await this.updateRecords();
+        this.display();
     }
 
     async getRecordDetails(login: string, mapUuid: string) {
-        if (this.title.includes("Server Records")) {
-            try {
-                const record = await Score.findOne({
-                    where: { login: login, mapUuid: mapUuid },
-                    order: [
-                        ["time", "ASC"],
-                        ["updatedAt", "ASC"],
-                    ], // just in case there are multiple entries for the same player on that map for whatever reason
-                    include: [Player],
+        try {
+            const record = await Score.findOne({
+                where: { login: login, mapUuid: mapUuid },
+                order: [
+                    ["time", "ASC"],
+                    ["updatedAt", "ASC"],
+                ], // just in case there are multiple entries for the same player on that map for whatever reason
+                include: [{ model: Player, as: 'player' }],
+            });
+
+            if (record) {
+                const betterRecordsCount = await Score.count({
+                    where: {
+                        mapUuid: mapUuid,
+                        [Op.or]: [
+                            {
+                                time: { [Op.lt]: record.time },
+                            },
+                            {
+                                time: record.time,
+                                updatedAt: { [Op.lt]: record.updatedAt },
+                            },
+                        ],
+                    },
                 });
-
-                if (record) {
-                    const betterRecordsCount = await Score.count({
-                        where: {
-                            mapUuid: mapUuid,
-                            [Op.or]: [
-                                {
-                                    time: { [Op.lt]: record.time },
-                                },
-                                {
-                                    time: record.time,
-                                    updatedAt: { [Op.lt]: record.updatedAt },
-                                },
-                            ],
-                        },
-                    });
-                    const rank = betterRecordsCount + 1;
-                    return {
-                        rank: rank,
-                        nickname: record.player?.nickname || record.login,
-                        time: record.time,
-                        checkpoints: record.checkpoints,
-                    };
-                }
-                return null;
-            } catch (error) {
-                console.error(`Error fetching server record details for ${login}:`, error);
-                return null;
-            }
-        } else if (this.title.includes("Live Records")) {
-            try {
-                const liveRecord = (this.app as liverankings).liverankings.find((record) => record.login === login);
-
-                if (!liveRecord) {
-                    return null;
-                }
-
+                const rank = betterRecordsCount + 1;
                 return {
-                    rank: (this.app as liverankings).liverankings.indexOf(liveRecord) + 1,
-                    nickname: liveRecord.player?.nickname || liveRecord.login,
-                    time: liveRecord.time,
-                    checkpoints: liveRecord.checkpoints,
+                    rank: rank,
+                    nickname: record.player?.nickname || record.login,
+                    time: record.time,
+                    checkpoints: record.checkpoints,
                 };
-            } catch (error) {
-                console.error(`Error fetching live record details for ${login}:`, error);
-                return null;
             }
-        } else {
+            return null;
+        } catch (error) {
+            console.error(`Error fetching server record details for ${login}:`, error);
             return null;
         }
     }
 }
+
 
 class DetailsWindow extends ListWindow {
     record: any;
 
     constructor(login: string, record: any) {
         super(login);
-        this.size = { width: 160, height: 95 };
+        this.size = { width: 160, height: 120 };
         this.record = record;
-        this.title = `Record Details for ${htmlEntities(this.record?.nickname || "Unknown")}`;
+        this.title = `Record Details for ${(this.record?.nickname || "Unknown")}`;
     }
 
     async display() {
@@ -133,8 +122,8 @@ class DetailsWindow extends ListWindow {
 
         const items: { key: string; value: string }[] = [
             { key: "Rank", value: `${this.record.rank}` },
-            { key: "Nickname", value: htmlEntities(this.record.nickname) },
-            { key: "Time", value: formatTime(this.record.time).replace("0:", "") },
+            { key: "Nickname", value: (this.record.nickname) },
+            { key: "Time", value: formatTime(this.record.time,false).replace("00:", "") },
         ];
 
         if (this.record.checkpoints) {
@@ -159,10 +148,10 @@ class DetailsWindow extends ListWindow {
                             if (lapIndex > 0) {
                                 items.push({
                                     key: checkpointKey,
-                                    value: `${formatTime(lapTime).replace("0:", "")} (${formatTime(cpTime).replace("0:", "")})`,
+                                    value: `${formatTime(lapTime,false).replace("00:", "")} (${formatTime(cpTime,false).replace("00:", "")})`,
                                 });
                             } else {
-                                items.push({ key: checkpointKey, value: `${formatTime(lapTime).replace("0:", "")}` });
+                                items.push({ key: checkpointKey, value: `${formatTime(lapTime,false).replace("00:", "")}` });
                             }
                         }
                     });
@@ -170,14 +159,11 @@ class DetailsWindow extends ListWindow {
             }
         }
         this.setItems(items);
-        this.setColumns([
-            { key: "key", title: "Stats", width: 50 },
-            { key: "value", title: "Data", width: 50 },
-        ]);
-
+        this.setColumns({
+            key: { title: "Stats", width: 50 },
+            value: { title: "Data", width: 50 },
+        });
         await super.display();
     }
-    setColumns(columns: Column[]): void {
-        this.data["columns"] = columns;
-    }
+
 }

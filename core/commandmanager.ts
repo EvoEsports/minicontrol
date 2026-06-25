@@ -1,9 +1,9 @@
-import ListWindow from "./ui/listwindow";
-import { escapeRegex, htmlEntities } from "./utils";
+import ListWindow from "@core/ui/listwindow";
+import { escapeRegex, htmlEntities, sleep } from "./utils";
 import fs from "node:fs";
 import path from "node:path";
 
-import version from "../version.json";
+import version from "../version.json" with { type: "json" };
 
 export type CallableCommand = (login: string, args: string[]) => Promise<void>;
 
@@ -32,20 +32,19 @@ export default class CommandManager {
                 for (const command in this.commands) {
                     if (this.commands[command]?.admin) continue;
                     outCommands.push({
-                        command: htmlEntities(this.commands[command].trigger),
-                        help: htmlEntities(this.commands[command].help),
+                        command: (this.commands[command].trigger),
+                        help: (this.commands[command].help),
                         rawCommand: this.commands[command].trigger,
                     });
                 }
                 const window = new HelpWindow(login);
-                window.size = { width: 160, height: 95 };
+                window.size = { width: 160, height: 120 };
                 window.title = "Commands";
                 window.setItems(outCommands.sort((a: any, b: any) => a.command.localeCompare(b.command)));
-                window.setColumns([
-                    { key: "command", title: "Command", width: 50 },
-                    { key: "help", title: "Help", width: 90 },
-                ]);
-                window.setActions(["Invoke"]);
+                window.setColumns({
+                    command: { title: "Command", width: 50 },
+                    help: { title: "Help", width: 90 },
+                });
                 window.display();
             },
             "Display help for command",
@@ -58,24 +57,24 @@ export default class CommandManager {
                 for (const command in this.commands) {
                     if (!this.commands[command]?.admin) continue;
                     outCommands.push({
-                        command: htmlEntities(this.commands[command].trigger),
-                        help: htmlEntities(this.commands[command].help),
+                        command: (this.commands[command].trigger),
+                        help: (this.commands[command].help),
                     });
                 }
                 const window = new ListWindow(login);
-                window.size = { width: 160, height: 95 };
+                window.size = { width: 160, height: 120 };
                 window.title = "Admin commands";
                 window.setItems(outCommands.sort((a: any, b: any) => a.command.localeCompare(b.command)));
-                window.setColumns([
-                    { key: "command", title: "Command", width: 50 },
-                    { key: "help", title: "Help", width: 100 },
-                ]);
+                window.setColumns({
+                    command: { title: "Command", width: 50 },
+                    key: { title: "Help", width: 100 },
+                });
                 window.display();
             },
             "Display help for command",
         );
 
-        this.addCommand("/serverlogin", async () => {}, "Display server login");
+        this.addCommand("/serverlogin", async () => { }, "Display server login");
         this.addCommand(
             "/version",
             async (login: string) => {
@@ -91,7 +90,7 @@ export default class CommandManager {
             "Close MINIcontroller",
         );
         this.addCommand("//plugins", this.cmdPluginManager.bind(this), "List plugins");
-        /*this.addCommand("//plugin", async (login: string, args: string[]) => {
+        this.addCommand("//plugin", async (login: string, args: string[]) => {
             if (args.length < 1) {
                 tmc.chat("Valid options are: list, load, unload, reload", login);
                 return;
@@ -100,7 +99,7 @@ export default class CommandManager {
             switch (action) {
                 case "list": {
                     let plugins = "Loaded plugins: ";
-                    for (let plugin in tmc.plugins) {
+                    for (const plugin in tmc.getPluginIds()) {
                         plugins += `¤cmd¤${plugin}¤white¤, `;
                     }
                     tmc.chat(plugins, login);
@@ -112,7 +111,7 @@ export default class CommandManager {
                         return;
                     }
                     const plugin = args[1];
-                    if (tmc.plugins[plugin]) {
+                    if (tmc.existsPlugin(plugin)) {
                         tmc.chat(`Plugin $fd0${args[0]}¤white¤ already loaded.`, login);
                         return;
                     }
@@ -131,7 +130,7 @@ export default class CommandManager {
                         return;
                     }
                     const plugin = args[1];
-                    if (!tmc.plugins[plugin]) {
+                    if (!tmc.existsPlugin(plugin)) {
                         tmc.chat(`Plugin $fd0${plugin}¤white¤ not loaded.`, login);
                         return;
                     }
@@ -144,12 +143,12 @@ export default class CommandManager {
                         return;
                     }
                     const plugin = args[1];
-                    if (!tmc.plugins[plugin]) {
+                    if (!tmc.existsPlugin(plugin)) {
                         tmc.chat(`Plugin $fd0${plugin}¤white¤ not loaded.`, login);
                         return;
                     }
                     await tmc.unloadPlugin(plugin);
-                    await sleep(50);
+                    await sleep(150);
                     await tmc.loadPlugin(plugin);
                     break;
                 }
@@ -158,7 +157,7 @@ export default class CommandManager {
                 }
             }
         }, "Manage plugins");
-        */
+
         this.addCommand(
             "//admin",
             async (login: string, args: string[]) => {
@@ -253,9 +252,9 @@ export default class CommandManager {
                         }
                         const returnvalue = type.shift();
                         out.push({
-                            method: htmlEntities(`${methods[i]}(${type.join("$fff, ")}$fff)`),
-                            value: htmlEntities(returnvalue ?? ""),
-                            help: htmlEntities(methodHelp[i].replace(/Only available to (Super)?Admin./, "")),
+                            method: (`${methods[i]}(${type.join("$fff, ")}$fff)`),
+                            value: (returnvalue ?? ""),
+                            help: (methodHelp[i].replace(/Only available to (Super)?Admin./, "")),
                         });
                     }
 
@@ -263,12 +262,12 @@ export default class CommandManager {
 
                     window.title = "Methods";
                     window.setItems(out.sort((a: any, b: any) => a.method.localeCompare(b.method)));
-                    window.setColumns([
-                        { key: "method", title: "Method", width: 60 },
-                        { key: "value", title: "Return", width: 15 },
-                        { key: "help", title: "Help", width: 150 },
-                    ]);
-                    window.size = { width: 230, height: 95 };
+                    window.setColumns({
+                        method: { title: "Method", width: 60 },
+                        value: { title: "Return", width: 15 },
+                        help: { title: "Help", width: 150 },
+                    });
+                    window.size = { width: 230, height: 120 };
                     window.display();
                     return;
                 }
@@ -290,13 +289,17 @@ export default class CommandManager {
         );
     }
 
+    /**
+     * Handle plugin manager command
+     * @param login login
+     * @param args args
+     */
     async cmdPluginManager(login: string, args: string[]) {
         const window = new PluginManagerWindow(login);
-        window.size = { width: 160, height: 95 };
+        window.size = { width: 160, height: 120 };
         window.title = "Plugins";
         let out: any[] = [];
         const all: string[] = [];
-        const diff: string[] = [];
         let plugins = fs.readdirSync(path.join(process.cwd(), "core", "plugins"), { withFileTypes: true, recursive: true });
         plugins = plugins.concat(fs.readdirSync(path.join(process.cwd(), "userdata", "plugins"), { withFileTypes: true, recursive: true }));
 
@@ -316,21 +319,24 @@ export default class CommandManager {
             }
         }
 
-        for (const name of tmc.pluginDependecies.overallOrder()) {
-            diff.push(name);
-            const deps = tmc.pluginDependecies.dependenciesOf(name);
+        // prefer discovered plugins (manifests present) for an ordered view
+        const seen = new Set<string>();
+        for (const entry of (tmc.discoveredPlugins || [])) {
+            const name = entry.id;
+            seen.add(name);
+            const deps = (entry.manifest?.depends ?? []).map((d: any) => (typeof d === "string" ? d : d.id));
             out.push({
                 pluginName: name,
                 depends: deps.join(", "),
-                active: tmc.plugins[name] ? "$0f0Yes" : "$f00No",
+                active: tmc.existsPlugin(name) ? "$0f0Yes" : "$f00No",
             });
         }
 
-        for (const name of all.filter((value) => !diff.includes(value))) {
+        for (const name of all.filter((value) => !seen.has(value))) {
             out.push({
                 pluginName: name,
                 depends: "",
-                active: tmc.plugins[name] ? "$0f0Yes" : "$f00No",
+                active: tmc.existsPlugin(name) ? "$0f0Yes" : "$f00No",
             });
         }
         out = out.sort((a: any, b: any) => {
@@ -338,11 +344,14 @@ export default class CommandManager {
         });
 
         window.setItems(out);
-        window.setColumns([
-            { key: "active", title: "Running", width: 25 },
-            { key: "pluginName", title: "Plugin", width: 50 },
-            { key: "depends", title: "Dependencies", width: 50 },
-        ]);
+        window.setColumns({
+            active: { title: "Running", width: 25 },
+            pluginName: {title: "Plugin", width: 50 },
+            depends: { title: "Dependencies", width: 50 },
+        });
+        window.setAction("toggle", "Toggle", async (login, item: any) => {
+
+        });
 
         window.display();
     }
@@ -426,9 +435,9 @@ export default class CommandManager {
 }
 
 class PluginManagerWindow extends ListWindow {
-    /*async onAction(login: string, action: string, item: any) {
+    async onAction(login: string, action: string, item: any) {
         if (action === "toggle") {
-            if (tmc.plugins[item.pluginName]) {
+            if (tmc.existsPlugin(item.pluginName)) {
                 await tmc.chatCmd.execute(login, `//plugin unload ${item.pluginName}`);
             } else {
                 await tmc.chatCmd.execute(login, `//plugin load ${item.pluginName}`);
@@ -436,7 +445,7 @@ class PluginManagerWindow extends ListWindow {
             await tmc.chatCmd.execute(login, "//plugins");
             return;
         }
-    }*/
+    }
 }
 
 class HelpWindow extends ListWindow {

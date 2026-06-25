@@ -6,5 +6,10 @@
     "files.exclude": {
         "**/node_modules/**": true
     },
-    "prettier.printWidth": 180
+    "[twig]": {
+        "editor.defaultFormatter": "serhatkaya.twig-formatter"
+    },
+    "emmet.includeLanguages": {
+        "javascript": "javascriptreact"
+    }
 }

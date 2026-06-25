@@ -1,6 +1,7 @@
 import Plugin from "@core/plugins";
-import Likes from "@core/schemas/maplikes.model";
-import { QueryTypes, type Sequelize } from "sequelize";
+import Likes from "./models/maplikes.model";
+import { QueryTypes } from "sequelize";
+import log from "@core/log";
 
 export interface Like {
     login: string;
@@ -8,16 +9,22 @@ export interface Like {
     updatedAt: string;
 }
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "maplikes": MapLikes;
+    }
+}
+
 export default class MapLikes extends Plugin {
-    static depends: string[] = ["database"];
+
     votes: Like[] = [];
 
     async onLoad() {
-        tmc.storage["db"].addModels([Likes]);
-        //tmc.addCommand('/++', this.onLike.bind(this), 'Like a map');
-        //tmc.addCommand('/--', this.onDislike.bind(this), 'Dislike a map');
-        tmc.server.addListener("Trackmania.BeginMap", this.syncVotes, this);
-        tmc.server.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
+        tmc.getPlugin('database').addModels([Likes]);
+        this.addCommand('/++', this.onLike.bind(this), 'Like a map');
+        this.addCommand('/--', this.onDislike.bind(this), 'Dislike a map');
+        this.addListener("Trackmania.BeginMap", this.syncVotes, this);
+        this.addListener("Trackmania.PlayerChat", this.onPlayerChat, this);
     }
 
     async onStart() {
@@ -25,11 +32,6 @@ export default class MapLikes extends Plugin {
     }
 
     async onUnload() {
-        tmc.removeCommand("/++");
-        tmc.removeCommand("/--");
-        tmc.server.removeListener("Trackmania.BeginMap", this.syncVotes);
-        tmc.server.removeListener("Trackmania.PlayerChat", this.onPlayerChat);
-        this.votes = [];
     }
 
     async syncVotes() {
@@ -39,42 +41,39 @@ export default class MapLikes extends Plugin {
         for (const vote of votes) {
             this.votes.push({ login: vote.login || "", vote: vote.vote || 0, updatedAt: vote.updatedAt || "" });
         }
-        const sequelize: Sequelize = tmc.storage["db"];
+
         const uids = tmc.maps.getUids();
         tmc.debug(`¤info¤Starting karma sync for $fff${uids.length} ¤info¤maps`);
-        console.time("karma sync");
-        sequelize
-            .query(
-                `SELECT *, (positive/(positive+abs(negative)+0.00001))*100 as total from (
+        tmc.getPlugin('database').sequelize.query(
+            `SELECT *, (positive/(positive+abs(negative)+0.00001))*100 as total from (
                             SELECT mapUuid as Uid, createdAt,
                             SUM(case when vote>0 then vote else 0 end) as positive,
                             SUM(case when vote<0 then vote else 0 end) as negative,
                             SUM(ABS(vote)) as total FROM maplikes
                             WHERE mapUuid in (?)
                             GROUP BY mapUuid) as t`,
-                {
-                    type: QueryTypes.SELECT,
-                    raw: true,
-                    replacements: [uids],
-                },
-            )
-            .then((result: any) => {
-                tmc.debug("¤info¤Sync complete.");
-                console.timeEnd("karma sync");
-                for (const info of result) {
-                    const map = tmc.maps.getMap(info.Uid);
-                    if (map) {
-                        map.Karma = {
-                            positive: info.positive,
-                            negative: info.negative,
-                            total: info.total,
-                        };
-                    }
+            {
+                type: QueryTypes.SELECT,
+                raw: true,
+                replacements: [uids],
+            },
+        )
+        .then((result: any) => {
+            tmc.debug("¤info¤Sync complete.");
+            for (const info of result) {
+                const map = tmc.maps.getMap(info.Uid);
+                if (map) {
+                    map.Karma = {
+                        positive: info.positive,
+                        negative: info.negative,
+                        total: info.total,
+                    };
                 }
-            })
-            .catch((err: any) => {
-                tmc.cli(`¤error¤Error while syncing karma: ${err.message}`);
-            });
+            }
+        })
+        .catch((err: any) => {
+            log.warn(`¤error¤Error while syncing karma: ${err.message}`);
+        });
 
         tmc.server.emit("Plugin.MapLikes.onSync", this.votes);
     }

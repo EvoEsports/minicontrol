@@ -2,18 +2,24 @@ import type { Player } from "@core/playermanager";
 import Plugin from "@core/plugins";
 import type { DediRecord } from "@core/plugins/tmnf/dedimania";
 import Widget from "@core/ui/widget";
-import { formatTime, htmlEntities } from "@core/utils";
+import RecordsWidget from "./records";
+import { removeLinks } from "@core/utils";
+
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "widgets/dedimania": DedimaniaWidget;
+    }
+}
 
 export default class DedimaniaWidget extends Plugin {
-    static depends: string[] = ["game:TmForever", "tmnf/dedimania"];
     records: DediRecord[] = [];
     widgets: { [key: string]: Widget } = {};
 
     async onLoad() {
-        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
-        tmc.server.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
-        tmc.server.addListener("Plugin.Dedimania.onSync", this.onSync, this);
-        tmc.server.addListener("Plugin.Dedimania.onNewRecord", this.onUpdate, this);
+        this.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        this.addListener("TMC.PlayerDisconnect", this.onPlayerDisconnect, this);
+        this.addListener("Plugin.Dedimania.onSync", this.onSync, this);
+        this.addListener("Plugin.Dedimania.onNewRecord", this.onUpdate, this);
     }
 
     async onUnload() {
@@ -21,12 +27,14 @@ export default class DedimaniaWidget extends Plugin {
             await this.widgets[login].destroy();
             delete this.widgets[login];
         }
-        tmc.server.removeListener("Plugin.Dedimania.onSync", this.onSync);
-        tmc.server.removeListener("Plugin.Dedimania.onNewRecord", this.onUpdate);
+        this.widgets = {};
     }
 
     async onPlayerConnect(player: Player) {
         const login = player.login;
+        const dedimania = tmc.getPlugin("tmnf/dedimania");
+        if (!dedimania || !dedimania.enabled) return;
+
         this.updateWidget(login);
         if (this.widgets[login]) {
             await tmc.ui.displayManialink(this.widgets[login]);
@@ -60,10 +68,11 @@ export default class DedimaniaWidget extends Plugin {
     updateWidget(login: string) {
         let widget = this.widgets[login];
         if (!widget) {
-            widget = new Widget("core/plugins/widgets/dedimania/widget.xml.twig");
-            widget.title = "DEDIMANIA";
+            widget = new Widget(RecordsWidget, "dedimaniaWidget");
+            widget.data.title = "DEDIMANIA";
             widget.recipient = login;
-            widget.pos = { x: 121, y: 35, z: 0 };
+            widget.data.login = login;
+            widget.pos = { x: -159, y: 38, z: 0 };
             widget.size = { width: 38, height: 45 };
             widget.setOpenAction(this.widgetClick.bind(this));
         }
@@ -84,8 +93,8 @@ export default class DedimaniaWidget extends Plugin {
 
         for (const rec of outRecords) {
             rec.rank = rec.Rank;
-            rec.formattedTime = formatTime(rec.Best);
-            rec.nickname = htmlEntities(rec.NickName);
+            rec.time = rec.Best;
+            rec.nickname = removeLinks(rec.NickName);
         }
 
         widget.setData({ records: outRecords });

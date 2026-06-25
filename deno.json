@@ -1,0 +1,16 @@
+{
+    "imports": {
+        "@core/": "./core/"
+    },
+    "permissions": {
+        "read-and-write": {
+            "read": true,
+            "write": [
+                "./userdata"
+            ]
+        }
+    },
+    "tasks": {
+        "start": "deno run --v8-flags=--expose-gc --env-file=.env --allow-all --sloppy-imports ./core/minicontrol.ts"
+    }
+}

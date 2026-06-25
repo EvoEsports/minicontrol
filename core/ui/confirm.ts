@@ -1,26 +1,25 @@
-import Widget from "./widget";
-import { htmlEntities } from "../utils";
+import Window from "./window";
+import ConfirmComponent from "./components/ConfirmComponent";
 
 /**
     @example
     const confirm = new Confirm(login, "Confirm Remove", this.applyCommand.bind(this), [login, "//remove " + item.UId]);
     await confirm.display();
  */
-export default class Confirm extends Widget {
+export default class Confirm extends Window {
     callback: CallableFunction;
     params: string[];
     title = "Confirm required";
     size = { width: 90, height: 40 };
 
     constructor(login: string, question: string, callback: CallableFunction, params: any) {
-        super("core/templates/confirm.xml.twig");
-        this.recipient = login;
-        this.pos = { x: 0, y: 20, z: 10 };
+        super(ConfirmComponent, login, "confirmWindow");
+        this.pos = { x: 0, y: 20, z: 30 };
         this.callback = callback;
         this.params = params;
-        this.data.question = htmlEntities(question);
+        this.data.question = question;
         this.actions.close = tmc.ui.addAction(this.hide.bind(this), "");
-        this.actions.apply = tmc.ui.addAction(this.apply.bind(this), "");
+        this.setApplyButtons(true);
     }
 
     /**
@@ -30,8 +29,8 @@ export default class Confirm extends Widget {
         super.destroy();
     }
 
-    async apply(_login: string, _answer: any, _entries: string[]) {
-        this.callback(...this.params);
+    async onApply(_login: string, _answer: any, _entries: any) {
+        this.callback(...this.params, _entries);
         super.destroy();
     }
 }

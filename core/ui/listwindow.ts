@@ -1,210 +1,168 @@
-import { castType, removeColors } from "../utils.ts";
+import LWindow from "./components/ListWindowComponent";
 import Window from "./window";
 
-/**
- * Columns is a map of column names to column widths
- */
-interface Column {
+export interface columnDef {
     title: string;
-    key: string;
     width: number;
-    type?: "entry";
-    action?: string;
+    description?: string;
+    type?: "text" | "entry" | "time" | "date" | "progressbar" | "quad"
+    actionKey?: string;
+    align?: "left" | "center" | "right";
+    sort?: -1 | 0 | 1;
 }
 
-interface PaginationResult<T> {
-    currentPage: number;
-    totalPages: number;
+export interface dataTableDef {
+    columns: { [key: string]: columnDef };
+    items: { [key: string]: any }[];
+    listActions: Actions[];
+    sortDirection: number;
+    sortColumn: string;
     pageSize: number;
-    totalItems: number;
-    items: T[];
+    pageNb: number;
+    useTitle: boolean;
+}
+
+type ActionCallback = (login: string, item: any, entries: any) => Promise<void>
+
+interface Actions {
+    key: string;
+    title: string | null;
+    width?: number;
+    callback: ActionCallback
 }
 
 export default class ListWindow extends Window {
-    items: any = [];
-    template = "core/templates/list.xml.twig";
-    pageSize = 15;
-    sortColumn = "";
-    private currentPage: number;
-    private sortDirection = 1;
+    private targetActions: Actions[] = [];
+    title = "ListWindow";
+    size = { width: 160, height: 120 };
+    datatable: dataTableDef = {
+        columns: {},
+        items: [],
+        listActions: [],
+        sortColumn: "",
+        sortDirection: 1,
+        pageSize: 20,
+        pageNb: 0,
+        useTitle: false,
+    };
 
-    listActions: string[] = [];
-
-    constructor(login: string) {
-        super(login);
-        this.actions.pg_start = tmc.ui.addAction(this.uiPaginate.bind(this), "start");
-        this.actions.pg_prev = tmc.ui.addAction(this.uiPaginate.bind(this), "prev");
-        this.actions.pg_next = tmc.ui.addAction(this.uiPaginate.bind(this), "next");
-        this.actions.pg_end = tmc.ui.addAction(this.uiPaginate.bind(this), "end");
-        this.currentPage = 0;
+    constructor(login: string, type: string = "") {
+        super(LWindow, login, type);
+        this.data.draggable = tmc.game.Name !== "TmForever";
+        this.actions.start = tmc.ui.addAction(this.uiPaginate.bind(this), "start");
+        this.actions.prev = tmc.ui.addAction(this.uiPaginate.bind(this), "prev");
+        this.actions.next = tmc.ui.addAction(this.uiPaginate.bind(this), "next");
+        this.actions.end = tmc.ui.addAction(this.uiPaginate.bind(this), "end");
+        this.data.applyButtons = false;
     }
 
-    parseEntries(entries: any): void {
-        if (!entries || entries.length === 0) return; // no entries
-        for (const entry of entries) {
-            const variable_name = entry.Name.split("_")[0];
-            const index = Number.parseInt(entry.Name.split("_")[1]) - 1;
-            this.items[index][variable_name] = castType(entry.Value, this.items[index].type);
-        }
+    setItemsPerPage(count: number) {
+        this.datatable.pageSize = count;
     }
 
-    setColumns(columns: Column[]): void {
-        this.data.columns = columns;
-        let x = 0;
-        for (const column of columns) {
-            this.actions[`title_${x}`] = tmc.ui.addAction(this.doSort.bind(this), `${column.key}`);
-            x += 1;
-        }
+    setColumns(columns: { [key: string]: columnDef }) {
+        this.datatable.columns = columns;
     }
 
-    setItems(items: any[]): void {
-        this.items = items;
+    setItems(items: { [key: string]: any }[]) {
+        this.datatable.items = items.map((item, index) => ({ index, ...item }));
     }
 
-    setActions(actions: string[]): void {
-        this.data.listActions = actions;
-        this.listActions = actions;
+    setUseTitle(useTitle: boolean) {
+        this.data.useTitle = useTitle;
     }
 
-    async hide(): Promise<void> {
-        this.template = "";
-        this.items = [];
-        super.hide();
-    }
     /**
-     * @param items
-     * @param pageNb
-     * @param pageSize
-     * @returns { PaginationResult }
-     *
-     * @example
-     * const myObjectList = ["1","2","3"]
-     * const currentPage = 0;
-     * const itemsPerPage = 15;
-     *
-     * const result = paginate(myObjectList, currentPage, itemsPerPage);
+     * Sets an action for the list items
+     * you can reference key in columnDef to link action to a column
+     * if title is null or "", no button will be shown for this action
+     * @param key
+     * @param title
+     * @param action
      */
-    doPaginate<T>(items: T[], pageNb: number, pageSize: number): PaginationResult<T> {
-        const startIndex = pageNb * pageSize;
-        const endIndex = startIndex + pageSize;
-        const slicedItems = items.slice(startIndex, endIndex);
-
-        return {
-            currentPage: pageNb,
-            totalPages: Math.ceil(items.length / pageSize),
-            pageSize,
-            totalItems: items.length,
-            items: slicedItems,
-        };
+    setAction(key: string, title: string | null, action: ActionCallback, width: number = 10) {
+        this.targetActions.push({ key: key, title: title, width: width, callback: action });
     }
 
-    async doSort(login: string, answer: any, _entries: any): Promise<void> {
-        if (this.sortColumn === answer) {
-            this.sortDirection = -this.sortDirection;
-        } else {
-            this.sortColumn = answer;
-            this.sortDirection = 1;
+    async execAction(login: string, items: any, entries?: any) {
+        const { actionIndex, item } = items;
+        if (this.targetActions[actionIndex]) {
+            await this.targetActions[actionIndex].callback(login, item, entries);
         }
-        await this.uiPaginate(login, "start", []);
-    }
-
-    async uiPaginate(login: string, answer: any, _entries: any): Promise<void> {
-        if (answer === "start") {
-            this.currentPage = 0;
-        } else if (answer === "prev") {
-            this.currentPage -= 1;
-        } else if (answer === "next") {
-            this.currentPage += 1;
-        } else if (answer === "end") {
-            this.currentPage = Math.floor((this.items.length - 1) / this.pageSize);
-        }
-
-        if (this.currentPage < 0) this.currentPage = 0;
-        if (this.currentPage > Math.floor((this.items.length - 1) / this.pageSize))
-            this.currentPage = Math.floor((this.items.length - 1) / this.pageSize);
-        if (this.sortColumn !== "") {
-            this.items.sort((a: any, b: any) => {
-                if (removeColors(a[this.sortColumn]).localeCompare(removeColors(b[this.sortColumn]), "en", { numeric: true }) > 0) {
-                    return this.sortDirection;
-                }
-                return -this.sortDirection;
-            });
-        }
-
-        const itemsArray: any = [];
-        let x = 1;
-        for (const item of this.items) {
-            Object.assign(item, { index: x });
-            itemsArray.push(item);
-            x++;
-        }
-
-        for (const id in this.actions) {
-            if (id.startsWith("item_")) {
-                tmc.ui.removeAction(this.actions[id]);
-                delete this.actions[id];
-            }
-        }
-
-        const items: any = this.doPaginate(itemsArray, this.currentPage, this.pageSize);
-        await this.onPageItemsUpdate(items.items);
-
-        for (const item of items.items) {
-            for (const action of this.listActions || []) {
-                if (!this.actions[`item_${action}_${item.index}`]) {
-                    this.actions[`item_${action}_${item.index}`] = tmc.ui.addAction(this.uiAction.bind(this), [action, item]);
-                }
-            }
-            for (const column of this.data.columns) {
-                if (column.action) {
-                    if (!this.actions[`item_${column.action}_${item.index}`]) {
-                        this.actions[`item_${column.action}_${item.index}`] = tmc.ui.addAction(this.uiAction.bind(this), [column.action, item]);
-                    }
-                }
-            }
-        }
-        this.data.items = items;
-        super.display();
     }
 
     async display() {
-        this.uiPaginate("", "start", []);
-    }
+        this.data.title = this.title;
 
-    addApplyButtons(): void {
-        this.actions.apply = tmc.ui.addAction(this.onApply.bind(this), "");
-        this.actions.cancel = tmc.ui.addAction(this.hide.bind(this), "");
-    }
+        for (const key in this.datatable.columns) {
+            if (!this.actions[`title_${key}`]) {
+                this.actions[`title_${key}`] = tmc.ui.addAction(this.doSort.bind(this), `${key}`);
+            }
+        }
 
-    uiAction(login: string, answer: any, entries: any[]): void {
-        const action = answer[0];
-        const item = answer[1];
-        this.parseEntries(entries);
-        this.onAction(login, action, item);
+        const pre = this.datatable.items.slice(0, this.datatable.pageNb * this.datatable.pageSize);
+        const post = this.datatable.items.slice((this.datatable.pageNb + 1) * this.datatable.pageSize);
+        const paginatedItems = this.datatable.items.slice(
+            this.datatable.pageNb * this.datatable.pageSize,
+            (this.datatable.pageNb + 1) * this.datatable.pageSize
+        );
+
+        this.data.datatable = {...this.datatable};
+        this.data.datatable.listActions = this.targetActions.map((a) => ({ key: a.key, title: a.title, width: a.width }));
+        this.data.datatable.items = [...pre, ...await this.onPageItemsUpdate(paginatedItems), ...post].filter((i) => i !== undefined) as any[];
+
+        for (const actionIndex in this.targetActions) {
+            const action = this.targetActions[actionIndex];
+            for (const itemIndex in this.datatable.items) {
+                const item = this.datatable.items[itemIndex];
+                const actionKey = `item_${itemIndex}_${action.key}`;
+                if (this.actions[actionKey]) {
+                    tmc.ui.removeAction(this.actions[actionKey]);
+                }
+                this.actions[actionKey] = tmc.ui.addAction(this.execAction.bind(this), { actionIndex: actionIndex, item: item });
+            }
+        }
+
+        return super.display();
     }
 
     /**
-     * override this
-     * @param login
-     * @param action
-     * @param item
+     * override this to process items on the current page
+     * @param itemsArray
+     * @returns
      */
-    async onAction(login: string, action: string, item: any): Promise<void> {
-        // Override this
+    async onPageItemsUpdate(itemsArray: any[]) {
+        return itemsArray;
     }
 
-    /**
-     * override this
-     */
-    async onPageItemsUpdate(items: any) {}
+    async doSort(login: string, columnKey: string) {
+        const column = this.datatable.columns[columnKey];
+        if (column?.sort === 0) return;
 
-    /**
-     * override this
-     * @param login
-     * @param answer
-     * @param entries
-     */
-    async onApply(login: string, answer: any, entries: any): Promise<void> {
-        // override this
+        if (this.datatable.sortColumn === columnKey) {
+            this.datatable.sortDirection = -this.datatable.sortDirection || -1;
+        } else {
+            this.datatable.sortColumn = columnKey;
+            this.datatable.sortDirection = column?.sort || -1;
+        }
+
+        this.display();
+    }
+
+    async uiPaginate(login: string, action: string, entries: any) {
+        if (action === "start") {
+            this.datatable.pageNb = 0;
+        } else if (action === "prev") {
+            this.datatable.pageNb -= 1;
+        } else if (action === "next") {
+            this.datatable.pageNb += 1;
+        } else if (action === "end") {
+            this.datatable.pageNb = Math.floor((this.datatable.items.length - 1) / this.datatable.pageSize);
+        }
+        if (this.datatable.pageNb < 0) this.datatable.pageNb = 0;
+        if (this.datatable.pageNb > Math.floor((this.datatable.items.length - 1) / this.datatable.pageSize))
+            this.datatable.pageNb = Math.floor((this.datatable.items.length - 1) / this.datatable.pageSize);
+
+        this.display();
     }
 }

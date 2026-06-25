@@ -1,0 +1,11 @@
+{
+    "id": "widgets",
+    "name": "Widgets",
+    "description": "Provides widgets for trackmania games",
+    "authors": "MiniControl core",
+    "date": "2025-12-06",
+    "version": "1.0.0",
+    "requiresMinicontrolVersion": "*",
+    "requiresGame": null,
+    "depends": [ ]
+}

@@ -28,11 +28,17 @@
  * SOFTWARE.
  */
 
+import log from "@core/log";
 import Plugin from "@core/plugins";
 import http, { type ClientRequest } from "node:http";
 
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmnf/freezone": Freezone;
+    }
+}
+
 export default class Freezone extends Plugin {
-    static depends: string[] = ["game:TmForever", "tmnf"];
     isConnected = false;
     password: string | null = process.env.FREEZONE_PASS ?? null;
     mlHash = "6f116833b419fe7cb9c912fdaefb774845f60e79";
@@ -42,13 +48,17 @@ export default class Freezone extends Plugin {
 
     onLoad = async () => {
         if (!this.password) {
-            tmc.chat("¤error¤Freezone: Cannot enable plugin - Freezone password was not set, please check your .env file.");
+            const msg = "¤error¤Freezone: No FREEZONE_PASS set in environment variables, unloading plugin.";
+            log.error(msg);
             await tmc.unloadPlugin("tmnf/freezone");
+            return;
         }
+
         const status = await this.sendHeartbeat();
         if (status instanceof Error) {
-            tmc.chat(`¤error¤Freezone: ${status.message}`);
+            log.error(`¤error¤Freezone: ${status.message}`);
             await tmc.unloadPlugin("tmnf/freezone");
+            return;
         } else {
             this.isConnected = true;
             tmc.cli("¤info¤Freezone: Authenticated.");
@@ -116,7 +126,7 @@ export default class Freezone extends Plugin {
                 .end();
         }).catch((err): Error => {
             const errStr = `Couldn't send Freezone Manialive request. Error: ${err?.message}`;
-            tmc.cli(errStr);
+            log.error(errStr);
             return new Error(errStr);
         });
     };

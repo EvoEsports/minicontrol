@@ -10,9 +10,13 @@ export interface ModCollection {
     Alpine: string;
     [key: string]: string;
 }
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "tmnf/forcemods": ForceMods;
+    }
+}
 
 export default class ForceMods extends Plugin {
-    static depends: string[] = ["game:TmForever", "tmnf"];
     enabled = false;
     environments: string[] = ["Stadium", "Island", "Speed", "Rally", "Bay", "Coast", "Alpine"];
     defaultModUrl = "http://reaby.kapsi.fi/trackmania/tmnf_mod.zip";
@@ -30,13 +34,12 @@ export default class ForceMods extends Plugin {
     async onLoad() {
         this.enabled = true;
         tmc.cli("¤info¤ForceMods: TmForever detected, enabling plugin.");
-        tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
+        this.addListener("Trackmania.EndMap", this.onEndMap, this);
         await this.onEndMap([]);
     }
 
     async onUnload() {
-        this.enabled = false;
-        tmc.server.removeListener("Trackmania.EndMap", this.onEndMap.bind(this));
+
     }
 
     async onEndMap(data: any) {

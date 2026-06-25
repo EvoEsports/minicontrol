@@ -1,7 +1,0 @@
-{% extends "core/templates/widget.xml.twig" %}
-
-{% block content %}
-   {% for item in data.buttons %}
-         <label pos="{{ 17.5 + loop.index0 * 9 }} 0" z-index="2" size="8 3" text="{{ item.text }}" halign="center" valign="center2" action="{{ item.action }}" textsize="0.5" textfont="RobotoCondensed" focusareacolor1="{{colors.widget_bg}}9" focusareacolor2="{{colors.title_bg}}" textcolor="{{colors.title_fg}}" />
-    {% endfor %}
-{% endblock %}

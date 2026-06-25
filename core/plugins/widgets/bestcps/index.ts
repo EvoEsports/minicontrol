@@ -1,8 +1,9 @@
 import Plugin from "@core/plugins";
 import ListWindow from "@core/ui/listwindow";
 import Widget from "@core/ui/widget";
-import { formatTime, htmlEntities } from "@core/utils";
-import Menu from "@core/plugins/menu/menu";
+import BestCpsWidget from "./bestCpsWidget";
+import { formatTime } from "@core/utils";
+import Menu from "@core/menu";
 
 interface Time {
     nickname: string;
@@ -10,34 +11,28 @@ interface Time {
     prettyTime: string;
 }
 
-export default class BestCps extends Plugin {
-    static depends = ["widgets"];
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "widgets/bestcps": BestCps;
+    }
+}
 
+export default class BestCps extends Plugin {
     id = "";
     bestTimes: Time[] = [];
     nbCheckpoints = -1;
     maxCp = 16;
-    widget: Widget | null = null;
+    widget: Widget | undefined = undefined;
 
     async onLoad() {
-        tmc.server.addListener("Trackmania.BeginMap", this.beginMap, this);
-        tmc.server.addListener("TMC.PlayerCheckpoint", this.checkpoint, this);
-        tmc.chatCmd.addCommand("/checkpoints", this.cmdCheckpoints.bind(this), "Display best Checkpoints");
-        this.widget = new Widget("core/plugins/widgets/bestcps/widget.xml.twig");
-        this.widget.pos = { x: -160, z: 0, y: 90 };
-        this.widget.size = { width: 240, height: 20 };
-        const info = tmc.maps.currentMap;
-        this.nbCheckpoints = info?.NbCheckpoints || -1;
+        this.addListener("Trackmania.BeginMap", this.beginMap, this);
+        this.addListener("TMC.PlayerCheckpoint", this.checkpoint, this);
+        this.addCommand("/checkpoints", this.cmdCheckpoints.bind(this), "Display best Checkpoints");
+        this.widget = new Widget(BestCpsWidget, "bestCpsWidget");
+        this.widget.pos = { x: -130, z: 0, y: 90 };
+        this.widget.size = { width: 210, height: 20 };
+        this.nbCheckpoints = tmc.maps.currentMap.NbCheckpoints || -1;
         await this.display();
-    }
-
-    async onUnload() {
-        tmc.server.removeListener("Trackmania.BeginMap", this.beginMap.bind(this));
-        tmc.server.removeListener("TMC.PlayerCheckpoint", this.checkpoint.bind(this));
-        tmc.chatCmd.removeCommand("/checkpoints");
-
-        this.widget?.destroy();
-        this.widget = null;
     }
 
     async onStart() {
@@ -53,9 +48,11 @@ export default class BestCps extends Plugin {
         const login = data[0];
         const time = data[1];
         const nb = data[2];
+        const player = await tmc.getPlayer(login)
+        const nickname = player.customNickname || player.nickname || "Unknown";
         if (!this.bestTimes[nb - 1] && nb > 0) return;
         if (!this.bestTimes[nb] || time < this.bestTimes[nb].time) {
-            this.bestTimes[nb] = { nickname: htmlEntities((await tmc.getPlayer(login)).nickname), time: time, prettyTime: formatTime(time) };
+            this.bestTimes[nb] = { nickname: nickname, time: time, prettyTime: formatTime(time,false) };
             await this.display();
         }
     }
@@ -92,11 +89,11 @@ export default class BestCps extends Plugin {
         window.size = { width: 100, height: 100 };
         window.title = `Best Checkpoints [${this.bestTimes.length}]`;
         window.setItems(checkpoints);
-        window.setColumns([
-            { key: "checkpoint", title: "Checkpoint", width: 20 },
-            { key: "nickname", title: "Nickname", width: 50 },
-            { key: "time", title: "Time", width: 20 },
-        ]);
+        window.setColumns({
+            checkpoint: { title: "Checkpoint", width: 20 },
+            nickname: { title: "Nickname", width: 50 },
+            time: { title: "Time", width: 20 },
+        });
 
         window.display();
     }

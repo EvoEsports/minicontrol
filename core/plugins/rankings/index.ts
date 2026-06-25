@@ -1,9 +1,9 @@
 import Plugin from "@core/plugins";
-import type { Sequelize } from "sequelize-typescript";
 import { QueryTypes } from "sequelize";
 import ListWindow from "@core/ui/listwindow";
-import Player from "@core/schemas/players.model";
-import Menu from "../menu/menu";
+import Player from "@core/plugins/database/models/players.model";
+import Menu from "@core/menu";
+import console from "node:console";
 
 interface Ranking {
     rank: number;
@@ -11,15 +11,20 @@ interface Ranking {
     avg: number;
 }
 
-export default class Players extends Plugin {
-    static depends: string[] = ["database", "records"];
+declare module "@core/plugins" {
+    interface PluginRegistry {
+        "rankings": Rankings;
+    }
+}
+
+export default class Rankings extends Plugin {
     rankings: Ranking[] = [];
 
     async onLoad() {
-        tmc.server.addListener("Trackmania.EndMap", this.onEndMap, this);
-        tmc.addCommand("/top100", this.cmdRankings.bind(this), "Show top ranks");
-        tmc.addCommand("/topranks", this.cmdRankings.bind(this), "Show top ranks");
-        tmc.addCommand("/rank", this.cmdMyRank.bind(this), "Show my rank");
+        this.addListener("Trackmania.EndMap", this.onEndMap, this);
+        this.addCommand("/top100", this.cmdRankings.bind(this), "Show top ranks");
+        this.addCommand("/topranks", this.cmdRankings.bind(this), "Show top ranks");
+        this.addCommand("/rank", this.cmdMyRank.bind(this), "Show my rank");
         this.onEndMap(null);
 
         Menu.getInstance().addItem({
@@ -34,22 +39,19 @@ export default class Players extends Plugin {
         });
     }
 
-    async onUnload() {
-        tmc.server.removeListener("Trackmania.EndMap", this.onEndMap);
-    }
+    async onUnload() { }
+
 
     async onEndMap(_data: any) {
-        const sequelize: Sequelize = tmc.storage["db"];
+
         const mapUids = tmc.maps.getUids();
         const mapCount = mapUids.length;
         const maxRank = tmc.settings.get("records.maxRecords") || 100;
         const rankedRecordCount = 3;
         console.time("rankings");
         tmc.debug(`¤info¤Fetching rankings for $fff${mapCount} ¤info¤maps`);
-
-        sequelize
-            .query(
-                `SELECT row_number() OVER (order by average) as rank, login, average as avg FROM (
+        tmc.getPlugin("database").sequelize.query(
+            `SELECT row_number() OVER (order by average) as rank, login, average as avg FROM (
             SELECT
                 login,
                 (1.0 * (SUM(player_rank) + (? - COUNT(player_rank)) * ?) / ? * 10000) AS average,
@@ -68,12 +70,12 @@ export default class Players extends Plugin {
             ) grouped_ranks
             WHERE ranked_records_count >= ? order by average asc
             `,
-                {
-                    type: QueryTypes.SELECT,
-                    raw: true,
-                    replacements: [mapCount, maxRank, mapCount, mapUids, maxRank, rankedRecordCount],
-                },
-            )
+            {
+                type: QueryTypes.SELECT,
+                raw: true,
+                replacements: [mapCount, maxRank, mapCount, mapUids, maxRank, rankedRecordCount],
+            },
+        )
             .then((result: any) => {
                 this.rankings = result as Ranking[];
                 tmc.debug(`¤info¤Rankings fetched: $fff${this.rankings.length}`);
@@ -100,8 +102,9 @@ export default class Players extends Plugin {
         const players = await Player.findAll();
         const outRanks: any = [];
         let x = 0;
+        const maxRank = tmc.settings.get("records.maxRecords") || 100;
         for (const rank of this.rankings) {
-            if (x > 100) break;
+            if (x > maxRank) break;
             const avg = rank.avg / 10000;
             const player = players.find((val) => val.login === rank.login);
             outRanks.push({
@@ -113,11 +116,11 @@ export default class Players extends Plugin {
         }
 
         window.setItems(outRanks);
-        window.setColumns([
-            { key: "rank", title: "Rank", width: 20 },
-            { key: "nickname", title: "Name", width: 60 },
-            { key: "avg", title: "Average", width: 20 },
-        ]);
+        window.setColumns({
+            rank: { title: "Rank", width: 20 },
+            nickname: { title: "Name", width: 60 },
+            avg: { title: "Average", width: 20 },
+        });
         window.display();
     }
 }

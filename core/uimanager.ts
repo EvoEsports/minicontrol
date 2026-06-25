@@ -1,6 +1,19 @@
-import type Manialink from "./ui/manialink";
-import Window from "./ui/window";
+import Window from "@core/ui/window";
+
 import { chunkArray, parseEntries } from "./utils";
+import type IManialink from "@core/ui/interfaces/imanialink";
+import Manialink from "@core/ui/manialink";
+import { _ } from "ajv";
+import log from "./log";
+
+// Module-level regex patterns - created once, reused
+const TAG_REGEX = /<([a-zA-Z0-9_-]+)([^>]*)>/g;
+const Z_INDEX_REGEX = /\bz-index\s*=\s*(['"])(-?\d+(?:\.\d+)?)\1/;
+const POS_REGEX = /\bpos\s*=\s*(['"])(.*?)\1/g;
+const SIZE_REGEX = /\bsize\s*=\s*(['"])(.*?)\1/g;
+const Z_INDEX_REMOVE_REGEX = /\s*z-index\s*=\s*(['"])(-?\d+(?:\.\d+)?)\1/g;
+const NUMERIC_REGEX = /^-?([.\d]+)?$/;
+
 
 export interface uiModule {
     id: string;
@@ -8,6 +21,8 @@ export interface uiModule {
     scale: number;
     visible: boolean;
 }
+export type ActionCallback = (login: string, data: any, entries?: { [key: string]: unknown }) => Promise<void>;
+export type ComponentFunction = (attrs: { [key: string]: any }) => { replacement: string; script?: string };
 
 interface CustomUI {
     notice: boolean;
@@ -25,15 +40,17 @@ interface CustomUI {
 
 export default class UiManager {
     private actions: { [key: string]: { callback: CallableFunction; data: any } } = {};
-    private publicManialinks: { [key: string]: Manialink } = {};
-    private playerManialinks: { [login: string]: { [id: string]: Manialink } } = {};
+    private publicManialinks: { [key: string]: IManialink } = {};
+    private playerManialinks: { [login: string]: { [id: string]: IManialink } } = {};
     // starting uuid for manialink
     private manialinkUUID = 2;
     // array of logins that have hidden manialinks
     private hiddenManialinks: string[] = [];
     private uiProperties: uiModule[] = [];
+    private tagHandlers: Map<string, ComponentFunction> = new Map();
+    // cached global manialink action ID
+    private globalActionId: string | null = null;
 
-    private scriptCalls: string[] = [];
     tmnfCustomUi: CustomUI = {
         notice: false,
         challenge_info: false,
@@ -53,11 +70,12 @@ export default class UiManager {
      */
     async init() {
         tmc.server.addListener("Trackmania.PlayerManialinkPageAnswer", this.onManialinkAnswer, this);
-        tmc.server.addListener("Trackmania.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("TMC.PlayerConnect", this.onPlayerConnect, this);
+        tmc.server.addListener("TMC.ColorsChanged", this.onColorsChanged, this);
         tmc.server.addListener("Trackmania.PlayerDisconnect", this.onPlayerDisconnect, this);
         if (tmc.game.Name === "Trackmania") {
-            tmc.server.addListener("Common.UIModules.Properties", this.onCallbackArray, this);
             await this.getUiProperties();
+            this.resetUiProperties();
         }
 
         if (tmc.game.Name === "TmForever") {
@@ -86,15 +104,25 @@ export default class UiManager {
             // checkpoint counter is integrated with laps counter for some reason
             this.setUiProperty("Race_LapsCounter", "position", [155.7, -77]);
             this.setUiProperty("Race_LapsCounter", "scale", 0.7);
-            await this.sendUiProperties();
+            this.sendUiProperties();
         }
         tmc.server.send("SendDisplayManialinkPage", this.convert(this.getGlobalManialink()), 0, false);
     }
 
     async getUiProperties() {
-        const uuid = this.uuid();
-        this.scriptCalls.push(uuid);
-        tmc.server.sendScript("Common.UIModules.GetProperties", uuid);
+        const data = await tmc.server.callScript("Common.UIModules.GetProperties");
+        this.uiProperties = data.uimodules as uiModule[];
+    }
+
+    resetUiProperties() {
+        const reset: string[] = [];
+        for (const uiModule of this.uiProperties) {
+            reset.push(uiModule.id);
+        }
+        const json = {
+            uimodules: reset,
+        };
+        tmc.server.sendScript("Common.UIModules.ResetProperties", `${JSON.stringify(json)}`);
     }
 
     async setUiProperty(id: string, property: string, value: any) {
@@ -107,25 +135,8 @@ export default class UiManager {
         }
     }
 
-    async sendUiProperties() {
+    sendUiProperties() {
         tmc.server.send("TriggerModeScriptEventArray", "Common.UIModules.SetProperties", [`{"uimodules": ${JSON.stringify(this.uiProperties)}}`]);
-    }
-
-    private async onCallbackArray(data: any) {
-        if (data && this.scriptCalls.includes(data.responseid)) {
-            this.scriptCalls.splice(this.scriptCalls.indexOf(data.responseid), 1);
-            if (data.uimodules) {
-                this.uiProperties = data.uimodules as uiModule[];
-                const reset: string[] = [];
-                for (const uiModule of this.uiProperties) {
-                    reset.push(uiModule.id);
-                }
-                const json = {
-                    uimodules: reset,
-                };
-                tmc.server.sendScript("Common.UIModules.ResetProperties", `${JSON.stringify(json)}`);
-            }
-        }
     }
 
     /**
@@ -134,21 +145,66 @@ export default class UiManager {
      * @returns
      */
     private convertLine(line: string): string {
-        const matches = line.matchAll(/(pos|size)="([-.\d]+)\s+([-.\d]+)"/g);
+        // Process each tag separately so we only use/remove z-index that belongs to that tag.
+        TAG_REGEX.lastIndex = 0;  // Reset regex state for reuse
         let out = line;
-        for (const match of matches) {
-            const x = (Number.parseFloat(match[2]) / 160) * 64;
-            const y = (Number.parseFloat(match[3]) / 90) * 48;
-            let z = 0;
-            const zindex = line.match(/z-index="([\-\d]+)"/) || ["0", "0"];
-            z = Number.parseInt(zindex[1]) ?? 1;
-            if (match[1] === "pos") {
-                out = out.replaceAll(match[0], `${match[1]}n="${x} ${y} ${z}"`).replace(/z-index="[-\d]+"/, "");
-            } else if (match[1] === "size") {
-                out = out.replaceAll(match[0], `${match[1]}n="${x} ${y}"`);
-            }
+        let tagMatch: RegExpExecArray | null;
+        while ((tagMatch = TAG_REGEX.exec(line)) !== null) {
+            const fullTag = tagMatch[0];
+            const attrs = tagMatch[2]; // attributes text including leading space
+
+            // find tag-local z-index if present (supports single or double quotes)
+            const zMatch = attrs.match(Z_INDEX_REGEX);
+            const zFromAttr = zMatch ? zMatch[2] : "0";
+
+            let newAttrs = attrs;
+
+            // Replace pos attributes (supports single/double quotes, works regardless of order)
+            POS_REGEX.lastIndex = 0;
+            newAttrs = newAttrs.replace(POS_REGEX, (_m, _q, raw) => {
+                const parts = raw.trim().split(/\s+/);
+                const xStr = parts[0] ?? "";
+                const yStr = parts[1] ?? "";
+                const zStr = parts[2];
+                if (NUMERIC_REGEX.test(xStr) && NUMERIC_REGEX.test(yStr)) {
+                    const x = (Number.parseFloat(xStr) / 160) * 64;
+                    const y = (Number.parseFloat(yStr) / 90) * 48;
+                    let zVal = 0;
+                    if (zStr !== undefined && NUMERIC_REGEX.test(zStr)) zVal = Number.parseFloat(zStr);
+                    else if (zFromAttr !== undefined && NUMERIC_REGEX.test(zFromAttr)) zVal = Number.parseFloat(zFromAttr);
+                    return ` posn="${x.toFixed(3)} ${y.toFixed(3)} ${zVal.toFixed(3)}"`;
+                } else {
+                    let zPart = "";
+                    if (zStr !== undefined) zPart = `${zStr}`;
+                    else if (zFromAttr !== undefined) zPart = `${zFromAttr}`;
+                    return ` posn="${xStr} ${yStr} ${zPart}"`;
+                }
+            });
+
+            // Replace size attributes (supports single/double quotes)
+            SIZE_REGEX.lastIndex = 0;
+            newAttrs = newAttrs.replace(SIZE_REGEX, (_m, _q, raw) => {
+                const parts = raw.trim().split(/\s+/);
+                const xStr = parts[0] ?? "";
+                const yStr = parts[1] ?? "";
+                if (NUMERIC_REGEX.test(xStr) && NUMERIC_REGEX.test(yStr)) {
+                    const x = (Number.parseFloat(xStr) / 160) * 64;
+                    const y = (Number.parseFloat(yStr) / 90) * 48;
+                    return ` sizen="${x.toFixed(3)} ${y.toFixed(3)}"`;
+                } else {
+                    return ` sizen="${xStr} ${yStr}"`;
+                }
+            });
+
+            // remove the tag-local z-index (we moved it into posn if needed)
+            Z_INDEX_REMOVE_REGEX.lastIndex = 0;
+            newAttrs = newAttrs.replace(Z_INDEX_REMOVE_REGEX, "");
+
+            // Replace the attributes section in the original tag with the new attributes
+            const newTag = fullTag.replace(attrs, newAttrs);
+            out = out.replace(fullTag, newTag);
         }
-        return out;
+        return out + "\n";
     }
 
     /**
@@ -160,11 +216,11 @@ export default class UiManager {
         if (tmc.game.Name !== "TmForever") return text;
 
         const lines = text.split("\n");
-        let out = "";
+        const result: string[] = new Array(lines.length);
         for (let i = 0; i < lines.length; i++) {
-            out += this.convertLine(lines[i]);
+            result[i] = this.convertLine(lines[i]);
         }
-        return out;
+        return result.join("");
     }
 
     /**
@@ -199,7 +255,7 @@ export default class UiManager {
      * @param callback
      * @param data
      */
-    addAction(callback: CallableFunction, data: any): string {
+    addAction(callback: ActionCallback, data: any): string {
         const getHash = () => {
             const salt = Math.random().toString(36).substring(2, 12);
             return this.hash(salt);
@@ -235,7 +291,7 @@ export default class UiManager {
     private async onManialinkAnswer(data: any) {
         const login = data[1];
         const answer = data[2].toString();
-        const entries = data[3];
+        const entries = data[3] ?? [];
         if (answer === "-2") {
             if (!this.hiddenManialinks.includes(login)) {
                 this.hiddenManialinks.push(login);
@@ -259,28 +315,28 @@ export default class UiManager {
             return;
         }
         if (this.actions[answer]) {
-            await this.actions[answer].callback(login, this.actions[answer].data, entries);
+            await this.actions[answer].callback(login, this.actions[answer].data, parseEntries(entries));
         }
     }
 
     /** @ignore */
-    private async onPlayerConnect(data: any) {
-        const login = data[0];
+    private async onPlayerConnect(player: any) {
+        const login = player.login;
 
         const multi = [["SendDisplayManialinkPage", this.convert(this.getGlobalManialink()), 0, false]];
         for (const manialink of Object.values(this.publicManialinks)) {
-            const render = await (manialink as Manialink).render();
+            const render = await (manialink as IManialink).render();
             const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
             multi.push(["SendDisplayManialinkPageToLogin", login, xml, manialink.displayDuration, false]);
         }
         if (this.playerManialinks[login] === undefined) this.playerManialinks[login] = {};
 
         for (const manialink of Object.values(this.playerManialinks[login])) {
-            const render = await (manialink as Manialink).render();
+            const render = await (manialink as IManialink).render();
             const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
             multi.push(["SendDisplayManialinkPageToLogin", login, xml, manialink.displayDuration, false]);
         }
-        tmc.server.multicall(multi);
+        await tmc.server.multicall(multi);
 
         if (tmc.game.Name === "TmForever") {
             this.sendTmnfCustomUI();
@@ -297,18 +353,21 @@ export default class UiManager {
 
         if (!this.playerManialinks[login]) return;
 
+        // Destroy all manialinks for this player
+        // destroyManialink will handle cleaning up references and removing from playerManialinks
         for (const manialink of Object.values(this.playerManialinks[login])) {
-            const id = manialink.id;
-            manialink.destroy();
-            delete this.playerManialinks[login][id];
+            await manialink.destroy();
         }
+
+        // Clean up the player's manialink container if it still exists
+        delete this.playerManialinks[login];
     }
 
     /**
      * Display manialink
      * @param manialink
      */
-    async displayManialink(manialink: Manialink) {
+    async displayManialink(manialink: IManialink) {
         if (!manialink) return;
 
         // Handle registration: public or player-specific
@@ -325,19 +384,35 @@ export default class UiManager {
                 this.playerManialinks[manialink.recipient] = {};
             }
 
-            // If manialink is a Window, destroy all existing windows for this recipient.
-            if (manialink instanceof Window) {
-                const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
-                await Promise.all(
-                    windows.map(async (win) => {
-                        if (win.recipient !== undefined) {
-                            const id = win.id;
-                            const recipient = win.recipient;
-                            win.destroy();
-                            delete this.playerManialinks[recipient][id.toString()];
-                        }
-                    }),
-                );
+            // ensure only one window of each type per player
+            const playerWindows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
+            const test = playerWindows.find((win) => {
+                let wname = win.name;
+                if (wname == "") wname = win.title;
+                let mname = (manialink as Window).name;
+                if (mname == "") mname == (manialink as Window).title;
+                return wname === mname;
+            });
+
+            if (test) {
+                return;
+            }
+
+            if (tmc.game.Name === "TmForever") {
+                // If manialink is a NewWindow, destroy all existing windows for this recipient.
+                if (manialink instanceof Window) {
+                    const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
+                    await Promise.all(
+                        windows.map(async (win) => {
+                            if (win.recipient !== undefined) {
+                                const id = win.id;
+                                const recipient = win.recipient;
+                                await win.destroy();
+                                delete this.playerManialinks[recipient][id];
+                            }
+                        }),
+                    );
+                }
             }
 
             // If an existing manialink with the same id is present, destroy it.
@@ -351,6 +426,10 @@ export default class UiManager {
         // Render the manialink and build the XML payload.
         const render = await manialink.render();
         const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
+        // console.log("--render--");
+        // console.log(render);
+        // console.log("--xml--");
+        // console.log(xml);
 
         // Dispatch the manialink depending on whether it is public or player-specific.
         if (manialink.recipient !== undefined) {
@@ -369,17 +448,49 @@ export default class UiManager {
     }
 
     /**
+     * Get manialinks by name,
+     * returns all manialinks if name is undefined
+     * @param name
+     * @returns
+     */
+    getManialinks(name: string | undefined): Manialink[] {
+        const manialinks: Manialink[] = [];
+        for (const login of Object.keys(this.playerManialinks)) {
+            for (const manialink of Object.values(this.playerManialinks[login])) {
+                if (manialink instanceof Manialink && (manialink.name === name || name === undefined)) {
+                    manialinks.push(manialink);
+                }
+            }
+        }
+        return manialinks;
+    }
+
+    getManialinkById(id: string): IManialink | undefined {
+        for (const login of Object.keys(this.playerManialinks)) {
+            for (const manialink of Object.values(this.playerManialinks[login])) {
+                if (manialink.id === id) {
+                    return manialink;
+                }
+            }
+        }
+        if (this.publicManialinks[id]) {
+            return this.publicManialinks[id];
+        }
+        return undefined;
+    }
+
+    /**
      * Display array of manialinks
      * @param manialinks
      */
-    async displayManialinks(manialinks: Manialink[]) {
+    async displayManialinks(manialinks: IManialink[]) {
         const callArray: any[] = [];
 
         // Process all manialinks concurrently.
         await Promise.all(
             manialinks.map(async (manialink) => {
                 if (!manialink) return;
-                const title = manialink.title || manialink.template || manialink.id;
+                const title = manialink.id;
                 if (manialink.recipient === undefined) {
                     // Public manialinks processing.
                     if (this.publicManialinks[manialink.id] && this.publicManialinks[manialink.id] !== manialink) {
@@ -392,20 +503,26 @@ export default class UiManager {
                     if (!this.playerManialinks[manialink.recipient]) {
                         this.playerManialinks[manialink.recipient] = {};
                     }
+                    const playerWindows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
+                    if (playerWindows.find((win) => win.name === (manialink as Window).name)) {
+                        return;
+                    }
 
-                    // If it's a Window, destroy all existing windows for that recipient.
-                    if (manialink instanceof Window) {
-                        const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
-                        await Promise.all(
-                            windows.map(async (win) => {
-                                if (win.recipient !== undefined) {
-                                    const id = win.id;
-                                    const recipient = win.recipient;
-                                    win.destroy();
-                                    delete this.playerManialinks[recipient][id];
-                                }
-                            }),
-                        );
+                    if (tmc.game.Name === "TmForever") {
+                        // If manialink is a NewWindow, destroy all existing windows for this recipient.
+                        if (manialink instanceof Window) {
+                            const windows = Object.values(this.playerManialinks[manialink.recipient]).filter((ml) => ml instanceof Window) as Window[];
+                            await Promise.all(
+                                windows.map(async (win) => {
+                                    if (win.recipient !== undefined) {
+                                        const id = win.id;
+                                        const recipient = win.recipient;
+                                        await win.destroy();
+                                        delete this.playerManialinks[recipient][id.toString()];
+                                    }
+                                }),
+                            );
+                        }
                     }
 
                     // Destroy any existing manialink with the same id.
@@ -447,7 +564,7 @@ export default class UiManager {
         await Promise.all(
             chunks.map(async (calls) => {
                 await tmc.server.multisend(calls).catch((e: any) => {
-                    tmc.cli(`¤error¤error while displaying manialinks: ¤white¤${e}`);
+                    log.warn(`¤error¤error while displaying manialinks: ¤white¤${e}`);
                 });
             }),
         );
@@ -457,10 +574,9 @@ export default class UiManager {
      * Refresh manialink
      * @param manialink
      */
-    async refreshManialink(manialink: Manialink) {
+    async refreshManialink(manialink: IManialink) {
         const render = await manialink.render();
-        const xml = `<?xml version="1.0" encoding="UTF-8"?>
-        <manialinks>${this.convert(render)}</manialinks>`;
+        const xml = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${this.convert(render)}</manialinks>`;
         if (manialink.recipient !== undefined) {
             if (!this.hiddenManialinks.includes(manialink.recipient) || !manialink.canHide) {
                 tmc.server.send("SendDisplayManialinkPageToLogin", manialink.recipient, xml, manialink.displayDuration, false);
@@ -480,7 +596,7 @@ export default class UiManager {
      * Hide manialink
      * @param manialink
      */
-    async hideManialink(manialink: Manialink) {
+    async hideManialink(manialink: IManialink) {
         try {
             // const title = manialink.title || manialink.template || manialink.id;
             // tmc.debug('¤info¤hiding manialink: ¤white¤' + title);
@@ -496,8 +612,8 @@ export default class UiManager {
         }
     }
 
-    async destroyManialink(manialink: Manialink, hide = true) {
-        const title = manialink.title || manialink.template || manialink.id;
+    async destroyManialink(manialink: IManialink, hide = true) {
+        const title = (manialink as any).title || manialink.id;
         tmc.debug(`$f00destroying manialink: ¤white¤${title}`);
         if (hide) {
             this.hideManialink(manialink);
@@ -523,6 +639,7 @@ export default class UiManager {
                 }
             }
         }
+
     }
     /** set clipboard content for user */
     setClipboard(login: string, text: string) {
@@ -545,13 +662,21 @@ export default class UiManager {
             this.tmnfCustomUi[key] = value;
             this.sendTmnfCustomUI();
         } else {
-            tmc.cli(`¤error¤invalid key: ¤white¤${key}¤error¤ for custom ui`);
+            log.warn(`¤error¤invalid key: ¤white¤${key}¤error¤ for custom ui`);
         }
     }
 
     getCustomUI() {
         return this.tmnfCustomUi;
     }
+
+    onColorsChanged() {
+        this.displayManialinks(Object.values(this.publicManialinks));
+        for (const login in this.playerManialinks) {
+            this.displayManialinks(Object.values(this.playerManialinks[login]));
+        }
+    }
+
 
     async uiSettingsChange(value: string, oldValue: boolean, _key: string) {
         const key = _key.replace("tmf.hud.", "");
@@ -584,12 +709,39 @@ export default class UiManager {
     }
 
     getGlobalManialink() {
+        // Cache the action ID to avoid creating new actions on every call
+        if (!this.globalActionId) {
+            this.globalActionId = this.addAction(async (login: string, _data: any) => {
+                if (!this.hiddenManialinks.includes(login)) {
+                    this.hiddenManialinks.push(login);
+                    const hideIds: string[] = [];
+                    for (const manialink of Object.values(this.publicManialinks)) {
+                        if (manialink.canHide) {
+                            hideIds.push(`<manialink id="${manialink.id}"></manialink>`);
+                        }
+                    }
+                    if (this.playerManialinks[login]) {
+                        for (const manialink of Object.values(this.playerManialinks[login])) {
+                            if (manialink.canHide) {
+                                hideIds.push(`<manialink id="${manialink.id}"></manialink>`);
+                            }
+                        }
+                    }
+                    const hide = `<?xml version="1.0" encoding="UTF-8"?><manialinks>${hideIds.join("")}</manialinks>`;
+                    tmc.server.send("SendDisplayManialinkPageToLogin", login, hide, 0, false);
+                } else {
+                    this.hiddenManialinks.splice(this.hiddenManialinks.indexOf(login), 1);
+                    await this.onPlayerConnect({ login: login });
+                }
+            }, null);
+        }
+
         return `
         <?xml version="1.0" encoding="UTF-8"?>
         <manialinks>
         <manialink id="1" version="3">
-            <frame pos="-152.5 -36" z-index="1">
-                <label pos="0 0" size="0 0" valign="center2" halign="center" textsize="0.5" textcolor="fff" text=" " focusareacolor1="0000" focusareacolor2="0000" actionkey="3" action="-2"/>
+            <frame pos="900 900" z-index="1">
+                <label pos="0 0" size="0 0" valign="center2" halign="center" textsize="0.5" textcolor="fff" text=" " focusareacolor1="0000" focusareacolor2="0000" actionkey="3" action="${this.globalActionId}"/>
             </frame>
         </manialink>
         </manialinks>`;
